@@ -1,0 +1,197 @@
+fileVersion: 1
+id: 9afd18d1-1553-4643-9490-2eefc17117d4
+name: AGGLEVEL1_PREVYTD
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "AGGREGATES BY LEVEL1FORCEID, SUM OF SALES, SUM OF REVENUE, # OF FINANCIAL REPORTING SUPPLIER NAME, # OF CONTRACTS, # OF CONTRACT CATEGORIES, DATE OF 1ST PURCHASE, DATE OF MOST RECENT PURCHASE FOR THE PREVIOUS YEAR TO DATE"
+  isMultisource: false
+  locationName: REPORTS
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 99f0fdaf-9538-4802-8728-2eca038f72f8
+          stepCounter: 9afd18d1-1553-4643-9490-2eefc17117d4
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE ULTIMATE PARENT OF A FORCEID, THE TOP OF THE HIERARCHY FOR A MEMBER.
+        isBusinessKey: true
+        name: LEVEL1FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f8e37bba-9636-4192-afb3-24d9cd9ca044
+                stepCounter: 35498798-8753-42e9-bc58-c54bc0c65138
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 837a842e-52d1-48f3-8584-b750e8d28931
+          stepCounter: 9afd18d1-1553-4643-9490-2eefc17117d4
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: IS THE SALES AMOUNT, OR GROSS TRANSACTION VOLUME (GTV), ASSOCIATED WITH A TRANSACTION IN US DOLLARS. A SALES AMOUNT IS TYPICALLY NOT AN INDIVIDUAL SALE, BUT A MONTHLY AGGREGATE OF ALL SALES FOR A CUSTOMER IN A GIVEN MONTH.
+        name: LEVEL1_PREVYTD_SUMOFGTV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4a2458c7-c0c6-4612-8ab1-2a23e7ee2bd8
+                stepCounter: 35498798-8753-42e9-bc58-c54bc0c65138
+            transform: SUM(SALESANDREVENUE.SALES)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a064aa48-1deb-464a-ac86-234c597b1420
+          stepCounter: 9afd18d1-1553-4643-9490-2eefc17117d4
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: IS THE AMOUNT OF GROSS REVENUE, ALWAYS IN US DOLLARS, OMNIA PARTNERS RECIEVED FOR THE ROW.
+        name: LEVEL1_PREVYTD_SUMOFREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d80644e6-6eac-4b2a-a4b4-8ae1175d334b
+                stepCounter: 35498798-8753-42e9-bc58-c54bc0c65138
+            transform: SUM(SALESANDREVENUE.REVENUE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3f746eec-d324-4ea7-97d0-679e9700c004
+          stepCounter: 9afd18d1-1553-4643-9490-2eefc17117d4
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE RANK BY GROSS TRANSACTION VOLUME (GTV), ASSOCIATED TO THE LEVEL1FORCEID
+        name: LEVEL1_PREVYTD_RANKBYGTV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4a2458c7-c0c6-4612-8ab1-2a23e7ee2bd8
+                stepCounter: 35498798-8753-42e9-bc58-c54bc0c65138
+            transform: RANK() OVER (ORDER BY SUM(SALESANDREVENUE.SALES) DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 43cc581b-ebc6-47af-946b-0f2852a392f7
+          stepCounter: 9afd18d1-1553-4643-9490-2eefc17117d4
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE NUMERIC RANK OF A LEVEL1FORCEID BY THE LIFETIME SUM OF REVENUE.
+        name: LEVEL1_PREVYTD_RANKBYREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d80644e6-6eac-4b2a-a4b4-8ae1175d334b
+                stepCounter: 35498798-8753-42e9-bc58-c54bc0c65138
+            transform: RANK() OVER (ORDER BY SUM(SALESANDREVENUE.REVENUE) DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bd681601-d99d-4092-84ec-48bef58b1d91
+          stepCounter: 9afd18d1-1553-4643-9490-2eefc17117d4
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE DISTINCT COUNT OF FINANCIAL REPORTING SUPPLIER NAMES FOR A LEVEL1FORCEID.
+        name: LEVEL1_PREVYTD_NUMOFSUPPLIERSUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 40d2b4b6-96fc-43a0-97c0-56f24f9e1cab
+                stepCounter: ab16115a-f5c7-4d24-bca6-41c596634f50
+            transform: COUNT (DISTINCT CONTRACT.FINANCIALREPORTINGSUPPLIERNAME)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9fd1fee1-e954-423d-8e15-99c2b87cfadf
+          stepCounter: 9afd18d1-1553-4643-9490-2eefc17117d4
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE LIFETIME "DISTINCT COUNT" OF INITIALCONTRACTID FOR EACH LEVEL1FORCEID.
+        name: LEVEL1_PREVYTD_NUMOFCONTRACTSUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 89abac16-e56e-4dd7-a666-39d6952db6e7
+                stepCounter: ab16115a-f5c7-4d24-bca6-41c596634f50
+            transform: COUNT (DISTINCT CASE WHEN CONTRACTRECORDTYPE <> 'MARKETING AGREEMENT' THEN INITIALCONTRACTID ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 96ebed97-3478-47cd-9a31-8253a59d4850
+          stepCounter: 9afd18d1-1553-4643-9490-2eefc17117d4
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE LIFETIME "DISTINCT COUNT" OF CONTRACTCATEGORY FOR EACH LEVEL1FORCEID
+        name: LEVEL1_PREVYTD_NUMOFCONTRACTCATEGORIESUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: efe1fc92-b69d-4ada-9270-97941c57526a
+                stepCounter: ab16115a-f5c7-4d24-bca6-41c596634f50
+            transform: COUNT (DISTINCT CONTRACT.CONTRACTCATEGORY)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3b7ae31b-4bbc-4b20-84ff-a706a4bb8442
+          stepCounter: 9afd18d1-1553-4643-9490-2eefc17117d4
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: IS THE TIMESTAMP FOR WHEN THIS WAS CREATED.
+        name: DSSCREATETIME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: GETDATE()
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b6f67d1d-b724-4e5d-b0f4-8ee288b44b55
+          stepCounter: 9afd18d1-1553-4643-9490-2eefc17117d4
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: IS THE TIMESTAMP FOR WHEN THIS LAST UPDATED.
+        name: DSSUPDATETIME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: GETDATE()
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          SALESANDREVENUE: 35498798-8753-42e9-bc58-c54bc0c65138
+          CONTRACT: ab16115a-f5c7-4d24-bca6-41c596634f50
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DIM
+            nodeName: CONTRACT
+          - locationName: FACT
+            nodeName: SALESANDREVENUE
+        join:
+          joinCondition: |-
+            FROM {{ ref('FACT','SALESANDREVENUE') }} SALESANDREVENUE
+              JOIN {{ ref('DIM','CONTRACT') }} CONTRACT
+                ON SALESANDREVENUE.CONTRACTKEY = CONTRACT.CONTRACTKEY
+             WHERE DATEDIFF(YEAR,RECEIPTDATE,MAXRECEIPTDATE) = 1
+               AND DATE_PART(MONTH,RECEIPTDATE) <= DATE_PART(MONTH,MAXRECEIPTDATE)
+               AND IFNULL(SALES,0) <> 0
+               AND IFNULL(REVENUE,0) <> 0
+             GROUP BY SALESANDREVENUE.LEVEL1FORCEID
+        name: AGGLEVEL1_PREVYTD
+        noLinkRefs: []
+  name: AGGLEVEL1_PREVYTD
+  overrideSQL: false
+  schema: ""
+  sqlType: Agreggate
+  type: sql
+  version: 1
+type: Node

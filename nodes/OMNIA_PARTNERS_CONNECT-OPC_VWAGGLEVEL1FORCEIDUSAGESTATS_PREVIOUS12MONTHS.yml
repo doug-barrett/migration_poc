@@ -1,0 +1,95 @@
+fileVersion: 1
+id: 67c38209-d3eb-4c55-8f14-0c907b9d6ea9
+name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_PREVIOUS12MONTHS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "ROLLING 12 MONTH AGGREGATE USAGE STATISTICS FOR EACH LEVEL1FORCEID"
+  isMultisource: false
+  locationName: OMNIA_PARTNERS_CONNECT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 96aeb6ae-4b7f-4c47-ac06-30a3f59eac3e
+          stepCounter: 67c38209-d3eb-4c55-8f14-0c907b9d6ea9
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: LEVEL1FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 834b3aa6-5a4c-4a85-ad0b-dc3108366feb
+                stepCounter: 8fc70a2e-470f-4897-96e5-2979c1460b5c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4f1131a1-f684-44f1-9c4d-b229304a1624
+          stepCounter: 67c38209-d3eb-4c55-8f14-0c907b9d6ea9
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: SUPPLIERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 22d14bcd-b51a-48b0-80ad-13976788bd06
+                stepCounter: 8fc70a2e-470f-4897-96e5-2979c1460b5c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 63b1e977-df26-490d-94d9-1b51d84d5fe7
+          stepCounter: 67c38209-d3eb-4c55-8f14-0c907b9d6ea9
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: PREVIOUS12MONTHS_SUMOFSALES
+        name: PREVIOUS12MONTHS_SUMOFSALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0555abb6-33e7-49a0-9bb8-a9089ea89997
+                stepCounter: 8fc70a2e-470f-4897-96e5-2979c1460b5c
+            transform: SUM(OPC_SALESANDREVENUE.SALES)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW OPC.VWAGGLEVEL1FORCEIDUSAGESTATS_CURRENT12MONTHS \NAS \NSELECT \N SALESANDREVENUE.LEVEL1FORCEID AS LEVEL1FORCEID \N , SALESANDREVENUE.LEVEL1DISPLAYACCOUNTNAME AS LEVEL1DISPLAYACCOUNTNAME \N , SALESANDREVENUE.SUPPLIERID AS SUPPLIERID \N , COUNT (DISTINCT FINANCIALREPORTINGSUPPLIERNAME) OVER (PARTITION BY LEVEL1FORCEID) AS CURRENT12MONTHS_NUMOFSUPPLIERSUSED \N , SUM(SALES) AS CURRENT12MONTHS_SUMOFSALES \N , GETDATE() AS DSSCREATETIME \N , GETDATE() AS DSSUPDATETIME \N
+              FROM \N OP.OPSALESANDREVENUE AS SALESANDREVENUE \N -- AND ISCAPITALCONTRACT = 0 --EXCLUDE CAPITAL CONTRACTS
+            \N
+             WHERE DATEDIFF(MONTH,TRANSACTIONDATE,MAXRECEIPTDATE) BETWEEN 0 AND 11 \N
+               AND SALES IS NOT NULL
+               AND SALES <> 0 \N
+             GROUP BY \N SALESANDREVENUE.LEVEL1FORCEID,
+                   LEVEL1DISPLAYACCOUNTNAME,
+                   LEVEL1FEDERALTAXID,
+                   SUPPLIERID,
+                   FINANCIALREPORTINGSUPPLIERNAME;\N
+        dependencies:
+          - locationName: OMNIACONNECT.OPC
+            nodeName: OPC_SALESANDREVENUE
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('OMNIACONNECT.OPC','OPC_SALESANDREVENUE') }}
+        name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_PREVIOUS12MONTHS
+        noLinkRefs: []
+  name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_PREVIOUS12MONTHS
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

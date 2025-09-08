@@ -1,0 +1,157 @@
+fileVersion: 1
+id: 14ed1c16-89f4-4d81-a504-2b46b0ba5924
+name: VWAGGOPSALESANDREVENUEBYCONTRACT_MISSINGDATES
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "USER DEFINED VIEW (USES CTE TO GENERATE MISSING DATES)"
+  isMultisource: false
+  locationName: REPORTS
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d5dc8757-2941-4b3b-9d46-11e8bda02159
+          stepCounter: 14ed1c16-89f4-4d81-a504-2b46b0ba5924
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: GENERATED ARTIFICIAL KEY
+        name: CONTRACTKEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: aed5ad3a-51c4-4cae-88ee-d3a689601f03
+                stepCounter: 27a7b73f-03ee-4048-be06-1cbb3553b7dd
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ec4bb7e0-1eef-4f87-9263-a3f132e54995
+          stepCounter: 14ed1c16-89f4-4d81-a504-2b46b0ba5924
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: STAGESALESMERGE_ADDKEYS.TRANSACTIONDATE=DIMTRANSACTIONDATE.TRANSACTIONDATE
+        name: TRANSACTIONDATEKEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 584d4a5f-e047-4ffd-84cc-67159046ebe2
+                stepCounter: 04420abb-9d56-4991-8545-87b244f17df0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f6c2b1b9-8942-478a-afe4-591a5f63973b
+          stepCounter: 14ed1c16-89f4-4d81-a504-2b46b0ba5924
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: CONTRACTID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 57bfca37-7778-42cb-89c8-137f3a85d75c
+                stepCounter: 27a7b73f-03ee-4048-be06-1cbb3553b7dd
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a03f35b2-d381-47ef-aa48-b8c5b83a61dc
+          stepCounter: 14ed1c16-89f4-4d81-a504-2b46b0ba5924
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: STAGEUCSPENDREPORTINGLINEITEMS_ADDKEYS.CAMPUS=UCCAMPUS.UCCAMPUS
+        name: UCCAMPUSKEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 66332296-4c93-480d-ae1f-72ced1c49136
+                stepCounter: 27a7b73f-03ee-4048-be06-1cbb3553b7dd
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 805b6a1e-18a1-43a5-97e4-a6f3252db6fe
+          stepCounter: 14ed1c16-89f4-4d81-a504-2b46b0ba5924
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: IS THE SALES AMOUNT, OR GROSS TRANSACTION VOLUME (GTV), ASSOCIATED WITH A TRANSACTION IN US DOLLARS. A SALES AMOUNT IS TYPICALLY NOT AN INDIVIDUAL SALE, BUT A MONTHLY AGGREGATE OF ALL SALES FOR A CUSTOMER IN A GIVEN MONTH.
+        name: SALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 09be8e62-427a-44df-a08c-f6b8772e9e86
+                stepCounter: 27a7b73f-03ee-4048-be06-1cbb3553b7dd
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ab001a04-78e3-4574-9803-8610eb952c92
+          stepCounter: 14ed1c16-89f4-4d81-a504-2b46b0ba5924
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: IS THE AMOUNT OF GROSS REVENUE, ALWAYS IN US DOLLARS, OMNIA PARTNERS RECIEVED FOR THE ROW.
+        name: REVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4bdef411-ad6f-4103-972b-01ebe5c49e6d
+                stepCounter: 27a7b73f-03ee-4048-be06-1cbb3553b7dd
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          VWAGGOPSALESANDREVENUEBYCONTRACT_MISSINGDATES: 14ed1c16-89f4-4d81-a504-2b46b0ba5924
+          DIMTRANSACTIONDATE: 04420abb-9d56-4991-8545-87b244f17df0
+          AGGOPSALESANDREVENUEBYCONTRACT: 27a7b73f-03ee-4048-be06-1cbb3553b7dd
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            \NCREATE
+                OR REPLACE VIEW {{ ref_no_link('REPORTS','VWAGGOPSALESANDREVENUEBYCONTRACT_MISSINGDATES') }} (\NCONTRACTKEY,\NTRANSACTIONDATEKEY,\NCONTRACTID,\NUCCAMPUSKEY,\NSALES,\NREVENUE\N)\NAS\NWITH CTEALLAPPLICABLEDATES \N AS (
+                    SELECT \N DTD.TRANSACTIONDATEKEY \N
+                      FROM {{ ref('DIM','DIMTRANSACTIONDATE') }} AS DTD \N
+                     WHERE DTD.TRANSACTIONDATEKEY BETWEEN 20180101 AND REPLACE(REPLACE(CURRENT_DATE(),'-',''), '-', '') \N
+                       AND DTD.TRANSACTIONDATEKEY LIKE '%01'
+                   ), \N CTEALLAPPLICABLECONTRACTS \N AS (
+                    SELECT \N AOARBC.CONTRACTKEY, \N AOARBC.CONTRACTID, \N AOARBC.UCCAMPUSKEY \N
+                      FROM {{ ref('REPORTS','AGGOPSALESANDREVENUEBYCONTRACT') }} AS AOARBC \N
+                     WHERE AOARBC.TRANSACTIONDATEKEY BETWEEN 20180101 AND REPLACE(REPLACE(CURRENT_DATE(),'-',''), '-', '') \N
+                     GROUP BY \N AOARBC.CONTRACTKEY, \N AOARBC.CONTRACTID, \N AOARBC.UCCAMPUSKEY
+                   ), \N CTEALLCONTRACTSALLDATES \N AS (
+                    SELECT \N * \N
+                      FROM CTEALLAPPLICABLECONTRACTS AS CAAC, \N CTEALLAPPLICABLEDATES AS CAAD
+                   ) \N SELECT \N CAAD.CONTRACTKEY, \N CAAD.TRANSACTIONDATEKEY, \N CAAD.CONTRACTID, \N CAAD.UCCAMPUSKEY, \N 0 AS SALES, \N 0 AS REVENUE \N
+              FROM CTEALLCONTRACTSALLDATES AS CAAD \N
+              LEFT OUTER JOIN {{ ref('REPORTS','AGGOPSALESANDREVENUEBYCONTRACT') }} AS AOARBC
+                ON CAAD.CONTRACTKEY = AOARBC.CONTRACTKEY \N
+               AND CAAD.TRANSACTIONDATEKEY = AOARBC.TRANSACTIONDATEKEY \N
+               AND CAAD.CONTRACTID = AOARBC.CONTRACTID \N
+               AND CAAD.UCCAMPUSKEY = AOARBC.UCCAMPUSKEY \N
+             WHERE AOARBC.CONTRACTKEY IS NULL
+        dependencies:
+          - locationName: DIM
+            nodeName: DIMTRANSACTIONDATE
+          - locationName: REPORTS
+            nodeName: AGGOPSALESANDREVENUEBYCONTRACT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('DIM','DIMTRANSACTIONDATE') }}
+            {{ ref('REPORTS','AGGOPSALESANDREVENUEBYCONTRACT') }}
+        name: VWAGGOPSALESANDREVENUEBYCONTRACT_MISSINGDATES
+        noLinkRefs: []
+  name: VWAGGOPSALESANDREVENUEBYCONTRACT_MISSINGDATES
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

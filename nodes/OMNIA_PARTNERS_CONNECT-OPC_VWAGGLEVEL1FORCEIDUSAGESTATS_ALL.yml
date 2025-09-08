@@ -1,0 +1,164 @@
+fileVersion: 1
+id: 2ecd0ae4-5b56-4e2c-845a-820341e29409
+name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_ALL
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: OMNIA_PARTNERS_CONNECT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 042c18da-f41c-4811-9785-7c6e7252e3f5
+          stepCounter: 2ecd0ae4-5b56-4e2c-845a-820341e29409
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: LEVEL1FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 07d9744a-c515-44fd-a999-9b575b91e804
+          stepCounter: 2ecd0ae4-5b56-4e2c-845a-820341e29409
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: SUPPLIERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fdfa88f2-efe6-4ea0-8beb-909995cf237e
+          stepCounter: 2ecd0ae4-5b56-4e2c-845a-820341e29409
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: LIFETIME_SUMOFSALES
+        name: LIFETIME_SUMOFSALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bfcfc73d-ea87-4a21-8ee2-061108912fc8
+          stepCounter: 2ecd0ae4-5b56-4e2c-845a-820341e29409
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: PREVIOUS12MONTHS_SUMOFSALES
+        name: PREVIOUS12MONTHS_SUMOFSALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: IFNULL(PREVIOUS12MONTHS_SUMOFSALES,0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b8e6b64a-cfd8-416d-956c-e3cff96f7d88
+          stepCounter: 2ecd0ae4-5b56-4e2c-845a-820341e29409
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: CURRENT12MONTHS_SUMOFSALES
+        name: CURRENT12MONTHS_SUMOFSALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: IFNULL(CURRENT12MONTHS_SUMOFSALES,0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0d195902-5579-45e7-996f-cd6dc1c43d13
+          stepCounter: 2ecd0ae4-5b56-4e2c-845a-820341e29409
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: ""
+        name: CAPITALSPENDLAST3YEARS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: IFNULL(CAPITALSPENDLAST3YEARS,0) \N
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ac6109c4-5684-43b0-832e-331e30c50e8b
+          stepCounter: 2ecd0ae4-5b56-4e2c-845a-820341e29409
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: SIGNIFICANTCAPITALSPENDLAST3YEARS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: IFF(OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_CAPITALSPEND3YEARS.CAPITALSPENDLAST3YEARS >='{{ parameters.CAPITALSPENDAMOUNT }}','YES','NO') \N
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ef19a11e-a3bc-40d7-bd95-7f415b0bce21
+          stepCounter: 2ecd0ae4-5b56-4e2c-845a-820341e29409
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: MAXRECEIPTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW OPC.VWAGGLEVEL1FORCEIDUSAGESTATS_CURRENT12MONTHS \NAS \NSELECT \N SALESANDREVENUE.LEVEL1FORCEID AS LEVEL1FORCEID \N , SALESANDREVENUE.LEVEL1DISPLAYACCOUNTNAME AS LEVEL1DISPLAYACCOUNTNAME \N , SALESANDREVENUE.SUPPLIERID AS SUPPLIERID \N , COUNT (DISTINCT FINANCIALREPORTINGSUPPLIERNAME) OVER (PARTITION BY LEVEL1FORCEID) AS CURRENT12MONTHS_NUMOFSUPPLIERSUSED \N , SUM(SALES) AS CURRENT12MONTHS_SUMOFSALES \N , GETDATE() AS DSSCREATETIME \N , GETDATE() AS DSSUPDATETIME \N
+              FROM \N OP.OPSALESANDREVENUE AS SALESANDREVENUE \N -- AND ISCAPITALCONTRACT = 0 --EXCLUDE CAPITAL CONTRACTS
+            \N
+             WHERE DATEDIFF(MONTH,TRANSACTIONDATE,MAXRECEIPTDATE) BETWEEN 0 AND 11 \N
+               AND SALES IS NOT NULL
+               AND SALES <> 0 \N
+             GROUP BY \N SALESANDREVENUE.LEVEL1FORCEID,
+                   LEVEL1DISPLAYACCOUNTNAME,
+                   LEVEL1FEDERALTAXID,
+                   SUPPLIERID,
+                   FINANCIALREPORTINGSUPPLIERNAME;\N
+        dependencies: []
+        join:
+          joinCondition: '-- Nodes used in the SQL override:'
+        name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_ALL
+        noLinkRefs: []
+  name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_ALL
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

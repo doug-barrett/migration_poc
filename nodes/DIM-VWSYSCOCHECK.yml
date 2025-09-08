@@ -1,0 +1,129 @@
+fileVersion: 1
+id: 6e57add6-d8eb-40a6-991d-ab3a7c565d0b
+name: VWSYSCOCHECK
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: DIM
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 99f05b61-2faf-4736-a849-39debfae877a
+          stepCounter: 6e57add6-d8eb-40a6-991d-ab3a7c565d0b
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: IS THE FINANCIAL PERIOD FOR WHICH OMNIA PARTNERS RECORDED REVENUE ON A TRANSACTION.
+        name: RECEIPTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0a0fb266-a188-45d6-a47b-484f2ad556bd
+                stepCounter: 35498798-8753-42e9-bc58-c54bc0c65138
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5bb3d49b-d552-4885-aff9-6ef8dd814dc6
+          stepCounter: 6e57add6-d8eb-40a6-991d-ab3a7c565d0b
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: SOURCEENTITYNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7e507b7d-0e88-4db6-9061-de17d6c24f69
+                stepCounter: ab16115a-f5c7-4d24-bca6-41c596634f50
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e9222beb-c2c6-4a3b-b394-5d6bb59b7ffc
+          stepCounter: 6e57add6-d8eb-40a6-991d-ab3a7c565d0b
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: SUPPLIER NAME TO BE USED ON FINANCIAL REPORTS
+        name: FINANCIALREPORTINGSUPPLIERNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 40d2b4b6-96fc-43a0-97c0-56f24f9e1cab
+                stepCounter: ab16115a-f5c7-4d24-bca6-41c596634f50
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 061b2156-d1a6-4f0b-9397-ab73d2c74efd
+          stepCounter: 6e57add6-d8eb-40a6-991d-ab3a7c565d0b
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: VERTICAL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c6d76826-79c5-450c-8b22-3aaa470b0e67
+                stepCounter: ab16115a-f5c7-4d24-bca6-41c596634f50
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9e0deea2-50b4-4a80-a66b-25149b837780
+          stepCounter: 6e57add6-d8eb-40a6-991d-ab3a7c565d0b
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: FORCEID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e5618162-63a1-4114-905f-185fd2a82e5e
+                stepCounter: d5234d5a-eb19-45e2-9c42-47221579f347
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DIM
+            nodeName: ACCOUNT
+          - locationName: DIM
+            nodeName: CONTRACT
+          - locationName: FACT
+            nodeName: SALESANDREVENUE
+        join:
+          joinCondition: |-
+            FROM FACT.SALESANDREVENUE SALESANDREVENUE
+              LEFT JOIN DIM.ACCOUNT ACCOUNT
+                ON ACCOUNT.ACCOUNTKEY = SALESANDREVENUE.ACCOUNTKEY
+              LEFT JOIN DIM.CONTRACT CONTRACT
+                ON CONTRACT.CONTRACTKEY = SALESANDREVENUE.CONTRACTKEY
+             WHERE CONTRACT.SUPPLIERNAME = 'SYSCO CORPORATION'
+               AND CONTRACT.SOURCEENTITYNAME = 'VIZIENT'
+               AND CONTRACT.VERTICAL = 'FOOD AND NUTRITION'
+             GROUP BY 1,
+                      2,
+                      3,
+                      4,
+                      5
+            HAVING SUM(REVENUE) >= 0.5
+        name: VWSYSCOCHECK
+        noLinkRefs: []
+  name: VWSYSCOCHECK
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

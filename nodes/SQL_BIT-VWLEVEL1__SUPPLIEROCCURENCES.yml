@@ -1,0 +1,137 @@
+fileVersion: 1
+id: 25adce9f-5b6d-4f50-901d-240797035c03
+name: VWLEVEL1__SUPPLIEROCCURENCES
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: SQL_BIT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d0d87413-7c0f-4e39-943a-55b0c339ec66
+          stepCounter: 25adce9f-5b6d-4f50-901d-240797035c03
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: LEVEL1FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f8e37bba-9636-4192-afb3-24d9cd9ca044
+                stepCounter: 35498798-8753-42e9-bc58-c54bc0c65138
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e8bd555a-8b82-4712-ac93-73748a7d95e4
+          stepCounter: 25adce9f-5b6d-4f50-901d-240797035c03
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: IS THE FINANCIAL PERIOD FOR WHICH OMNIA PARTNERS RECORDED REVENUE ON A TRANSACTION.
+        name: RECEIPTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0a0fb266-a188-45d6-a47b-484f2ad556bd
+                stepCounter: 35498798-8753-42e9-bc58-c54bc0c65138
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a1d17c87-3df2-40dc-8467-2b22c15d4c6a
+          stepCounter: 25adce9f-5b6d-4f50-901d-240797035c03
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: SUPPLIER NAME TO BE USED ON FINANCIAL REPORTS
+        name: FINANCIALREPORTINGSUPPLIERNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 40d2b4b6-96fc-43a0-97c0-56f24f9e1cab
+                stepCounter: ab16115a-f5c7-4d24-bca6-41c596634f50
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7509ffb2-d565-4d1e-be18-b3a72454d0ce
+          stepCounter: 25adce9f-5b6d-4f50-901d-240797035c03
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: SUPPLIER NAME TO BE USED ON FINANCIAL REPORTS
+        name: SUPPLIEROCCURENCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 40d2b4b6-96fc-43a0-97c0-56f24f9e1cab
+                stepCounter: ab16115a-f5c7-4d24-bca6-41c596634f50
+            transform: ROW_NUMBER () OVER (PARTITION BY LEVEL1FORCEID, FINANCIALREPORTINGSUPPLIERNAME ORDER BY RECEIPTDATE ASC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6719c446-2064-4709-8403-c3b9e3ee4019
+          stepCounter: 25adce9f-5b6d-4f50-901d-240797035c03
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: IS THE SALES AMOUNT, OR GROSS TRANSACTION VOLUME (GTV), ASSOCIATED WITH A TRANSACTION IN US DOLLARS. A SALES AMOUNT IS TYPICALLY NOT AN INDIVIDUAL SALE, BUT A MONTHLY AGGREGATE OF ALL SALES FOR A CUSTOMER IN A GIVEN MONTH.
+        name: SUMOFGTV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4a2458c7-c0c6-4612-8ab1-2a23e7ee2bd8
+                stepCounter: 35498798-8753-42e9-bc58-c54bc0c65138
+            transform: SUM(SALESANDREVENUE.SALES)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 54d66eec-e1cc-4981-923f-9bbb8f1944f1
+          stepCounter: 25adce9f-5b6d-4f50-901d-240797035c03
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: IS THE AMOUNT OF GROSS REVENUE, ALWAYS IN US DOLLARS, OMNIA PARTNERS RECIEVED FOR THE ROW.
+        name: SUMOFREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d80644e6-6eac-4b2a-a4b4-8ae1175d334b
+                stepCounter: 35498798-8753-42e9-bc58-c54bc0c65138
+            transform: SUM(SALESANDREVENUE.REVENUE)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DIM
+            nodeName: CONTRACT
+          - locationName: FACT
+            nodeName: SALESANDREVENUE
+        join:
+          joinCondition: |-
+            FROM FACT.SALESANDREVENUE
+             INNER JOIN DIM.CONTRACT
+                ON SALESANDREVENUE.CONTRACTKEY = CONTRACT.CONTRACTKEY
+             WHERE IFNULL(REVENUE,0) <> 0
+               AND YEAR(RECEIPTDATE) >= 2016
+               AND IFNULL(SALES,0) <> 0
+             GROUP BY LEVEL1FORCEID,
+                      RECEIPTDATE,
+                      FINANCIALREPORTINGSUPPLIERNAME
+        name: VWLEVEL1__SUPPLIEROCCURENCES
+        noLinkRefs: []
+  name: VWLEVEL1__SUPPLIEROCCURENCES
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

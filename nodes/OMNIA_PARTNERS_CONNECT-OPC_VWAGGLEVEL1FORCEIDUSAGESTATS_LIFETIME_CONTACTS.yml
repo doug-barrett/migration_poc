@@ -1,0 +1,113 @@
+fileVersion: 1
+id: e3c173d9-41f7-43ec-808a-dc49e7e4bd68
+name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_LIFETIME_CONTACTS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "CONTACTS FOR EACH LEVEL1FORCEID AND FORCEID"
+  isMultisource: false
+  locationName: OMNIA_PARTNERS_CONNECT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7b4a0f49-ebdf-4c4e-a683-7a14cb55fecc
+          stepCounter: e3c173d9-41f7-43ec-808a-dc49e7e4bd68
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: LEVEL1FORCEID
+        name: LEVEL1FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: be6c1b9b-064c-4f8c-835c-1298595196f6
+                stepCounter: d5234d5a-eb19-45e2-9c42-47221579f347
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fecbe701-2455-47fb-8667-5689628e4df0
+          stepCounter: e3c173d9-41f7-43ec-808a-dc49e7e4bd68
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: FORCE ID
+        name: FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e5618162-63a1-4114-905f-185fd2a82e5e
+                stepCounter: d5234d5a-eb19-45e2-9c42-47221579f347
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 23f4aeb4-d209-4a7b-bc7d-80ffd5d1abf4
+          stepCounter: e3c173d9-41f7-43ec-808a-dc49e7e4bd68
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: LEVEL1 FORCEID LIFETIME NUMBER OF CONTACTS (SUM OF CONTACT COUNT FOR ALL CHILDREN TOO)
+        name: LEVEL1FORCEID_LIFETIME_NUMOFCONTACTS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7da62cc4-4c77-42d1-ba16-653ec92fb015
+                stepCounter: b8caacbd-c3b6-40a2-af74-8baa85417b06
+            transform: COUNT(OPC_CONTACT.CONTACTKEY) OVER (PARTITION BY ACCOUNT.LEVEL1FORCEID)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 48fea5f5-12ca-469e-936e-a807d10ea719
+          stepCounter: e3c173d9-41f7-43ec-808a-dc49e7e4bd68
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: FORCEID LIFETIME NUMBER OF CONTACTS
+        name: FORCEID_LIFETIME_NUMOFCONTACTS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7da62cc4-4c77-42d1-ba16-653ec92fb015
+                stepCounter: b8caacbd-c3b6-40a2-af74-8baa85417b06
+            transform: COUNT(OPC_CONTACT.CONTACTKEY) OVER (PARTITION BY ACCOUNT.FORCEID)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT \N SALESANDREVENUE.FORCEID AS FORCEID \N , SALESANDREVENUE.DISPLAYACCOUNTNAME AS DISPLAYACCOUNTNAME \N , SALESANDREVENUE.SUPPLIERID AS SUPPLIERID \N , COUNT (DISTINCT FINANCIALREPORTINGSUPPLIERNAME) OVER (PARTITION BY FORCEID) AS CURRENT12MONTHS_NUMOFSUPPLIERSUSED \N , SUM(SALES) AS CURRENT12MONTHS_SUMOFSALES \N , GETDATE() AS DSSCREATETIME \N , GETDATE() AS DSSUPDATETIME \N
+              FROM \N OP.OPSALESANDREVENUE AS SALESANDREVENUE \N -- AND ISCAPITALCONTRACT = 0 --EXCLUDE CAPITAL CONTRACTS
+            \N
+             WHERE DATEDIFF(MONTH,TRANSACTIONDATE,MAXRECEIPTDATE) BETWEEN 0 AND 11 \N
+               AND SALES IS NOT NULL
+               AND SALES <> 0 \N
+             GROUP BY \N SALESANDREVENUE.FORCEID,
+                   DISPLAYACCOUNTNAME,
+                   FEDERALTAXID,
+                   SUPPLIERID,
+                   FINANCIALREPORTINGSUPPLIERNAME;DISTINCT~
+        dependencies:
+          - locationName: DIM
+            nodeName: ACCOUNT
+          - locationName: OMNIACONNECT.OPC
+            nodeName: OPC_CONTACT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('DIM','ACCOUNT') }}
+            {{ ref('OMNIACONNECT.OPC','OPC_CONTACT') }}
+        name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_LIFETIME_CONTACTS
+        noLinkRefs: []
+  name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_LIFETIME_CONTACTS
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node
