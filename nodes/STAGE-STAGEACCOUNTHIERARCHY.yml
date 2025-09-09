@@ -692,15 +692,14 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
       - aliases:
-          LOADACCOUNTHIERARCHY: a1012a1e-7d36-41b1-9c24-bc1819257a29
-          ACCOUNTGEOGRAPHY: edd2bdaf-5dbd-4108-bb25-d6c33fdbc711
           ACCOUNT: d5234d5a-eb19-45e2-9c42-47221579f347
+          ACCOUNTGEOGRAPHY: edd2bdaf-5dbd-4108-bb25-d6c33fdbc711
+          LOADACCOUNTHIERARCHY: a1012a1e-7d36-41b1-9c24-bc1819257a29
+          ORGANIZATION: 2acec7e4-1787-436b-895b-4edfb712800c
           SECTOR: 8c570149-b7fe-4278-931c-6a2e904ce078
         customSQL:
           customSQL: ""
         dependencies:
-          - locationName: DIM
-            nodeName: ACCOUNT
           - locationName: DIM
             nodeName: ACCOUNTGEOGRAPHY
           - locationName: DIM
@@ -714,12 +713,16 @@ operation:
             FROM {{ ref('LOAD','LOADACCOUNTHIERARCHY') }} LOADACCOUNTHIERARCHY
               LEFT JOIN {{ ref('DIM','ACCOUNTGEOGRAPHY') }} ACCOUNTGEOGRAPHY
                 ON LOADACCOUNTHIERARCHY.LEVEL1 = ACCOUNTGEOGRAPHY.FORCEID
-              LEFT JOIN {{ ref('DIM','ACCOUNT') }} ACCOUNT
+              LEFT JOIN {{ ref_no_link('DIM','ACCOUNT') }} ACCOUNT
                 ON LOADACCOUNTHIERARCHY.LEVEL1 = ACCOUNT.FORCEID
+              LEFT JOIN {{ ref('DIM', 'ORGANIZATION') }} "ORGANIZATION"
+                ON "LOADACCOUNTHIERARCHY"."ACCOUNTTYPEID" = "ORGANIZATION"."ORGANIZATIONID"
               LEFT JOIN {{ ref('DIM','SECTOR') }} SECTOR
                 ON ACCOUNT.SECTORKEY = SECTOR.SECTORKEY
         name: STAGEACCOUNTHIERARCHY
-        noLinkRefs: []
+        noLinkRefs:
+          - locationName: DIM
+            nodeName: ACCOUNT
   name: STAGEACCOUNTHIERARCHY
   overrideSQL: false
   schema: ""

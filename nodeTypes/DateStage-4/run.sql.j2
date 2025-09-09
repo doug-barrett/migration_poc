@@ -1,0 +1,30 @@
+{% if config.preSQL %}
+    {{ stage('Pre-SQL') }}
+    {{ config.preSQL }}
+{% endif %}
+{% if config.truncateBefore %}
+    {{ stage('Truncate Stage Table') }}
+    TRUNCATE IF EXISTS {{ ref_no_link(node.location.name, node.name) }}
+{% endif %}
+{{ stage('Insert ' + sources[0].name | string ) }}
+    INSERT INTO {{ ref_no_link(node.location.name, node.name) }}
+    (
+        {% for col in sources[0].columns %}
+            "{{ col.name }}"
+            {%- if not loop.last -%},{% endif %}
+        {% endfor %}
+    )
+    WITH CTE_DATE_GENERATOR AS (
+        SELECT DATEADD(DAY, SEQ4(), {{config.startingDate }}) AS {{ config.dateColumnName }}
+        FROM TABLE(GENERATOR(ROWCOUNT=>{{ config.daysToGenerate }}))
+    )
+    SELECT
+    {% for col in sources[0].columns %}
+        {{ get_source_transform(col) }} AS "{{ col.name }}"
+        {%- if not loop.last -%}, {% endif %}
+    {% endfor %}
+    FROM CTE_DATE_GENERATOR
+{% if config.postSQL %}
+    {{ stage('Post-SQL') }}
+    {{ config.postSQL }}
+{% endif %}

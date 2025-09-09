@@ -8,7 +8,7 @@ operation:
   customOverride: false
   database: ""
   deployEnabled: true
-  description: "CONTACTS FOR EACH LEVEL1FORCEID AND FORCEID"
+  description: CONTACTS FOR EACH LEVEL1FORCEID AND FORCEID
   isMultisource: false
   locationName: OMNIA_PARTNERS_CONNECT
   materializationType: view
@@ -29,7 +29,7 @@ operation:
           - columnReferences:
               - columnCounter: be6c1b9b-064c-4f8c-835c-1298595196f6
                 stepCounter: d5234d5a-eb19-45e2-9c42-47221579f347
-            transform: ""
+            transform: "\"OPC_CONTACT\".\"FORCEID\""
       - appliedColumnTests: {}
         columnReference:
           columnCounter: fecbe701-2455-47fb-8667-5689628e4df0
@@ -44,7 +44,7 @@ operation:
           - columnReferences:
               - columnCounter: e5618162-63a1-4114-905f-185fd2a82e5e
                 stepCounter: d5234d5a-eb19-45e2-9c42-47221579f347
-            transform: ""
+            transform: "\"OPC_CONTACT\".DISPLAYACCOUNTNAME"
       - appliedColumnTests: {}
         columnReference:
           columnCounter: 23f4aeb4-d209-4a7b-bc7d-80ffd5d1abf4
@@ -59,7 +59,7 @@ operation:
           - columnReferences:
               - columnCounter: 7da62cc4-4c77-42d1-ba16-653ec92fb015
                 stepCounter: b8caacbd-c3b6-40a2-af74-8baa85417b06
-            transform: COUNT(OPC_CONTACT.CONTACTKEY) OVER (PARTITION BY ACCOUNT.LEVEL1FORCEID)
+            transform: ""
       - appliedColumnTests: {}
         columnReference:
           columnCounter: 48fea5f5-12ca-469e-936e-a807d10ea719
@@ -77,31 +77,32 @@ operation:
             transform: COUNT(OPC_CONTACT.CONTACTKEY) OVER (PARTITION BY ACCOUNT.FORCEID)
     enabledColumnTestIDs: []
     sourceMapping:
-      - aliases: {}
+      - aliases:
+          OPC_CONTACT: b8caacbd-c3b6-40a2-af74-8baa85417b06
         customSQL:
           customSQL: |-
             {{ stage('SQL Override') }}
-            SELECT \N SALESANDREVENUE.FORCEID AS FORCEID \N , SALESANDREVENUE.DISPLAYACCOUNTNAME AS DISPLAYACCOUNTNAME \N , SALESANDREVENUE.SUPPLIERID AS SUPPLIERID \N , COUNT (DISTINCT FINANCIALREPORTINGSUPPLIERNAME) OVER (PARTITION BY FORCEID) AS CURRENT12MONTHS_NUMOFSUPPLIERSUSED \N , SUM(SALES) AS CURRENT12MONTHS_SUMOFSALES \N , GETDATE() AS DSSCREATETIME \N , GETDATE() AS DSSUPDATETIME \N
-              FROM \N OP.OPSALESANDREVENUE AS SALESANDREVENUE \N -- AND ISCAPITALCONTRACT = 0 --EXCLUDE CAPITAL CONTRACTS
-            \N
-             WHERE DATEDIFF(MONTH,TRANSACTIONDATE,MAXRECEIPTDATE) BETWEEN 0 AND 11 \N
+            CREATE OR REPLACE VIEW {{this}}
+            AS 
+            SELECT   SALESANDREVENUE.FORCEID AS FORCEID   , SALESANDREVENUE.DISPLAYACCOUNTNAME AS DISPLAYACCOUNTNAME   , SALESANDREVENUE.SUPPLIERID AS SUPPLIERID   , COUNT (DISTINCT FINANCIALREPORTINGSUPPLIERNAME) OVER (PARTITION BY FORCEID) AS CURRENT12MONTHS_NUMOFSUPPLIERSUSED   , SUM(SALES) AS CURRENT12MONTHS_SUMOFSALES   , GETDATE() AS DSSCREATETIME   , GETDATE() AS DSSUPDATETIME  
+              FROM   {{ ref('OMNIA_CONNECT_OPC','OPC_CONTACT') }} AS SALESANDREVENUE   -- AND ISCAPITALCONTRACT = 0 --EXCLUDE CAPITAL CONTRACTS
+             
+             WHERE DATEDIFF(MONTH,TRANSACTIONDATE,MAXRECEIPTDATE) BETWEEN 0 AND 11  
                AND SALES IS NOT NULL
-               AND SALES <> 0 \N
-             GROUP BY \N SALESANDREVENUE.FORCEID,
+               AND SALES <> 0  
+             GROUP BY   SALESANDREVENUE.FORCEID,
                    DISPLAYACCOUNTNAME,
                    FEDERALTAXID,
                    SUPPLIERID,
-                   FINANCIALREPORTINGSUPPLIERNAME;DISTINCT~
+                   FINANCIALREPORTINGSUPPLIERNAME
         dependencies:
-          - locationName: DIM
-            nodeName: ACCOUNT
-          - locationName: OMNIACONNECT.OPC
+          - locationName: OMNIA_CONNECT_OPC
             nodeName: OPC_CONTACT
         join:
           joinCondition: |-
             -- Nodes used in the SQL override:
-            {{ ref('DIM','ACCOUNT') }}
-            {{ ref('OMNIACONNECT.OPC','OPC_CONTACT') }}
+
+            {{ ref('OMNIA_CONNECT_OPC','OPC_CONTACT') }}
         name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_LIFETIME_CONTACTS
         noLinkRefs: []
   name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_LIFETIME_CONTACTS
