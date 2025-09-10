@@ -1,0 +1,130 @@
+fileVersion: 1
+id: 4d6934c9-643b-4bb7-82c9-8a7e6b49f824
+name: AGG_OPSALESANDREVENUEBYSUPPLIER
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "SEE NOTES"
+  isMultisource: false
+  locationName: REPORTS
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 77063daf-6d97-4b12-afd1-c3cb5d7027bd
+          stepCounter: 4d6934c9-643b-4bb7-82c9-8a7e6b49f824
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: "STAGESALESMERGE_ADDKEYS.ORGANIZATIONID=SUPPLIER.ORGANIZATIONID\nSTAGESALESMERGE_ADDKEYS.SUPPLIERID=SUPPLIER.SUPPLIERID\nSTAGESALESMERGE_ADDKEYS.SUPPLIERNAME=SUPPLIER.SUPPLIERNAME\nSTAGESALESMERGE_ADDKEYS.CONTRACTID=SUPPLIER.CONTRACTID"
+        isBusinessKey: true
+        name: SUPPLIERKEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b2f4e397-bd41-483f-976a-9ed99246bd6e
+                stepCounter: 470235be-2b1f-4c18-8481-f03bb4bed667
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bf64464e-195e-4ae4-97d4-09ae4876a439
+          stepCounter: 4d6934c9-643b-4bb7-82c9-8a7e6b49f824
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: STAGESALESMERGE_ADDKEYS.TRANSACTIONDATE=DIMTRANSACTIONDATEKEY.TRANSACTIONDATE
+        isBusinessKey: true
+        name: TRANSACTIONDATEKEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e1492500-69f4-459a-b955-6b361cafce6b
+                stepCounter: 3e31c3d9-a69e-4432-b045-bd91575d1cbf
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1a2c5b1b-1383-4dfd-81f0-70ef1b238574
+          stepCounter: 4d6934c9-643b-4bb7-82c9-8a7e6b49f824
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: GENERATED ARTIFICIAL KEY
+        isBusinessKey: true
+        name: UCCAMPUSKEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 03272029-1989-49d8-960d-2c8a50596959
+                stepCounter: f40ae327-6f80-42a9-8c61-95ea4e2660a7
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d55b16df-74d4-4306-acc2-37327a547acd
+          stepCounter: 4d6934c9-643b-4bb7-82c9-8a7e6b49f824
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: IS THE SALES AMOUNT, OR GROSS TRANSACTION VOLUME (GTV), ASSOCIATED WITH A TRANSACTION IN US DOLLARS. A SALES AMOUNT IS TYPICALLY NOT AN INDIVIDUAL SALE, BUT A MONTHLY AGGREGATE OF ALL SALES FOR A CUSTOMER IN A GIVEN MONTH.
+        name: SALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 88d891f1-4009-4fad-846f-67b858ce11b0
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: SUM(SALESANDREVENUE.SALES)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aaa4e4a6-3243-4a40-91dd-1712741b3560
+          stepCounter: 4d6934c9-643b-4bb7-82c9-8a7e6b49f824
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: IS THE AMOUNT OF GROSS REVENUE, ALWAYS IN US DOLLARS, OMNIA PARTNERS RECIEVED FOR THE ROW.
+        name: REVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0764b9a5-3c5c-46b8-bc39-4769f4f16eac
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: SUM(SALESANDREVENUE.REVENUE)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          SALESANDREVENUE: bc791129-d159-4fb2-a8c8-429979cdade2
+          UCCAMPUS: f40ae327-6f80-42a9-8c61-95ea4e2660a7
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DIM
+            nodeName: DIM_TRANSACTIONDATE
+          - locationName: DIM
+            nodeName: SUPPLIER
+          - locationName: DIM
+            nodeName: UCCAMPUS
+          - locationName: FACT
+            nodeName: SALESANDREVENUE
+        join:
+          joinCondition: |-
+            FROM {{ ref('FACT','SALESANDREVENUE') }} SALESANDREVENUE
+              JOIN {{ ref('DIM','UCCAMPUS') }} UCCAMPUS
+                ON SALESANDREVENUE.LEVEL1FORCEID = UCCAMPUS.OPCAMPUSFORCEID
+             GROUP BY SALESANDREVENUE.SUPPLIERKEY ,
+                      SALESANDREVENUE.TRANSACTIONDATEKEY ,
+                      UCCAMPUS.UCCAMPUSKEY
+        name: AGGOPSALESANDREVENUEBYSUPPLIER
+        noLinkRefs: []
+  name: AGG_OPSALESANDREVENUEBYSUPPLIER
+  overrideSQL: false
+  schema: ""
+  sqlType: Agreggate
+  type: sql
+  version: 1
+type: Node

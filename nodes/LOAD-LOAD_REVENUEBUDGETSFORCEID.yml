@@ -1,0 +1,129 @@
+fileVersion: 1
+id: 93acad7c-1393-475f-a527-4b5aa8b3031e
+name: LOAD_REVENUEBUDGETSFORCEID
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "SEE NOTES"
+  isMultisource: false
+  locationName: LOAD
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 943fe3af-a85a-40e1-8a05-794ca16cf2be
+          stepCounter: 93acad7c-1393-475f-a527-4b5aa8b3031e
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a68f996f-93bc-47a3-8f78-d26347a2db49
+                stepCounter: d5d8f31d-97d4-471d-bde1-5ff9d114be76
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 72602551-5520-4011-ad93-b77fa9ae2ec1
+          stepCounter: 93acad7c-1393-475f-a527-4b5aa8b3031e
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: BUDGETDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 67b3eb0c-728a-412c-975a-e512ab1303c9
+                stepCounter: d5d8f31d-97d4-471d-bde1-5ff9d114be76
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 145e5463-65d9-4a59-8c12-827ae447880b
+          stepCounter: 93acad7c-1393-475f-a527-4b5aa8b3031e
+        config: {}
+        dataType: FLOAT
+        defaultValue: ""
+        description: ""
+        name: BUDGETSALESAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8016c63a-b63a-4c7f-b4de-64dd9270a513
+                stepCounter: d5d8f31d-97d4-471d-bde1-5ff9d114be76
+            transform: SUM(LOADREVENUEBUDGETS.BUDGETSALESAMOUNT) AS BUDGETSALESAMOUNT
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9e001d62-e12a-4c0e-b491-d56bb2a88c05
+          stepCounter: 93acad7c-1393-475f-a527-4b5aa8b3031e
+        config: {}
+        dataType: FLOAT
+        defaultValue: ""
+        description: ""
+        name: BUDGETREVENUEAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 04417261-b46f-4686-953b-fde6912252fd
+                stepCounter: d5d8f31d-97d4-471d-bde1-5ff9d114be76
+            transform: SUM(LOADREVENUEBUDGETS.BUDGETREVENUEAMOUNT) AS BUDGETREVENUEAMOUNT
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 98472884-24b3-4f32-b282-9544250a7b89
+          stepCounter: 93acad7c-1393-475f-a527-4b5aa8b3031e
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: RECORD SOURCE.
+        name: DSS_RECORD_SOURCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'FORCE.DBO.VWREVENUEBUDGETS'"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9523e7ad-3bf4-421e-ae6c-2b4703f4da2d
+          stepCounter: 93acad7c-1393-475f-a527-4b5aa8b3031e
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: LOAD DATE.
+        name: DSS_LOAD_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: LOAD
+            nodeName: LOAD_REVENUEBUDGETS
+          - locationName: UNKNOWN
+            nodeName: LOADREVENUEBUDGETS
+        join:
+          joinCondition: |-
+            FROM {{ ref('UNKNOWN','LOADREVENUEBUDGETS') }} LOADREVENUEBUDGETS
+             WHERE LOADREVENUEBUDGETS.BUDGETTYPELABEL = 'TERRITORY BUDGET'
+                OR (LOADREVENUEBUDGETS.BUDGETTYPELABEL LIKE 'BUDGET - %' AND NOT LOADREVENUEBUDGETS.BUDGETTYPE = 'BUDGET - PDSE')
+             GROUP BY LOADREVENUEBUDGETS.FORCEID,
+                      LOADREVENUEBUDGETS.BUDGETDATE
+        name: LOADREVENUEBUDGETSFORCEID
+        noLinkRefs: []
+  name: LOAD_REVENUEBUDGETSFORCEID
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

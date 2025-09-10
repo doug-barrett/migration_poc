@@ -1,0 +1,115 @@
+fileVersion: 1
+id: 65665e2b-b775-4118-91d1-292f26b1b3fb
+name: OPC_CONTACT_HISTORY
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: OMNIA_CONNECT_OPC
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a7c59efc-a20b-44d3-be38-d6f2f0efe7c1
+          stepCounter: 65665e2b-b775-4118-91d1-292f26b1b3fb
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: LEVEL1 FORCE ID
+        isBusinessKey: true
+        name: LEVEL1FORCEID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 86a8bbf6-0e7f-44fe-8f19-f050cbbfc3ee
+                stepCounter: f3d3b8e2-c41d-436e-b46d-37b8a5e21f31
+            transform: ""
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ab1f1786-3ea5-44eb-88a9-0d16139650e9
+          stepCounter: 65665e2b-b775-4118-91d1-292f26b1b3fb
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: CREATED MONTH OF THE CONTACT
+        isBusinessKey: true
+        name: CREATED_MONTH
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6e2c0cc4-323b-4093-b463-6f5e755f8f3c
+                stepCounter: f3d3b8e2-c41d-436e-b46d-37b8a5e21f31
+            transform: ""
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f5aab820-8fe8-4111-8c9e-8dcf5881e560
+          stepCounter: 65665e2b-b775-4118-91d1-292f26b1b3fb
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: CONTACT COUNT BY LEVEL1FORCEID & EOM(CONTACT CREATED DATE)
+        name: CONTACT_COUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: COUNT(*)
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cdf77344-6b94-4833-88d4-753a9c80e031
+          stepCounter: 65665e2b-b775-4118-91d1-292f26b1b3fb
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: RUNNING CONTACT COUNT BY LEVEL1FORCEID & CONTACT CREATED MONTH
+        name: RUNNING_CONTACT_COUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(COUNT(*)) OVER (PARTITION BY LEVEL1FORCEID ORDER BY CREATED_MONTH ASC)
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          OPC_CONTACT: f3d3b8e2-c41d-436e-b46d-37b8a5e21f31
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: OMNIA_CONNECT_OPC
+            nodeName: OPC_CONTACT
+        join:
+          joinCondition: |-
+            FROM {{ ref('OMNIA_CONNECT_OPC','OPC_CONTACT') }} OPC_CONTACT
+             GROUP BY OPC_CONTACT.LEVEL1FORCEID,
+                      OPC_CONTACT.CREATED_MONTH
+        name: SRC_OPC_CONTACT_HISTORY_1
+        noLinkRefs: []
+  name: OPC_CONTACT_HISTORY
+  overrideSQL: false
+  schema: ""
+  sqlType: Agreggate
+  type: sql
+  version: 1
+type: Node

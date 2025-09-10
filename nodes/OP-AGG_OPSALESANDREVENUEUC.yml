@@ -1,0 +1,153 @@
+fileVersion: 1
+id: a4698e0a-22f5-4fad-b71b-df288d5438e0
+name: AGG_OPSALESANDREVENUEUC
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "DOES NOT USE ANY DATA FROM UC SPEND CUBE...ONLY PULLS FROM OP SALES AND REVENUE."
+  isMultisource: false
+  locationName: OP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6a0e0aed-bd52-4736-a896-29ff9d604190
+          stepCounter: a4698e0a-22f5-4fad-b71b-df288d5438e0
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: CONTRACTID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 72e0a5ad-993a-436d-a39d-e7e8d5642bed
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 28dd94a2-1011-440e-95b3-3889a5e0e31e
+          stepCounter: a4698e0a-22f5-4fad-b71b-df288d5438e0
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: RECEIPTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cfbc78aa-ce9c-4812-84a5-d889bc068cad
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3a765660-0898-464d-b150-1ccdee915f70
+          stepCounter: a4698e0a-22f5-4fad-b71b-df288d5438e0
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: SALES
+        name: SALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 88d891f1-4009-4fad-846f-67b858ce11b0
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: SUM(SALESANDREVENUE.SALES)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 01bb82d0-5dc5-4c76-9253-35b208f9a7ba
+          stepCounter: a4698e0a-22f5-4fad-b71b-df288d5438e0
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: REVENUE TYPE (MOSTLY USED AS INPUT TO PREPARE NEXT YEAR'S BUDGET)
+        isBusinessKey: true
+        name: REVENUETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9bf70770-8e2b-4826-8ecf-40dadd86e669
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b02cec6d-db15-453a-8323-13467cb16296
+          stepCounter: a4698e0a-22f5-4fad-b71b-df288d5438e0
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: FORCE ID
+        isBusinessKey: true
+        name: FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 50ebd949-9b0e-4212-a2d4-138b58694832
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d4529469-a857-46b0-a4ad-39ac9da7bd2b
+          stepCounter: a4698e0a-22f5-4fad-b71b-df288d5438e0
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: MAXRECEIPTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 47b22e93-8207-45de-88b7-7aad0b05f950
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e5cf58a1-dfb8-4d12-b718-e41faafc3f62
+          stepCounter: a4698e0a-22f5-4fad-b71b-df288d5438e0
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: DW LOAD DATE
+        name: LOADDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          SALESANDREVENUE: bc791129-d159-4fb2-a8c8-429979cdade2
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: FACT
+            nodeName: SALESANDREVENUE
+        join:
+          joinCondition: |-
+            FROM {{ ref('FACT','SALESANDREVENUE') }} SALESANDREVENUE
+             WHERE DATEDIFF(MONTH,SALESANDREVENUE.RECEIPTDATE,SALESANDREVENUE.MAXRECEIPTDATE) BETWEEN 0 AND 35
+               AND SALESANDREVENUE.REVENUETYPE LIKE 'UC %' --AND IFNULL(SALES,0) <> 0 GROUP BY SALESANDREVENUE.ACCOUNTID,
+             SALESANDREVENUE.CONTRACTID,
+                   SALESANDREVENUE.RECEIPTDATE,
+                   SALESANDREVENUE.REVENUETYPE,
+                   SALESANDREVENUE.MAXRECEIPTDATE
+        name: AGGOPSALESANDREVENUEUC
+        noLinkRefs: []
+  name: AGG_OPSALESANDREVENUEUC
+  overrideSQL: false
+  schema: ""
+  sqlType: Agreggate
+  type: sql
+  version: 1
+type: Node

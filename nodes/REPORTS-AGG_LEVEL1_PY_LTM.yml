@@ -1,0 +1,196 @@
+fileVersion: 1
+id: 1461439e-d30a-4501-b634-620d8a0b8d6c
+name: AGG_LEVEL1_PY_LTM
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "AGGREGATES BY LEVEL1FORCEID, SUM OF SALES, SUM OF REVENUE, # OF FINANCIAL REPORTING SUPPLIER NAME, # OF CONTRACTS, # OF CONTRACT CATEGORIES, DATE OF 1ST PURCHASE, DATE OF MOST RECENT PURCHASE FOR ALL TIME"
+  isMultisource: false
+  locationName: REPORTS
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f0354f06-554c-4c96-9bf8-7a4528550ff5
+          stepCounter: 1461439e-d30a-4501-b634-620d8a0b8d6c
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE ULTIMATE PARENT OF A FORCEID, THE TOP OF THE HIERARCHY FOR A MEMBER.
+        isBusinessKey: true
+        name: LEVEL1FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 55233f58-c8eb-4968-b57c-6423a580f904
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a87141a8-c81a-47f3-b4cf-d76ed47411ed
+          stepCounter: 1461439e-d30a-4501-b634-620d8a0b8d6c
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: IS THE SALES AMOUNT, OR GROSS TRANSACTION VOLUME (GTV), ASSOCIATED WITH A TRANSACTION IN US DOLLARS. A SALES AMOUNT IS TYPICALLY NOT AN INDIVIDUAL SALE, BUT A MONTHLY AGGREGATE OF ALL SALES FOR A CUSTOMER IN A GIVEN MONTH.
+        name: LEVEL1_PY_LTM_SUMOFGTV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 88d891f1-4009-4fad-846f-67b858ce11b0
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: SUM(SALESANDREVENUE.SALES)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 31285a55-f94a-49e0-ada4-b9dd68468e0b
+          stepCounter: 1461439e-d30a-4501-b634-620d8a0b8d6c
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: IS THE AMOUNT OF GROSS REVENUE, ALWAYS IN US DOLLARS, OMNIA PARTNERS RECIEVED FOR THE ROW.
+        name: LEVEL1_PY_LTM_SUMOFREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0764b9a5-3c5c-46b8-bc39-4769f4f16eac
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: SUM(SALESANDREVENUE.REVENUE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 33f1a404-66bb-4e55-83a4-ef8faba4b701
+          stepCounter: 1461439e-d30a-4501-b634-620d8a0b8d6c
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE RANK BY GROSS TRANSACTION VOLUME (GTV), ASSOCIATED TO THE LEVEL1FORCEID
+        name: LEVEL1_PY_LTM_RANKBYGTV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 88d891f1-4009-4fad-846f-67b858ce11b0
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: RANK() OVER (ORDER BY SUM(SALESANDREVENUE.SALES) DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: de3ea06d-f438-41fe-acc3-10e3387f2295
+          stepCounter: 1461439e-d30a-4501-b634-620d8a0b8d6c
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE NUMERIC RANK OF A LEVEL1FORCEID BY THE LIFETIME SUM OF REVENUE.
+        name: LEVEL1_PY_LTM_RANKBYREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0764b9a5-3c5c-46b8-bc39-4769f4f16eac
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: RANK() OVER (ORDER BY SUM(SALESANDREVENUE.REVENUE) DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 491c528a-6300-4578-872b-a756ea7eb04e
+          stepCounter: 1461439e-d30a-4501-b634-620d8a0b8d6c
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE DISTINCT COUNT OF FINANCIAL REPORTING SUPPLIER NAMES FOR A LEVEL1FORCEID.
+        name: LEVEL1_PY_LTM_NUMOFSUPPLIERSUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b10332df-ee1d-4667-b1c8-56dda7af6c12
+                stepCounter: a550c43a-4d5a-4a69-aa48-4cefa3de4b21
+            transform: COUNT (DISTINCT CONTRACT.FINANCIALREPORTINGSUPPLIERNAME)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c025bf69-6a61-425a-b70a-b15f3b8045be
+          stepCounter: 1461439e-d30a-4501-b634-620d8a0b8d6c
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE LIFETIME "DISTINCT COUNT" OF INITIALCONTRACTID FOR EACH LEVEL1FORCEID.
+        name: LEVEL1_PY_LTM_NUMOFCONTRACTSUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2a4c0d6b-062b-4506-bd6a-7f83c18cf1c8
+                stepCounter: a550c43a-4d5a-4a69-aa48-4cefa3de4b21
+            transform: COUNT (DISTINCT CASE WHEN CONTRACTRECORDTYPE <> 'MARKETING AGREEMENT' THEN INITIALCONTRACTID ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3f3c5a02-fc53-4970-9f6e-c9daed5013ee
+          stepCounter: 1461439e-d30a-4501-b634-620d8a0b8d6c
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE LIFETIME "DISTINCT COUNT" OF CONTRACTCATEGORY FOR EACH LEVEL1FORCEID
+        name: LEVEL1_PY_LTM_NUMOFCONTRACTCATEGORIESUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 290ccdf0-0c7d-4d01-801f-e574b0c16a68
+                stepCounter: a550c43a-4d5a-4a69-aa48-4cefa3de4b21
+            transform: COUNT (DISTINCT CONTRACT.CONTRACTCATEGORY)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 34fd6607-25b7-43f8-94b1-b5681259c229
+          stepCounter: 1461439e-d30a-4501-b634-620d8a0b8d6c
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: IS THE TIMESTAMP FOR WHEN THIS WAS CREATED.
+        name: DSSCREATETIME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: GETDATE()
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 366fb5f5-27e1-4ae6-9db7-1b09f42f69a9
+          stepCounter: 1461439e-d30a-4501-b634-620d8a0b8d6c
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: IS THE TIMESTAMP FOR WHEN THIS LAST UPDATED.
+        name: DSSUPDATETIME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: GETDATE()
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          SALESANDREVENUE: bc791129-d159-4fb2-a8c8-429979cdade2
+          CONTRACT: a550c43a-4d5a-4a69-aa48-4cefa3de4b21
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DIM
+            nodeName: CONTRACT
+          - locationName: FACT
+            nodeName: SALESANDREVENUE
+        join:
+          joinCondition: |-
+            FROM {{ ref('FACT','SALESANDREVENUE') }} SALESANDREVENUE
+              JOIN {{ ref('DIM','CONTRACT') }} CONTRACT
+                ON SALESANDREVENUE.CONTRACTKEY = CONTRACT.CONTRACTKEY
+             WHERE DATEDIFF(MONTH,RECEIPTDATE,MAXRECEIPTDATE) BETWEEN 12 AND 23
+               AND IFNULL(SALES,0) <> 0
+               AND IFNULL(REVENUE,0) <> 0
+             GROUP BY SALESANDREVENUE.LEVEL1FORCEID
+        name: AGGLEVEL1_PY_LTM
+        noLinkRefs: []
+  name: AGG_LEVEL1_PY_LTM
+  overrideSQL: false
+  schema: ""
+  sqlType: Agreggate
+  type: sql
+  version: 1
+type: Node

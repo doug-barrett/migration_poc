@@ -1,0 +1,190 @@
+fileVersion: 1
+id: 9c5b0d3a-3dec-4e64-b31a-fb50140dc40e
+name: AGG_CONTRACTUSAGEBYRECEIPTDATEPARENTFORCEID
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: REPORTS
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ffc0ca38-3451-4d9d-bc4e-2109c7043750
+          stepCounter: 9c5b0d3a-3dec-4e64-b31a-fb50140dc40e
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: PARENT ID FOR AN ACCOUNT. WILL BE THE SAME AS FORCEID IF THERE IS NO PARENT OR IF THIS IS THE TOP-MOST ACCOUNT IN A HIERARCHY
+        name: LEVEL1FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 87e8334d-2d20-4e98-a961-b4dcc714b647
+                stepCounter: 745ecacb-59f4-457a-9a6f-e827d225494e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: de830591-da2d-4c81-bc7c-1f5308926be1
+          stepCounter: 9c5b0d3a-3dec-4e64-b31a-fb50140dc40e
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: PPACONTRACTNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 50726519-1074-4e08-bfb4-d1c79ffec0f9
+                stepCounter: a550c43a-4d5a-4a69-aa48-4cefa3de4b21
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a25de61b-2bac-460e-843a-8f997a92355f
+          stepCounter: 9c5b0d3a-3dec-4e64-b31a-fb50140dc40e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: THE RECEIPT DATE CALENDAR QUARTER REPRESENTATION. FORMAT YYYYQQ. EXAMPLE 200204.
+        name: RECEIPTDATECALQUARTER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 18e88bde-02c3-4647-baf6-781943c05e6a
+                stepCounter: 27a7ecfd-1ae2-435c-89b6-cdcea595076c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 27c0b5ea-bd91-438f-a9b4-a9ca65f2b578
+          stepCounter: 9c5b0d3a-3dec-4e64-b31a-fb50140dc40e
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: ""
+        name: SALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 88d891f1-4009-4fad-846f-67b858ce11b0
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b20d6c5d-d63e-45f8-b380-3687f0b7143e
+          stepCounter: 9c5b0d3a-3dec-4e64-b31a-fb50140dc40e
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: ""
+        name: REVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0764b9a5-3c5c-46b8-bc39-4769f4f16eac
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5c1fe3cb-addc-40f1-8927-6cd7f19e0f6f
+          stepCounter: 9c5b0d3a-3dec-4e64-b31a-fb50140dc40e
+        config: {}
+        dataType: BOOLEAN
+        defaultValue: ""
+        description: ""
+        name: ISFIRSTTIMEUSINGCONTRACT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cfbc78aa-ce9c-4812-84a5-d889bc068cad
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: IIF(LAG(DIMRECEIPTDATE.RECEIPTDATE, 1) OVER (PARTITION BY FORCEID, PPACONTRACTNUMBER ORDER BY FORCEID, PPACONTRACTNUMBER, DIMRECEIPTDATE.RECEIPTDATE) IS NULL,1,0) AS ISFIRSTTIMEUSINGCONTRACT
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 37476423-928a-4f99-b532-d2111b6c2859
+          stepCounter: 9c5b0d3a-3dec-4e64-b31a-fb50140dc40e
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: ISCONTRACTUSENEWORRECURRINGINTRAILING12MONTHS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cfbc78aa-ce9c-4812-84a5-d889bc068cad
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: IIF(DATEDIFF(QUARTER, LAG(DIMRECEIPTDATE.RECEIPTDATE, 1) OVER (PARTITION BY FORCEID, PPACONTRACTNUMBER ORDER BY FORCEID, PPACONTRACTNUMBER, RECEIPTDATECALQUARTER), DIMRECEIPTDATE.RECEIPTDATE) BETWEEN 1 AND 4, 'RECURRING', 'NEW')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e84e1523-8128-4f4b-8fba-444fe3eb545c
+          stepCounter: 9c5b0d3a-3dec-4e64-b31a-fb50140dc40e
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: QUARTERSSINCECONTRACTUSE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cfbc78aa-ce9c-4812-84a5-d889bc068cad
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: DATEDIFF(QUARTER, LAG(DIMRECEIPTDATE.RECEIPTDATE, 1) OVER (PARTITION BY FORCEID, PPACONTRACTNUMBER ORDER BY FORCEID, PPACONTRACTNUMBER, DIMRECEIPTDATE.RECEIPTDATECALQUARTER), DIMRECEIPTDATE.RECEIPTDATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 077ae0f7-c89a-4ac7-b504-4c36da3006a7
+          stepCounter: 9c5b0d3a-3dec-4e64-b31a-fb50140dc40e
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: DATE AND TIME THE ROW WAS CREATED IN THE DATA WAREHOUSE.
+        name: DSSCREATETIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f0379fe0-f125-4de2-a12a-581004bba52b
+          stepCounter: 9c5b0d3a-3dec-4e64-b31a-fb50140dc40e
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: DATE AND TIME THE ROW WAS UPDATED IN THE DATA WAREHOUSE.
+        name: DSSUPDATETIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          ACCOUNT: 745ecacb-59f4-457a-9a6f-e827d225494e
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DIM
+            nodeName: ACCOUNT
+          - locationName: DIM
+            nodeName: CONTRACT
+          - locationName: DIM
+            nodeName: DIM_RECEIPTDATE
+          - locationName: FACT
+            nodeName: SALESANDREVENUE
+        join:
+          joinCondition: FROM {{ ref('DIM','ACCOUNT') }}
+        name: AGGCONTRACTUSAGEBYRECEIPTDATEPARENTFORCEID
+        noLinkRefs: []
+  name: AGG_CONTRACTUSAGEBYRECEIPTDATEPARENTFORCEID
+  overrideSQL: false
+  schema: ""
+  sqlType: Agreggate
+  type: sql
+  version: 1
+type: Node

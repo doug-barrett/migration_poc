@@ -1,0 +1,217 @@
+fileVersion: 1
+id: 1ebfecf9-dfb8-4920-a74d-e4a1c662e0e2
+name: AGG_CONTRACTUSAGEBYRECEIPTDATE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: REPORTS
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7124c39c-e0c5-4b84-bf9b-4774889dc18d
+          stepCounter: 1ebfecf9-dfb8-4920-a74d-e4a1c662e0e2
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: UNIQUE IDENTIFIER FOR AN ACCOUNT. COMMONLY CALLED THE "FORCE ID"
+        isBusinessKey: true
+        name: FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 87ea6a58-f1f0-4c3d-996d-16565db55a0a
+                stepCounter: 745ecacb-59f4-457a-9a6f-e827d225494e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6eae00f8-a3a9-4912-89b4-fb0d1e3cdd0f
+          stepCounter: 1ebfecf9-dfb8-4920-a74d-e4a1c662e0e2
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: PPACONTRACTNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 50726519-1074-4e08-bfb4-d1c79ffec0f9
+                stepCounter: a550c43a-4d5a-4a69-aa48-4cefa3de4b21
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 662876b1-51bb-4e77-a5f7-0b8cef899db4
+          stepCounter: 1ebfecf9-dfb8-4920-a74d-e4a1c662e0e2
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: THE RECEIPT DATE CALENDAR QUARTER REPRESENTATION. FORMAT YYYYQQ. EXAMPLE 200204.
+        isBusinessKey: true
+        name: RECEIPTDATECALQUARTER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 18e88bde-02c3-4647-baf6-781943c05e6a
+                stepCounter: 27a7ecfd-1ae2-435c-89b6-cdcea595076c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 81412ae1-a2fa-4c5b-a951-252197b6ad37
+          stepCounter: 1ebfecf9-dfb8-4920-a74d-e4a1c662e0e2
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: ""
+        name: SALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 88d891f1-4009-4fad-846f-67b858ce11b0
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: SUM(SALESANDREVENUE.SALES)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4e1b7a71-1897-4428-aee5-ff454c68d1fc
+          stepCounter: 1ebfecf9-dfb8-4920-a74d-e4a1c662e0e2
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: ""
+        name: REVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0764b9a5-3c5c-46b8-bc39-4769f4f16eac
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: SUM(SALESANDREVENUE.REVENUE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 16f5f71c-0328-4131-a307-2f235dc2bb91
+          stepCounter: 1ebfecf9-dfb8-4920-a74d-e4a1c662e0e2
+        config: {}
+        dataType: BOOLEAN
+        defaultValue: ""
+        description: ""
+        name: ISFIRSTTIMEUSINGCONTRACT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cfbc78aa-ce9c-4812-84a5-d889bc068cad
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: |-
+              -- IS THIS THE VERY 1ST TIME USING THIS CONTRACT?
+              \NIFF(LAG(RECEIPTDATECALQUARTER, 1) OVER(\N PARTITION BY FORCEID, CONTRACT.PPACONTRACTNUMBER \N ORDER BY FORCEID, CONTRACT.PPACONTRACTNUMBER,RECEIPTDATECALQUARTER) IS NULL, 1, 0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4681f6fc-6fc6-4f8f-ab55-5667b1c6f909
+          stepCounter: 1ebfecf9-dfb8-4920-a74d-e4a1c662e0e2
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: ISCONTRACTUSENEWORRECURRINGINTRAILING12MONTHS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cfbc78aa-ce9c-4812-84a5-d889bc068cad
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: |-
+              --NEW OR RECURRING IN A ROLLING 4 QUARTER TIMELINE
+              \N IFF(\N DATEDIFF(QUARTER, \N LAG(\N TO_DATE(CONCAT(CAST(LEFT(DIMRECEIPTDATE.RECEIPTDATECALQUARTER, 4) AS VARCHAR(10)), \N CASE RIGHT(CAST(DIMRECEIPTDATE.RECEIPTDATECALQUARTER AS VARCHAR(10)), 2) \N WHEN '01' THEN '03' \N WHEN '02' THEN '06' \N WHEN '03' THEN '09' \N ELSE '12' \N END, '01')), 1) OVER(\N PARTITION BY FORCEID, CONTRACT.PPACONTRACTNUMBER \N ORDER BY FORCEID, CONTRACT.PPACONTRACTNUMBER, DIMRECEIPTDATE.RECEIPTDATECALQUARTER), \N TO_DATE(CONCAT(CAST(LEFT(DIMRECEIPTDATE.RECEIPTDATECALQUARTER, 4) AS VARCHAR(10)), \N CASE RIGHT(CAST(DIMRECEIPTDATE.RECEIPTDATECALQUARTER AS VARCHAR(10)), 2) \N WHEN '01' THEN '03' \N WHEN '02' THEN '06' \N WHEN '03' THEN '09' \N ELSE '12' \N END, '01'))) <= 4, 'RECURRING', 'NEW')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bd9b231d-df5c-4037-b5d4-f75d9a2ba03b
+          stepCounter: 1ebfecf9-dfb8-4920-a74d-e4a1c662e0e2
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: QUARTERSSINCECONTRACTUSE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cfbc78aa-ce9c-4812-84a5-d889bc068cad
+                stepCounter: bc791129-d159-4fb2-a8c8-429979cdade2
+            transform: |-
+              --QUARTERS SINCE LAST USE
+              \N DATEDIFF(QUARTER, \N LAG(\N TO_DATE(CONCAT(CAST(LEFT(DIMRECEIPTDATE.RECEIPTDATECALQUARTER, 4) AS VARCHAR(10)), \N CASE RIGHT(CAST(DIMRECEIPTDATE.RECEIPTDATECALQUARTER AS VARCHAR(10)), 2) \N WHEN '01' THEN '03' \N WHEN '02' THEN '06' \N WHEN '03' THEN '09' \N ELSE '12' \N END, '01')), 1) OVER(\N PARTITION BY FORCEID, CONTRACT.PPACONTRACTNUMBER \N ORDER BY FORCEID, CONTRACT.PPACONTRACTNUMBER,DIMRECEIPTDATE.RECEIPTDATECALQUARTER), \N TO_DATE(CONCAT(CAST(LEFT(DIMRECEIPTDATE.RECEIPTDATECALQUARTER, 4) AS VARCHAR(10)), \N CASE RIGHT(CAST(DIMRECEIPTDATE.RECEIPTDATECALQUARTER AS VARCHAR(10)), 2) \N WHEN '01' THEN '03' \N WHEN '02' THEN '06' \N WHEN '03' THEN '09' \N ELSE '12' \N END, '01')))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 05ab1dcb-0122-4194-b894-a45ce206ef7c
+          stepCounter: 1ebfecf9-dfb8-4920-a74d-e4a1c662e0e2
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: DATE AND TIME THE ROW WAS CREATED IN THE DATA WAREHOUSE.
+        name: DSSCREATETIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6d579475-ed81-458c-baf7-eb8bed4b27ed
+          stepCounter: 1ebfecf9-dfb8-4920-a74d-e4a1c662e0e2
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: DATE AND TIME THE ROW WAS UPDATED IN THE DATA WAREHOUSE.
+        name: DSSUPDATETIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          SALESANDREVENUE: bc791129-d159-4fb2-a8c8-429979cdade2
+          ACCOUNT: 745ecacb-59f4-457a-9a6f-e827d225494e
+          CONTRACT: a550c43a-4d5a-4a69-aa48-4cefa3de4b21
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DIM
+            nodeName: ACCOUNT
+          - locationName: DIM
+            nodeName: CONTRACT
+          - locationName: DIM
+            nodeName: DIM_RECEIPTDATE
+          - locationName: FACT
+            nodeName: SALESANDREVENUE
+          - locationName: UNKNOWN
+            nodeName: DIMRECEIPTDATE
+        join:
+          joinCondition: |-
+            FROM {{ ref('FACT','SALESANDREVENUE') }} SALESANDREVENUE
+              LEFT JOIN {{ ref('DIM','ACCOUNT') }} ACCOUNT
+                ON SALESANDREVENUE.ACCOUNTKEY = ACCOUNT.ACCOUNTKEY
+              LEFT JOIN {{ ref('DIM','CONTRACT') }} CONTRACT
+                ON SALESANDREVENUE.CONTRACTKEY = CONTRACT.CONTRACTKEY
+              LEFT JOIN {{ ref('UNKNOWN','DIMRECEIPTDATE') }} DIMRECEIPTDATE
+                ON SALESANDREVENUE.RECEIPTDATEKEY = DIMRECEIPTDATE.RECEIPTDATEKEY
+             GROUP BY ACCOUNT.FORCEID,
+                      CONTRACT.PPACONTRACTNUMBER,
+                      DIMRECEIPTDATE.RECEIPTDATECALQUARTER
+             ORDER BY ACCOUNT.FORCEID,
+                      CONTRACT.PPACONTRACTNUMBER,
+                      DIMRECEIPTDATE.RECEIPTDATECALQUARTER
+        name: AGGCONTRACTUSAGEBYRECEIPTDATE
+        noLinkRefs: []
+  name: AGG_CONTRACTUSAGEBYRECEIPTDATE
+  overrideSQL: false
+  schema: ""
+  sqlType: Agreggate
+  type: sql
+  version: 1
+type: Node

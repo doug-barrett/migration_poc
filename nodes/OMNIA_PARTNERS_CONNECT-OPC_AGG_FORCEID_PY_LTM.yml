@@ -1,0 +1,160 @@
+fileVersion: 1
+id: 2b7c09d5-f8c0-4b05-a4b1-fd5516d39057
+name: OPC_AGG_FORCEID_PY_LTM
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "AGGREGATES BY LEVEL1FORCEID, SUM OF SALES, SUM OF REVENUE, # OF FINANCIAL REPORTING SUPPLIER NAME, # OF CONTRACTS, # OF CONTRACT CATEGORIES, DATE OF 1ST PURCHASE, DATE OF MOST RECENT PURCHASE FOR ALL TIME"
+  isMultisource: false
+  locationName: OMNIA_PARTNERS_CONNECT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1c8cc89d-fdc1-4c65-a02f-3c426a6c7c8c
+          stepCounter: 2b7c09d5-f8c0-4b05-a4b1-fd5516d39057
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ACCOUNT ID
+        isBusinessKey: true
+        name: FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 41e41cc3-20b8-439b-9bef-df6eda9ca78c
+                stepCounter: b81bbd3d-2e74-47e6-9a50-14b4b2755017
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f9584943-0c8e-4df2-a42a-d754a05f4a68
+          stepCounter: 2b7c09d5-f8c0-4b05-a4b1-fd5516d39057
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: IS THE SALES AMOUNT, OR GROSS TRANSACTION VOLUME (GTV), ASSOCIATED WITH A TRANSACTION IN US DOLLARS. A SALES AMOUNT IS TYPICALLY NOT AN INDIVIDUAL SALE, BUT A MONTHLY AGGREGATE OF ALL SALES FOR A CUSTOMER IN A GIVEN MONTH.
+        name: FORCEID_PY_LTM_SUMOFGTV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 81da23c5-97ec-4dfc-9602-456999fc947d
+                stepCounter: b81bbd3d-2e74-47e6-9a50-14b4b2755017
+            transform: SUM(OPC_SALESANDREVENUE.SALES)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: db60a8e7-a6fb-48fe-9981-062a806e901d
+          stepCounter: 2b7c09d5-f8c0-4b05-a4b1-fd5516d39057
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE RANK BY GROSS TRANSACTION VOLUME (GTV), ASSOCIATED TO THE LEVEL1FORCEID
+        name: FORCEID_PY_LTM_RANKBYGTV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 81da23c5-97ec-4dfc-9602-456999fc947d
+                stepCounter: b81bbd3d-2e74-47e6-9a50-14b4b2755017
+            transform: RANK() OVER (ORDER BY SUM(OPC_SALESANDREVENUE.SALES) DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d0e02694-1a5b-4559-9e14-8f5adf247d3b
+          stepCounter: 2b7c09d5-f8c0-4b05-a4b1-fd5516d39057
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE DISTINCT COUNT OF FINANCIAL REPORTING SUPPLIER NAMES FOR A LEVEL1FORCEID.
+        name: FORCEID_PY_LTM_NUMOFSUPPLIERSUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 988d0578-4aaf-4e10-acee-57ee80dbfbf6
+                stepCounter: b81bbd3d-2e74-47e6-9a50-14b4b2755017
+            transform: COUNT (DISTINCT OPC_SALESANDREVENUE.FINANCIALREPORTINGSUPPLIERNAME)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cf7f583d-0f76-4a4d-acae-bc384214862d
+          stepCounter: 2b7c09d5-f8c0-4b05-a4b1-fd5516d39057
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE LIFETIME "DISTINCT COUNT" OF INITIALCONTRACTID FOR EACH LEVEL1FORCEID.
+        name: FORCEID_PY_LTM_NUMOFCONTRACTSUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 286a21b2-c610-42ae-8d07-35654897d997
+                stepCounter: b81bbd3d-2e74-47e6-9a50-14b4b2755017
+            transform: COUNT (DISTINCT OPC_SALESANDREVENUE.INITIALCONTRACTID)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 48f2344a-2576-4749-beae-806327f47572
+          stepCounter: 2b7c09d5-f8c0-4b05-a4b1-fd5516d39057
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE LIFETIME "DISTINCT COUNT" OF CONTRACTCATEGORY FOR EACH LEVEL1FORCEID
+        name: FORCEID_PY_LTM_NUMOFCONTRACTCATEGORIESUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9a4952cf-4d58-4ed0-8f63-aa663fad4534
+                stepCounter: b81bbd3d-2e74-47e6-9a50-14b4b2755017
+            transform: COUNT (DISTINCT OPC_SALESANDREVENUE.CONTRACTCATEGORY)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 78718a35-a405-4f80-9b7d-a11ec6b85931
+          stepCounter: 2b7c09d5-f8c0-4b05-a4b1-fd5516d39057
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: IS THE TIMESTAMP FOR WHEN THIS WAS CREATED.
+        name: DSSCREATETIME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: GETDATE()
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cf8338c8-1f8c-4339-900e-2dc8a54fe0c3
+          stepCounter: 2b7c09d5-f8c0-4b05-a4b1-fd5516d39057
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: IS THE TIMESTAMP FOR WHEN THIS LAST UPDATED.
+        name: DSSUPDATETIME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: GETDATE()
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          OPC_SALESANDREVENUE: b81bbd3d-2e74-47e6-9a50-14b4b2755017
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: OMNIA_CONNECT_OPC
+            nodeName: OPC_SALESANDREVENUE
+        join:
+          joinCondition: |-
+            FROM {{ ref('OMNIA_CONNECT_OPC','OPC_SALESANDREVENUE') }} OPC_SALESANDREVENUE
+             WHERE DATEDIFF(MONTH,TRANSACTIONDATE,MAXREPORTINGPERIODENDDATE) BETWEEN 12 AND 23
+             GROUP BY OPC_SALESANDREVENUE.FORCEID
+            HAVING SUM(OPC_SALESANDREVENUE.SALES) <> 0
+        name: OPC_AGGFORCEID_PY_LTM
+        noLinkRefs: []
+  name: OPC_AGG_FORCEID_PY_LTM
+  overrideSQL: false
+  schema: ""
+  sqlType: Agreggate
+  type: sql
+  version: 1
+type: Node

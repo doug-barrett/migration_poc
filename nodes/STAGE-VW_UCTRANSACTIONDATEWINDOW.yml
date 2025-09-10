@@ -1,0 +1,161 @@
+fileVersion: 1
+id: a75a004a-cf4f-4c81-bd63-d2cd028ce91d
+name: VW_UCTRANSACTIONDATEWINDOW
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: af18e628-ac03-40d5-ac57-653c23c1df7c
+          stepCounter: a75a004a-cf4f-4c81-bd63-d2cd028ce91d
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONDATE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6b0b000b-a15f-43eb-b4f6-4f6a8130115f
+                stepCounter: 6eaecd60-0f22-452d-a448-00685b998eaa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f9949a0e-1192-42e7-b42c-6fa2205b83f3
+          stepCounter: a75a004a-cf4f-4c81-bd63-d2cd028ce91d
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: LEADINGWINDOWSTARTDATE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f5cc281b-b831-4275-9a53-e50e5b4435e9
+                stepCounter: 3c0100b2-742d-4954-82f2-80287505d3ad
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 86117e25-d57e-484c-8254-3edb7b676e5f
+          stepCounter: a75a004a-cf4f-4c81-bd63-d2cd028ce91d
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: LEADINGWINDOWENDDATE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 564fb70a-1e71-450e-b0d8-b9f28f07f338
+                stepCounter: 3c0100b2-742d-4954-82f2-80287505d3ad
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 20cbd8b4-d399-4342-9415-5170bd4292ec
+          stepCounter: a75a004a-cf4f-4c81-bd63-d2cd028ce91d
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: TRAILINGWINDOWSTARTDATE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: eed7e3c8-2b69-4f68-bb85-e91519af21b6
+                stepCounter: 3c0100b2-742d-4954-82f2-80287505d3ad
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d786647d-c03b-49be-b396-ecfcba0cff3e
+          stepCounter: a75a004a-cf4f-4c81-bd63-d2cd028ce91d
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: TRAILINGWINDOWENDDATE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7b1bf018-3505-411c-a1e9-22652f608220
+                stepCounter: 3c0100b2-742d-4954-82f2-80287505d3ad
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 910eae14-9dc5-4db0-a245-82e98af574d1
+          stepCounter: a75a004a-cf4f-4c81-bd63-d2cd028ce91d
+        config: {}
+        dataType: BOOLEAN
+        defaultValue: ""
+        description: ""
+        name: LEADING12MONTHS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CAST(CASE \N WHEN VWALLTRANSACTIONDATES.TRANSACTIONDATE BETWEEN VWLEADINGTRAILINGRANGE.LEADINGWINDOWSTARTDATE AND VWLEADINGTRAILINGRANGE.LEADINGWINDOWENDDATE THEN 1 \N ELSE 0 \NEND AS BOOLEAN)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ff14e131-7389-4660-8acb-3fce54dee474
+          stepCounter: a75a004a-cf4f-4c81-bd63-d2cd028ce91d
+        config: {}
+        dataType: BOOLEAN
+        defaultValue: ""
+        description: ""
+        name: TRAILING12MONTHS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CAST(CASE \N WHEN VWALLTRANSACTIONDATES.TRANSACTIONDATE BETWEEN VWLEADINGTRAILINGRANGE.TRAILINGWINDOWSTARTDATE AND VWLEADINGTRAILINGRANGE.TRAILINGWINDOWENDDATE THEN 1 \N ELSE 0 \NEND AS BOOLEAN)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            WITH CTEMINMAXTRANSDATE \N AS (
+                    SELECT \N MIN(SURLI.TRANSACTIONDATE) AS LEADINGWINDOWSTARTDATE, \N DATEADD(M, 11, MIN(SURLI.TRANSACTIONDATE)) AS LEADINGWINDOWENDDATE, \N DATEADD(M, -11, MAX(SURLI.TRANSACTIONDATE)) AS TRAILINGWINDOWSTARTDATE, \N MAX(SURLI.TRANSACTIONDATE) AS TRAILINGWINDOWENDDATE \N
+                      FROM STAGE.STAGEUCSPENDREPORTINGLINEITEMS AS SURLI
+                   ), \N CTEALLTRANSACTIONDATES \N AS (
+                    SELECT DISTINCT \N SURLI.TRANSACTIONDATE \N
+                      FROM STAGE.STAGEUCSPENDREPORTINGLINEITEMS AS SURLI
+                   ), \N CTETRANSACTIONWINDOWS \N AS (
+                    SELECT \N CATD.TRANSACTIONDATE, \N CMMTD.LEADINGWINDOWSTARTDATE, \N CMMTD.LEADINGWINDOWENDDATE, \N CMMTD.TRAILINGWINDOWSTARTDATE, \N CMMTD.TRAILINGWINDOWENDDATE, \N CASE \N
+                                WHEN CATD.TRANSACTIONDATE BETWEEN CMMTD.LEADINGWINDOWSTARTDATE AND CMMTD.LEADINGWINDOWENDDATE THEN 1 \N
+                                ELSE 0 \N
+                                 END AS LEADING12MONTHS, \N CASE \N
+                                WHEN CATD.TRANSACTIONDATE BETWEEN CMMTD.TRAILINGWINDOWSTARTDATE AND CMMTD.TRAILINGWINDOWENDDATE THEN 1 \N
+                                ELSE 0 \N
+                                 END AS TRAILING12MONTHS \N
+                      FROM CTEALLTRANSACTIONDATES AS CATD \N
+                     CROSS JOIN CTEMINMAXTRANSDATE AS CMMTD
+                   ) \N SELECT \N CTW.TRANSACTIONDATE, \N CTW.LEADINGWINDOWSTARTDATE, \N CTW.LEADINGWINDOWENDDATE, \N CTW.TRAILINGWINDOWSTARTDATE, \N CTW.TRAILINGWINDOWENDDATE, \N CTW.LEADING12MONTHS, \N CTW.TRAILING12MONTHS \N
+              FROM CTETRANSACTIONWINDOWS AS CTW
+        dependencies:
+          - locationName: STAGE
+            nodeName: VW_ALLTRANSACTIONDATES
+          - locationName: STAGE
+            nodeName: VW_LEADINGTRAILINGRANGE
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','VW_ALLTRANSACTIONDATES') }}
+            {{ ref('STAGE','VW_LEADINGTRAILINGRANGE') }}
+        name: VWUCTRANSACTIONDATEWINDOW
+        noLinkRefs: []
+  name: VW_UCTRANSACTIONDATEWINDOW
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

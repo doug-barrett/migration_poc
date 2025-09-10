@@ -1,0 +1,98 @@
+fileVersion: 1
+id: 4de54d12-3c69-4199-af03-7ac35d01c740
+name: VW_SALESANDREVENUEUNMATCHEDKEYS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2653f92a-64fd-4b0a-8f70-32d9bbc3121a
+          stepCounter: 4de54d12-3c69-4199-af03-7ac35d01c740
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: ""
+        name: LOADDATE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 87c7d77f-8364-4bfb-8f9e-b9bd017b5be1
+          stepCounter: 4de54d12-3c69-4199-af03-7ac35d01c740
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: KEYNAME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 406e7114-6847-4f4d-817d-5b2fbe4ee009
+          stepCounter: 4de54d12-3c69-4199-af03-7ac35d01c740
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: KEYCOUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref('UNKNOWN','VWSALESANDREVENUEUNMATCHEDKEYS') }}(\NLOADDATE, \NKEYNAME, \NKEYCOUNT \N) \NAS \NWITH CTE \N AS (
+                    SELECT SUM(CASE WHEN ACCOUNTGEOGRAPHYKEY = 0 THEN 1 ELSE 0 END) AS ACCOUNTGEOGRAPHYKEY, \N SUM(CASE WHEN ACCOUNTHIERARCHYKEY = 0 THEN 1 ELSE 0 END) AS ACCOUNTHIERARCHYKEY, \N SUM(CASE WHEN ACCOUNTKEY = 0 THEN 1 ELSE 0 END) AS ACCOUNTKEY, \N SUM(CASE WHEN CONTRACTKEY = 0 THEN 1 ELSE 0 END) AS CONTRACTKEY, \N SUM(CASE WHEN DIRECTSALESTERRITORYKEY = 0 THEN 1 ELSE 0 END) AS DIRECTSALESTERRITORYKEY, \N SUM(CASE WHEN FINANCIALSALESTERRITORYKEY = 0 THEN 1 ELSE 0 END) AS FINANCIALSALESTERRITORYKEY , \N SUM(CASE WHEN ORGANIZATIONKEY = 0 THEN 1 ELSE 0 END) AS ORGANIZATIONKEY, \N SUM(CASE WHEN RECEIPTDATEKEY = 0 THEN 1 ELSE 0 END) AS RECEIPTDATEKEY, \N SUM(CASE WHEN REVENUEBUDGETFORCEIDDETAILKEY = 0 THEN 1 ELSE 0 END) AS REVENUEBUDGETFORCEIDDETAILKEY, \N SUM(CASE WHEN REVENUEBUDGETFORCEIDDIRECTDETAILKEY = 0 THEN 1 ELSE 0 END) AS REVENUEBUDGETFORCEIDDIRECTDETAILKEY, \N SUM(CASE WHEN REVENUEBUDGETPDDETAILKEY = 0 THEN 1 ELSE 0 END) AS REVENUEBUDGETPDDETAILKEY, \N SUM(CASE WHEN SALESTERRITORYKEY = 0 THEN 1 ELSE 0 END) AS SALESTERRITORYKEY, \N SUM(CASE WHEN SUPPLIERKEY = 0 THEN 1 ELSE 0 END) AS SUPPLIERKEY, \N SUM(CASE WHEN TRANSACTIONDATEKEY = 0 THEN 1 ELSE 0 END) AS TRANSACTIONDATEKEY, \N MAX(DSS_LOAD_DATE) AS LOADDATE \N \N
+                      FROM STAGE.STAGESALESMERGE_ADDKEYS AS SMAK \N
+                     WHERE ACCOUNTGEOGRAPHYKEY = 0 \N
+                        OR ACCOUNTHIERARCHYKEY = 0 \N
+                        OR ACCOUNTKEY = 0 \N
+                        OR CONTRACTKEY = 0 \N
+                        OR DIRECTSALESTERRITORYKEY = 0 \N
+                        OR FINANCIALSALESTERRITORYKEY = 0 \N
+                        OR ORGANIZATIONKEY = 0 \N
+                        OR RECEIPTDATEKEY = 0 \N
+                        OR REVENUEBUDGETFORCEIDDETAILKEY = 0 \N
+                        OR REVENUEBUDGETFORCEIDDIRECTDETAILKEY = 0 \N
+                        OR REVENUEBUDGETPDDETAILKEY = 0 \N
+                        OR SALESTERRITORYKEY = 0 \N
+                        OR SUPPLIERKEY = 0 \N
+                        OR TRANSACTIONDATEKEY = 0
+                   ) \N SELECT LOADDATE, \N KEYNAME, \N KEYCOUNT \N
+              FROM CTE UNPIVOT(KEYCOUNT FOR KEYNAME IN(\N ACCOUNTGEOGRAPHYKEY , \N ACCOUNTHIERARCHYKEY , \N ACCOUNTKEY , \N CONTRACTKEY , \N DIRECTSALESTERRITORYKEY , \N FINANCIALSALESTERRITORYKEY, \N ORGANIZATIONKEY , \N RECEIPTDATEKEY , \N REVENUEBUDGETFORCEIDDETAILKEY, \N REVENUEBUDGETFORCEIDDIRECTDETAILKEY, \N REVENUEBUDGETPDDETAILKEY , \N SALESTERRITORYKEY , \N SUPPLIERKEY)) AS UNPVT \N
+             ORDER BY KEYNAME
+        dependencies:
+          - locationName: UNKNOWN
+            nodeName: VWSALESANDREVENUEUNMATCHEDKEYS
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('UNKNOWN','VWSALESANDREVENUEUNMATCHEDKEYS') }}
+        name: VWSALESANDREVENUEUNMATCHEDKEYS
+        noLinkRefs: []
+  name: VW_SALESANDREVENUEUNMATCHEDKEYS
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

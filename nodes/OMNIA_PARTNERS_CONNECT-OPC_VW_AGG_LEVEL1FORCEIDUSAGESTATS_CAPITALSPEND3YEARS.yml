@@ -1,0 +1,88 @@
+fileVersion: 1
+id: 33f65956-e0f6-4b70-9e15-7ff55f8b9deb
+name: OPC_VW_AGG_LEVEL1FORCEIDUSAGESTATS_CAPITALSPEND3YEARS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: OMNIA_PARTNERS_CONNECT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dcd5a49e-1c2c-48ea-9c06-213866d7f9a8
+          stepCounter: 33f65956-e0f6-4b70-9e15-7ff55f8b9deb
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: LEVEL1FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: dbd52eeb-ef39-497c-b752-83d2a8166e30
+                stepCounter: b81bbd3d-2e74-47e6-9a50-14b4b2755017
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bcfcc2a4-c408-42f1-93b0-2e49295ad25a
+          stepCounter: 33f65956-e0f6-4b70-9e15-7ff55f8b9deb
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: SUPPLIERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 385724d3-f8fe-41b0-b205-f625f1e59d45
+                stepCounter: b81bbd3d-2e74-47e6-9a50-14b4b2755017
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 93ee3805-60e2-48ec-8b9d-6e651c4dd343
+          stepCounter: 33f65956-e0f6-4b70-9e15-7ff55f8b9deb
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: ""
+        name: CAPITALSPENDLAST3YEARS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 81da23c5-97ec-4dfc-9602-456999fc947d
+                stepCounter: b81bbd3d-2e74-47e6-9a50-14b4b2755017
+            transform: SUM(OPC_SALESANDREVENUE.SALES)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          OPC_SALESANDREVENUE: b81bbd3d-2e74-47e6-9a50-14b4b2755017
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: OMNIA_CONNECT_OPC
+            nodeName: OPC_SALESANDREVENUE
+        join:
+          joinCondition: |-
+            FROM {{ ref('OMNIA_CONNECT_OPC','OPC_SALESANDREVENUE') }}
+             WHERE DATEDIFF(MONTH, OPC_SALESANDREVENUE.TRANSACTIONDATE, OPC_SALESANDREVENUE.MAXREPORTINGPERIODENDDATE) BETWEEN 0 AND 35
+               AND OPC_SALESANDREVENUE.ISCAPITALCONTRACT =1
+               AND OPC_SALESANDREVENUE.SECTOR='PUBLIC'
+             GROUP BY OPC_SALESANDREVENUE.LEVEL1FORCEID,
+                      OPC_SALESANDREVENUE.SUPPLIERID
+        name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_CAPITALSPEND3YEARS
+        noLinkRefs: []
+  name: OPC_VW_AGG_LEVEL1FORCEIDUSAGESTATS_CAPITALSPEND3YEARS
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node
