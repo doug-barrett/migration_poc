@@ -1,0 +1,271 @@
+fileVersion: 1
+id: af658be6-2676-4553-babb-9d4970377e4a
+name: VWBUDGET2019BYFORCEID_DIRECT
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: REPORTS
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0ab954bd-abd3-4bfd-ac77-ba14d8f498ec
+          stepCounter: af658be6-2676-4553-babb-9d4970377e4a
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: TERRITORYID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 08ed6198-fbbc-4c44-9d8a-2e942ddef31d
+          stepCounter: af658be6-2676-4553-babb-9d4970377e4a
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: BUDGETDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 772c3a74-6bfb-4cd9-bdca-1eead93abc27
+          stepCounter: af658be6-2676-4553-babb-9d4970377e4a
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: LEVEL1FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 90e19023-4a2d-44db-b9c3-2944f01ea210
+          stepCounter: af658be6-2676-4553-babb-9d4970377e4a
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4afa7020-9fdd-42a0-9c18-74a91fab4405
+          stepCounter: af658be6-2676-4553-babb-9d4970377e4a
+        config: {}
+        dataType: NUMERIC(18,18)
+        defaultValue: ""
+        description: ""
+        name: FORCEIDDISTRIBUTION
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 11adf2f7-fc3c-4709-aef4-be1994affb9b
+          stepCounter: af658be6-2676-4553-babb-9d4970377e4a
+        config: {}
+        dataType: DECIMAL(18,2)
+        defaultValue: ""
+        description: ""
+        name: BUDGETFORCEIDSALESAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3503791e-9759-4112-98eb-b6040def4643
+          stepCounter: af658be6-2676-4553-babb-9d4970377e4a
+        config: {}
+        dataType: DECIMAL(18,2)
+        defaultValue: ""
+        description: ""
+        name: BUDGETFORCEIDREVENUEAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 07fa0b64-dd39-4773-80a6-9170d1dadd2e
+          stepCounter: af658be6-2676-4553-babb-9d4970377e4a
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: TERRITORYID_PY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f4aceb6c-dae5-4d65-834c-27b6ed67fac6
+          stepCounter: af658be6-2676-4553-babb-9d4970377e4a
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: BUDGETTYPE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            --------------------------------------------------------------------------------------------------------------------------
+            \N--GET AMOUNTS TO USE BY 2019 BUDGET DATE
+            \N--------------------------------------------------------------------------------------------------------------------------
+            \N \NWITH CTETOTALSALESREVENUE --GET ACTUALS (USE 2018 NUMBERS FOR MONTHS NOT CLOSED IN 2019)
+            \N AS (
+                    SELECT \N [SAR].[DIRECTTERRITORYDIVISIONID] AS [TERRITORYDIVISIONID], \N [SAR].[RECEIPTDATE], \N CASE YEAR([SAR].[RECEIPTDATE]) \N
+                                WHEN 2018                    THEN DATEADD([YY], 1, [SAR].[RECEIPTDATE]) \N
+                                ELSE [SAR].[RECEIPTDATE] \N
+                                 END AS [BUDGETDATE], \N SUM([SAR].[SALES]) AS [TOTALSALES], \N SUM([SAR].[REVENUE]) AS [TOTALREVENUE] \N
+                      FROM [REPORTS].[SALESANDREVENUE] AS [SAR] \N
+                     WHERE [SAR].[RECEIPTDATEKEY] BETWEEN 20181001 AND 20190930 -- ACTUALS FOR LAST 12 MONTHS ONLY
+            \N
+                       AND [SAR].[DIRECTTERRITORYDIVISIONID] IN (3) \N
+                     GROUP BY \N [SAR].[DIRECTTERRITORYDIVISIONID], \N [SAR].[RECEIPTDATE]
+                   ) \N--SELECT * FROM [CTETOTALSALESREVENUE] AS CTSR ORDER BY [CTSR].[BUDGETDATE]
+            \N, \N [CTETOTALBUDGETREVENUE] --GET BUDGET FOR REMAINING MONTHS OF 2019
+            \N AS (
+                    SELECT \N [ST].[TERRITORYDIVISIONID] AS [TERRITORYDIVISIONID], \N [B].[BUDGETDATE], \N SUM([B].[BUDGETSALESAMOUNT]) AS [BUDGETSALESAMOUNT], \N SUM([B].[BUDGETREVENUEAMOUNT]) AS [BUDGETREVENUEAMOUNT] \N
+                      FROM [FACT].[BUDGET] AS [B] \N
+                      LEFT OUTER JOIN [DIM].[DIRECTSALESTERRITORY] AS [ST]
+                        ON [B].[SALESTERRITORYKEY] = [ST].[DIRECTSALESTERRITORYKEY] \N
+                     WHERE [B].[BUDGETDATEKEY] BETWEEN 20190101 AND 20191231 \N
+                       AND [ST].[TERRITORYDIVISIONID] IN (3) \N
+                     GROUP BY \N [ST].[TERRITORYDIVISIONID], \N [B].[BUDGETDATE]
+                   ) \N --SELECT * FROM [CTETOTALBUDGETREVENUE] AS [CTBR] ORDER BY [CTBR].[BUDGETDATE]
+            \N , \N CTEMASTERBUDGETBYBUDGETDATE \N AS (
+                    SELECT \N [CTSR].[TERRITORYDIVISIONID], \N [CTSR].[BUDGETDATE], \N CASE YEAR([CTSR].[RECEIPTDATE]) \N
+                                WHEN 2018                     THEN [CTBR].[BUDGETSALESAMOUNT] \N
+                                ELSE [CTBR].[BUDGETSALESAMOUNT]--[CTSR].[TOTALSALES]
+            \N
+                                 END AS [BUDGETSALESAMOUNT], \N CASE YEAR([CTSR].[RECEIPTDATE]) \N
+                                WHEN 2018                     THEN [CTBR].[BUDGETREVENUEAMOUNT] \N
+                                ELSE [CTBR].[BUDGETREVENUEAMOUNT]--[CTSR].[TOTALREVENUE]
+            \N
+                                 END AS [BUDGETREVENUEAMOUNT] \N
+                      FROM [CTETOTALSALESREVENUE] AS [CTSR] \N
+                      LEFT OUTER JOIN [CTETOTALBUDGETREVENUE] AS [CTBR]
+                        ON [CTBR].[BUDGETDATE] = [CTSR].[BUDGETDATE] \N
+                       AND [CTBR].[TERRITORYDIVISIONID] = [CTSR].[TERRITORYDIVISIONID] \N --ORDER BY [CTBR].[BUDGETDATE]
+            \N
+                   ) \N --SELECT * FROM   [CTEMASTERBUDGETBYBUDGETDATE] AS [CMBBBD] ORDER BY [CMBBBD].[BUDGETDATE], [TERRITORYDIVISIONID]
+            \N , \N --------------------------------------------------------------------------------------------------------------------------
+            \N --GET SPLIT BY FORCEID FOR LAST 12 MONTHS AND APPLY THE SAME TO ABOVE BUDGETAMOUNTS
+            \N --------------------------------------------------------------------------------------------------------------------------
+            \N CTEFORCEIDSALESREVENUE --GET ACTUALS BY FORCEID (USE 2018 NUMBERS FOR MONTHS NOT CLOSED IN 2019)
+            \N AS (
+                    SELECT \N [SAR].[DIRECTTERRITORYDIVISIONID] AS [TERRITORYDIVISIONID], \N CASE YEAR([SAR].[RECEIPTDATE]) \N
+                                WHEN 2018                    THEN DATEADD([YY], 1, [SAR].[RECEIPTDATE]) \N
+                                ELSE [SAR].[RECEIPTDATE] \N
+                                 END AS [BUDGETDATE], \N [SAR].[FORCEID], \N COUNT([SAR].[FORCEID]) OVER(PARTITION BY [SAR].[RECEIPTDATE]) AS [FORCEIDCOUNT], \N SUM([SAR].[SALES]) AS [FORCEIDSALES], \N SUM([SAR].[REVENUE]) AS [FORCEIDREVENUE]--, AVG([SAR].[BUDGETREVENUEAMOUNT]) [BUDGETREVENUEAMOUNT]
+            \N
+                      FROM [REPORTS].[SALESANDREVENUE] AS [SAR] \N
+                     WHERE [SAR].[RECEIPTDATEKEY] BETWEEN 20181001 AND 20190930 -- ACTUALS FOR LAST 12 MONTHS ONLY
+            \N
+                       AND [SAR].[DIRECTTERRITORYDIVISIONID] IN (3) \N
+                       AND [SAR].[FORCEID] IS NOT NULL --THERE ARE BUDGETS WHERE SALES HAS NOT HAPPENED, HENCE NO FORCEID
+            \N
+                     GROUP BY \N [SAR].[DIRECTTERRITORYDIVISIONID], \N [SAR].[RECEIPTDATE], \N [SAR].[FORCEID]
+                   ) \N --SELECT TOP 10 * FROM [CTEFORCEIDSALESREVENUE] AS [CFISR] WHERE FORCEIDREVENUE = 0
+            \N --SELECT * FROM [CTEFORCEIDSALESREVENUE] AS CFISR GROUP BY BUDGETDATE
+            \N --SELECT CFISR.BUDGETDATE,SUM(CFISR.[FORCEIDSALES]) , SUM([CFISR].[FORCEIDREVENUE]) FROM [CTEFORCEIDSALESREVENUE] AS CFISR GROUP BY CFISR.BUDGETDATE ORDER BY [CFISR].[BUDGETDATE]
+            \N , \N CTEFORCEIDSALESREVENUE_DISTRIBUTION --GET THE SPLIT BY FORCEID
+            \N AS (
+                    SELECT \N [CFSR].[TERRITORYDIVISIONID], \N [CFSR].[BUDGETDATE], \N [CFSR].[FORCEID], \N [CFSR].[FORCEIDSALES], \N [CFSR].[FORCEIDREVENUE], \N [CTSR].[TOTALSALES], \N [CTSR].[TOTALREVENUE], \N CASE \N
+                                WHEN [CFSR].[FORCEIDCOUNT] = 0 THEN 1 --ALLOCATE FULL
+            \N
+                                ELSE CASE \N WHEN NOT([CFSR].[FORCEIDREVENUE] = 0) THEN CAST([CFSR].[FORCEIDREVENUE] AS NUMERIC(38, 18)) / [CTSR].[TOTALREVENUE] --ALLOCATE BY REVENUE RATIO
+            \N --WHEN NOT([CFSR].[FORCEIDSALES] = 0) THEN CAST([CFSR].[FORCEIDSALES] AS NUMERIC(38, 18)) / [CTSR].[TOTALSALES] --ALLOCATE BY SALES RATIO
+            \N ELSE 0 \N END \N --ELSE CAST(1.0 AS NUMERIC(38, 18)) / [CFSR].[FORCEIDCOUNT] --ALLOCATE EQUALLY TO ALL FORCEIDS
+            \N
+                                 END AS [FORCEIDDISTRIBUTION] \N
+                      FROM [CTEFORCEIDSALESREVENUE] AS [CFSR] \N
+                      LEFT OUTER JOIN [CTETOTALSALESREVENUE] AS [CTSR]
+                        ON [CFSR].[BUDGETDATE] = [CTSR].[BUDGETDATE] \N
+                       AND [CFSR].[TERRITORYDIVISIONID] = [CTSR].[TERRITORYDIVISIONID]
+                   ) \N --SELECT [CFSRD].[BUDGETDATE], SUM([CFSRD].[FORCEIDDISTRIBUTION])FROM   [CTEFORCEIDSALESREVENUE_DISTRIBUTION] AS [CFSRD]GROUP BY [CFSRD].[BUDGETDATE]ORDER BY [CFSRD].[BUDGETDATE]
+            \N --SELECT TOP 10 * FROM   [CTEFORCEIDSALESREVENUE_DISTRIBUTION] AS [CFISRD] WHERE FORCEID IS NULL
+            \N --SELECT * FROM [CTEFORCEIDSALESREVENUE_DISTRIBUTION] AS [CFISRD] WHERE FORCEID = 1027904
+            \N , \N CTESALESANDBUDGET_2019_BYFORCEID \N AS (
+                    SELECT \N [CMB].[TERRITORYDIVISIONID], \N [CFD].[BUDGETDATE], \N [CFD].[FORCEID], \N --[CFD].[FORCEIDREVENUE],
+            \N [CFD].[FORCEIDDISTRIBUTION], \N CASE \N
+                                WHEN MONTH([CFD].[BUDGETDATE]) IN(10, 11, 12) THEN [CFD].[FORCEIDDISTRIBUTION] * [CMB].[BUDGETSALESAMOUNT] \N
+                                ELSE [CFD].[FORCEIDDISTRIBUTION] * [CMB].[BUDGETSALESAMOUNT]--[CFD].[TOTALSALES]
+            \N
+                                 END AS [BUDGETFORCEIDSALESAMOUNT], \N CASE \N
+                                WHEN MONTH([CFD].[BUDGETDATE]) IN(10, 11, 12) THEN [CFD].[FORCEIDDISTRIBUTION] * [CMB].[BUDGETREVENUEAMOUNT] \N
+                                ELSE [CFD].[FORCEIDDISTRIBUTION] * [CMB].[BUDGETREVENUEAMOUNT]--[CFD].[TOTALREVENUE]
+            \N
+                                 END AS [BUDGETFORCEIDREVENUEAMOUNT], \N CAST('TERRITORY BUDGET' AS VARCHAR(20)) AS [BUDGETTYPE] \N
+                      FROM [CTEMASTERBUDGETBYBUDGETDATE] AS [CMB] \N
+                      LEFT OUTER JOIN [CTEFORCEIDSALESREVENUE_DISTRIBUTION] AS [CFD]
+                        ON [CFD].[BUDGETDATE] = [CMB].[BUDGETDATE] \N
+                       AND [CFD].[TERRITORYDIVISIONID] = [CMB].[TERRITORYDIVISIONID]
+                   ) \N --SELECT [BUDGETDATE], SUM([CSABBFI].[BUDGETFORCEIDREVENUEAMOUNT]), SUM([CSABBFI].[FORCEIDDISTRIBUTION]) FROM   [CTESALESANDBUDGET_2019_BYFORCEID] AS [CSABBFI] GROUP BY [CSABBFI].[BUDGETDATE] ORDER BY [CSABBFI].[BUDGETDATE]
+            \N --SELECT TOP 10 CMB.*, CFD.[TOTALSALES], CFD.[TOTALREVENUE], CFD.[FORCEID], CFD.[FORCEIDDISTRIBUTION], CFD.[FORCEIDSALES], CFD.[FORCEIDREVENUE] FROM [CTEMASTERBUDGETBYBUDGETDATE] AS [CMB] LEFT OUTER JOIN [CTEFORCEIDSALESREVENUE_DISTRIBUTION] AS [CFD] ON [CFD].[BUDGETDATE] = [CMB].[BUDGETDATE] WHERE MONTH(CMB.[BUDGETDATE]) IN (10,11,12)
+            \N --SELECT TOP 10 * FROM [CTEMASTERBUDGETBYBUDGETDATE] AS [CMB] LEFT OUTER JOIN [CTEFORCEIDSALESREVENUE_DISTRIBUTION] AS [CFD] ON [CFD].[BUDGETDATE] = [CMB].[BUDGETDATE] WHERE MONTH(CMB.[BUDGETDATE]) IN (10,11,12) AND CFD.FORCEID = 1136423
+            \N , \N --------------------------------------------------------------------------------------------------------------------
+            \N CTEFORCEIDBUDGET_2019 \N AS (
+                    SELECT --2019 BUDGET BY FORCEID
+            \N [CLB].[TERRITORYDIVISIONID], \N [DA].[TERRITORYIDDIRECT] AS [TERRITORYID], --2020 TERRITORYID
+            \N [CLB].[BUDGETDATE], \N [A].[LEVEL1FORCEID], \N [CLB].[FORCEID], \N [CLB].[FORCEIDDISTRIBUTION], \N [CLB].[BUDGETFORCEIDSALESAMOUNT], \N [CLB].[BUDGETFORCEIDREVENUEAMOUNT], \N NULL AS [GROWTH], \N [A].[TERRITORYIDDIRECT_PY] AS [TERRITORYID_PY], --2019 TERRITORYID
+            \N [CLB].[BUDGETTYPE] \N
+                      FROM [CTESALESANDBUDGET_2019_BYFORCEID] AS [CLB] \N
+                      LEFT OUTER JOIN [OMNIAPARTNERSODS].[ODS].[DSACCOUNT_NEXTYEAR] AS [A]
+                        ON [CLB].[FORCEID] = [A].[FORCEID] --GET 2019 TERRITORY FOR FORCEID
+            \N
+                      LEFT OUTER JOIN [OMNIAPARTNERSODS].[ODS].[DSACCOUNT] AS [DA]
+                        ON [CLB].[FORCEID] = [DA].[FORCEID] --GET 2020 TERRITORY FOR FORCEID
+            \N
+                   ) \N --SELECT BUDGETDATE,[TERRITORYDIVISIONID], CFB.[TERRITORYID], SUM([CFB].[BUDGETFORCEIDREVENUEAMOUNT]) FROM   CTEFORCEIDBUDGET_2019 AS CFB  GROUP BY BUDGETDATE,[TERRITORYDIVISIONID], CFB.[TERRITORYID] ORDER BY [CFB].[BUDGETDATE], [TERRITORYDIVISIONID], CFB.[TERRITORYID]
+            \N --SELECT BUDGETDATE, SUM([CFB].[BUDGETFORCEIDREVENUEAMOUNT]) FROM   [CTEFORCEIDBUDGET_2019] AS CFB  GROUP BY BUDGETDATE ORDER BY [CFB].[BUDGETDATE]
+            \N --SELECT BUDGETDATE,[TERRITORYDIVISIONID], SUM([CFB].[BUDGETFORCEIDREVENUEAMOUNT]) FROM   [CTEFORCEIDBUDGET_2019] AS CFB  GROUP BY BUDGETDATE,[TERRITORYDIVISIONID] ORDER BY [CFB].[BUDGETDATE], [TERRITORYDIVISIONID]
+            \N --------------------------------------------------------------------------------------------------------------------
+            \N --SELECT BUDGETDATE, SUM([CFB].[BUDGETFORCEIDREVENUEAMOUNT]) FROM   [CTEFORCEIDBUDGET_2020] AS CFB  GROUP BY BUDGETDATE ORDER BY [CFB].[BUDGETDATE]
+            \N SELECT \N --[CLB].[TERRITORYDIVISIONID],
+            \N [CLB].[TERRITORYID], --2020 TERRITORYID
+            \N [CLB].[BUDGETDATE], \N [CLB].[LEVEL1FORCEID], \N [CLB].[FORCEID], \N [CLB].[FORCEIDDISTRIBUTION], \N [CLB].[BUDGETFORCEIDSALESAMOUNT], \N [CLB].[BUDGETFORCEIDREVENUEAMOUNT], \N [CLB].[TERRITORYID_PY], --2019 TERRITORYID
+            \N [CLB].[BUDGETTYPE] \N
+              FROM [CTEFORCEIDBUDGET_2019] AS [CLB]
+        dependencies: []
+        join:
+          joinCondition: '-- Nodes used in the SQL override:'
+        name: VWBUDGET2019BYFORCEID_DIRECT
+        noLinkRefs: []
+  name: VWBUDGET2019BYFORCEID_DIRECT
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

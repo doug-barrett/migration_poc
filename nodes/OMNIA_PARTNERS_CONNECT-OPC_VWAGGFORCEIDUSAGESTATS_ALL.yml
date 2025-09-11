@@ -1,0 +1,131 @@
+fileVersion: 1
+id: bc409293-83c2-493b-9d23-c25c6cff560d
+name: OPC_VWAGGFORCEIDUSAGESTATS_ALL
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: OMNIA_PARTNERS_CONNECT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 81dc3e83-d2ca-4230-ade8-ec84c4106415
+          stepCounter: bc409293-83c2-493b-9d23-c25c6cff560d
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 80468446-c9b9-4aaf-8408-7063abe41d5e
+                stepCounter: 1b3ae776-e393-42bd-99ae-9e959af32f5b
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6bc57c18-e75a-4878-a46d-cca6bbe3f323
+          stepCounter: bc409293-83c2-493b-9d23-c25c6cff560d
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: SUPPLIERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9f9d6c4c-914b-4813-aecc-442d415d7a66
+                stepCounter: 1b3ae776-e393-42bd-99ae-9e959af32f5b
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5f8fe1ff-fc9f-4aac-bdaf-58b94e028486
+          stepCounter: bc409293-83c2-493b-9d23-c25c6cff560d
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: LIFETIME_SUMOFSALES
+        name: LIFETIME_SUMOFSALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 14a873b5-23b1-4234-a485-bf24c3107fde
+                stepCounter: 1b3ae776-e393-42bd-99ae-9e959af32f5b
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ad0d8648-3b30-408c-a7f8-3814436912fd
+          stepCounter: bc409293-83c2-493b-9d23-c25c6cff560d
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: PREVIOUS12MONTHS_SUMOFSALES
+        name: PREVIOUS12MONTHS_SUMOFSALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 62d0bb65-63fe-42ca-b3a4-a51600da0315
+                stepCounter: 83004408-c082-4d6d-a79b-db3aa741d2fd
+            transform: IFNULL(PREVIOUS12MONTHS_SUMOFSALES,0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: afb9a9ee-99be-4ccc-8187-9191d2cc0916
+          stepCounter: bc409293-83c2-493b-9d23-c25c6cff560d
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: CURRENT12MONTHS_SUMOFSALES
+        name: CURRENT12MONTHS_SUMOFSALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 69c69384-e278-4140-80d9-b6dc9ed68a2b
+                stepCounter: 98a48c08-2f8a-409f-905e-d35f98dc186d
+            transform: IFNULL(CURRENT12MONTHS_SUMOFSALES,0)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW OPC.VWAGGLEVEL1FORCEIDUSAGESTATS_CURRENT12MONTHS \NAS \NSELECT \N SALESANDREVENUE.LEVEL1FORCEID AS LEVEL1FORCEID \N , SALESANDREVENUE.LEVEL1DISPLAYACCOUNTNAME AS LEVEL1DISPLAYACCOUNTNAME \N , SALESANDREVENUE.SUPPLIERID AS SUPPLIERID \N , COUNT (DISTINCT FINANCIALREPORTINGSUPPLIERNAME) OVER (PARTITION BY LEVEL1FORCEID) AS CURRENT12MONTHS_NUMOFSUPPLIERSUSED \N , SUM(SALES) AS CURRENT12MONTHS_SUMOFSALES \N , GETDATE() AS DSSCREATETIME \N , GETDATE() AS DSSUPDATETIME \N
+              FROM \N OP.OPSALESANDREVENUE AS SALESANDREVENUE \N -- AND ISCAPITALCONTRACT = 0 --EXCLUDE CAPITAL CONTRACTS
+            \N
+             WHERE DATEDIFF(MONTH,TRANSACTIONDATE,MAXRECEIPTDATE) BETWEEN 0 AND 11 \N
+               AND SALES IS NOT NULL
+               AND SALES <> 0 \N
+             GROUP BY \N SALESANDREVENUE.LEVEL1FORCEID,
+                   LEVEL1DISPLAYACCOUNTNAME,
+                   LEVEL1FEDERALTAXID,
+                   SUPPLIERID,
+                   FINANCIALREPORTINGSUPPLIERNAME;\N
+        dependencies:
+          - locationName: OMNIA_PARTNERS_CONNECT
+            nodeName: OPC_VWAGGFORCEIDUSAGESTATS_CURRENT12MONTHS
+          - locationName: OMNIA_PARTNERS_CONNECT
+            nodeName: OPC_VWAGGFORCEIDUSAGESTATS_LIFETIME
+          - locationName: OMNIA_PARTNERS_CONNECT
+            nodeName: OPC_VWAGGFORCEIDUSAGESTATS_PREVIOUS12MONTHS
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('OMNIA_PARTNERS_CONNECT','OPC_VWAGGFORCEIDUSAGESTATS_CURRENT12MONTHS') }}
+            {{ ref('OMNIA_PARTNERS_CONNECT','OPC_VWAGGFORCEIDUSAGESTATS_LIFETIME') }}
+            {{ ref('OMNIA_PARTNERS_CONNECT','OPC_VWAGGFORCEIDUSAGESTATS_PREVIOUS12MONTHS') }}
+        name: OPC_VWAGGFORCEIDUSAGESTATS_ALL
+        noLinkRefs: []
+  name: OPC_VWAGGFORCEIDUSAGESTATS_ALL
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

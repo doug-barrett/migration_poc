@@ -1,0 +1,189 @@
+fileVersion: 1
+id: 19467247-8f99-43ff-bf4d-0fa6d39dee58
+name: OPC_AGGFORCEID_LIFETIME
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "AGGREGATES BY FORCEID, SUM OF SALES, SUM OF REVENUE, # OF FINANCIAL REPORTING SUPPLIER NAME, # OF CONTRACTS, # OF CONTRACT CATEGORIES, DATE OF 1ST PURCHASE, DATE OF MOST RECENT PURCHASE FOR ALL TIME"
+  isMultisource: false
+  locationName: OMNIA_PARTNERS_CONNECT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e2dc892f-7e2c-4492-8499-4c469a7e3139
+          stepCounter: 19467247-8f99-43ff-bf4d-0fa6d39dee58
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ACCOUNT ID
+        isBusinessKey: true
+        name: FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0e23284e-5158-4298-b6db-07efdcf8e5bf
+                stepCounter: a4c0e19f-be39-46bf-bdd3-b42cd9b75fa5
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 21c226cc-98c1-4ac9-8297-24ba2844cff7
+          stepCounter: 19467247-8f99-43ff-bf4d-0fa6d39dee58
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: IS THE SALES AMOUNT, OR GROSS TRANSACTION VOLUME (GTV), ASSOCIATED WITH A TRANSACTION IN US DOLLARS. A SALES AMOUNT IS TYPICALLY NOT AN INDIVIDUAL SALE, BUT A MONTHLY AGGREGATE OF ALL SALES FOR A CUSTOMER IN A GIVEN MONTH.
+        name: FORCEID_LIFETIME_SUMOFGTV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ebbc2d4a-481f-402a-abec-65e7a8e5c55d
+                stepCounter: a4c0e19f-be39-46bf-bdd3-b42cd9b75fa5
+            transform: SUM(OPC_SALESANDREVENUE.SALES)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 609952f5-ae20-4530-b998-4c5206c3cbc7
+          stepCounter: 19467247-8f99-43ff-bf4d-0fa6d39dee58
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE RANK BY GROSS TRANSACTION VOLUME (GTV), ASSOCIATED TO THE LEVEL1FORCEID
+        name: FORCEID_LIFETIME_RANKBYGTV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ebbc2d4a-481f-402a-abec-65e7a8e5c55d
+                stepCounter: a4c0e19f-be39-46bf-bdd3-b42cd9b75fa5
+            transform: RANK() OVER (ORDER BY SUM(OPC_SALESANDREVENUE.SALES) DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e27807e9-a584-40ff-80a1-5c046924eb53
+          stepCounter: 19467247-8f99-43ff-bf4d-0fa6d39dee58
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE DISTINCT COUNT OF FINANCIAL REPORTING SUPPLIER NAMES FOR A LEVEL1FORCEID.
+        name: FORCEID_LIFETIME_NUMOFSUPPLIERSUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e394a3b3-8391-4571-a87e-187f0c275d4b
+                stepCounter: a4c0e19f-be39-46bf-bdd3-b42cd9b75fa5
+            transform: COUNT (DISTINCT OPC_SALESANDREVENUE.FINANCIALREPORTINGSUPPLIERNAME)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 62fea267-94e2-450e-b057-7cc51df9471f
+          stepCounter: 19467247-8f99-43ff-bf4d-0fa6d39dee58
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE LIFETIME "DISTINCT COUNT" OF INITIALCONTRACTID FOR EACH LEVEL1FORCEID.
+        name: FORCEID_LIFETIME_NUMOFCONTRACTSUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f5a8a058-b846-4148-a15a-b93dae59d987
+                stepCounter: a4c0e19f-be39-46bf-bdd3-b42cd9b75fa5
+            transform: COUNT (DISTINCT OPC_SALESANDREVENUE.INITIALCONTRACTID)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d3cbc2a7-d380-467b-beb5-a08f78c2bf65
+          stepCounter: 19467247-8f99-43ff-bf4d-0fa6d39dee58
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: IS THE LIFETIME "DISTINCT COUNT" OF CONTRACTCATEGORY FOR EACH LEVEL1FORCEID
+        name: FORCEID_LIFETIME_NUMOFCONTRACTCATEGORIESUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 847465f6-64e4-4380-97ba-1db10676778b
+                stepCounter: a4c0e19f-be39-46bf-bdd3-b42cd9b75fa5
+            transform: COUNT (DISTINCT OPC_SALESANDREVENUE.CONTRACTCATEGORY)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 31c647d9-500f-4322-9ebc-ae2cfa02c8e3
+          stepCounter: 19467247-8f99-43ff-bf4d-0fa6d39dee58
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: IS THE FIRST FINANCIAL PERIOD FOR WHICH OMNIA PARTNERS RECORDED REVENUE FOR EACH LEVEL1FORCEID.
+        name: FORCEID_LIFETIME_DATEOFFIRSTPURCHASE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ed90ad99-bdb6-45af-ae2a-093cc23d7d0b
+                stepCounter: a4c0e19f-be39-46bf-bdd3-b42cd9b75fa5
+            transform: MIN(OPC_SALESANDREVENUE.TRANSACTIONDATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0f816441-8be3-4a28-89e2-273e9976ddc9
+          stepCounter: 19467247-8f99-43ff-bf4d-0fa6d39dee58
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: IS THE FINANCIAL PERIOD FOR THE MOST RECENT PURCHASE FOR EACH LEVEL1FORCEID.
+        name: FORCEID_LIFETIME_DATEOFMOSTRECENTPURCHASE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ed90ad99-bdb6-45af-ae2a-093cc23d7d0b
+                stepCounter: a4c0e19f-be39-46bf-bdd3-b42cd9b75fa5
+            transform: MAX(OPC_SALESANDREVENUE.TRANSACTIONDATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 67cea2c5-7e8c-4f5d-804e-0f50e99cbe2f
+          stepCounter: 19467247-8f99-43ff-bf4d-0fa6d39dee58
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: IS THE TIMESTAMP FOR WHEN THIS WAS CREATED.
+        name: DSSCREATETIME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: GETDATE()
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0423d676-33be-4a28-baab-548e48eaaf4a
+          stepCounter: 19467247-8f99-43ff-bf4d-0fa6d39dee58
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: IS THE TIMESTAMP FOR WHEN THIS LAST UPDATED.
+        name: DSSUPDATETIME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: GETDATE()
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          OPC_SALESANDREVENUE: a4c0e19f-be39-46bf-bdd3-b42cd9b75fa5
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: OMNIA_CONNECT_OPC
+            nodeName: OPC_SALESANDREVENUE
+        join:
+          joinCondition: |-
+            FROM {{ ref('OMNIA_CONNECT_OPC','OPC_SALESANDREVENUE') }} OPC_SALESANDREVENUE
+             GROUP BY OPC_SALESANDREVENUE.FORCEID
+            HAVING SUM(OPC_SALESANDREVENUE.SALES) <> 0
+        name: OPC_AGGFORCEID_LIFETIME
+        noLinkRefs: []
+  name: OPC_AGGFORCEID_LIFETIME
+  overrideSQL: false
+  schema: ""
+  sqlType: Fact
+  type: sql
+  version: 1
+type: Node

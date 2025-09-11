@@ -1,0 +1,144 @@
+fileVersion: 1
+id: 51dcd175-0c72-4664-9f8c-ea37f60aa5d7
+name: AGGOPSALESANDREVENUEBYCONTRACT
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "CONTAINS ONLY UC CAMPUS SALES RECORDS ONLY."
+  isMultisource: false
+  locationName: REPORTS
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ca0362eb-14c7-4b3d-8462-a93c4ac9694c
+          stepCounter: 51dcd175-0c72-4664-9f8c-ea37f60aa5d7
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: AGGOPSALESANDREVENUEBYCONTRACT.CONTRACTID=CONTRACT.CONTRACTID
+        name: CONTRACTKEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 817347ac-9e27-4d06-b69b-8b5761cd83d6
+                stepCounter: a45c4c17-99cc-493a-8410-a4e188c9c3a2
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 582584c8-017f-4aec-b562-96811a4f91c6
+          stepCounter: 51dcd175-0c72-4664-9f8c-ea37f60aa5d7
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: STAGESALESMERGE_ADDKEYS.TRANSACTIONDATE=DIMTRANSACTIONDATE.TRANSACTIONDATE
+        name: TRANSACTIONDATEKEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 994e65fe-0f77-489b-ba5a-210ddee2a68c
+                stepCounter: a45c4c17-99cc-493a-8410-a4e188c9c3a2
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b74c7a8d-0037-450e-a762-ff5bc3b4d19f
+          stepCounter: 51dcd175-0c72-4664-9f8c-ea37f60aa5d7
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: CONTRACTID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4593a30b-f4ef-46b4-86a7-af4c4e3cb635
+                stepCounter: a45c4c17-99cc-493a-8410-a4e188c9c3a2
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fe92cabf-17af-429c-ad2c-38247ce5d13d
+          stepCounter: 51dcd175-0c72-4664-9f8c-ea37f60aa5d7
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: STAGEUCSPENDREPORTINGLINEITEMS_ADDKEYS.CAMPUS=UCCAMPUS.UCCAMPUS
+        name: UCCAMPUSKEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2d1f6493-0d18-42c1-949c-58883c1697b7
+                stepCounter: 98a60354-5e68-47cb-92c8-afd3b94a93be
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 915b5fd6-eddc-4d6c-8c30-9ced0610235c
+          stepCounter: 51dcd175-0c72-4664-9f8c-ea37f60aa5d7
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: IS THE SALES AMOUNT, OR GROSS TRANSACTION VOLUME (GTV), ASSOCIATED WITH A TRANSACTION IN US DOLLARS. A SALES AMOUNT IS TYPICALLY NOT AN INDIVIDUAL SALE, BUT A MONTHLY AGGREGATE OF ALL SALES FOR A CUSTOMER IN A GIVEN MONTH.
+        name: SALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4129155a-6d88-4334-8076-297a018bdd12
+                stepCounter: a45c4c17-99cc-493a-8410-a4e188c9c3a2
+            transform: SUM(SALESANDREVENUE.SALES)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 26bf618d-c179-46fd-a759-3f0c2716a7ea
+          stepCounter: 51dcd175-0c72-4664-9f8c-ea37f60aa5d7
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: IS THE AMOUNT OF GROSS REVENUE, ALWAYS IN US DOLLARS, OMNIA PARTNERS RECIEVED FOR THE ROW.
+        name: REVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ed76dbed-8dd4-4d3b-a417-bc4aec76a744
+                stepCounter: a45c4c17-99cc-493a-8410-a4e188c9c3a2
+            transform: SUM(SALESANDREVENUE.REVENUE)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          SALESANDREVENUE: a45c4c17-99cc-493a-8410-a4e188c9c3a2
+          ACCOUNTHIERARCHY: 6ff66f85-fbae-4821-a68f-481643988dd7
+          UCCAMPUS: 98a60354-5e68-47cb-92c8-afd3b94a93be
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DIM
+            nodeName: UCCAMPUS
+          - locationName: FACT
+            nodeName: SALESANDREVENUE
+          - locationName: DIM
+            nodeName: ACCOUNTHIERARCHY
+        join:
+          joinCondition: |-
+            FROM {{ ref('FACT','SALESANDREVENUE') }} SALESANDREVENUE
+              JOIN {{ ref('DIM','ACCOUNTHIERARCHY') }} ACCOUNTHIERARCHY
+                ON SALESANDREVENUE.ACCOUNTHIERARCHYKEY = ACCOUNTHIERARCHY.ACCOUNTHIERARCHYKEY
+              JOIN {{ ref('DIM','UCCAMPUS') }} UCCAMPUS
+                ON ACCOUNTHIERARCHY.LEVEL1FORCEID = UCCAMPUS.OPCAMPUSFORCEID
+             GROUP BY SALESANDREVENUE.CONTRACTKEY,
+                      SALESANDREVENUE.TRANSACTIONDATEKEY,
+                      SALESANDREVENUE.CONTRACTID,
+                      UCCAMPUS.UCCAMPUSKEY
+        name: AGGOPSALESANDREVENUEBYCONTRACT
+        noLinkRefs: []
+  name: AGGOPSALESANDREVENUEBYCONTRACT
+  overrideSQL: false
+  schema: ""
+  sqlType: Fact
+  type: sql
+  version: 1
+type: Node
