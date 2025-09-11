@@ -1,5 +1,5 @@
 fileVersion: 1
-id: a424c4fc-8a97-49f7-99da-cfbaf80b293b
+id: 86ebb36a-0def-4f79-a0f4-e6e5d0400f88
 name: OPC_CONTACT_HISTORY_MISSINGDATES
 operation:
   config:
@@ -17,16 +17,12 @@ operation:
     columns:
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: 56b51b99-a7a1-4540-bc14-c73cc62436f6
-          stepCounter: a424c4fc-8a97-49f7-99da-cfbaf80b293b
+          columnCounter: eb73cf56-aea6-4994-8694-46744f7feb26
+          stepCounter: 86ebb36a-0def-4f79-a0f4-e6e5d0400f88
         config: {}
         dataType: INT
         defaultValue: ""
-        description: Level1 ForceId
-        hashDetails:
-          hashAlgorithm: MD5
-        hashedColumns:
-          - column: "NULL"
+        description: LEVEL1 FORCEID
         name: LEVEL1FORCEID
         nullable: false
         sourceColumnReferences:
@@ -34,16 +30,12 @@ operation:
             transform: ""
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: cc0ebbe8-e2dd-40e8-b76e-ed7de228aab6
-          stepCounter: a424c4fc-8a97-49f7-99da-cfbaf80b293b
+          columnCounter: d28f9af1-e0f0-4b45-a60b-20c17a763716
+          stepCounter: 86ebb36a-0def-4f79-a0f4-e6e5d0400f88
         config: {}
         dataType: DATE
         defaultValue: ""
-        description: Created Month
-        hashDetails:
-          hashAlgorithm: MD5
-        hashedColumns:
-          - column: "NULL"
+        description: CREATED MONTH
         name: CREATED_MONTH
         nullable: false
         sourceColumnReferences:
@@ -51,16 +43,12 @@ operation:
             transform: ""
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: 6b88f7ba-980c-4c2a-932a-a31e5d8f11d3
-          stepCounter: a424c4fc-8a97-49f7-99da-cfbaf80b293b
+          columnCounter: 2c0c0ba9-b7f2-4227-be75-d6012a3f6df5
+          stepCounter: 86ebb36a-0def-4f79-a0f4-e6e5d0400f88
         config: {}
         dataType: INT
         defaultValue: ""
-        description: Contact Count
-        hashDetails:
-          hashAlgorithm: MD5
-        hashedColumns:
-          - column: "NULL"
+        description: CONTACT COUNT
         name: CONTACT_COUNT
         nullable: false
         sourceColumnReferences:
@@ -68,16 +56,12 @@ operation:
             transform: ""
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: 440d9144-a334-4b3c-aa20-fe9023129dd2
-          stepCounter: a424c4fc-8a97-49f7-99da-cfbaf80b293b
+          columnCounter: 8465bd61-39bf-472e-a4d5-e69cae8fced5
+          stepCounter: 86ebb36a-0def-4f79-a0f4-e6e5d0400f88
         config: {}
         dataType: INT
         defaultValue: ""
-        description: Running Contact Count
-        hashDetails:
-          hashAlgorithm: MD5
-        hashedColumns:
-          - column: "NULL"
+        description: RUNNING CONTACT COUNT
         name: RUNNING_CONTACT_COUNT
         nullable: false
         sourceColumnReferences:
@@ -86,38 +70,35 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
       - aliases:
-          OPC_CONTACT_HISTORY_MISSINGDATES: a424c4fc-8a97-49f7-99da-cfbaf80b293b
+          OPC_CONTACT_HISTORY_MISSINGDATES: 86ebb36a-0def-4f79-a0f4-e6e5d0400f88
         customSQL:
           customSQL: |-
             {{ stage('SQL Override') }}
-            CREATE OR REPLACE VIEW {{ ref_no_link('OMNIA_CONNECT_OPC','OPC_CONTACT_HISTORY_MISSINGDATES') }} (Level1ForceId, Created_Month, Contact_Count, Running_Contact_Count) AS WITH cteDistinctLevel1s AS (
-                    SELECT DISTINCT Level1ForceId
-                      FROM OPC_Contact_History
+            CREATE OR REPLACE VIEW {{ ref_no_link('OMNIA_CONNECT_OPC','OPC_CONTACT_HISTORY_MISSINGDATES') }} (\NLEVEL1FORCEID, \NCREATED_MONTH, \NCONTACT_COUNT, \NRUNNING_CONTACT_COUNT\N) \NAS\NWITH \NCTEDISTINCTLEVEL1S AS (
+                    SELECT DISTINCT LEVEL1FORCEID
+                      FROM OPC_CONTACT_HISTORY
                    ),
-                   cteLTMDates AS (
-                    SELECT CAST(CalendarDate AS DATE) AS Created_Month
-                      FROM OMNIAPartnersDW_Dev.Dim.DimDate
-                     WHERE CalendarDate BETWEEN LAST_DAY(DATEADD(MONTH,-12,CURRENT_DATE())) AND LAST_DAY(DATEADD(MONTH,-1,CURRENT_DATE()))
-                       AND CalendarDate = LAST_DAY(CalendarDate)
+                   \NCTELTMDATES AS (
+                    SELECT CAST(CALENDARDATE AS DATE) AS CREATED_MONTH
+                      FROM OMNIAPARTNERSDW_DEV.DIM.DIMDATE
+                     WHERE CALENDARDATE BETWEEN LAST_DAY(DATEADD(MONTH,-12,CURRENT_DATE())) AND LAST_DAY(DATEADD(MONTH,-1,CURRENT_DATE()))
+                       AND CALENDARDATE = LAST_DAY(CALENDARDATE)
                    ),
-                   cteLevel1Dates AS (
-                    SELECT Level1ForceId,
-                           Created_Month
-                      FROM cteDistinctLevel1s,
-                           cteLTMDates
-                   ),--SELECT * FROM cteLevel1Dates where level1forceid = 29951 order by created_month
-             cteFullSet AS (
-                    SELECT COALESCE(cteLevel1Dates.Level1ForceId,cteLevel1Dates.Level1ForceId) AS Level1ForceId,
-                           COALESCE(OPC_Contact_History.Created_Month, cteLevel1Dates.Created_Month) Created_Month,
-                           ZEROIFNULL(Contact_Count) AS Contact_Count,
-                           ZEROIFNULL(SUM(Contact_Count) OVER(PARTITION BY COALESCE(OPC_Contact_History.Level1ForceId, cteLevel1Dates.Level1ForceId) ORDER BY COALESCE(OPC_Contact_History.Created_Month, cteLevel1Dates.Created_Month))) AS Running_Contact_Count
-                      FROM OPC_Contact_History
-                      FULL OUTER JOIN cteLevel1Dates
-                        ON OPC_Contact_History.Level1ForceId = cteLevel1Dates.Level1ForceId
-                       AND OPC_Contact_History.Created_Month = cteLevel1Dates.Created_Month
-                   ) SELECT *
-              FROM cteFullSet
-             WHERE Contact_Count = 0
+                   \NCTELEVEL1DATES AS (
+                    SELECT LEVEL1FORCEID,
+                           CREATED_MONTH
+                      FROM CTEDISTINCTLEVEL1S,
+                           CTELTMDATES
+                   ),--SELECT * FROM CTELEVEL1DATES WHERE LEVEL1FORCEID = 29951 ORDER BY CREATED_MONTH
+            \NCTEFULLSET AS (
+                    SELECT COALESCE(CTELEVEL1DATES.LEVEL1FORCEID,CTELEVEL1DATES.LEVEL1FORCEID) AS LEVEL1FORCEID, \N COALESCE(OPC_CONTACT_HISTORY.CREATED_MONTH, CTELEVEL1DATES.CREATED_MONTH) CREATED_MONTH, \N ZEROIFNULL(CONTACT_COUNT) AS CONTACT_COUNT, \N ZEROIFNULL(SUM(CONTACT_COUNT) OVER(PARTITION BY COALESCE(OPC_CONTACT_HISTORY.LEVEL1FORCEID, CTELEVEL1DATES.LEVEL1FORCEID) \N ORDER BY COALESCE(OPC_CONTACT_HISTORY.CREATED_MONTH, CTELEVEL1DATES.CREATED_MONTH) \N) \N) AS RUNNING_CONTACT_COUNT \N
+                      FROM OPC_CONTACT_HISTORY \N
+                      FULL OUTER JOIN CTELEVEL1DATES \N
+                        ON OPC_CONTACT_HISTORY.LEVEL1FORCEID = CTELEVEL1DATES.LEVEL1FORCEID
+                       AND OPC_CONTACT_HISTORY.CREATED_MONTH = CTELEVEL1DATES.CREATED_MONTH
+                   ) \NSELECT *
+              FROM CTEFULLSET
+             WHERE CONTACT_COUNT = 0
         dependencies: []
         join:
           joinCondition: '-- Nodes used in the SQL override:'

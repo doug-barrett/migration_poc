@@ -1,5 +1,5 @@
 fileVersion: 1
-id: c4409e0a-f729-4a23-aef5-d3ec08cb6955
+id: 58c7c8c8-3f68-4a39-a60d-0c325da2a168
 name: VWBUDGETCONTRACTID
 operation:
   config:
@@ -17,16 +17,12 @@ operation:
     columns:
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: 3fa24c8c-abc7-4fb4-9eb4-8da8dbcd263d
-          stepCounter: c4409e0a-f729-4a23-aef5-d3ec08cb6955
+          columnCounter: edb9c112-964a-429d-9c36-f49aa7ffc524
+          stepCounter: 58c7c8c8-3f68-4a39-a60d-0c325da2a168
         config: {}
         dataType: VARCHAR
         defaultValue: ""
         description: ""
-        hashDetails:
-          hashAlgorithm: MD5
-        hashedColumns:
-          - column: "NULL"
         name: CONTRACTID
         nullable: true
         sourceColumnReferences:
@@ -34,16 +30,12 @@ operation:
             transform: ""
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: 949ff2a9-9b82-4225-b093-dd09132e7057
-          stepCounter: c4409e0a-f729-4a23-aef5-d3ec08cb6955
+          columnCounter: cbf0e15f-8017-45c4-807b-bb678e83a283
+          stepCounter: 58c7c8c8-3f68-4a39-a60d-0c325da2a168
         config: {}
         dataType: DATE
         defaultValue: ""
         description: ""
-        hashDetails:
-          hashAlgorithm: MD5
-        hashedColumns:
-          - column: "NULL"
         name: BUDGETDATE
         nullable: true
         sourceColumnReferences:
@@ -51,16 +43,12 @@ operation:
             transform: ""
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: 606c4dd7-4567-42e4-b7b0-60473a012a0e
-          stepCounter: c4409e0a-f729-4a23-aef5-d3ec08cb6955
+          columnCounter: 0735fba2-984a-4e1e-933e-aedc22738252
+          stepCounter: 58c7c8c8-3f68-4a39-a60d-0c325da2a168
         config: {}
         dataType: DECIMAL(18,2)
         defaultValue: ""
         description: ""
-        hashDetails:
-          hashAlgorithm: MD5
-        hashedColumns:
-          - column: "NULL"
         name: BUDGETSALESAMOUNT
         nullable: true
         sourceColumnReferences:
@@ -68,16 +56,12 @@ operation:
             transform: ""
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: 123279e9-c194-42ac-bd5c-fadf3927dc2a
-          stepCounter: c4409e0a-f729-4a23-aef5-d3ec08cb6955
+          columnCounter: 8b91887c-a4f5-4442-9527-138f6f417c91
+          stepCounter: 58c7c8c8-3f68-4a39-a60d-0c325da2a168
         config: {}
         dataType: DECIMAL(18,2)
         defaultValue: ""
         description: ""
-        hashDetails:
-          hashAlgorithm: MD5
-        hashedColumns:
-          - column: "NULL"
         name: BUDGETREVENUEAMOUNT
         nullable: true
         sourceColumnReferences:
@@ -85,16 +69,12 @@ operation:
             transform: ""
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: 87087fca-7745-432f-8361-cff08ff054a9
-          stepCounter: c4409e0a-f729-4a23-aef5-d3ec08cb6955
+          columnCounter: 2bb2cdf8-99f6-419d-af61-1468c1499846
+          stepCounter: 58c7c8c8-3f68-4a39-a60d-0c325da2a168
         config: {}
         dataType: VARCHAR
         defaultValue: ""
         description: ""
-        hashDetails:
-          hashAlgorithm: MD5
-        hashedColumns:
-          - column: "NULL"
         name: BUDGETTYPE
         nullable: false
         sourceColumnReferences:
@@ -107,116 +87,80 @@ operation:
           customSQL: |-
             {{ stage('SQL Override') }}
             --------------------------------------------------------------------------------------------------------------------------
-             --Get Amounts to use by 2019 Budget Date
-             --------------------------------------------------------------------------------------------------------------------------
-             WITH cteReportsSalesAndRevenue AS (
-                    SELECT ISNULL([sar].[TerritoryDivisionId], CASE--This CASE statement is used to assign correct Division Name when Territory Assignment is NULL due to data or hierarchy issues
-              WHEN [sar].[OrganizationId] IN(1, 5, 6) THEN 1--Public
-              WHEN [sar].[OrganizationId] IN(2, 3, 4, 7) THEN 2--Private
-              ELSE 1 END) AS [TerritoryDivisionId],
-                           [sar].[ReceiptDate],
-                           [sar].[Sales],
-                           [sar].[Revenue],
-                           [sar].[ReceiptDateKey],
-                           [sar].[ContractId]
-                      FROM [Reports].[SalesAndRevenue] AS [sar]
-                     WHERE [sar].[ReceiptDateKey] BETWEEN 20190101 AND 20191231 -- Actuals for Q1-Q4 2019
-
-                   ),
-                   cteTotalSalesRevenue --Get Actuals for months closed in 2019
-              AS (
-                    SELECT [sar].[ContractId],
-                           [sar].[ReceiptDate],
-                           CASE YEAR([sar].[ReceiptDate])
-                                WHEN 2018                 THEN DATEADD([yy], 1, [sar].[ReceiptDate])
-                                ELSE [sar].[ReceiptDate]
-                                 END AS [BudgetDate],
-                           SUM([sar].[Sales]) AS [TotalSales],
-                           SUM([sar].[Revenue]) AS [TotalRevenue]
-                      FROM [cteReportsSalesAndRevenue] AS [sar]
-                     WHERE [sar].[TerritoryDivisionId] IN (1, 2)
-                     GROUP BY [sar].[ContractId],
-                              [sar].[ReceiptDate]
-                   ) --SELECT budgetdate, sum([TotalRevenue]) FROM cteTotalSalesRevenue AS [ctbr] GROUP BY budgetdate ORDER BY [ctbr].[BudgetDate]
-              ,
-                   [cteTotalBudgetRevenue] --Get Budget values for 2019
-              AS (
-                    SELECT [bd].[ContractId],
-                           [b].[BudgetDate],
-                           SUM([b].[BudgetSalesAmount] * [tbg].[Adjustment]) AS [BudgetSalesAmount],
-                           SUM([b].[BudgetRevenueAmount] * [tbg].[Adjustment]) AS [BudgetRevenueAmount]
-                      FROM [Fact].[Budget] AS [b]
-                      LEFT OUTER JOIN [Dim].[BudgetDetail] AS [bd]
-                        ON [b].[BudgetDetailKey] = [bd].[BudgetDetailKey]
-                      LEFT OUTER JOIN [Dim].[SalesTerritory_2019] AS [st]
-                        ON [b].[SalesTerritoryKey] = [st].[SalesTerritory_2019Key]
-                      LEFT OUTER JOIN [Dim].[TerritoryBudgetGrowth] AS [tbg]
-                        ON [b].[BudgetDate] = [tbg].[BudgetDate]
-                       AND [st].[TerritoryDivisionId] = [tbg].[TerritoryDivisionId]
-                     WHERE [b].[BudgetDateKey] BETWEEN 20191001 AND 20191231 --AND [st].[TerritoryDivisionId] IN (1, 2)
-
-                     GROUP BY [bd].[ContractId],
-                              [b].[BudgetDate]
-                   ) --SELECT budgetdate, sum([BudgetRevenueAmount]) FROM [cteTotalBudgetRevenue] AS [ctbr] GROUP BY budgetdate ORDER BY [ctbr].[BudgetDate]
-              ,
-                   cteMasterBudgetByBudgetDate AS (
-                    SELECT ISNULL([ctbr].[ContractId], [ctsr].[ContractId]) AS [ContractId],
-                           ISNULL([ctbr].[BudgetDate], [ctsr].[BudgetDate]) AS [BudgetDate],
-                           [ctsr].[TotalSales] AS [BudgetSalesAmount],
-                           [ctsr].[TotalRevenue] AS [BudgetRevenueAmount]
-                      FROM [cteTotalBudgetRevenue] AS [ctbr]
-                      FULL OUTER JOIN [cteTotalSalesRevenue] AS [ctsr]
-                        ON [ctbr].[BudgetDate] = [ctsr].[BudgetDate]
-                       AND [ctbr].[ContractId] = [ctsr].[ContractId] --ORDER BY [ctbr].[BudgetDate]
-
-                   ) --SELECT budgetdate, sum([cmbbbd].[BudgetRevenueAmount]) FROM [cteMasterBudgetByBudgetDate] AS [cmbbbd] GROUP BY budgetdate ORDER BY [cmbbbd].[BudgetDate]--, [ContractId]
-              , --------------------------------------------------------------------------------------------------------------------
-              cteContractIdBudget_2019 AS (
-                    SELECT --2019 Budget by ContractId
-              [clb].[ContractId],
-                           [clb].[BudgetDate],
-                           [clb].[BudgetSalesAmount],
-                           [clb].[BudgetRevenueAmount],
-                           CASE WHEN [c].[SourceEntityName] = 'Insight GPO' THEN CAST('PD Budget - ISG' AS VARCHAR(20))
-                                ELSE CAST('PD Budget' AS VARCHAR(20))
-                                 END AS [BudgetType]
-                      FROM [cteMasterBudgetByBudgetDate] AS [clb]
-                      LEFT OUTER JOIN [Dim].[Contract] AS [c]
-                        ON [clb].[ContractId] = [c].[ContractId]
-                   ) --SELECT * FROM cteContractIdBudget_2019 WHERE contractid = '2014'
-              --------------------------------------------------------------------------------------------------------------------
-              ,
-                   cteContractIdBudget_2020 AS (
-                    SELECT --2020 Budget by ContractId
-              [clb].[ContractId],
-                           [clb].[BudgetDate],
-                           [clb].[BudgetSalesAmount],
-                           [clb].[BudgetRevenueAmount],
-                           [clb].[BudgetType]
-                      FROM [Fact].[RevenueBudget] AS [clb]
-                     WHERE [clb].[BudgetDateKey] BETWEEN 20200101 AND 20201231
-                       AND [clb].[BudgetType] LIKE 'PD Budget%'
-                   ) --SELECT year([cfb].[BudgetDate]), [cfb].[BudgetType], SUM([cfb].[BudgetRevenueAmount]) FROM cteContractIdBudget_2020 AS [cfb] GROUP BY year([cfb].[BudgetDate]), [cfb].[BudgetType] ORDER BY year([cfb].[BudgetDate]), [cfb].[BudgetType]
-              --SELECT year([cfb].[BudgetDate]), [cfb].[BudgetType], SUM([cfb].[BudgetRevenueAmount]) FROM [Reports].[vwBudgetContractID_ISG] AS [cfb] GROUP BY year([cfb].[BudgetDate]), [cfb].[BudgetType] ORDER BY year([cfb].[BudgetDate]), [cfb].[BudgetType]
-              SELECT [clb].[ContractId],
-                   [clb].[BudgetDate],
-                   [clb].[BudgetSalesAmount],
-                   [clb].[BudgetRevenueAmount],
-                   [clb].[BudgetType]
-              FROM [cteContractIdBudget_2019] AS [clb]
-             UNION SELECT [clb].[ContractId],
-                   [clb].[BudgetDate],
-                   [clb].[BudgetSalesAmount],
-                   [clb].[BudgetRevenueAmount],
-                   [clb].[BudgetType]
-              FROM [cteContractIdBudget_2020] AS [clb] --UNION
-              --SELECT
-              --	[clb].[ContractId],
-              --	[clb].[BudgetDate],
-              --	[clb].[BudgetSalesAmount],
-              --	[clb].[BudgetRevenueAmount],
-              --	[clb].[BudgetType]
-              --FROM   [Reports].[vwBudgetContractID_ISG] AS [clb]
+            \N--GET AMOUNTS TO USE BY 2019 BUDGET DATE
+            \N--------------------------------------------------------------------------------------------------------------------------
+            \N \NWITH CTEREPORTSSALESANDREVENUE \N AS (
+                    SELECT \N ISNULL([SAR].[TERRITORYDIVISIONID], CASE--THIS CASE STATEMENT IS USED TO ASSIGN CORRECT DIVISION NAME WHEN TERRITORY ASSIGNMENT IS NULL DUE TO DATA OR HIERARCHY ISSUES
+            \N WHEN [SAR].[ORGANIZATIONID] IN(1, 5, 6) THEN 1--PUBLIC
+            \N WHEN [SAR].[ORGANIZATIONID] IN(2, 3, 4, 7) THEN 2--PRIVATE
+            \N ELSE 1 \N END) AS [TERRITORYDIVISIONID], \N [SAR].[RECEIPTDATE], \N [SAR].[SALES], \N [SAR].[REVENUE], \N [SAR].[RECEIPTDATEKEY], \N [SAR].[CONTRACTID] \N
+                      FROM [REPORTS].[SALESANDREVENUE] AS [SAR] \N
+                     WHERE [SAR].[RECEIPTDATEKEY] BETWEEN 20190101 AND 20191231 -- ACTUALS FOR Q1-Q4 2019
+            \N
+                   ), \N CTETOTALSALESREVENUE --GET ACTUALS FOR MONTHS CLOSED IN 2019
+            \N AS (
+                    SELECT \N [SAR].[CONTRACTID], \N [SAR].[RECEIPTDATE], \N CASE YEAR([SAR].[RECEIPTDATE]) \N
+                                WHEN 2018                    THEN DATEADD([YY], 1, [SAR].[RECEIPTDATE]) \N
+                                ELSE [SAR].[RECEIPTDATE] \N
+                                 END AS [BUDGETDATE], \N SUM([SAR].[SALES]) AS [TOTALSALES], \N SUM([SAR].[REVENUE]) AS [TOTALREVENUE] \N
+                      FROM [CTEREPORTSSALESANDREVENUE] AS [SAR] \N
+                     WHERE [SAR].[TERRITORYDIVISIONID] IN (1, 2) \N
+                     GROUP BY \N [SAR].[CONTRACTID], \N [SAR].[RECEIPTDATE]
+                   ) \N --SELECT BUDGETDATE, SUM([TOTALREVENUE]) FROM CTETOTALSALESREVENUE AS [CTBR] GROUP BY BUDGETDATE ORDER BY [CTBR].[BUDGETDATE]
+            \N , \N [CTETOTALBUDGETREVENUE] --GET BUDGET VALUES FOR 2019
+            \N AS (
+                    SELECT \N [BD].[CONTRACTID], \N [B].[BUDGETDATE], \N SUM([B].[BUDGETSALESAMOUNT] * [TBG].[ADJUSTMENT]) AS [BUDGETSALESAMOUNT], \N SUM([B].[BUDGETREVENUEAMOUNT] * [TBG].[ADJUSTMENT]) AS [BUDGETREVENUEAMOUNT] \N
+                      FROM [FACT].[BUDGET] AS [B] \N
+                      LEFT OUTER JOIN [DIM].[BUDGETDETAIL] AS [BD]
+                        ON [B].[BUDGETDETAILKEY] = [BD].[BUDGETDETAILKEY] \N
+                      LEFT OUTER JOIN [DIM].[SALESTERRITORY_2019] AS [ST]
+                        ON [B].[SALESTERRITORYKEY] = [ST].[SALESTERRITORY_2019KEY] \N
+                      LEFT OUTER JOIN [DIM].[TERRITORYBUDGETGROWTH] AS [TBG]
+                        ON [B].[BUDGETDATE] = [TBG].[BUDGETDATE] \N
+                       AND [ST].[TERRITORYDIVISIONID] = [TBG].[TERRITORYDIVISIONID] \N
+                     WHERE [B].[BUDGETDATEKEY] BETWEEN 20191001 AND 20191231 \N --AND [ST].[TERRITORYDIVISIONID] IN (1, 2)
+            \N
+                     GROUP BY \N [BD].[CONTRACTID], \N [B].[BUDGETDATE]
+                   ) \N --SELECT BUDGETDATE, SUM([BUDGETREVENUEAMOUNT]) FROM [CTETOTALBUDGETREVENUE] AS [CTBR] GROUP BY BUDGETDATE ORDER BY [CTBR].[BUDGETDATE]
+            \N , \N CTEMASTERBUDGETBYBUDGETDATE \N AS (
+                    SELECT \N ISNULL([CTBR].[CONTRACTID], [CTSR].[CONTRACTID]) AS [CONTRACTID], \N ISNULL([CTBR].[BUDGETDATE], [CTSR].[BUDGETDATE]) AS [BUDGETDATE], \N [CTSR].[TOTALSALES] AS [BUDGETSALESAMOUNT], \N [CTSR].[TOTALREVENUE] AS [BUDGETREVENUEAMOUNT] \N
+                      FROM [CTETOTALBUDGETREVENUE] AS [CTBR] \N
+                      FULL OUTER JOIN [CTETOTALSALESREVENUE] AS [CTSR]
+                        ON [CTBR].[BUDGETDATE] = [CTSR].[BUDGETDATE] \N
+                       AND [CTBR].[CONTRACTID] = [CTSR].[CONTRACTID] \N --ORDER BY [CTBR].[BUDGETDATE]
+            \N
+                   ) \N --SELECT BUDGETDATE, SUM([CMBBBD].[BUDGETREVENUEAMOUNT]) FROM [CTEMASTERBUDGETBYBUDGETDATE] AS [CMBBBD] GROUP BY BUDGETDATE ORDER BY [CMBBBD].[BUDGETDATE]--, [CONTRACTID]
+            \N , \N --------------------------------------------------------------------------------------------------------------------
+            \N CTECONTRACTIDBUDGET_2019 \N AS (
+                    SELECT --2019 BUDGET BY CONTRACTID
+            \N [CLB].[CONTRACTID], \N [CLB].[BUDGETDATE], \N [CLB].[BUDGETSALESAMOUNT], \N [CLB].[BUDGETREVENUEAMOUNT], \N CASE \N
+                                WHEN [C].[SOURCEENTITYNAME] = 'INSIGHT GPO' THEN CAST('PD BUDGET - ISG' AS VARCHAR(20)) \N
+                                ELSE CAST('PD BUDGET' AS VARCHAR(20)) \N
+                                 END AS [BUDGETTYPE] \N
+                      FROM [CTEMASTERBUDGETBYBUDGETDATE] AS [CLB] \N
+                      LEFT OUTER JOIN [DIM].[CONTRACT] AS [C]
+                        ON [CLB].[CONTRACTID] = [C].[CONTRACTID]
+                   ) \N --SELECT * FROM CTECONTRACTIDBUDGET_2019 WHERE CONTRACTID = '2014'
+            \N --------------------------------------------------------------------------------------------------------------------
+            \N , \N CTECONTRACTIDBUDGET_2020 \N AS (
+                    SELECT --2020 BUDGET BY CONTRACTID
+            \N [CLB].[CONTRACTID], \N [CLB].[BUDGETDATE], \N [CLB].[BUDGETSALESAMOUNT], \N [CLB].[BUDGETREVENUEAMOUNT], \N [CLB].[BUDGETTYPE] \N
+                      FROM [FACT].[REVENUEBUDGET] AS [CLB] \N
+                     WHERE [CLB].[BUDGETDATEKEY] BETWEEN 20200101 AND 20201231 \N
+                       AND [CLB].[BUDGETTYPE] LIKE 'PD BUDGET%'
+                   ) \N --SELECT YEAR([CFB].[BUDGETDATE]), [CFB].[BUDGETTYPE], SUM([CFB].[BUDGETREVENUEAMOUNT]) FROM CTECONTRACTIDBUDGET_2020 AS [CFB] GROUP BY YEAR([CFB].[BUDGETDATE]), [CFB].[BUDGETTYPE] ORDER BY YEAR([CFB].[BUDGETDATE]), [CFB].[BUDGETTYPE]
+            \N --SELECT YEAR([CFB].[BUDGETDATE]), [CFB].[BUDGETTYPE], SUM([CFB].[BUDGETREVENUEAMOUNT]) FROM [REPORTS].[VWBUDGETCONTRACTID_ISG] AS [CFB] GROUP BY YEAR([CFB].[BUDGETDATE]), [CFB].[BUDGETTYPE] ORDER BY YEAR([CFB].[BUDGETDATE]), [CFB].[BUDGETTYPE]
+            \N SELECT \N [CLB].[CONTRACTID], \N [CLB].[BUDGETDATE], \N [CLB].[BUDGETSALESAMOUNT], \N [CLB].[BUDGETREVENUEAMOUNT], \N [CLB].[BUDGETTYPE] \N
+              FROM [CTECONTRACTIDBUDGET_2019] AS [CLB] \N
+             UNION \N SELECT \N [CLB].[CONTRACTID], \N [CLB].[BUDGETDATE], \N [CLB].[BUDGETSALESAMOUNT], \N [CLB].[BUDGETREVENUEAMOUNT], \N [CLB].[BUDGETTYPE] \N
+              FROM [CTECONTRACTIDBUDGET_2020] AS [CLB] \N --UNION
+            \N --SELECT
+            \N --	[CLB].[CONTRACTID],
+            \N --	[CLB].[BUDGETDATE],
+            \N --	[CLB].[BUDGETSALESAMOUNT],
+            \N --	[CLB].[BUDGETREVENUEAMOUNT],
+            \N --	[CLB].[BUDGETTYPE]
+            \N --FROM   [REPORTS].[VWBUDGETCONTRACTID_ISG] AS [CLB]
         dependencies: []
         join:
           joinCondition: '-- Nodes used in the SQL override:'
