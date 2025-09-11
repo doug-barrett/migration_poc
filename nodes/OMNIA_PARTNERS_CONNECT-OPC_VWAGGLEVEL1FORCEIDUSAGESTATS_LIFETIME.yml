@@ -1,0 +1,151 @@
+fileVersion: 1
+id: d8382c3b-beb9-4dce-8b42-bf0cc2c3122a
+name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_LIFETIME
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Rolling 12 month aggregate usage statistics for each Level1ForceId"
+  isMultisource: false
+  locationName: OMNIA_PARTNERS_CONNECT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 567e34c2-06a3-4abc-828d-9a89c2212308
+          stepCounter: d8382c3b-beb9-4dce-8b42-bf0cc2c3122a
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: LEVEL1FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c5d8d1af-5bc7-4a8b-b061-f4781b067da4
+                stepCounter: 123afd35-15e8-44b4-8942-d9a329ec8e7c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9134c587-65b0-47e0-978d-a19d32adfdd3
+          stepCounter: d8382c3b-beb9-4dce-8b42-bf0cc2c3122a
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: SUPPLIERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 23bda996-48e3-4832-aeab-0ebaa4a35636
+                stepCounter: 123afd35-15e8-44b4-8942-d9a329ec8e7c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8ef0fbb4-5347-423e-a6df-5b72525d8ff8
+          stepCounter: d8382c3b-beb9-4dce-8b42-bf0cc2c3122a
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: MAXREPORTINGPERIODENDDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e920e81f-3d1b-46ac-8ebe-b564df31235b
+                stepCounter: 123afd35-15e8-44b4-8942-d9a329ec8e7c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 407bc188-7d5a-4df3-858c-e18fe1014bfb
+          stepCounter: d8382c3b-beb9-4dce-8b42-bf0cc2c3122a
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: MAXRECEIPTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e772d933-7229-407f-9d1d-b876c16748bb
+                stepCounter: 123afd35-15e8-44b4-8942-d9a329ec8e7c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2d64a8a0-d6fa-44d5-8d76-53842a55e41c
+          stepCounter: d8382c3b-beb9-4dce-8b42-bf0cc2c3122a
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: Lifetime_SumOfSales
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: LIFETIME_SUMOFSALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 198a7139-c81e-4286-a153-0c2c2361b3f3
+                stepCounter: 123afd35-15e8-44b4-8942-d9a329ec8e7c
+            transform: SUM(OPC_SalesAndRevenue.Sales)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW OPC.vwAggLevel1ForceIdUsageStats_Current12Months AS SELECT SalesAndRevenue.Level1ForceId AS Level1ForceId ,
+                   SalesAndRevenue.Level1DisplayAccountName AS Level1DisplayAccountName ,
+                   SalesAndRevenue.SupplierId AS SupplierId ,
+                   COUNT (DISTINCT FinancialReportingSupplierName) OVER (PARTITION BY Level1ForceId) AS Current12Months_NumOfSuppliersUsed ,
+                   SUM(Sales) AS Current12Months_SumOfSales ,
+                   GETDATE() AS DSSCreateTime ,
+                   GETDATE() AS DSSUpdateTime
+              FROM OP.OPSalesAndRevenue AS SalesAndRevenue -- AND IsCapitalContract = 0 --Exclude capital contracts
+
+             WHERE DATEDIFF(MONTH,TransactionDate,MaxReceiptDate) BETWEEN 0 AND 11
+               AND Sales IS NOT NULL
+               AND Sales <> 0
+             GROUP BY SalesAndRevenue.Level1ForceId,
+                      Level1DisplayAccountName,
+                      Level1FederalTaxId,
+                      SupplierId,
+                      FinancialReportingSupplierName;
+        dependencies:
+          - locationName: OMNIA_CONNECT_OPC
+            nodeName: OPC_SALESANDREVENUE
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('OMNIA_CONNECT_OPC','OPC_SALESANDREVENUE') }}
+        name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_LIFETIME
+        noLinkRefs: []
+  name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_LIFETIME
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

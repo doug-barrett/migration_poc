@@ -1,0 +1,131 @@
+fileVersion: 1
+id: 04f7176b-0716-4811-8d7d-c208debc3c23
+name: OPC_CONTACT_HISTORY
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: OMNIA_CONNECT_OPC
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c8da064e-fc01-4c24-8c4d-116c963287ea
+          stepCounter: 04f7176b-0716-4811-8d7d-c208debc3c23
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Level1 Force Id
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        isBusinessKey: true
+        name: LEVEL1FORCEID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7b0d8323-f457-4452-8be1-e72960d54a74
+                stepCounter: 6db9032b-30b6-4aa9-9e62-5a123b1d1532
+            transform: ""
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 93e5f965-ad44-4d70-8dd1-4f2865eaa9bb
+          stepCounter: 04f7176b-0716-4811-8d7d-c208debc3c23
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: Created Month of the Contact
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        isBusinessKey: true
+        name: CREATED_MONTH
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0eda3740-64c7-4fc6-b8c5-c32e5e59a79a
+                stepCounter: 6db9032b-30b6-4aa9-9e62-5a123b1d1532
+            transform: ""
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fa0dde73-7978-4bc7-87e4-1655dfdc2c06
+          stepCounter: 04f7176b-0716-4811-8d7d-c208debc3c23
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Contact Count by Level1ForceId & EOM(Contact Created Date)
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: CONTACT_COUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: COUNT(*)
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3cdbef92-c874-4cfb-98b5-6169125e328e
+          stepCounter: 04f7176b-0716-4811-8d7d-c208debc3c23
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Running Contact Count by Level1ForceId & Contact Created Month
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: RUNNING_CONTACT_COUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(COUNT(*)) OVER (PARTITION BY Level1ForceId ORDER BY Created_Month ASC)
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          OPC_CONTACT: 6db9032b-30b6-4aa9-9e62-5a123b1d1532
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: OMNIA_CONNECT_OPC
+            nodeName: OPC_CONTACT
+        join:
+          joinCondition: |-
+            FROM {{ ref('OMNIA_CONNECT_OPC','OPC_CONTACT') }} OPC_Contact
+             GROUP BY OPC_Contact.Level1ForceId,
+                      OPC_Contact.Created_Month
+        name: SRC_OPC_CONTACT_HISTORY_1
+        noLinkRefs: []
+  name: OPC_CONTACT_HISTORY
+  overrideSQL: false
+  schema: ""
+  sqlType: Fact
+  type: sql
+  version: 1
+type: Node

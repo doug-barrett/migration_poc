@@ -1,0 +1,153 @@
+fileVersion: 1
+id: 7039146a-a34d-4da0-ab22-92e04fd3548b
+name: LOADREVENUEBUDGETSPD
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "See Notes"
+  isMultisource: false
+  locationName: LOAD
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 14562d41-7e91-47d4-aeb7-ab975af22fd0
+          stepCounter: 7039146a-a34d-4da0-ab22-92e04fd3548b
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: CONTRACTID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8f596560-f01a-4395-a1cf-42ea974e0a9a
+                stepCounter: 1eb8a8cf-d247-4992-a005-e23323bf4b05
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 690b0665-d569-4717-a91e-606f31c911e5
+          stepCounter: 7039146a-a34d-4da0-ab22-92e04fd3548b
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: BUDGETDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6ecc8555-2e99-4c67-85aa-03e34e8b171b
+                stepCounter: 1eb8a8cf-d247-4992-a005-e23323bf4b05
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6666f98a-8d84-4ba5-8f9f-7bcbe1b1317c
+          stepCounter: 7039146a-a34d-4da0-ab22-92e04fd3548b
+        config: {}
+        dataType: FLOAT
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: BUDGETSALESAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5d004161-c30d-49f4-8538-c1f5f1855aeb
+                stepCounter: 1eb8a8cf-d247-4992-a005-e23323bf4b05
+            transform: SUM(LoadRevenueBudgets.BudgetSalesAmount) AS BudgetSalesAmount
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5d602296-55d3-4aa0-ada1-760e801b1d00
+          stepCounter: 7039146a-a34d-4da0-ab22-92e04fd3548b
+        config: {}
+        dataType: FLOAT
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: BUDGETREVENUEAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ef2284b8-cb53-4cc4-8b5c-8f76ca7eddb0
+                stepCounter: 1eb8a8cf-d247-4992-a005-e23323bf4b05
+            transform: SUM(LoadRevenueBudgets.BudgetRevenueAmount) AS BudgetRevenueAmount
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1f1f1207-8006-4f93-9f3b-e96dd56e90b4
+          stepCounter: 7039146a-a34d-4da0-ab22-92e04fd3548b
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: Record source.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: DSS_RECORD_SOURCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'FORCE.dbo.vwRevenueBudgets'"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 881095d8-a4e2-43fd-a434-d7ee5ae9bd7d
+          stepCounter: 7039146a-a34d-4da0-ab22-92e04fd3548b
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: Load date.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: DSS_LOAD_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          LOADREVENUEBUDGETS: 1eb8a8cf-d247-4992-a005-e23323bf4b05
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: LOAD
+            nodeName: LOADREVENUEBUDGETS
+        join:
+          joinCondition: |-
+            FROM {{ ref('LOAD','LOADREVENUEBUDGETS') }} LoadRevenueBudgets
+             WHERE LoadRevenueBudgets.BudgetTypeLabel = 'PD Budget'
+                OR (LoadRevenueBudgets.BudgetTypeLabel LIKE 'Budget - %' AND NOT LoadRevenueBudgets.BudgetType LIKE 'Budget - ISO P%')--Exclude ISO from PD Budget
+
+             GROUP BY LoadRevenueBudgets.ContractId,
+                      LoadRevenueBudgets.BudgetDate
+        name: LOADREVENUEBUDGETSPD
+        noLinkRefs: []
+  name: LOADREVENUEBUDGETSPD
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

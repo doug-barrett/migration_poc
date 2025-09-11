@@ -1,0 +1,256 @@
+fileVersion: 1
+id: da386a6d-8300-41a9-abc8-3d4b81d74eae
+name: AGGCONTRACTUSAGEBYRECEIPTDATE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: REPORTS
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3c732827-605e-4541-a6a8-0f0d7be185a8
+          stepCounter: da386a6d-8300-41a9-abc8-3d4b81d74eae
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Unique identifier for an account. Commonly called the "Force Id"
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        isBusinessKey: true
+        name: FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 264325ce-e680-46a0-99e5-d80139b1ea05
+                stepCounter: c278473c-12f0-41e1-b65b-faa4b3c2a978
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f30a3d94-c4e3-49da-86cf-ee54fac36b00
+          stepCounter: da386a6d-8300-41a9-abc8-3d4b81d74eae
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        isBusinessKey: true
+        name: PPACONTRACTNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b0a2092e-295a-4574-a702-62538212dc91
+                stepCounter: 60b39932-2692-4360-ae42-25e43379d6f6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fcf89cc6-247d-4df0-95b9-a8d37b5733b6
+          stepCounter: da386a6d-8300-41a9-abc8-3d4b81d74eae
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: The receipt date calendar quarter representation. Format YYYYQQ. Example 200204.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        isBusinessKey: true
+        name: RECEIPTDATECALQUARTER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4a2704d7-df86-4c10-a2c8-818281ea1d23
+                stepCounter: ba0a4b83-bafb-422d-8c0a-4c417e7afd41
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a29015c8-3214-468d-bed6-34c735cd8e2d
+          stepCounter: da386a6d-8300-41a9-abc8-3d4b81d74eae
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: SALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a2410812-846e-49a6-8cf0-938dc4d0de17
+                stepCounter: a48d4109-5650-474d-a2f0-c43a0593bcac
+            transform: SUM(SalesAndRevenue.Sales)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5a8e40fa-5b80-479d-8ee9-1c798f170701
+          stepCounter: da386a6d-8300-41a9-abc8-3d4b81d74eae
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: REVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c15a6239-54bc-439b-be0c-970122f29022
+                stepCounter: a48d4109-5650-474d-a2f0-c43a0593bcac
+            transform: SUM(SalesAndRevenue.Revenue)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 49fb17de-bb5c-404b-81ac-8b989c710185
+          stepCounter: da386a6d-8300-41a9-abc8-3d4b81d74eae
+        config: {}
+        dataType: BOOLEAN
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: ISFIRSTTIMEUSINGCONTRACT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 11a5b723-8d5d-40a3-8231-3ac56bce1b59
+                stepCounter: a48d4109-5650-474d-a2f0-c43a0593bcac
+            transform: |-
+              -- Is this the very 1st time using this contract?
+               IFF(LAG(ReceiptDateCalQuarter, 1) OVER(PARTITION BY ForceId, Contract.PPAContractNumber ORDER BY ForceId, Contract.PPAContractNumber,ReceiptDateCalQuarter) IS NULL, 1, 0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c0db62cf-3875-4f76-aa7a-9a03bf12f2f7
+          stepCounter: da386a6d-8300-41a9-abc8-3d4b81d74eae
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: ISCONTRACTUSENEWORRECURRINGINTRAILING12MONTHS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 11a5b723-8d5d-40a3-8231-3ac56bce1b59
+                stepCounter: a48d4109-5650-474d-a2f0-c43a0593bcac
+            transform: |-
+              --New or Recurring in a Rolling 4 Quarter Timeline
+                IFF(DATEDIFF(QUARTER, LAG(TO_DATE(CONCAT(CAST(LEFT(DimReceiptDate.ReceiptDateCalQuarter, 4) AS VARCHAR(10)), CASE RIGHT(CAST(DimReceiptDate.ReceiptDateCalQuarter AS VARCHAR(10)), 2) WHEN '01' THEN '03' WHEN '02' THEN '06' WHEN '03' THEN '09' ELSE '12' END, '01')), 1) OVER(PARTITION BY ForceId, Contract.PPAContractNumber ORDER BY ForceId, Contract.PPAContractNumber, DimReceiptDate.ReceiptDateCalQuarter), TO_DATE(CONCAT(CAST(LEFT(DimReceiptDate.ReceiptDateCalQuarter, 4) AS VARCHAR(10)), CASE RIGHT(CAST(DimReceiptDate.ReceiptDateCalQuarter AS VARCHAR(10)), 2) WHEN '01' THEN '03' WHEN '02' THEN '06' WHEN '03' THEN '09' ELSE '12' END, '01'))) <= 4, 'Recurring', 'New')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bb244906-cec8-4517-ab86-2416ce350869
+          stepCounter: da386a6d-8300-41a9-abc8-3d4b81d74eae
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: QUARTERSSINCECONTRACTUSE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 11a5b723-8d5d-40a3-8231-3ac56bce1b59
+                stepCounter: a48d4109-5650-474d-a2f0-c43a0593bcac
+            transform: |-
+              --Quarters Since Last Use
+                DATEDIFF(QUARTER, LAG(TO_DATE(CONCAT(CAST(LEFT(DimReceiptDate.ReceiptDateCalQuarter, 4) AS VARCHAR(10)), CASE RIGHT(CAST(DimReceiptDate.ReceiptDateCalQuarter AS VARCHAR(10)), 2) WHEN '01' THEN '03' WHEN '02' THEN '06' WHEN '03' THEN '09' ELSE '12' END, '01')), 1) OVER(PARTITION BY ForceId, Contract.PPAContractNumber ORDER BY ForceId, Contract.PPAContractNumber,DimReceiptDate.ReceiptDateCalQuarter), TO_DATE(CONCAT(CAST(LEFT(DimReceiptDate.ReceiptDateCalQuarter, 4) AS VARCHAR(10)), CASE RIGHT(CAST(DimReceiptDate.ReceiptDateCalQuarter AS VARCHAR(10)), 2) WHEN '01' THEN '03' WHEN '02' THEN '06' WHEN '03' THEN '09' ELSE '12' END, '01')))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ef70f73d-7701-461e-8f00-5ab3a786eaba
+          stepCounter: da386a6d-8300-41a9-abc8-3d4b81d74eae
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: DSSCREATETIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0496d1a3-65d0-428e-9941-de744cae002f
+          stepCounter: da386a6d-8300-41a9-abc8-3d4b81d74eae
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: DSSUPDATETIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          SALESANDREVENUE: a48d4109-5650-474d-a2f0-c43a0593bcac
+          ACCOUNT: c278473c-12f0-41e1-b65b-faa4b3c2a978
+          CONTRACT: 60b39932-2692-4360-ae42-25e43379d6f6
+          DIMRECEIPTDATE: ba0a4b83-bafb-422d-8c0a-4c417e7afd41
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DIM
+            nodeName: ACCOUNT
+          - locationName: DIM
+            nodeName: CONTRACT
+          - locationName: DIM
+            nodeName: DIMRECEIPTDATE
+          - locationName: FACT
+            nodeName: SALESANDREVENUE
+        join:
+          joinCondition: |-
+            FROM {{ ref('FACT','SALESANDREVENUE') }} SalesAndRevenue
+              LEFT JOIN {{ ref('DIM','ACCOUNT') }} ACCOUNT
+                ON SalesAndRevenue.AccountKey = Account.AccountKey
+              LEFT JOIN {{ ref('DIM','CONTRACT') }} Contract
+                ON SalesAndRevenue.ContractKey = Contract.ContractKey
+              LEFT JOIN {{ ref('DIM','DIMRECEIPTDATE') }} DimReceiptDate
+                ON SalesAndRevenue.ReceiptDateKey = DimReceiptDate.ReceiptDateKey
+             GROUP BY Account.ForceId,
+                      Contract.PPAContractNumber,
+                      DimReceiptDate.ReceiptDateCalQuarter
+             ORDER BY Account.ForceId,
+                      Contract.PPAContractNumber,
+                      DimReceiptDate.ReceiptDateCalQuarter
+        name: AGGCONTRACTUSAGEBYRECEIPTDATE
+        noLinkRefs: []
+  name: AGGCONTRACTUSAGEBYRECEIPTDATE
+  overrideSQL: false
+  schema: ""
+  sqlType: Fact
+  type: sql
+  version: 1
+type: Node

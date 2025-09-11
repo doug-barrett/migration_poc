@@ -1,0 +1,150 @@
+fileVersion: 1
+id: c6c9c0e2-3738-47b0-91f4-225285f18276
+name: AGGOPSALESANDREVENUEBYSUPPLIER
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "See notes"
+  isMultisource: false
+  locationName: REPORTS
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: abec24a7-48ee-4dad-9d49-752ef826f6b6
+          stepCounter: c6c9c0e2-3738-47b0-91f4-225285f18276
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: "StageSalesMerge_AddKeys.OrganizationId=Supplier.OrganizationId\nStageSalesMerge_AddKeys.SupplierId=Supplier.SupplierId\nStageSalesMerge_AddKeys.SupplierName=Supplier.SupplierName\nStageSalesMerge_AddKeys.ContractId=Supplier.ContractId"
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        isBusinessKey: true
+        name: SUPPLIERKEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d8b7fec4-511c-4b4e-a9ac-e414b7ba81e0
+                stepCounter: 9f5fdf04-d6f5-421b-90d1-773791a249c8
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1831baed-78f7-4ded-ab54-418fc5a7f349
+          stepCounter: c6c9c0e2-3738-47b0-91f4-225285f18276
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: StageSalesMerge_AddKeys.TransactionDate=DimTransactionDateKey.TransactionDate
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        isBusinessKey: true
+        name: TRANSACTIONDATEKEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8ab19437-e0be-4080-b347-d01d42ff2c7d
+                stepCounter: b6e4db47-031e-4b7e-9203-ae244b9a23e5
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a756c0ad-619b-4ca6-b0f3-2c391baab50f
+          stepCounter: c6c9c0e2-3738-47b0-91f4-225285f18276
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Generated artificial key
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        isBusinessKey: true
+        name: UCCAMPUSKEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1fdb991f-194b-4ca4-be6a-48d0639878d4
+                stepCounter: 2b3ad18b-05b2-417d-aa60-27bbb9a839ca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7d8db4bb-bc04-4efb-bf29-8942f1017729
+          stepCounter: c6c9c0e2-3738-47b0-91f4-225285f18276
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: is the sales amount, or gross transaction volume (GTV), associated with a transaction in US Dollars. A Sales amount is typically NOT an individual sale, but a monthly aggregate of all sales for a customer in a given month.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: SALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a2410812-846e-49a6-8cf0-938dc4d0de17
+                stepCounter: a48d4109-5650-474d-a2f0-c43a0593bcac
+            transform: SUM(SalesAndRevenue.Sales)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f68d7fb7-a4d1-4dac-9b13-da26f77d606d
+          stepCounter: c6c9c0e2-3738-47b0-91f4-225285f18276
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: is the amount of gross revenue, always in US Dollars, OMNIA Partners recieved for the row.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: REVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c15a6239-54bc-439b-be0c-970122f29022
+                stepCounter: a48d4109-5650-474d-a2f0-c43a0593bcac
+            transform: SUM(SalesAndRevenue.Revenue)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          SALESANDREVENUE: a48d4109-5650-474d-a2f0-c43a0593bcac
+          UCCAMPUS: 2b3ad18b-05b2-417d-aa60-27bbb9a839ca
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DIM
+            nodeName: DIMTRANSACTIONDATE
+          - locationName: DIM
+            nodeName: SUPPLIER
+          - locationName: DIM
+            nodeName: UCCAMPUS
+          - locationName: FACT
+            nodeName: SALESANDREVENUE
+        join:
+          joinCondition: |-
+            FROM {{ ref('FACT','SALESANDREVENUE') }} SalesAndRevenue
+              JOIN {{ ref('DIM','UCCAMPUS') }} UCCampus
+                ON SalesAndRevenue.Level1ForceId = UCCampus.OPCampusForceId
+             GROUP BY SalesAndRevenue.SupplierKey ,
+                      SalesAndRevenue.TransactionDateKey ,
+                      UCCampus.UCCampusKey
+        name: AGGOPSALESANDREVENUEBYSUPPLIER
+        noLinkRefs: []
+  name: AGGOPSALESANDREVENUEBYSUPPLIER
+  overrideSQL: false
+  schema: ""
+  sqlType: Fact
+  type: sql
+  version: 1
+type: Node

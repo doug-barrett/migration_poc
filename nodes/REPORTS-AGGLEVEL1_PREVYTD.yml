@@ -1,0 +1,237 @@
+fileVersion: 1
+id: 44c95175-1faa-4a2b-a4df-db484628b9fc
+name: AGGLEVEL1_PREVYTD
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "Aggregates by Level1ForceId, sum of sales, sum of revenue, # of financial reporting supplier name, # of contracts, # of contract categories, date of 1st purchase, date of most recent purchase for the previous Year To Date"
+  isMultisource: false
+  locationName: REPORTS
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 69f5775d-4c82-4516-8a73-9adb223c75bd
+          stepCounter: 44c95175-1faa-4a2b-a4df-db484628b9fc
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: is the ultimate parent of a ForceId, the top of the hierarchy for a member.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        isBusinessKey: true
+        name: LEVEL1FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 294c9386-edcb-4648-bfbb-76f3b52ea0d1
+                stepCounter: a48d4109-5650-474d-a2f0-c43a0593bcac
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ccc70c04-c212-4ceb-b4b6-7c1071609f76
+          stepCounter: 44c95175-1faa-4a2b-a4df-db484628b9fc
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: is the sales amount, or gross transaction volume (GTV), associated with a transaction in US Dollars. A Sales amount is typically NOT an individual sale, but a monthly aggregate of all sales for a customer in a given month.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: LEVEL1_PREVYTD_SUMOFGTV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a2410812-846e-49a6-8cf0-938dc4d0de17
+                stepCounter: a48d4109-5650-474d-a2f0-c43a0593bcac
+            transform: SUM(SalesAndRevenue.Sales)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c62d6c68-ba0b-45f9-b4bc-e53b00f19d26
+          stepCounter: 44c95175-1faa-4a2b-a4df-db484628b9fc
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: is the amount of gross revenue, always in US Dollars, OMNIA Partners recieved for the row.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: LEVEL1_PREVYTD_SUMOFREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c15a6239-54bc-439b-be0c-970122f29022
+                stepCounter: a48d4109-5650-474d-a2f0-c43a0593bcac
+            transform: SUM(SalesAndRevenue.Revenue)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e29c7c79-8f6b-4342-90cf-44c062fa0946
+          stepCounter: 44c95175-1faa-4a2b-a4df-db484628b9fc
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: is the rank by gross transaction volume (GTV), associated to the Level1ForceId
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: LEVEL1_PREVYTD_RANKBYGTV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a2410812-846e-49a6-8cf0-938dc4d0de17
+                stepCounter: a48d4109-5650-474d-a2f0-c43a0593bcac
+            transform: RANK() OVER (ORDER BY SUM(SalesAndRevenue.Sales) DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4a2ae4d4-b6cc-43c0-975a-be9d7378d30b
+          stepCounter: 44c95175-1faa-4a2b-a4df-db484628b9fc
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: is the numeric rank of a Level1ForceId by the lifetime sum of revenue.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: LEVEL1_PREVYTD_RANKBYREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c15a6239-54bc-439b-be0c-970122f29022
+                stepCounter: a48d4109-5650-474d-a2f0-c43a0593bcac
+            transform: RANK() OVER (ORDER BY SUM(SalesAndRevenue.Revenue) DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 04e2bb80-7b4b-4d21-9d69-4c3b8ffaa9ae
+          stepCounter: 44c95175-1faa-4a2b-a4df-db484628b9fc
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: is the distinct count of Financial Reporting Supplier Names for a Level1ForceId.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: LEVEL1_PREVYTD_NUMOFSUPPLIERSUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8c5fb26d-5746-47ad-beed-2603a6539f26
+                stepCounter: 60b39932-2692-4360-ae42-25e43379d6f6
+            transform: COUNT (DISTINCT Contract.FinancialReportingSupplierName)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6fdf6fe7-25f5-4f7d-bc44-e0d465e424b7
+          stepCounter: 44c95175-1faa-4a2b-a4df-db484628b9fc
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: is the lifetime "distinct count" of InitialContractId for each Level1ForceId.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: LEVEL1_PREVYTD_NUMOFCONTRACTSUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c1e65424-e1c5-44cd-81d6-a294f621747d
+                stepCounter: 60b39932-2692-4360-ae42-25e43379d6f6
+            transform: COUNT (DISTINCT CASE WHEN ContractRecordType <> 'Marketing Agreement' THEN InitialContractId ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 94c36f30-4179-4e37-835e-7cbb303542ad
+          stepCounter: 44c95175-1faa-4a2b-a4df-db484628b9fc
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: is the lifetime "distinct count" of ContractCategory for each Level1ForceId
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: LEVEL1_PREVYTD_NUMOFCONTRACTCATEGORIESUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 918b5ac3-ac7c-4e30-8e46-f49e270bf174
+                stepCounter: 60b39932-2692-4360-ae42-25e43379d6f6
+            transform: COUNT (DISTINCT Contract.ContractCategory)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2c5efff4-3a2a-4530-8867-83cfb3f8f55b
+          stepCounter: 44c95175-1faa-4a2b-a4df-db484628b9fc
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: is the timestamp for when this was created.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: DSSCREATETIME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: GETDATE()
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 11786f31-a1bd-44cd-ba3f-f355dd6f6144
+          stepCounter: 44c95175-1faa-4a2b-a4df-db484628b9fc
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: is the timestamp for when this last updated.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: DSSUPDATETIME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: GETDATE()
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          SALESANDREVENUE: a48d4109-5650-474d-a2f0-c43a0593bcac
+          CONTRACT: 60b39932-2692-4360-ae42-25e43379d6f6
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DIM
+            nodeName: CONTRACT
+          - locationName: FACT
+            nodeName: SALESANDREVENUE
+        join:
+          joinCondition: |-
+            FROM {{ ref('FACT','SALESANDREVENUE') }} SalesAndRevenue
+              JOIN {{ ref('DIM','CONTRACT') }} Contract
+                ON SalesAndRevenue.ContractKey = Contract.ContractKey
+             WHERE DATEDIFF(YEAR,ReceiptDate,MaxReceiptDate) = 1
+               AND DATE_PART(MONTH,ReceiptDate) <= DATE_PART(MONTH,MaxReceiptDate)
+               AND IFNULL(Sales,0) <> 0
+               AND IFNULL(Revenue,0) <> 0
+             GROUP BY SalesAndRevenue.Level1ForceId
+        name: AGGLEVEL1_PREVYTD
+        noLinkRefs: []
+  name: AGGLEVEL1_PREVYTD
+  overrideSQL: false
+  schema: ""
+  sqlType: Fact
+  type: sql
+  version: 1
+type: Node

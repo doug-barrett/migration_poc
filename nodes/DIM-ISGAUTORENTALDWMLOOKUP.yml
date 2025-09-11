@@ -1,0 +1,174 @@
+fileVersion: 1
+id: 9ecc0f3d-2691-416e-a2c3-59505ec71421
+name: ISGAUTORENTALDWMLOOKUP
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: DIM
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 97c86421-ef96-48a8-bcc5-0a39cecdd615
+          stepCounter: 9ecc0f3d-2691-416e-a2c3-59505ec71421
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        isBusinessKey: true
+        name: CHARGEDAYS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ffdc4e5f-a6db-4d38-b2c8-cf1691a73038
+          stepCounter: 9ecc0f3d-2691-416e-a2c3-59505ec71421
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: WEEKDAYS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4bfab8b0-b204-438e-ade1-38ec06939ff5
+          stepCounter: 9ecc0f3d-2691-416e-a2c3-59505ec71421
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: MONTHDAYS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 136d6311-6355-44b7-8d83-ef9a95663462
+          stepCounter: 9ecc0f3d-2691-416e-a2c3-59505ec71421
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: BLMONTHS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e6285464-be41-4dad-8235-e24b3654ee3d
+          stepCounter: 9ecc0f3d-2691-416e-a2c3-59505ec71421
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: BLWEEKS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 45eec04e-4dcd-4957-91f3-379bdc5abaab
+          stepCounter: 9ecc0f3d-2691-416e-a2c3-59505ec71421
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: BLDAYS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          ISGAUTORENTALDWMLOOKUP: 9ecc0f3d-2691-416e-a2c3-59505ec71421
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('DIM','ISGAUTORENTALDWMLOOKUP') }} (ChargeDays, BLMonths, BLWeeks, BLDays, WeekDays, MonthDays) AS WITH DaysWeeksMonthsConfig AS (
+                    SELECT 5.25 AS WeekDays,
+                           20 AS MonthDays,
+                           183 AS TotalDays
+                   ),
+                   DayCount AS (
+                    SELECT seq4() AS ChargeDays
+                      FROM TABLE(generator(rowcount => (SELECT TotalDays FROM DaysWeeksMonthsConfig))) v
+                   ),
+                   BaseData AS (
+                    SELECT *
+                      FROM DaysWeeksMonthsConfig,
+                           DayCount
+                   ),
+                   BLMonths AS (
+                    SELECT *,
+                           FLOOR((ChargeDays+(30-MonthDays))/30) AS BLMonths
+                      FROM BaseData
+                   ),
+                   BLWeeks AS (
+                    SELECT *,
+                           FLOOR((IFF(ChargeDays-(BLMonths*30)>0,ChargeDays-(BLMonths*30),0)+7-WeekDays)/7) AS BLWeeks
+                      FROM BLMonths
+                   ),
+                   BLDays AS (
+                    SELECT *,
+                           IFF(ChargeDays-BLMonths*30-BLWeeks*7>0,ChargeDays-BLMonths*30-BLWeeks*7,0) AS BLDays
+                      FROM BLWeeks
+                   ) SELECT ChargeDays,
+                   BLMonths,
+                   BLWeeks,
+                   BLDays,
+                   WeekDays,
+                   MonthDays
+              FROM BLDays
+        dependencies: []
+        join:
+          joinCondition: '-- Nodes used in the SQL override:'
+        name: ISGAUTORENTALDWMLOOKUP
+        noLinkRefs: []
+  name: ISGAUTORENTALDWMLOOKUP
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

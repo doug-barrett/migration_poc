@@ -1,0 +1,168 @@
+fileVersion: 1
+id: 1985d466-832e-4619-8f4b-c1b5f3167800
+name: AGGOPSALESANDREVENUEBYCONTRACT
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "Contains only UC Campus sales records only."
+  isMultisource: false
+  locationName: REPORTS
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4091c57b-ca08-4ea3-b96e-55eed6c991e5
+          stepCounter: 1985d466-832e-4619-8f4b-c1b5f3167800
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: AggOPSalesAndRevenueByContract.ContractId=Contract.ContractId
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: CONTRACTKEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 13126478-4775-4353-9d87-86e9bf395a0a
+                stepCounter: a48d4109-5650-474d-a2f0-c43a0593bcac
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8916b6be-d040-4d43-8345-662d6dc979ce
+          stepCounter: 1985d466-832e-4619-8f4b-c1b5f3167800
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: StageSalesMerge_AddKeys.TransactionDate=DimTransactionDate.TransactionDate
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: TRANSACTIONDATEKEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5bf2b378-37ec-4020-85a8-5520f4100428
+                stepCounter: a48d4109-5650-474d-a2f0-c43a0593bcac
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7fce0d4e-d027-4fc2-9059-6888d4ab25fd
+          stepCounter: 1985d466-832e-4619-8f4b-c1b5f3167800
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: CONTRACTID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4d9b7ac5-95c8-45cd-88a6-206803d1ba22
+                stepCounter: a48d4109-5650-474d-a2f0-c43a0593bcac
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a4b47bd3-ba26-4b63-aa7e-84f958ee4756
+          stepCounter: 1985d466-832e-4619-8f4b-c1b5f3167800
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: StageUCSpendReportingLineItems_AddKeys.Campus=UCCampus.UCCampus
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: UCCAMPUSKEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1fdb991f-194b-4ca4-be6a-48d0639878d4
+                stepCounter: 2b3ad18b-05b2-417d-aa60-27bbb9a839ca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f966cc5b-4de8-47f6-be36-8153dbb52232
+          stepCounter: 1985d466-832e-4619-8f4b-c1b5f3167800
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: is the sales amount, or gross transaction volume (GTV), associated with a transaction in US Dollars. A Sales amount is typically NOT an individual sale, but a monthly aggregate of all sales for a customer in a given month.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: SALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a2410812-846e-49a6-8cf0-938dc4d0de17
+                stepCounter: a48d4109-5650-474d-a2f0-c43a0593bcac
+            transform: SUM(SalesAndRevenue.Sales)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2055d705-bfb1-4c57-8811-cb681773e9c5
+          stepCounter: 1985d466-832e-4619-8f4b-c1b5f3167800
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: is the amount of gross revenue, always in US Dollars, OMNIA Partners recieved for the row.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: REVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c15a6239-54bc-439b-be0c-970122f29022
+                stepCounter: a48d4109-5650-474d-a2f0-c43a0593bcac
+            transform: SUM(SalesAndRevenue.Revenue)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          SALESANDREVENUE: a48d4109-5650-474d-a2f0-c43a0593bcac
+          ACCOUNTHIERARCHY: 17cecb29-ef46-42f0-b469-e02be7b68afd
+          UCCAMPUS: 2b3ad18b-05b2-417d-aa60-27bbb9a839ca
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DIM
+            nodeName: UCCAMPUS
+          - locationName: FACT
+            nodeName: SALESANDREVENUE
+          - locationName: DIM
+            nodeName: ACCOUNTHIERARCHY
+        join:
+          joinCondition: |-
+            FROM {{ ref('FACT','SALESANDREVENUE') }} SalesAndRevenue
+              JOIN {{ ref('DIM','ACCOUNTHIERARCHY') }} AccountHierarchy
+                ON SalesAndRevenue.AccountHierarchyKey = AccountHierarchy.AccountHierarchyKey
+              JOIN {{ ref('DIM','UCCAMPUS') }} UCCampus
+                ON AccountHierarchy.Level1ForceId = UCCampus.OPCampusForceId
+             GROUP BY SalesAndRevenue.ContractKey,
+                      SalesAndRevenue.TransactionDateKey,
+                      SalesAndRevenue.ContractId,
+                      UCCampus.UCCampusKey
+        name: AGGOPSALESANDREVENUEBYCONTRACT
+        noLinkRefs: []
+  name: AGGOPSALESANDREVENUEBYCONTRACT
+  overrideSQL: false
+  schema: ""
+  sqlType: Fact
+  type: sql
+  version: 1
+type: Node

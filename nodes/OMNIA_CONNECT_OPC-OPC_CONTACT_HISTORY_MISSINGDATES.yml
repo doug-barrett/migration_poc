@@ -1,0 +1,132 @@
+fileVersion: 1
+id: a424c4fc-8a97-49f7-99da-cfbaf80b293b
+name: OPC_CONTACT_HISTORY_MISSINGDATES
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: OMNIA_CONNECT_OPC
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 56b51b99-a7a1-4540-bc14-c73cc62436f6
+          stepCounter: a424c4fc-8a97-49f7-99da-cfbaf80b293b
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Level1 ForceId
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: LEVEL1FORCEID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cc0ebbe8-e2dd-40e8-b76e-ed7de228aab6
+          stepCounter: a424c4fc-8a97-49f7-99da-cfbaf80b293b
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: Created Month
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: CREATED_MONTH
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6b88f7ba-980c-4c2a-932a-a31e5d8f11d3
+          stepCounter: a424c4fc-8a97-49f7-99da-cfbaf80b293b
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Contact Count
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: CONTACT_COUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 440d9144-a334-4b3c-aa20-fe9023129dd2
+          stepCounter: a424c4fc-8a97-49f7-99da-cfbaf80b293b
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Running Contact Count
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: RUNNING_CONTACT_COUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          OPC_CONTACT_HISTORY_MISSINGDATES: a424c4fc-8a97-49f7-99da-cfbaf80b293b
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('OMNIA_CONNECT_OPC','OPC_CONTACT_HISTORY_MISSINGDATES') }} (Level1ForceId, Created_Month, Contact_Count, Running_Contact_Count) AS WITH cteDistinctLevel1s AS (
+                    SELECT DISTINCT Level1ForceId
+                      FROM OPC_Contact_History
+                   ),
+                   cteLTMDates AS (
+                    SELECT CAST(CalendarDate AS DATE) AS Created_Month
+                      FROM OMNIAPartnersDW_Dev.Dim.DimDate
+                     WHERE CalendarDate BETWEEN LAST_DAY(DATEADD(MONTH,-12,CURRENT_DATE())) AND LAST_DAY(DATEADD(MONTH,-1,CURRENT_DATE()))
+                       AND CalendarDate = LAST_DAY(CalendarDate)
+                   ),
+                   cteLevel1Dates AS (
+                    SELECT Level1ForceId,
+                           Created_Month
+                      FROM cteDistinctLevel1s,
+                           cteLTMDates
+                   ),--SELECT * FROM cteLevel1Dates where level1forceid = 29951 order by created_month
+             cteFullSet AS (
+                    SELECT COALESCE(cteLevel1Dates.Level1ForceId,cteLevel1Dates.Level1ForceId) AS Level1ForceId,
+                           COALESCE(OPC_Contact_History.Created_Month, cteLevel1Dates.Created_Month) Created_Month,
+                           ZEROIFNULL(Contact_Count) AS Contact_Count,
+                           ZEROIFNULL(SUM(Contact_Count) OVER(PARTITION BY COALESCE(OPC_Contact_History.Level1ForceId, cteLevel1Dates.Level1ForceId) ORDER BY COALESCE(OPC_Contact_History.Created_Month, cteLevel1Dates.Created_Month))) AS Running_Contact_Count
+                      FROM OPC_Contact_History
+                      FULL OUTER JOIN cteLevel1Dates
+                        ON OPC_Contact_History.Level1ForceId = cteLevel1Dates.Level1ForceId
+                       AND OPC_Contact_History.Created_Month = cteLevel1Dates.Created_Month
+                   ) SELECT *
+              FROM cteFullSet
+             WHERE Contact_Count = 0
+        dependencies: []
+        join:
+          joinCondition: '-- Nodes used in the SQL override:'
+        name: OPC_CONTACT_HISTORY_MISSINGDATES
+        noLinkRefs: []
+  name: OPC_CONTACT_HISTORY_MISSINGDATES
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

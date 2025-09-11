@@ -1,0 +1,301 @@
+fileVersion: 1
+id: d8aaa1f4-08ca-4388-aee8-a06505e32d32
+name: VWBUDGETFORCEID
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: REPORTS
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c5576cb1-128c-4070-8d01-ddcb6c154bd5
+          stepCounter: d8aaa1f4-08ca-4388-aee8-a06505e32d32
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: TERRITORYID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 42482cac-ec14-4c42-a1f8-6bfe5f6874b9
+          stepCounter: d8aaa1f4-08ca-4388-aee8-a06505e32d32
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: BUDGETDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 92566ea5-a603-4265-8d52-0cbc33a99d40
+          stepCounter: d8aaa1f4-08ca-4388-aee8-a06505e32d32
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: LEVEL1FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1e73d95d-5850-42cd-89c5-3435e1ad9297
+          stepCounter: d8aaa1f4-08ca-4388-aee8-a06505e32d32
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d09df2c2-40cb-4333-8b85-691b0b2a4249
+          stepCounter: d8aaa1f4-08ca-4388-aee8-a06505e32d32
+        config: {}
+        dataType: NUMERIC(18,18)
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: FORCEIDDISTRIBUTION
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7238b74b-0370-4659-b7a5-9bdb55c1ce16
+          stepCounter: d8aaa1f4-08ca-4388-aee8-a06505e32d32
+        config: {}
+        dataType: DECIMAL(18,2)
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: BUDGETFORCEIDSALESAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 55e4725a-fce3-45a5-94c4-0cce258baf83
+          stepCounter: d8aaa1f4-08ca-4388-aee8-a06505e32d32
+        config: {}
+        dataType: DECIMAL(18,2)
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: BUDGETFORCEIDREVENUEAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8ebcd9c4-1055-4ac4-aa51-d58b048e5766
+          stepCounter: d8aaa1f4-08ca-4388-aee8-a06505e32d32
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: TERRITORYID_PY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: afc93c4a-2f83-468e-a938-9c12a49e637e
+          stepCounter: d8aaa1f4-08ca-4388-aee8-a06505e32d32
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: BUDGETTYPE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            --------------------------------------------------------------------------------------------------------------------------
+             --Get Amounts to use by 2019 Budget Date
+             --------------------------------------------------------------------------------------------------------------------------
+             WITH cteReportsSalesAndRevenue AS (
+                    SELECT ISNULL([sar].[TerritoryDivisionId], CASE--This CASE statement is used to assign correct Division Name when Territory Assignment is NULL due to data or hierarchy issues
+              WHEN [sar].[OrganizationId] IN(1, 5, 6) THEN 1--Public
+              WHEN [sar].[OrganizationId] IN(2, 3, 4, 7) THEN 2--Private
+              ELSE 1 END) AS [TerritoryDivisionId],
+                           [sar].[ReceiptDate],
+                           [sar].[Sales],
+                           [sar].[Revenue],
+                           [sar].[ReceiptDateKey],
+                           [sar].[ForceId]
+                      FROM [Reports].[SalesAndRevenue] AS [sar]
+                     WHERE [sar].[ReceiptDateKey] BETWEEN 20190101 AND 20191231
+                   ) --SELECT * FROM [cteReportsSalesAndRevenue]
+             ,
+                   cteForceIdSalesRevenue --Get Actuals by ForceId
+              AS (
+                    SELECT ISNULL([sar].[TerritoryDivisionId], 1) AS [TerritoryDivisionId],
+                           [sar].[ReceiptDate] AS [BudgetDate],
+                           ISNULL([sar].[ForceId], 0) AS [ForceId],
+                           SUM([sar].[Sales]) AS [BudgetForceIdSalesAmount],
+                           SUM([sar].[Revenue]) AS [BudgetForceIdRevenueAmount]
+                      FROM [cteReportsSalesAndRevenue] AS [sar]
+                     WHERE ISNULL([sar].[TerritoryDivisionId], 1) IN (1, 2)
+                       AND NOT([sar].[Revenue] = 0) --[sar].[ForceId] IS NOT NULL --There are Budgets where Sales has not happened
+
+                     GROUP BY ISNULL([sar].[TerritoryDivisionId], 1),
+                              [sar].[ReceiptDate],
+                              ISNULL([sar].[ForceId], 0)
+                   ) --SELECT TOP 10 * FROM [cteForceIdSalesRevenue] AS [cfisr] WHERE forceidrevenue = 0
+              --select * FROM [cteForceIdSalesRevenue] AS cfisr GROUP BY BudgetDate
+              --SELECT cfisr.budgetdate,sum(cfisr.[ForceIdSales]) , SUM([cfisr].[ForceIdRevenue]) FROM [cteForceIdSalesRevenue] AS cfisr GROUP BY cfisr.budgetdate ORDER BY [cfisr].[BudgetDate]
+              , --------------------------------------------------------------------------------------------------------------------
+              cteForceIdBudget_2019 AS (
+                    SELECT --2019 Budget by ForceId
+              ISNULL([clb].[TerritoryDivisionId], 1) AS [TerritoryDivisionId],
+                           CASE WHEN [da].[TerritoryId] IS NULL THEN CASE WHEN [clb].[TerritoryDivisionId] = 1 THEN 52 --Public\Public\House
+              WHEN [clb].[TerritoryDivisionId] = 2 THEN 11 --Private\Private\House
+              ELSE [da].[TerritoryId] END
+                                ELSE [da].[TerritoryId]
+                                 END AS [TerritoryId], --2020 TerritoryId
+              [clb].[BudgetDate],
+                           [da].[Level1ForceId],
+                           [da].[ForceId],
+                           NULL AS [ForceIdDistribution],
+                           [clb].[BudgetForceIdSalesAmount],
+                           [clb].[BudgetForceIdRevenueAmount],
+                           NULL AS [Growth],
+                           [a].[TerritoryId_PY] AS [TerritoryId_PY], --2019 TerritoryId
+              CASE WHEN [da].[OrganizationId] = 7 THEN 'Territory Budget - ISG'
+                                ELSE 'Territory Budget'
+                                 END AS [BudgetType]
+                      FROM [cteForceIdSalesRevenue] AS [clb]
+                      LEFT OUTER JOIN [OmniaPartnersODS].[ODS].[DsAccount_NextYear] AS [a]
+                        ON [clb].[ForceId] = [a].[ForceId] --get 2019 Territory for ForceId
+
+                      LEFT OUTER JOIN [OmniaPartnersODS].[ODS].[DsAccount] AS [da]
+                        ON [clb].[ForceId] = [da].[ForceId] --get 2020 Territory for ForceId
+
+                   ) --SELECT [csabbfi].[TerritoryDivisionId], sum(csabbfi.[BudgetForceIdRevenueAmount]) FROM [cteForceIdBudget_2019] AS csabbfi GROUP BY [csabbfi].[TerritoryDivisionId]
+              --SELECT budgetdate,[TerritoryDivisionId], sum([cfb].[BudgetForceIdRevenueAmount]) FROM   cteForceIdBudget_Master AS cfb  group by budgetdate,[TerritoryDivisionId] ORDER BY [cfb].[BudgetDate], [TerritoryDivisionId]
+              --SELECT budgetdate, sum([cfb].[BudgetForceIdRevenueAmount]) FROM   [cteForceIdBudget_2019] AS cfb  group by budgetdate ORDER BY [cfb].[BudgetDate]
+              --SELECT budgetdate,[TerritoryDivisionId], sum([cfb].[BudgetForceIdRevenueAmount]) FROM   [cteForceIdBudget_2019] AS cfb  group by budgetdate,[TerritoryDivisionId] ORDER BY [cfb].[BudgetDate], [TerritoryDivisionId]
+              --------------------------------------------------------------------------------------------------------------------
+              ,
+                   cteForceIdBudget_2020 AS (
+                    SELECT --2020 Budget by ForceId
+              [stny].[TerritoryDivisionId],
+                           [da].[TerritoryId] AS [TerritoryId], --2020 TerritoryId
+              [clb].[BudgetDate] AS [BudgetDate],
+                           [clb].[Level1ForceId],
+                           [clb].[ForceId],
+                           NULL AS [ForceIdDistribution],
+                           [clb].[BudgetSalesAmount] AS [BudgetForceIdSalesAmount], --[BudgetForceIdSalesAmount_2020]
+              [clb].[BudgetRevenueAmount] AS [BudgetForceIdRevenueAmount], --[BudgetForceIdRevenueAmount_2020]
+              NULL AS [Growth],
+                           [a].[TerritoryId_PY], --2019 TerritoryId
+              [clb].[BudgetType] AS [BudgetType]
+                      FROM [Fact].[RevenueBudget] AS [clb]
+                      LEFT OUTER JOIN [OmniaPartnersODS].[ODS].[DsAccount_NextYear] AS [a]
+                        ON [clb].[ForceId] = [a].[ForceId] --get 2019 Territory for ForceId
+
+                      LEFT OUTER JOIN [OmniaPartnersODS].[ODS].[DsAccount] AS [da]
+                        ON [clb].[ForceId] = [da].[ForceId] --get 2020 Territory for ForceId
+
+                      LEFT OUTER JOIN [Dim].[SalesTerritory_NextYear] AS [stny]
+                        ON [stny].[TerritoryId] = [da].[TerritoryId] --LEFT OUTER JOIN [Dim].[TerritoryBudgetGrowth] AS [tbg] ON [tbg].[TerritoryDivisionId] = ISNULL([stny].[TerritoryDivisionId], 1) AND [tbg].[BudgetDate] = [clb].[BudgetDate]
+
+                     WHERE [clb].[BudgetType] LIKE 'Territory Budget%'
+                       AND [clb].[BudgetDateKey] BETWEEN 20200101 AND 20201231
+                   ) --SELECT budgetdate, sum([cfb].[BudgetForceIdRevenueAmount]) FROM   [cteForceIdBudget_2020] AS cfb  group by budgetdate ORDER BY [cfb].[BudgetDate]
+              SELECT [clb].[TerritoryId], --2020 TerritoryId
+              [clb].[BudgetDate],
+                   [clb].[Level1ForceId],
+                   [clb].[ForceId],
+                   [clb].[ForceIdDistribution],
+                   [clb].[BudgetForceIdSalesAmount],
+                   [clb].[BudgetForceIdRevenueAmount],
+                   [clb].[TerritoryId_PY], --2019 TerritoryId
+              [clb].[BudgetType]
+              FROM [cteForceIdBudget_2019] AS [clb]
+             UNION SELECT [clb].[TerritoryId], --2020 TerritoryId
+              [clb].[BudgetDate],
+                   [clb].[Level1ForceId],
+                   [clb].[ForceId],
+                   [clb].[ForceIdDistribution],
+                   [clb].[BudgetForceIdSalesAmount],
+                   [clb].[BudgetForceIdRevenueAmount],
+                   [clb].[TerritoryId_PY], --2019 TerritoryId
+              [clb].[BudgetType]
+              FROM [cteForceIdBudget_2020] AS [clb]
+        dependencies: []
+        join:
+          joinCondition: '-- Nodes used in the SQL override:'
+        name: VWBUDGETFORCEID
+        noLinkRefs: []
+  name: VWBUDGETFORCEID
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node
