@@ -1,0 +1,192 @@
+fileVersion: 1
+id: b7b3299e-2d71-476d-8a36-136a620ce212
+name: OPC_AGGFORCEID_PY_LTM
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "Aggregates by Level1ForceId, sum of sales, sum of revenue, # of financial reporting supplier name, # of contracts, # of contract categories, date of 1st purchase, date of most recent purchase for all time"
+  isMultisource: false
+  locationName: OMNIA_PARTNERS_CONNECT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d46fb9e1-461f-4a84-846e-baf2e7227132
+          stepCounter: b7b3299e-2d71-476d-8a36-136a620ce212
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Account Id
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        isBusinessKey: true
+        name: FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b70779a9-b736-4533-86c9-9df1b4bb7da0
+                stepCounter: ce2fbe4f-2294-4e33-b4a6-ecdfb8e8d372
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b6c8e2a2-11d2-4883-af0c-8ac24bb3e6ec
+          stepCounter: b7b3299e-2d71-476d-8a36-136a620ce212
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: is the sales amount, or gross transaction volume (GTV), associated with a transaction in US Dollars. A Sales amount is typically NOT an individual sale, but a monthly aggregate of all sales for a customer in a given month.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: FORCEID_PY_LTM_SUMOFGTV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ba138ee5-63ba-44ee-89b1-1ac7affe846b
+                stepCounter: ce2fbe4f-2294-4e33-b4a6-ecdfb8e8d372
+            transform: SUM(OPC_SalesAndRevenue.Sales)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1dcf903e-8aa2-466c-8151-ec80d2ad9711
+          stepCounter: b7b3299e-2d71-476d-8a36-136a620ce212
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: is the rank by gross transaction volume (GTV), associated to the Level1ForceId
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: FORCEID_PY_LTM_RANKBYGTV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ba138ee5-63ba-44ee-89b1-1ac7affe846b
+                stepCounter: ce2fbe4f-2294-4e33-b4a6-ecdfb8e8d372
+            transform: RANK() OVER (ORDER BY SUM(OPC_SalesAndRevenue.Sales) DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d696c2e8-01c5-4096-bd65-2c4eb1b3e61b
+          stepCounter: b7b3299e-2d71-476d-8a36-136a620ce212
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: is the distinct count of Financial Reporting Supplier Names for a Level1ForceId.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: FORCEID_PY_LTM_NUMOFSUPPLIERSUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8a788a55-77cb-4660-a263-10c41c3cf2f1
+                stepCounter: ce2fbe4f-2294-4e33-b4a6-ecdfb8e8d372
+            transform: COUNT (DISTINCT OPC_SalesAndRevenue.FinancialReportingSupplierName)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8e4d05fd-0b0e-4974-89a7-fb621852d91c
+          stepCounter: b7b3299e-2d71-476d-8a36-136a620ce212
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: is the lifetime "distinct count" of InitialContractId for each Level1ForceId.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: FORCEID_PY_LTM_NUMOFCONTRACTSUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 116916c7-1671-4afd-acf1-8c5347097168
+                stepCounter: ce2fbe4f-2294-4e33-b4a6-ecdfb8e8d372
+            transform: COUNT (DISTINCT OPC_SalesAndRevenue.InitialContractId)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6ba962d1-e9ff-4247-a6b9-a574d0316686
+          stepCounter: b7b3299e-2d71-476d-8a36-136a620ce212
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: is the lifetime "distinct count" of ContractCategory for each Level1ForceId
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: FORCEID_PY_LTM_NUMOFCONTRACTCATEGORIESUSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b0819fb7-6d4f-497b-87ae-f6b659f8b2ee
+                stepCounter: ce2fbe4f-2294-4e33-b4a6-ecdfb8e8d372
+            transform: COUNT (DISTINCT OPC_SalesAndRevenue.ContractCategory)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 361895d1-aa37-42f7-b93c-1f4dac53a1eb
+          stepCounter: b7b3299e-2d71-476d-8a36-136a620ce212
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: is the timestamp for when this was created.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: DSSCREATETIME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: GETDATE()
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aa087516-6e0a-4972-beaf-0f9eea27dc80
+          stepCounter: b7b3299e-2d71-476d-8a36-136a620ce212
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: is the timestamp for when this last updated.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: DSSUPDATETIME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: GETDATE()
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          OPC_SALESANDREVENUE: ce2fbe4f-2294-4e33-b4a6-ecdfb8e8d372
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: OMNIA_CONNECT_OPC
+            nodeName: OPC_SALESANDREVENUE
+        join:
+          joinCondition: |-
+            FROM {{ ref('OMNIA_CONNECT_OPC','OPC_SALESANDREVENUE') }} OPC_SalesAndRevenue
+             WHERE DATEDIFF(MONTH,TransactionDate,MaxReportingPeriodEndDate) BETWEEN 12 AND 23
+             GROUP BY OPC_SalesAndRevenue.ForceId
+            HAVING SUM(OPC_SalesAndRevenue.Sales) <> 0
+        name: OPC_AGGFORCEID_PY_LTM
+        noLinkRefs: []
+  name: OPC_AGGFORCEID_PY_LTM
+  overrideSQL: false
+  schema: ""
+  sqlType: Fact
+  type: sql
+  version: 1
+type: Node

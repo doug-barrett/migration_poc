@@ -1,0 +1,161 @@
+fileVersion: 1
+id: d3bd48b1-957e-4a8c-946d-492e2c15288b
+name: VWLEVEL1__SUPPLIEROCCURENCES
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: SQL_BIT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 461ee57e-0e68-4442-8d32-4b3baaf45165
+          stepCounter: d3bd48b1-957e-4a8c-946d-492e2c15288b
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: LEVEL1FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2658e944-62df-4fbe-8f48-51c08bde46f5
+                stepCounter: 79e76231-b280-4362-a8fa-68215a84f788
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 454371c9-bb74-48f5-8fe0-c08e2ed4b03e
+          stepCounter: d3bd48b1-957e-4a8c-946d-492e2c15288b
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: is the financial period for which OMNIA Partners recorded revenue on a transaction.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: RECEIPTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9f0957af-16aa-40fe-a225-3f515a7496a8
+                stepCounter: 79e76231-b280-4362-a8fa-68215a84f788
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c0b7db44-54ce-40ce-a84a-81be10a2993a
+          stepCounter: d3bd48b1-957e-4a8c-946d-492e2c15288b
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: Supplier Name to be used on financial reports
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: FINANCIALREPORTINGSUPPLIERNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d9d3072d-32b3-41d2-ba99-1a0552fb2f5c
+                stepCounter: c745f44c-5c71-4400-897b-ff90a502a9cb
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4ec712d9-f779-4814-b3b5-b1ff9a1028a4
+          stepCounter: d3bd48b1-957e-4a8c-946d-492e2c15288b
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Supplier Name to be used on financial reports
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: SUPPLIEROCCURENCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d9d3072d-32b3-41d2-ba99-1a0552fb2f5c
+                stepCounter: c745f44c-5c71-4400-897b-ff90a502a9cb
+            transform: ROW_NUMBER () OVER (PARTITION BY Level1ForceId, FinancialReportingSupplierName ORDER BY ReceiptDate ASC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 77feffa4-4ba7-4d62-9a79-c9e9a738d0c1
+          stepCounter: d3bd48b1-957e-4a8c-946d-492e2c15288b
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: is the sales amount, or gross transaction volume (GTV), associated with a transaction in US Dollars. A Sales amount is typically NOT an individual sale, but a monthly aggregate of all sales for a customer in a given month.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: SUMOFGTV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f4a71e14-54d2-4ee3-88da-c8c95b56c2c7
+                stepCounter: 79e76231-b280-4362-a8fa-68215a84f788
+            transform: SUM(SalesAndRevenue.Sales)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 865ff382-1fc3-46bf-8357-7843a75ab758
+          stepCounter: d3bd48b1-957e-4a8c-946d-492e2c15288b
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: is the amount of gross revenue, always in US Dollars, OMNIA Partners recieved for the row.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: SUMOFREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2098b7a3-a5c3-4180-b722-2fa84cd3e787
+                stepCounter: 79e76231-b280-4362-a8fa-68215a84f788
+            transform: SUM(SalesAndRevenue.Revenue)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DIM
+            nodeName: CONTRACT
+          - locationName: FACT
+            nodeName: SALESANDREVENUE
+        join:
+          joinCondition: |-
+            FROM FACT.SalesAndRevenue
+             INNER JOIN Dim.Contract
+                ON SalesAndRevenue.ContractKey = Contract.ContractKey
+             WHERE IFNULL(Revenue,0) <> 0
+               AND YEAR(ReceiptDate) >= 2016
+               AND IFNULL(Sales,0) <> 0
+             GROUP BY Level1ForceId,
+                      ReceiptDate,
+                      FinancialReportingSupplierName
+        name: VWLEVEL1__SUPPLIEROCCURENCES
+        noLinkRefs: []
+  name: VWLEVEL1__SUPPLIEROCCURENCES
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

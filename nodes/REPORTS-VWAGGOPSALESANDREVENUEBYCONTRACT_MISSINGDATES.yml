@@ -1,0 +1,192 @@
+fileVersion: 1
+id: 966f11c7-1d2f-4faf-9dcf-a523f4bfb695
+name: VWAGGOPSALESANDREVENUEBYCONTRACT_MISSINGDATES
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "User defined view (uses CTE to generate missing dates)"
+  isMultisource: false
+  locationName: REPORTS
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e679e20f-2111-478e-afd6-0d49858e8051
+          stepCounter: 966f11c7-1d2f-4faf-9dcf-a523f4bfb695
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Generated artificial key
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: CONTRACTKEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9f595bc1-b93a-44ca-bc07-63b89e6d80fb
+                stepCounter: d0ffe2bd-031b-4c6c-a2f7-96b873562a02
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 785caa56-3c0b-40ba-87fe-dce585f6c37f
+          stepCounter: 966f11c7-1d2f-4faf-9dcf-a523f4bfb695
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: StageSalesMerge_AddKeys.TransactionDate=DimTransactionDate.TransactionDate
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: TRANSACTIONDATEKEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9869384a-a9e2-482e-975c-dfd52224d138
+                stepCounter: 7cce1b6d-aeb7-48ba-bc34-41858737db13
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 16158f01-f206-445e-bb57-e62423b1c1ee
+          stepCounter: 966f11c7-1d2f-4faf-9dcf-a523f4bfb695
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: CONTRACTID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cc3dd03a-dbf8-4f95-bae4-de691c187817
+                stepCounter: d0ffe2bd-031b-4c6c-a2f7-96b873562a02
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 26c7c176-d152-465a-bdf3-e61cda60ac11
+          stepCounter: 966f11c7-1d2f-4faf-9dcf-a523f4bfb695
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: StageUCSpendReportingLineItems_AddKeys.Campus=UCCampus.UCCampus
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: UCCAMPUSKEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c7b8037f-ccb1-4e93-b552-e09c6caddd77
+                stepCounter: d0ffe2bd-031b-4c6c-a2f7-96b873562a02
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5bd62248-c24f-4194-984c-cce13c85fd37
+          stepCounter: 966f11c7-1d2f-4faf-9dcf-a523f4bfb695
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: is the sales amount, or gross transaction volume (GTV), associated with a transaction in US Dollars. A Sales amount is typically NOT an individual sale, but a monthly aggregate of all sales for a customer in a given month.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: SALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 27a44163-db82-4a8c-8d4d-40beb2da7602
+                stepCounter: d0ffe2bd-031b-4c6c-a2f7-96b873562a02
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ddf91ef4-81ce-41bd-9a05-b217b301bb97
+          stepCounter: 966f11c7-1d2f-4faf-9dcf-a523f4bfb695
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: is the amount of gross revenue, always in US Dollars, OMNIA Partners recieved for the row.
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: REVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 071d5f8d-67ee-419c-8f60-43e5cf894e92
+                stepCounter: d0ffe2bd-031b-4c6c-a2f7-96b873562a02
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          VWAGGOPSALESANDREVENUEBYCONTRACT_MISSINGDATES: 966f11c7-1d2f-4faf-9dcf-a523f4bfb695
+          DIMTRANSACTIONDATE: 7cce1b6d-aeb7-48ba-bc34-41858737db13
+          AGGOPSALESANDREVENUEBYCONTRACT: d0ffe2bd-031b-4c6c-a2f7-96b873562a02
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('REPORTS','VWAGGOPSALESANDREVENUEBYCONTRACT_MISSINGDATES') }} (ContractKey, TransactionDateKey, ContractId, UCCampusKey, Sales, Revenue) AS WITH cteAllApplicableDates AS (
+                    SELECT dtd.TransactionDateKey
+                      FROM {{ ref('DIM','DIMTRANSACTIONDATE') }} AS dtd
+                     WHERE dtd.TransactionDateKey BETWEEN 20180101 AND REPLACE(REPLACE(CURRENT_DATE(),'-',''), '-', '')
+                       AND dtd.TransactionDateKey LIKE '%01'
+                   ),
+                   cteAllApplicableContracts AS (
+                    SELECT aoarbc.ContractKey,
+                           aoarbc.ContractId,
+                           aoarbc.UCCampusKey
+                      FROM {{ ref('REPORTS','AGGOPSALESANDREVENUEBYCONTRACT') }} AS aoarbc
+                     WHERE aoarbc.TransactionDateKey BETWEEN 20180101 AND REPLACE(REPLACE(CURRENT_DATE(),'-',''), '-', '')
+                     GROUP BY aoarbc.ContractKey,
+                              aoarbc.ContractId,
+                              aoarbc.UCCampusKey
+                   ),
+                   cteAllContractsAllDates AS (
+                    SELECT *
+                      FROM cteAllApplicableContracts AS caac,
+                           cteAllApplicableDates AS caad
+                   ) SELECT caad.ContractKey,
+                   caad.TransactionDateKey,
+                   caad.ContractId,
+                   caad.UCCampusKey,
+                   0 AS Sales,
+                   0 AS Revenue
+              FROM cteAllContractsAllDates AS caad
+              LEFT OUTER JOIN {{ ref('REPORTS','AGGOPSALESANDREVENUEBYCONTRACT') }} AS aoarbc
+                ON caad.ContractKey = aoarbc.ContractKey
+               AND caad.TransactionDateKey = aoarbc.TransactionDateKey
+               AND caad.ContractId = aoarbc.contractid
+               AND caad.UCCampusKey = aoarbc.UCCampusKey
+             WHERE aoarbc.ContractKey IS NULL
+        dependencies:
+          - locationName: DIM
+            nodeName: DIMTRANSACTIONDATE
+          - locationName: REPORTS
+            nodeName: AGGOPSALESANDREVENUEBYCONTRACT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('DIM','DIMTRANSACTIONDATE') }}
+            {{ ref('REPORTS','AGGOPSALESANDREVENUEBYCONTRACT') }}
+        name: VWAGGOPSALESANDREVENUEBYCONTRACT_MISSINGDATES
+        noLinkRefs: []
+  name: VWAGGOPSALESANDREVENUEBYCONTRACT_MISSINGDATES
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,181 @@
+fileVersion: 1
+id: 79e7e854-d914-49e0-93d1-434debc54210
+name: AGGOPSALESANDREVENUEUC
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "Does not use any data from UC Spend Cube...only pulls from OP Sales And Revenue."
+  isMultisource: false
+  locationName: OP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: abc933b1-affc-418b-a6e8-0fdc7e333c20
+          stepCounter: 79e7e854-d914-49e0-93d1-434debc54210
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        isBusinessKey: true
+        name: CONTRACTID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c2d00818-99e6-4971-8255-693660a1bb28
+                stepCounter: 79e76231-b280-4362-a8fa-68215a84f788
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 74b68311-eb94-42c5-9600-8e7575cb4d8e
+          stepCounter: 79e7e854-d914-49e0-93d1-434debc54210
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        isBusinessKey: true
+        name: RECEIPTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9f0957af-16aa-40fe-a225-3f515a7496a8
+                stepCounter: 79e76231-b280-4362-a8fa-68215a84f788
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 87628d59-05f3-4e2f-8da0-da5c47e2887a
+          stepCounter: 79e7e854-d914-49e0-93d1-434debc54210
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: Sales
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: SALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f4a71e14-54d2-4ee3-88da-c8c95b56c2c7
+                stepCounter: 79e76231-b280-4362-a8fa-68215a84f788
+            transform: SUM(SalesAndRevenue.Sales)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d034047b-349d-43b5-9694-100fc32f0955
+          stepCounter: 79e7e854-d914-49e0-93d1-434debc54210
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: Revenue Type (mostly used as input to prepare next year's Budget)
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        isBusinessKey: true
+        name: REVENUETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9f66a226-4ff3-4463-8c5f-c5b5ae45b7d0
+                stepCounter: 79e76231-b280-4362-a8fa-68215a84f788
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 787b9131-1fce-42cb-a85c-453d51dadea1
+          stepCounter: 79e7e854-d914-49e0-93d1-434debc54210
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Force Id
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        isBusinessKey: true
+        name: FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 945c3f6b-785f-4d01-b083-b270477856b3
+                stepCounter: 79e76231-b280-4362-a8fa-68215a84f788
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8d764540-4893-4ed4-adc0-0d8a6629edaa
+          stepCounter: 79e7e854-d914-49e0-93d1-434debc54210
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: MAXRECEIPTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c319f81c-0a11-4cd6-839d-c77c347ff764
+                stepCounter: 79e76231-b280-4362-a8fa-68215a84f788
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 520318c3-0a2c-4cfa-9952-426e45d4f9bb
+          stepCounter: 79e7e854-d914-49e0-93d1-434debc54210
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: DW Load Date
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: LOADDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          SALESANDREVENUE: 79e76231-b280-4362-a8fa-68215a84f788
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: FACT
+            nodeName: SALESANDREVENUE
+        join:
+          joinCondition: |-
+            FROM {{ ref('FACT','SALESANDREVENUE') }} SalesAndRevenue
+             WHERE DATEDIFF(MONTH,SalesAndRevenue.ReceiptDate,SalesAndRevenue.MaxReceiptDate) BETWEEN 0 AND 35
+               AND SalesAndRevenue.RevenueType LIKE 'UC %' --AND IFNULL(Sales,0) <> 0 GROUP BY SalesAndRevenue.AccountId,
+             SalesAndRevenue.ContractId,
+                   SalesAndRevenue.ReceiptDate,
+                   SalesAndRevenue.RevenueType,
+                   SalesAndRevenue.MaxReceiptDate
+        name: AGGOPSALESANDREVENUEUC
+        noLinkRefs: []
+  name: AGGOPSALESANDREVENUEUC
+  overrideSQL: false
+  schema: ""
+  sqlType: Fact
+  type: sql
+  version: 1
+type: Node

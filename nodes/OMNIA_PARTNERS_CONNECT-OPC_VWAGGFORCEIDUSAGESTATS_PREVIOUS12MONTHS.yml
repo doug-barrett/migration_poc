@@ -1,0 +1,113 @@
+fileVersion: 1
+id: e6dc0269-d148-46d7-b24a-7fb9f239f6c7
+name: OPC_VWAGGFORCEIDUSAGESTATS_PREVIOUS12MONTHS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Rolling 12 month aggregate usage statistics for each Level1ForceId"
+  isMultisource: false
+  locationName: OMNIA_PARTNERS_CONNECT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 966ecc6d-4120-4a93-89be-919808d0886f
+          stepCounter: e6dc0269-d148-46d7-b24a-7fb9f239f6c7
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Unique identifier for an account. Commonly called the "Force Id"
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b70779a9-b736-4533-86c9-9df1b4bb7da0
+                stepCounter: ce2fbe4f-2294-4e33-b4a6-ecdfb8e8d372
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5975770a-e96f-4097-aadf-b64e7c07732c
+          stepCounter: e6dc0269-d148-46d7-b24a-7fb9f239f6c7
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: SUPPLIERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ceb5222f-c090-4d17-aefe-e6bfea16857f
+                stepCounter: ce2fbe4f-2294-4e33-b4a6-ecdfb8e8d372
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e1aa01f2-4f02-4dfa-ad76-805a0d2939c7
+          stepCounter: e6dc0269-d148-46d7-b24a-7fb9f239f6c7
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: Previous12Months_SumOfSales
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: PREVIOUS12MONTHS_SUMOFSALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ba138ee5-63ba-44ee-89b1-1ac7affe846b
+                stepCounter: ce2fbe4f-2294-4e33-b4a6-ecdfb8e8d372
+            transform: SUM(OPC_SalesAndRevenue.Sales)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT SalesAndRevenue.ForceId AS ForceId ,
+                   SalesAndRevenue.DisplayAccountName AS DisplayAccountName ,
+                   SalesAndRevenue.SupplierId AS SupplierId ,
+                   COUNT (DISTINCT FinancialReportingSupplierName) OVER (PARTITION BY ForceId) AS Current12Months_NumOfSuppliersUsed ,
+                   SUM(Sales) AS Current12Months_SumOfSales ,
+                   GETDATE() AS DSSCreateTime ,
+                   GETDATE() AS DSSUpdateTime
+              FROM OP.OPSalesAndRevenue AS SalesAndRevenue -- AND IsCapitalContract = 0 --Exclude capital contracts
+
+             WHERE DATEDIFF(MONTH,TransactionDate,MaxReceiptDate) BETWEEN 0 AND 11
+               AND Sales IS NOT NULL
+               AND Sales <> 0
+             GROUP BY SalesAndRevenue.ForceId,
+                      DisplayAccountName,
+                      FederalTaxId,
+                      SupplierId,
+                      FinancialReportingSupplierName
+        dependencies:
+          - locationName: OMNIA_CONNECT_OPC
+            nodeName: OPC_SALESANDREVENUE
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('OMNIA_CONNECT_OPC','OPC_SALESANDREVENUE') }}
+        name: OPC_VWAGGFORCEIDUSAGESTATS_PREVIOUS12MONTHS
+        noLinkRefs: []
+  name: OPC_VWAGGFORCEIDUSAGESTATS_PREVIOUS12MONTHS
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

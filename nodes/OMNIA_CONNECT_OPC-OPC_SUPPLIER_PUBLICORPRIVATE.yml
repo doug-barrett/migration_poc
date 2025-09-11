@@ -1,5 +1,5 @@
 fileVersion: 1
-id: 39a0de1a-f080-4c3e-85b4-1a275db9183c
+id: 63d94667-4c7e-4b2a-8ef9-8bcdfe835691
 name: OPC_SUPPLIER_PUBLICORPRIVATE
 operation:
   config:
@@ -17,66 +17,76 @@ operation:
     columns:
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: 0755d2f7-9df9-486e-8d86-65ee8bfb24ff
-          stepCounter: 39a0de1a-f080-4c3e-85b4-1a275db9183c
+          columnCounter: 0ada579c-b6ee-4153-9d45-d63db1a034ef
+          stepCounter: 63d94667-4c7e-4b2a-8ef9-8bcdfe835691
         config: {}
         dataType: INT
         defaultValue: ""
-        description: SUPPLIER KEY
+        description: Supplier Key
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
         name: SUPPLIERKEY
         nullable: false
         sourceColumnReferences:
           - columnReferences:
-              - columnCounter: cc0cef1f-3af8-4dd2-8564-4bec2c8984e2
-                stepCounter: 84116e71-ebf6-4262-b818-71628fbd5079
+              - columnCounter: 651b2502-6437-43f9-be30-5cd0c3a311cc
+                stepCounter: c745f44c-5c71-4400-897b-ff90a502a9cb
             transform: ""
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: cbb825d5-94b1-48f3-993f-c14b061ac447
-          stepCounter: 39a0de1a-f080-4c3e-85b4-1a275db9183c
+          columnCounter: d05c945b-f97d-4eb9-adcb-33052c861b80
+          stepCounter: 63d94667-4c7e-4b2a-8ef9-8bcdfe835691
         config: {}
         dataType: VARCHAR
         defaultValue: ""
-        description: CONTRACT PUBLIC OR PRIVATE BY SOURCE ENTITY
+        description: Contract Public Or Private By Source Entity
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
         name: CONTRACTPUBLICORPRIVATEBYSOURCEENTITY
         nullable: false
         sourceColumnReferences:
           - columnReferences:
-              - columnCounter: 4e1e2250-a506-4dd3-b205-5d44fc88c591
-                stepCounter: 84116e71-ebf6-4262-b818-71628fbd5079
+              - columnCounter: 76d06f54-2161-41c6-8de5-b9c4f8074260
+                stepCounter: c745f44c-5c71-4400-897b-ff90a502a9cb
             transform: ""
     enabledColumnTestIDs: []
     sourceMapping:
       - aliases:
-          OPC_SUPPLIER_PUBLICORPRIVATE: 39a0de1a-f080-4c3e-85b4-1a275db9183c
-          CONTRACT: 84116e71-ebf6-4262-b818-71628fbd5079
+          OPC_SUPPLIER_PUBLICORPRIVATE: 63d94667-4c7e-4b2a-8ef9-8bcdfe835691
+          CONTRACT: c745f44c-5c71-4400-897b-ff90a502a9cb
         customSQL:
           customSQL: |-
             {{ stage('SQL Override') }}
-            \NCREATE
-                OR REPLACE VIEW {{ ref_no_link('OMNIA_CONNECT_OPC','OPC_SUPPLIER_PUBLICORPRIVATE') }} (\NSUPPLIERKEY, \NCONTRACTPUBLICORPRIVATEBYSOURCEENTITY\N)\NAS\NWITH CTETEMP \N AS (
-                    SELECT DISTINCT SUPPLIERKEY, \N CASE SOURCEENTITYNAME \N --PUBLIC
-            \N
-                                WHEN 'OMNIA PUBLIC SECTOR'       THEN 'PUBLIC' \N
-                                WHEN 'US COMMUNITIES'            THEN 'PUBLIC' \N
-                                WHEN 'NATIONAL IPA'              THEN 'PUBLIC' \N
-                                WHEN 'VIZIENT'                   THEN 'PUBLIC' \N
-                                WHEN 'TCPN'                      THEN 'PUBLIC' \N
-                                WHEN 'NCPA'                      THEN 'PUBLIC' \N --PRIVATE
-            \N
-                                WHEN 'OMNIA PRIVATE SECTOR'      THEN 'PRIVATE' \N
-                                WHEN 'CORPORATE UNITED'          THEN 'PRIVATE' \N
-                                WHEN 'PRIME ADVANTAGE'           THEN 'PRIVATE' \N
-                                WHEN 'INSIGHT GPO'               THEN 'PRIVATE' \N
-                                WHEN 'OP PPE'                    THEN 'PRIVATE' \N --OTHER
-            \N
-                                ELSE 'UNKNOWN' \N
-                                 END AS CONTRACTPUBLICORPRIVATEBYSOURCEENTITY \N
-                      FROM {{ ref('DIM','CONTRACT') }} \N
-                     GROUP BY \N SUPPLIERKEY, \N SOURCEENTITYNAME
-                   ) \N SELECT \N SUPPLIERKEY, \N LISTAGG(DISTINCT CONTRACTPUBLICORPRIVATEBYSOURCEENTITY, ',') WITHIN GROUP (ORDER BY CONTRACTPUBLICORPRIVATEBYSOURCEENTITY DESC) AS CONTRACTPUBLICORPRIVATEBYSOURCEENTITY \N
-              FROM CTETEMP \N
-             GROUP BY SUPPLIERKEY \N;\N\N
+            CREATE OR REPLACE VIEW {{ ref_no_link('OMNIA_CONNECT_OPC','OPC_SUPPLIER_PUBLICORPRIVATE') }} (SupplierKey, ContractPublicOrPrivateBySourceEntity) AS WITH cteTemp AS (
+                    SELECT DISTINCT SupplierKey,
+                           CASE SourceEntityName --Public
+
+                                WHEN 'OMNIA Public Sector'  THEN 'Public'
+                                WHEN 'US Communities'       THEN 'Public'
+                                WHEN 'National IPA'         THEN 'Public'
+                                WHEN 'Vizient'              THEN 'Public'
+                                WHEN 'TCPN'                 THEN 'Public'
+                                WHEN 'NCPA'                 THEN 'Public' --Private
+
+                                WHEN 'OMNIA Private Sector' THEN 'Private'
+                                WHEN 'Corporate United'     THEN 'Private'
+                                WHEN 'Prime Advantage'      THEN 'Private'
+                                WHEN 'Insight GPO'          THEN 'Private'
+                                WHEN 'OP PPE'               THEN 'Private' --Other
+
+                                ELSE 'Unknown'
+                                 END AS ContractPublicOrPrivateBySourceEntity
+                      FROM {{ ref('DIM','CONTRACT') }}
+                     GROUP BY SupplierKey,
+                              SourceEntityName
+                   ) SELECT SupplierKey,
+                   LISTAGG(DISTINCT ContractPublicOrPrivateBySourceEntity, ',') WITHIN GROUP (ORDER BY ContractPublicOrPrivateBySourceEntity DESC) AS ContractPublicOrPrivateBySourceEntity
+              FROM cteTemp
+             GROUP BY Supplierkey ;
         dependencies:
           - locationName: DIM
             nodeName: CONTRACT

@@ -1,0 +1,135 @@
+fileVersion: 1
+id: 4de81596-476e-45ca-bd86-5c5368a16b7a
+name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_LIFETIME_CONTACTS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Contacts for each Level1ForceId and ForceId"
+  isMultisource: false
+  locationName: OMNIA_PARTNERS_CONNECT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eafd4918-8154-44c1-8f06-eebaa7de6394
+          stepCounter: 4de81596-476e-45ca-bd86-5c5368a16b7a
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Level1ForceId
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: LEVEL1FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e48b35f5-65ac-4f10-a2f4-d3e7359bc4e3
+                stepCounter: a594f58e-2240-453f-a570-12719830e3d0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fac1f6a2-db73-4b10-85c1-873bc7b55ea5
+          stepCounter: 4de81596-476e-45ca-bd86-5c5368a16b7a
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Force Id
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0960d547-e310-44ae-ad82-ccd1ee7d442a
+                stepCounter: a594f58e-2240-453f-a570-12719830e3d0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 09251f6f-3cd3-4f68-b273-b23598cd185e
+          stepCounter: 4de81596-476e-45ca-bd86-5c5368a16b7a
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Level1 ForceId Lifetime Number Of Contacts (Sum of Contact count for all children too)
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: LEVEL1FORCEID_LIFETIME_NUMOFCONTACTS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 21125b7b-6474-4816-b0c6-b646b2e13c1f
+                stepCounter: 1db5ca58-6f1b-403c-b508-e87100b14abf
+            transform: COUNT(OPC_Contact.ContactKey) OVER (PARTITION BY Account.Level1ForceId)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7fbb9357-a202-44ad-b0ad-59c01cd76c28
+          stepCounter: 4de81596-476e-45ca-bd86-5c5368a16b7a
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ForceId Lifetime Number Of Contacts
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: FORCEID_LIFETIME_NUMOFCONTACTS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 21125b7b-6474-4816-b0c6-b646b2e13c1f
+                stepCounter: 1db5ca58-6f1b-403c-b508-e87100b14abf
+            transform: COUNT(OPC_Contact.ContactKey) OVER (PARTITION BY Account.ForceId)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT SalesAndRevenue.ForceId AS ForceId ,
+                   SalesAndRevenue.DisplayAccountName AS DisplayAccountName ,
+                   SalesAndRevenue.SupplierId AS SupplierId ,
+                   COUNT (DISTINCT FinancialReportingSupplierName) OVER (PARTITION BY ForceId) AS Current12Months_NumOfSuppliersUsed ,
+                   SUM(Sales) AS Current12Months_SumOfSales ,
+                   GETDATE() AS DSSCreateTime ,
+                   GETDATE() AS DSSUpdateTime
+              FROM OP.OPSalesAndRevenue AS SalesAndRevenue -- AND IsCapitalContract = 0 --Exclude capital contracts
+
+             WHERE DATEDIFF(MONTH,TransactionDate,MaxReceiptDate) BETWEEN 0 AND 11
+               AND Sales IS NOT NULL
+               AND Sales <> 0
+             GROUP BY SalesAndRevenue.ForceId,
+                      DisplayAccountName,
+                      FederalTaxId,
+                      SupplierId,
+                      FinancialReportingSupplierName;DISTINCT~
+        dependencies:
+          - locationName: DIM
+            nodeName: ACCOUNT
+          - locationName: OMNIA_CONNECT_OPC
+            nodeName: OPC_CONTACT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('DIM','ACCOUNT') }}
+            {{ ref('OMNIA_CONNECT_OPC','OPC_CONTACT') }}
+        name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_LIFETIME_CONTACTS
+        noLinkRefs: []
+  name: OPC_VWAGGLEVEL1FORCEIDUSAGESTATS_LIFETIME_CONTACTS
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

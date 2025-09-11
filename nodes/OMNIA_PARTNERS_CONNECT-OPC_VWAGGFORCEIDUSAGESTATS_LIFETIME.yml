@@ -1,0 +1,113 @@
+fileVersion: 1
+id: 8bb6c15d-375c-442c-ba35-bf1a9fe98362
+name: OPC_VWAGGFORCEIDUSAGESTATS_LIFETIME
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Lifetime aggregate usage statistics for each ForceId"
+  isMultisource: false
+  locationName: OMNIA_PARTNERS_CONNECT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ecbe6105-6430-4119-a711-9f42e74b58e2
+          stepCounter: 8bb6c15d-375c-442c-ba35-bf1a9fe98362
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: FORCEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b70779a9-b736-4533-86c9-9df1b4bb7da0
+                stepCounter: ce2fbe4f-2294-4e33-b4a6-ecdfb8e8d372
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 79a9c0c7-fa1c-4131-9532-4b3df974f1cf
+          stepCounter: 8bb6c15d-375c-442c-ba35-bf1a9fe98362
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: SUPPLIERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ceb5222f-c090-4d17-aefe-e6bfea16857f
+                stepCounter: ce2fbe4f-2294-4e33-b4a6-ecdfb8e8d372
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 74b82ea1-d25a-4ef1-af68-4bf2e88b3cdc
+          stepCounter: 8bb6c15d-375c-442c-ba35-bf1a9fe98362
+        config: {}
+        dataType: NUMERIC(18,4)
+        defaultValue: ""
+        description: Lifetime_SumOfSales
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
+        name: LIFETIME_SUMOFSALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ba138ee5-63ba-44ee-89b1-1ac7affe846b
+                stepCounter: ce2fbe4f-2294-4e33-b4a6-ecdfb8e8d372
+            transform: SUM(OPC_SalesAndRevenue.Sales)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW OPC.vwAggLevel1ForceIdUsageStats_Current12Months AS SELECT SalesAndRevenue.Level1ForceId AS Level1ForceId ,
+                   SalesAndRevenue.Level1DisplayAccountName AS Level1DisplayAccountName ,
+                   SalesAndRevenue.SupplierId AS SupplierId ,
+                   COUNT (DISTINCT FinancialReportingSupplierName) OVER (PARTITION BY Level1ForceId) AS Current12Months_NumOfSuppliersUsed ,
+                   SUM(Sales) AS Current12Months_SumOfSales ,
+                   GETDATE() AS DSSCreateTime ,
+                   GETDATE() AS DSSUpdateTime
+              FROM OP.OPSalesAndRevenue AS SalesAndRevenue -- AND IsCapitalContract = 0 --Exclude capital contracts
+
+             WHERE DATEDIFF(MONTH,TransactionDate,MaxReceiptDate) BETWEEN 0 AND 11
+               AND Sales IS NOT NULL
+               AND Sales <> 0
+             GROUP BY SalesAndRevenue.Level1ForceId,
+                      Level1DisplayAccountName,
+                      Level1FederalTaxId,
+                      SupplierId,
+                      FinancialReportingSupplierName;
+        dependencies:
+          - locationName: OMNIA_CONNECT_OPC
+            nodeName: OPC_SALESANDREVENUE
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('OMNIA_CONNECT_OPC','OPC_SALESANDREVENUE') }}
+        name: OPC_VWAGGFORCEIDUSAGESTATS_LIFETIME
+        noLinkRefs: []
+  name: OPC_VWAGGFORCEIDUSAGESTATS_LIFETIME
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

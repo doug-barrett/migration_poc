@@ -1,5 +1,5 @@
 fileVersion: 1
-id: 453234bb-60fe-45d2-b511-8930ec183b77
+id: ef7adf10-d645-4308-87d6-cfdbb44e8402
 name: ISGAUTORENTALDWMLOOKUP
 operation:
   config:
@@ -17,12 +17,16 @@ operation:
     columns:
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: abc15001-a3b2-4254-9d4c-ca1af686befc
-          stepCounter: 453234bb-60fe-45d2-b511-8930ec183b77
+          columnCounter: 2520a99b-22e1-44c1-88ae-bf9f2364f80e
+          stepCounter: ef7adf10-d645-4308-87d6-cfdbb44e8402
         config: {}
         dataType: INT
         defaultValue: ""
         description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
         isBusinessKey: true
         name: CHARGEDAYS
         nullable: false
@@ -31,12 +35,16 @@ operation:
             transform: ""
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: 44ce2a20-2a40-4e44-8954-e16e937d0539
-          stepCounter: 453234bb-60fe-45d2-b511-8930ec183b77
+          columnCounter: b573f009-600e-4be6-9c5d-55c4454b757d
+          stepCounter: ef7adf10-d645-4308-87d6-cfdbb44e8402
         config: {}
         dataType: INT
         defaultValue: ""
         description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
         name: WEEKDAYS
         nullable: false
         sourceColumnReferences:
@@ -44,12 +52,16 @@ operation:
             transform: ""
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: 61eadc62-4ca1-4875-a4d6-c776a8bb66af
-          stepCounter: 453234bb-60fe-45d2-b511-8930ec183b77
+          columnCounter: eaaba137-c3a1-4895-bd02-8cc00c377b11
+          stepCounter: ef7adf10-d645-4308-87d6-cfdbb44e8402
         config: {}
         dataType: INT
         defaultValue: ""
         description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
         name: MONTHDAYS
         nullable: false
         sourceColumnReferences:
@@ -57,12 +69,16 @@ operation:
             transform: ""
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: 1aa1e014-f774-482d-aa5e-d8d4ac44d6e1
-          stepCounter: 453234bb-60fe-45d2-b511-8930ec183b77
+          columnCounter: d84dd791-dbfa-47aa-be82-f3677b0ef8d9
+          stepCounter: ef7adf10-d645-4308-87d6-cfdbb44e8402
         config: {}
         dataType: INT
         defaultValue: ""
         description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
         name: BLMONTHS
         nullable: false
         sourceColumnReferences:
@@ -70,12 +86,16 @@ operation:
             transform: ""
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: b6d3794d-7dee-44ef-bd55-fc266c2cda8c
-          stepCounter: 453234bb-60fe-45d2-b511-8930ec183b77
+          columnCounter: 3897c55f-af46-4e68-b892-f46e40f728d3
+          stepCounter: ef7adf10-d645-4308-87d6-cfdbb44e8402
         config: {}
         dataType: INT
         defaultValue: ""
         description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
         name: BLWEEKS
         nullable: false
         sourceColumnReferences:
@@ -83,12 +103,16 @@ operation:
             transform: ""
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: 4eaddd70-c7f5-450e-a2c0-7a10a6229a7f
-          stepCounter: 453234bb-60fe-45d2-b511-8930ec183b77
+          columnCounter: 2b027c84-9ce4-4312-a9f2-7995b1def578
+          stepCounter: ef7adf10-d645-4308-87d6-cfdbb44e8402
         config: {}
         dataType: INT
         defaultValue: ""
         description: ""
+        hashDetails:
+          hashAlgorithm: MD5
+        hashedColumns:
+          - column: "NULL"
         name: BLDAYS
         nullable: false
         sourceColumnReferences:
@@ -97,45 +121,45 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
       - aliases:
-          ISGAUTORENTALDWMLOOKUP: 453234bb-60fe-45d2-b511-8930ec183b77
+          ISGAUTORENTALDWMLOOKUP: ef7adf10-d645-4308-87d6-cfdbb44e8402
         customSQL:
           customSQL: |-
             {{ stage('SQL Override') }}
-            CREATE OR REPLACE VIEW {{ ref_no_link('DIM','ISGAUTORENTALDWMLOOKUP') }} (\NCHARGEDAYS , \NBLMONTHS , \NBLWEEKS , \NBLDAYS , \NWEEKDAYS , \NMONTHDAYS \N) AS \NWITH DAYSWEEKSMONTHSCONFIG AS (
-                    SELECT 5.25 AS WEEKDAYS,
-                           20 AS MONTHDAYS,
-                           183 AS TOTALDAYS
+            CREATE OR REPLACE VIEW {{ ref_no_link('DIM','ISGAUTORENTALDWMLOOKUP') }} (ChargeDays, BLMonths, BLWeeks, BLDays, WeekDays, MonthDays) AS WITH DaysWeeksMonthsConfig AS (
+                    SELECT 5.25 AS WeekDays,
+                           20 AS MonthDays,
+                           183 AS TotalDays
                    ),
-                   \NDAYCOUNT AS (
-                    SELECT SEQ4() AS CHARGEDAYS
-                      FROM TABLE(GENERATOR(ROWCOUNT => (SELECT TOTALDAYS FROM DAYSWEEKSMONTHSCONFIG))) V
+                   DayCount AS (
+                    SELECT seq4() AS ChargeDays
+                      FROM TABLE(generator(rowcount => (SELECT TotalDays FROM DaysWeeksMonthsConfig))) v
                    ),
-                   \NBASEDATA AS (
+                   BaseData AS (
                     SELECT *
-                      FROM DAYSWEEKSMONTHSCONFIG,
-                           DAYCOUNT
+                      FROM DaysWeeksMonthsConfig,
+                           DayCount
                    ),
-                   \NBLMONTHS AS (
+                   BLMonths AS (
                     SELECT *,
-                           FLOOR((CHARGEDAYS+(30-MONTHDAYS))/30) AS BLMONTHS
-                      FROM BASEDATA
+                           FLOOR((ChargeDays+(30-MonthDays))/30) AS BLMonths
+                      FROM BaseData
                    ),
-                   \NBLWEEKS AS (
+                   BLWeeks AS (
                     SELECT *,
-                           FLOOR((IFF(CHARGEDAYS-(BLMONTHS*30)>0,CHARGEDAYS-(BLMONTHS*30),0)+7-WEEKDAYS)/7) AS BLWEEKS
-                      FROM BLMONTHS
+                           FLOOR((IFF(ChargeDays-(BLMonths*30)>0,ChargeDays-(BLMonths*30),0)+7-WeekDays)/7) AS BLWeeks
+                      FROM BLMonths
                    ),
-                   \NBLDAYS AS (
+                   BLDays AS (
                     SELECT *,
-                           IFF(CHARGEDAYS-BLMONTHS*30-BLWEEKS*7>0,CHARGEDAYS-BLMONTHS*30-BLWEEKS*7,0) AS BLDAYS
-                      FROM BLWEEKS
-                   ) \NSELECT CHARGEDAYS,
-                   BLMONTHS,
-                   BLWEEKS,
-                   BLDAYS,
-                   WEEKDAYS,
-                   MONTHDAYS
-              FROM BLDAYS
+                           IFF(ChargeDays-BLMonths*30-BLWeeks*7>0,ChargeDays-BLMonths*30-BLWeeks*7,0) AS BLDays
+                      FROM BLWeeks
+                   ) SELECT ChargeDays,
+                   BLMonths,
+                   BLWeeks,
+                   BLDays,
+                   WeekDays,
+                   MonthDays
+              FROM BLDays
         dependencies: []
         join:
           joinCondition: '-- Nodes used in the SQL override:'
