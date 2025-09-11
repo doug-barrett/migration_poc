@@ -1772,14 +1772,20 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
       - aliases:
+          ACCOUNTGEOGRAPHY: e6436d6c-8c3d-4c35-bfe2-34ff054091f6
+          ACCOUNTHIERARCHY_OMNIA: e17871d0-4fd7-49e8-a78c-cc7b8803262a
+          DIMSTARTDATE: f6731e75-ea69-4452-a8d9-37a48467c699
+          DIMTERMINATIONDATE: 38669f63-201c-40d2-accd-384c63f95a5c
+          FINANCIALSALESTERRITORY: 6d779fbd-6583-4cb4-8f8b-a242e66b0139
+          ORGANIZATION: 8f190da7-2e2a-497e-b6b0-39c6a3ec1e0d
+          SALESTERRITORY: 6c05c91f-a46a-4beb-bed8-0ba46d8c9735
+          SECTOR: b51fc429-dbd2-4479-98c3-c15cdc3d1edd
           STAGEACCOUNT_BIZXFORMS: 4169f1d4-df39-4d8e-8e1b-c42d281469b6
         customSQL:
           customSQL: ""
         dependencies:
           - locationName: DIM
             nodeName: ACCOUNTGEOGRAPHY
-          - locationName: DIM
-            nodeName: ACCOUNTHIERARCHY_OMNIA
           - locationName: DIM
             nodeName: DIMSTARTDATE
           - locationName: DIM
@@ -1792,12 +1798,21 @@ operation:
             nodeName: SALESTERRITORY
           - locationName: DIM
             nodeName: SECTOR
-          - locationName: STAGE
-            nodeName: STAGEACCOUNT_BIZXFORMS
         join:
-          joinCondition: FROM {{ ref('STAGE','STAGEACCOUNT_BIZXFORMS') }} STAGEACCOUNT_BIZXFORMS
+          joinCondition: |
+            FROM {{ ref('STAGE','STAGEACCOUNT_BIZXFORMS') }} STAGEACCOUNT_BIZXFORMS
+            join {{ ref('DIM', 'ACCOUNTGEOGRAPHY') }}
+            join {{ ref_no_link('DIM', 'ACCOUNTHIERARCHY_OMNIA') }}
+            join {{ ref('DIM', 'DIMSTARTDATE') }}
+            join {{ ref('DIM', 'DIMTERMINATIONDATE') }}
+            join {{ ref('DIM', 'FINANCIALSALESTERRITORY') }}
+            join {{ ref('DIM', 'ORGANIZATION') }}
+            join {{ ref('DIM', 'SALESTERRITORY') }}
+            join {{ ref('DIM', 'SECTOR') }}
         name: STAGEACCOUNT_ADDKEYS
-        noLinkRefs: []
+        noLinkRefs:
+          - locationName: DIM
+            nodeName: ACCOUNTHIERARCHY_OMNIA
   name: STAGEACCOUNT_ADDKEYS
   overrideSQL: false
   schema: ""
