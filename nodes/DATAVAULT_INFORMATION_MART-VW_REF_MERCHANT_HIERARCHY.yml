@@ -199,8 +199,6 @@ operation:
     sourceMapping:
       - aliases:
           S_MERCHANT_MROC_CURRENT: 69d815ad-59f8-422a-8238-0364d4f078b7
-          S_MERCHANT_STATE_MROC: d765bf06-b0af-4079-a088-01792fbeb79f
-          S_CHAIN_HIERARCHY_MROC_LATEST_RECORD: b3e19e2e-bb1d-4ef4-9ac1-1b7b6b666860
         customSQL:
           customSQL: |-
             {{ stage('SQL Override') }}
@@ -286,18 +284,15 @@ operation:
               FROM merchant_structure
              WHERE merchant_nk IS NOT NULL
         dependencies:
-          - locationName: DATAVAULT_INFORMATION_MART
-            nodeName: VW_REF_MERCHANT_HIERARCHY
+          - locationName: DATAVAULT_BUSINESS_VAULT
+            nodeName: S_CHAIN_HIERARCHY_MROC_LATEST_RECORD
           - locationName: DATAVAULT_BUSINESS_VAULT
             nodeName: S_MERCHANT_MROC_CURRENT
           - locationName: DATAVAULT_RAW_VAULT
             nodeName: S_MERCHANT_STATE_MROC
-          - locationName: DATAVAULT_BUSINESS_VAULT
-            nodeName: S_CHAIN_HIERARCHY_MROC_LATEST_RECORD
         join:
           joinCondition: |-
             -- Nodes used in the SQL override:
-            {{ ref('DATAVAULT_INFORMATION_MART','VW_REF_MERCHANT_HIERARCHY') }}
             {{ ref('DATAVAULT_BUSINESS_VAULT','S_MERCHANT_MROC_CURRENT') }}
             {{ ref('DATAVAULT_RAW_VAULT','S_MERCHANT_STATE_MROC') }}
             {{ ref('DATAVAULT_BUSINESS_VAULT','S_CHAIN_HIERARCHY_MROC_LATEST_RECORD') }}

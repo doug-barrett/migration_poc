@@ -227,13 +227,6 @@ operation:
     sourceMapping:
       - aliases:
           S_TMS_TERMINAL_CURRENT_ALLOCATION_MROC: 4fa14942-de1e-4dc7-90e1-1ad193c15850
-          S_POS_TYPE_MROC_CURRENT: c88cf564-7534-49b2-a674-caf422bbe56c
-          S_DMS_TERMINAL_CURRENT_ALLOCATION_MROC: 37fab517-607f-43cd-8e83-95984efddd91
-          DMS_TERMINAL_ALLOCATION: ab7e25b3-bd52-47b0-ba68-560a653c3a4a
-          S_TMS_TERMINAL_ALLOCATION_LOG_MROC: 3eed6b74-5c7b-478d-a009-17ed4489cf7a
-          H_MERCHANT: 340d6188-0752-42c1-adb3-4d3566304a22
-          DIM_LOCALE: b6546d83-edf2-4f40-be5b-a9ccf1408d50
-          DIM_MERCHANT: 84dffcd0-9390-473b-bb8a-2b250cfdf762
         customSQL:
           customSQL: |-
             {{ stage('SQL Override') }}
@@ -387,22 +380,18 @@ operation:
                AND merchant_nk IS NOT NULL -- CG: STOPGAP fix for missing merchants in 534 table.
              ;
         dependencies:
-          - locationName: DATAVAULT_RAW_VAULT
-            nodeName: S_TMS_TERMINAL_CURRENT_ALLOCATION_MROC
+          - locationName: DATAVAULT_BUSINESS_VAULT
+            nodeName: DMS_TERMINAL_ALLOCATION
           - locationName: DATAVAULT_BUSINESS_VAULT
             nodeName: S_POS_TYPE_MROC_CURRENT
           - locationName: DATAVAULT_RAW_VAULT
+            nodeName: H_MERCHANT
+          - locationName: DATAVAULT_RAW_VAULT
             nodeName: S_DMS_TERMINAL_CURRENT_ALLOCATION_MROC
-          - locationName: DATAVAULT_BUSINESS_VAULT
-            nodeName: DMS_TERMINAL_ALLOCATION
           - locationName: DATAVAULT_RAW_VAULT
             nodeName: S_TMS_TERMINAL_ALLOCATION_LOG_MROC
           - locationName: DATAVAULT_RAW_VAULT
-            nodeName: H_MERCHANT
-          - locationName: DATAVAULT_INFORMATION_MART
-            nodeName: DIM_LOCALE
-          - locationName: DATAVAULT_INFORMATION_MART
-            nodeName: DIM_MERCHANT
+            nodeName: S_TMS_TERMINAL_CURRENT_ALLOCATION_MROC
         join:
           joinCondition: |-
             -- Nodes used in the SQL override:
@@ -412,10 +401,14 @@ operation:
             {{ ref('DATAVAULT_BUSINESS_VAULT','DMS_TERMINAL_ALLOCATION') }}
             {{ ref('DATAVAULT_RAW_VAULT','S_TMS_TERMINAL_ALLOCATION_LOG_MROC') }}
             {{ ref('DATAVAULT_RAW_VAULT','H_MERCHANT') }}
-            {{ ref('DATAVAULT_INFORMATION_MART','DIM_LOCALE') }}
-            {{ ref('DATAVAULT_INFORMATION_MART','DIM_MERCHANT') }}
+            {{ ref_no_link('DATAVAULT_INFORMATION_MART','DIM_LOCALE') }}
+            {{ ref_no_link('DATAVAULT_INFORMATION_MART','DIM_MERCHANT') }}
         name: VIEW_DIM_TERMINAL_ALLOCATION
-        noLinkRefs: []
+        noLinkRefs:
+          - locationName: DATAVAULT_INFORMATION_MART
+            nodeName: DIM_LOCALE
+          - locationName: DATAVAULT_INFORMATION_MART
+            nodeName: DIM_MERCHANT
   name: VIEW_DIM_TERMINAL_ALLOCATION
   overrideSQL: true
   schema: ""
