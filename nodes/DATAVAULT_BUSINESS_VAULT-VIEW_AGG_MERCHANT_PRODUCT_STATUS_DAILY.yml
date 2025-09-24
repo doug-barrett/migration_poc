@@ -378,12 +378,7 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
       - aliases:
-          AGG_TERMINAL_STATUS_DAILY: 30542431-b4eb-4818-b026-e351856fefdd
-          DIM_DATE: 3f4b0133-f2a1-4a6f-8a9e-d1722827a6c7
-          WHERESCAPE_HIGHWATERMARK: dfc9eeb5-e2d2-426f-a480-1c72f8910676
-          DIM_PRODUCT: 4e2a6ea6-d0f3-4eab-bbf8-8f009848b153
-          R_MERCHANT_PRODUCT: 7e66b47d-86e4-4dea-b98f-dae7b99f5659
-          DIM_MERCHANT: 47efa677-7996-4551-9dec-b7b4d9cedb8d
+          AGG_MERCHANT_PRODUCT_STATUS_DAILY: 14232eca-2d51-4e48-bbc7-93a5f305d005
         customSQL:
           customSQL: |-
             {{ stage('SQL Override') }}
@@ -491,31 +486,31 @@ operation:
              GROUP BY ALL
         dependencies:
           - locationName: DATAVAULT_INFORMATION_MART
-            nodeName: AGG_MERCHANT_PRODUCT_STATUS_DAILY
-          - locationName: DATAVAULT_INFORMATION_MART
             nodeName: AGG_TERMINAL_STATUS_DAILY
           - locationName: DATAVAULT_INFORMATION_MART
-            nodeName: DIM_DATE
+            nodeName: R_MERCHANT_PRODUCT
           - locationName: DATAVAULT_LOAD
             nodeName: WHERESCAPE_HIGHWATERMARK
-          - locationName: DATAVAULT_INFORMATION_MART
-            nodeName: DIM_PRODUCT
-          - locationName: DATAVAULT_INFORMATION_MART
-            nodeName: R_MERCHANT_PRODUCT
-          - locationName: DATAVAULT_INFORMATION_MART
-            nodeName: DIM_MERCHANT
         join:
           joinCondition: |-
             -- Nodes used in the SQL override:
-            {{ ref('DATAVAULT_INFORMATION_MART','AGG_MERCHANT_PRODUCT_STATUS_DAILY') }}
+            {{ ref_no_link('DATAVAULT_INFORMATION_MART','AGG_MERCHANT_PRODUCT_STATUS_DAILY') }}
             {{ ref('DATAVAULT_INFORMATION_MART','AGG_TERMINAL_STATUS_DAILY') }}
-            {{ ref('DATAVAULT_INFORMATION_MART','DIM_DATE') }}
+            {{ ref_no_link('DATAVAULT_INFORMATION_MART','DIM_DATE') }}
             {{ ref('DATAVAULT_LOAD','WHERESCAPE_HIGHWATERMARK') }}
-            {{ ref('DATAVAULT_INFORMATION_MART','DIM_PRODUCT') }}
+            {{ ref_no_link('DATAVAULT_INFORMATION_MART','DIM_PRODUCT') }}
             {{ ref('DATAVAULT_INFORMATION_MART','R_MERCHANT_PRODUCT') }}
-            {{ ref('DATAVAULT_INFORMATION_MART','DIM_MERCHANT') }}
+            {{ ref_no_link('DATAVAULT_INFORMATION_MART','DIM_MERCHANT') }}
         name: VIEW_AGG_MERCHANT_PRODUCT_STATUS_DAILY
-        noLinkRefs: []
+        noLinkRefs:
+          - locationName: DATAVAULT_INFORMATION_MART
+            nodeName: AGG_MERCHANT_PRODUCT_STATUS_DAILY
+          - locationName: DATAVAULT_INFORMATION_MART
+            nodeName: DIM_DATE
+          - locationName: DATAVAULT_INFORMATION_MART
+            nodeName: DIM_MERCHANT
+          - locationName: DATAVAULT_INFORMATION_MART
+            nodeName: DIM_PRODUCT
   name: VIEW_AGG_MERCHANT_PRODUCT_STATUS_DAILY
   overrideSQL: true
   schema: ""
