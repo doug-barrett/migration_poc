@@ -1,0 +1,153 @@
+fileVersion: 1
+id: 1f91d3f0-fd6b-42a8-8f92-83e34917e6b3
+name: STAGE_COST_CENTER_WI
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TARGET
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2359258e-ec99-4666-a7ca-7a70fc5faf3c
+          stepCounter: 1f91d3f0-fd6b-42a8-8f92-83e34917e6b3
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: CC_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c850ff89-d94d-4082-a7c7-7dc704f61ceb
+                stepCounter: f9478e66-c05c-4d27-bddb-c55e8fef777d
+            transform: TARGET.CC_NUM
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c7c3564a-51e6-4e93-b04d-f16b7d35308e
+          stepCounter: 1f91d3f0-fd6b-42a8-8f92-83e34917e6b3
+        config: {}
+        dataType: NUMBER(14,11)
+        defaultValue: ""
+        description: The Land Percent.
+        name: QBYTE_WORKING_INTEREST
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 25107ca3-9d15-4c43-a397-16717a5d75ad
+                stepCounter: f67fdeee-00bc-40d6-82e8-80836263dd68
+            transform: TARGET.QBYTE_WORKING_INTEREST
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          ODS_QBYTE_OWNERSHIP_AGREEMENT_LINKS: d386d674-4438-4678-8951-3f92e239e802
+          ODS_QBYTE_COST_CENTRES: f9478e66-c05c-4d27-bddb-c55e8fef777d
+          ODS_QBYTE_DOI_DECK_PARTNERS: f67fdeee-00bc-40d6-82e8-80836263dd68
+          ODS_QBYTE_BUSINESS_ASSOCIATES: 31ac9565-0add-490f-84e0-2175c6c0106d
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TARGET
+            nodeName: ODS_QBYTE_COST_CENTRES
+          - locationName: TARGET
+            nodeName: ODS_QBYTE_OWNERSHIP_AGREEMENT_LINKS
+          - locationName: TARGET
+            nodeName: ODS_QBYTE_DOI_DECK_PARTNERS
+          - locationName: TARGET
+            nodeName: ODS_QBYTE_BUSINESS_ASSOCIATES
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT c.cc_num,
+                           sum(ddp.la_partner_pct) qbyte_working_interest
+                      FROM (
+                            SELECT *
+                              FROM {{ ref('TARGET','ODS_QBYTE_OWNERSHIP_AGREEMENT_LINKS') }}
+                             WHERE DSS_CURRENT_FLAG = 'Y'
+                               AND DSS_DELETE_FLAG != 'Y'
+                           ) oal,
+                           (
+                            SELECT *
+                              FROM {{ ref('TARGET','ODS_QBYTE_COST_CENTRES') }}
+                             WHERE DSS_CURRENT_FLAG = 'Y'
+                               AND DSS_DELETE_FLAG != 'Y'
+                           ) c,
+                           (
+                            SELECT *
+                              FROM {{ ref('TARGET','ODS_QBYTE_DOI_DECK_PARTNERS') }}
+                             WHERE DSS_CURRENT_FLAG = 'Y'
+                               AND DSS_DELETE_FLAG != 'Y'
+                           ) ddp,
+                           (
+                            SELECT *
+                              FROM {{ ref('TARGET','ODS_QBYTE_BUSINESS_ASSOCIATES') }}
+                             WHERE DSS_CURRENT_FLAG = 'Y'
+                               AND DSS_DELETE_FLAG != 'Y'
+                           ) ba
+                     WHERE c.cc_num = oal.cc_num
+                       AND c.jib_flag = 'Y'
+                       AND oal.agreement_id = ddp.doi_deck_id
+                       AND ddp.partner_ba_id = ba.id
+                       AND oal.afe_num IS NULL
+                       AND oal.major_acct IS NULL
+                       AND oal.expiry_date IS NULL
+                       AND oal.terminate_flag = 'N'
+                       AND nvl(oal.acct_group_code,'x') IN ('x', 'NPLAND')
+                       AND ba.ref_org_id IS NOT NULL
+                       AND oal.cc_num || oal.effective_date || oal.ownership_link_id IN (
+                            SELECT l.cc_num || max(l.effective_date) || max(l.ownership_link_id)
+                              FROM (
+                                    SELECT *
+                                      FROM {{ ref('TARGET','ODS_QBYTE_OWNERSHIP_AGREEMENT_LINKS') }}
+                                     WHERE DSS_CURRENT_FLAG = 'Y'
+                                       AND DSS_DELETE_FLAG != 'Y'
+                                   ) l
+                             WHERE l.terminate_flag = 'N'
+                               AND l.expiry_date IS NULL
+                               AND l.afe_num IS NULL
+                               AND l.major_acct IS NULL
+                               AND l.effective_date IN (
+                                    SELECT max(l2.effective_date)
+                                      FROM (
+                                            SELECT *
+                                              FROM {{ ref('TARGET','ODS_QBYTE_OWNERSHIP_AGREEMENT_LINKS') }}
+                                             WHERE DSS_CURRENT_FLAG = 'Y'
+                                               AND DSS_DELETE_FLAG != 'Y'
+                                           ) l2
+                                     WHERE l2.terminate_flag = 'N'
+                                       AND l2.expiry_date IS NULL
+                                       AND l2.afe_num IS NULL
+                                       AND l2.major_acct IS NULL
+                                       AND l2.cc_num = l.cc_num
+                                   )
+                               AND nvl(l.acct_group_code,'x') IN ('x', 'NPLAND')
+                             GROUP BY l.cc_num
+                           )
+                     GROUP BY c.cc_num
+                 UNION ALL SELECT c.cc_num,
+                           100.00 qbyte_working_interest
+                      FROM (
+                            SELECT *
+                              FROM {{ ref('TARGET','ODS_QBYTE_COST_CENTRES') }}
+                             WHERE DSS_CURRENT_FLAG = 'Y'
+                               AND DSS_DELETE_FLAG != 'Y'
+                           ) c
+                     WHERE c.jib_flag = 'N'
+                   ) AS TARGET
+        name: STAGE_COST_CENTER_WI
+        noLinkRefs: []
+  name: STAGE_COST_CENTER_WI
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,126 @@
+fileVersion: 1
+id: da82eee4-4ffa-45a4-b2c1-bb873ac43bad
+name: VIEW_PVIEW_VRL_ROUTE_ITEMS_VW
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TARGET
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 35d04d07-ddad-4363-84fa-86a975cf8aef
+          stepCounter: da82eee4-4ffa-45a4-b2c1-bb873ac43bad
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: ROUTE_IDREC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3e09e197-e698-44e3-a37d-874910ebbaa9
+                stepCounter: 7c5021e0-ddd6-4b14-9b91-645b71f83303
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 31cba5aa-a689-4637-acdc-39ed002a7c30
+          stepCounter: da82eee4-4ffa-45a4-b2c1-bb873ac43bad
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: ROUTENAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7f0d3ab1-6b8a-4a62-86f9-4253efe7b09b
+                stepCounter: 7c5021e0-ddd6-4b14-9b91-645b71f83303
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0b112a07-fc5e-48f8-a82c-618fcc91d474
+          stepCounter: da82eee4-4ffa-45a4-b2c1-bb873ac43bad
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: UNIT_NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 50ee8568-df75-439d-b90f-a59a0ac2027c
+                stepCounter: d554b1ad-15ef-40f5-8fff-8a730cc8b68e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 334186a8-e5a9-4eaf-ac00-6cfedefc53b7
+          stepCounter: da82eee4-4ffa-45a4-b2c1-bb873ac43bad
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: UNIT_IDREC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: dfe22de8-f6e2-429b-90aa-91f793353b62
+                stepCounter: d554b1ad-15ef-40f5-8fff-8a730cc8b68e
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          VIEW_PVIEW_VRL_ROUTE_ITEMS_VW: da82eee4-4ffa-45a4-b2c1-bb873ac43bad
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('TARGET','VIEW_PVIEW_VRL_ROUTE_ITEMS_VW') }} AS SELECT n.idrec route_idrec,
+                   n.name AS routename,
+                   u.name unit_name,
+                   u.idrec unit_idrec
+              FROM DS_PRODVIEW.PVT_pvrouteset s
+             INNER JOIN DS_PRODVIEW.PVT_pvroutesetroute n
+                ON s.idrec = n.idrecparent
+               AND s.activetodaycalc = 1
+             INNER JOIN DS_PRODVIEW.PVT_pvroutesetrouteunit i
+                ON n.idrec = i.idrecparent
+             INNER JOIN DS_PRODVIEW.PVT_pvunit u
+                ON i.idrecunit = u.idrec
+               AND u.typ1 = 'pvunitcomp'
+             UNION SELECT n.idrec route_idrec,
+                   n.name AS routename,
+                   u.name unit_name,
+                   u.idrec unit_idrec
+              FROM DS_PRODVIEW.PVT_pvrouteset r
+             INNER JOIN DS_PRODVIEW.PVT_pvroutesetroute n
+                ON n.idrecparent = r.idrec
+               AND r.activetodaycalc IS NOT NULL
+             INNER JOIN DS_PRODVIEW.PVT_pvroutesetroutevwflowdiag i
+                ON n.idrec = i.idrecparent
+             INNER JOIN DS_PRODVIEW.PVT_pvunit u
+                ON i.idrecunit = u.idrec
+               AND u.typ1 = 'pvunitcomp'
+        dependencies:
+          - locationName: TARGET
+            nodeName: ODS_PVIEW_PVT_PVROUTESETROUTE
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TARGET','ODS_PVIEW_PVT_PVROUTESETROUTE') }}
+        name: VIEW_PVIEW_VRL_ROUTE_ITEMS_VW
+        noLinkRefs: []
+  name: VIEW_PVIEW_VRL_ROUTE_ITEMS_VW
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

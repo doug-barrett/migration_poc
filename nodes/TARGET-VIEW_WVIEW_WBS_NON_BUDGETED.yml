@@ -1,0 +1,141 @@
+fileVersion: 1
+id: 0fc07652-6d6a-4473-bd12-8fe7f4e69eb6
+name: VIEW_WVIEW_WBS_NON_BUDGETED
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TARGET
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d0fe1a6f-4ee6-44b2-b44c-15f2aad41c36
+          stepCounter: 0fc07652-6d6a-4473-bd12-8fe7f4e69eb6
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: ""
+        name: AFENUMBERCALC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2e088063-93bc-4d6d-92d3-be1b6c2896e1
+                stepCounter: 7c248ee4-f77a-41a5-b013-1f6873af6670
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b001e658-e615-40c8-93f3-6cd8c4f1a48c
+          stepCounter: 0fc07652-6d6a-4473-bd12-8fe7f4e69eb6
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: ""
+        name: DTTMSTART
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 33200cfe-7ec8-4455-82ce-fbcdf11ed385
+                stepCounter: 7c248ee4-f77a-41a5-b013-1f6873af6670
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ae985227-0980-40e6-8709-46844affa573
+          stepCounter: 0fc07652-6d6a-4473-bd12-8fe7f4e69eb6
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: ""
+        name: DTTMEND
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 82b456e2-1618-4693-8600-3c900d37a427
+                stepCounter: 7c248ee4-f77a-41a5-b013-1f6873af6670
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a56288f0-cdc4-4846-970d-3e50a618c015
+          stepCounter: 0fc07652-6d6a-4473-bd12-8fe7f4e69eb6
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: COST_CENTER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 399de1c9-23af-4e15-9e2a-d82f010c4ea1
+                stepCounter: 916c650e-a994-4ba8-998d-0998ffdbd809
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cb36a234-b00e-41d5-9b6f-20552131e0c8
+          stepCounter: 0fc07652-6d6a-4473-bd12-8fe7f4e69eb6
+        config: {}
+        dataType: FLOAT(38)
+        defaultValue: ""
+        description: ""
+        name: COSTTOTALCALC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 88811114-50c6-4649-a1ea-cfb079540cbc
+                stepCounter: 7c248ee4-f77a-41a5-b013-1f6873af6670
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          VIEW_WVIEW_WBS_NON_BUDGETED: 0fc07652-6d6a-4473-bd12-8fe7f4e69eb6
+          ODS_WVIEW_WVT_WVJOB: 7c248ee4-f77a-41a5-b013-1f6873af6670
+          ODS_WVIEW_WVT_WVWELLHEADER: 916c650e-a994-4ba8-998d-0998ffdbd809
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('TARGET','VIEW_WVIEW_WBS_NON_BUDGETED') }} AS SELECT J.AFENUMBERCALC,
+                   J.DTTMSTART,
+                   J.DTTMEND,
+                   WH.USERTXT3 "COST_CENTER",
+                   J.COSTTOTALCALC
+              FROM (
+                    SELECT *
+                      FROM {{ ref('TARGET','ODS_WVIEW_WVT_WVJOB') }}
+                     WHERE DSS_CURRENT_FLAG = 'Y'
+                       AND DSS_DELETE_FLAG != 'Y'
+                   ) J
+              LEFT JOIN (
+                    SELECT *
+                      FROM {{ ref('TARGET','ODS_WVIEW_WVT_WVWELLHEADER') }}
+                     WHERE DSS_CURRENT_FLAG = 'Y'
+                       AND DSS_DELETE_FLAG != 'Y'
+                   )WH
+                ON J.IDWELL = WH.IDWELL
+             WHERE NVL(J.COSTTOTALCALC,0) <> 0
+               AND WH.USERTXT3 IS NOT NULL
+               AND J.AFENUMBERCALC IS NOT NULL
+        dependencies:
+          - locationName: TARGET
+            nodeName: ODS_WVIEW_WVT_WVJOB
+          - locationName: TARGET
+            nodeName: ODS_WVIEW_WVT_WVWELLHEADER
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TARGET','ODS_WVIEW_WVT_WVJOB') }}
+            {{ ref('TARGET','ODS_WVIEW_WVT_WVWELLHEADER') }}
+        name: VIEW_WVIEW_WBS_NON_BUDGETED
+        noLinkRefs: []
+  name: VIEW_WVIEW_WBS_NON_BUDGETED
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

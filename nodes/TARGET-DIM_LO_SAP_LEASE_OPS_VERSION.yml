@@ -1,0 +1,178 @@
+fileVersion: 1
+id: e575d1a1-f47c-47ec-b457-d837fc9a6b39
+name: DIM_LO_SAP_LEASE_OPS_VERSION
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TARGET
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 229d76c5-e976-46d2-84ce-8623a3e8d9c3
+          stepCounter: e575d1a1-f47c-47ec-b457-d837fc9a6b39
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Generated artificial key
+        isSurrogateKey: true
+        name: DIM_LEASE_OPS_VERSION_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: TARGET.DIM_LEASE_OPS_VERSION_KEY
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ae3c976f-882b-40d0-8620-e09b5eaf994a
+          stepCounter: e575d1a1-f47c-47ec-b457-d837fc9a6b39
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: Source IDX
+        name: IDX
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2032a86f-0bd4-486d-aa0f-23c9cc02733c
+                stepCounter: 3972622f-c3a5-4137-8b0b-a139e8efd85c
+            transform: TARGET.IDX
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 972836cd-06a2-4bed-af63-3aae6c1e27a0
+          stepCounter: e575d1a1-f47c-47ec-b457-d837fc9a6b39
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: VERSION_TYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9d65c306-401c-41b6-b499-66ed3bf4f145
+                stepCounter: 3972622f-c3a5-4137-8b0b-a139e8efd85c
+            transform: TARGET.VERSION_TYPE
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a00530bd-3d5f-4798-b93a-daa553cc510c
+          stepCounter: e575d1a1-f47c-47ec-b457-d837fc9a6b39
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: VERSION_NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ca7cafb5-7c5b-4562-a353-06770796c560
+                stepCounter: 3972622f-c3a5-4137-8b0b-a139e8efd85c
+            transform: TARGET.VERSION_NAME
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: de48b6af-d0ac-4bd8-9cd6-ac319b11d631
+          stepCounter: e575d1a1-f47c-47ec-b457-d837fc9a6b39
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: ""
+        name: EFFECTIVE_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 19d8d7a0-aa58-4f10-bab8-b81a603b1b48
+                stepCounter: 3972622f-c3a5-4137-8b0b-a139e8efd85c
+            transform: TARGET.EFFECTIVE_DATE
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 70d18bb7-2d97-436e-9fae-0f47795a62d1
+          stepCounter: e575d1a1-f47c-47ec-b457-d837fc9a6b39
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: TARGET.DSS_CREATE_TIME
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 626fe62e-0b7f-4710-90ca-227f228e9da7
+          stepCounter: e575d1a1-f47c-47ec-b457-d837fc9a6b39
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: TARGET.DSS_UPDATE_TIME
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TARGET
+            nodeName: DIM_LO_SAP_BUDGET_VERSION
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT 0 AS DIM_LEASE_OPS_VERSION_KEY ,
+                           0 AS IDX ,
+                           'Unknown' AS VERSION_NAME ,
+                           TO_DATE('19000101','YYYYMMDD') AS EFFECTIVE_DATE ,
+                           'UNKNOWN' VERSION_TYPE ,
+                           CAST(CURRENT_TIMESTAMP AS TIMESTAMP) AS DSS_CREATE_TIME ,
+                           CAST(CURRENT_TIMESTAMP AS TIMESTAMP) AS DSS_UPDATE_TIME
+                      FROM DUAL
+                     UNION SELECT -1 AS DIM_LEASE_OPS_VERSION_KEY ,
+                           1 AS IDX ,
+                           'Actuals' AS VERSION_NAME ,
+                           CAST(CURRENT_TIMESTAMP AS TIMESTAMP) AS EFFECTIVE_DATE ,
+                           'ACTUALS' VERSION_TYPE ,
+                           CAST(CURRENT_TIMESTAMP AS TIMESTAMP) AS DSS_CREATE_TIME ,
+                           CAST(CURRENT_TIMESTAMP AS TIMESTAMP) AS DSS_UPDATE_TIME
+                      FROM DUAL
+                     UNION SELECT -(10 + DIM_BUDGET_VERSION_KEY) AS DIM_LEASE_OPS_VERSION_KEY ,
+                           IDX ,
+                           VERSION_NAME ,
+                           EFFECTIVE_DATE ,
+                           'BUDGET_HISTORIC' VERSION_TYPE ,
+                           DSS_CREATE_TIME ,
+                           DSS_UPDATE_TIME
+                      FROM DIM_LO_QB_BUDGET_VERSION
+                     WHERE DIM_BUDGET_VERSION_KEY <> 0
+                       AND EFFECTIVE_DATE IN (TO_DATE('20230101','YYYYMMDD'))
+                     UNION SELECT DIM_BUDGET_VERSION_KEY ,
+                           IDX ,
+                           VERSION_NAME ,
+                           EFFECTIVE_DATE ,
+                           'BUDGET' VERSION_TYPE ,
+                           DSS_CREATE_TIME ,
+                           DSS_UPDATE_TIME
+                      FROM DIM_LO_SAP_BUDGET_VERSION
+                     WHERE DIM_BUDGET_VERSION_KEY <> 0
+                   ) AS TARGET
+        name: DIM_LO_SAP_LEASE_OPS_VERSION
+        noLinkRefs: []
+  name: DIM_LO_SAP_LEASE_OPS_VERSION
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node
