@@ -1,0 +1,115 @@
+fileVersion: 1
+id: 849135d9-bff3-41f8-9ed7-0663c17d9665
+name: STAGE_FIN_SAP_BI_APP_CC_ATTR
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TARGET
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cac5df8e-acaa-45c8-b417-ec7bde8d915b
+          stepCounter: 849135d9-bff3-41f8-9ed7-0663c17d9665
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CC_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b1b52941-f912-44b3-89a7-749760ac49a2
+                stepCounter: eb1b2281-e707-4ae1-a339-b0bd789400ff
+            transform: TARGET.CC_NUM
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 64a9795c-e327-4739-81c4-a73d4c00f3aa
+          stepCounter: 849135d9-bff3-41f8-9ed7-0663c17d9665
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Foreman Name manually assigned to cost center
+        name: MANUAL_FOREMAN
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0c9784c3-2d10-48f0-96e0-eb06cb0c24d4
+                stepCounter: eb1b2281-e707-4ae1-a339-b0bd789400ff
+            transform: TARGET.MANUAL_FOREMAN
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 95f721df-31b7-4f86-9c47-202e2ca87c33
+          stepCounter: 849135d9-bff3-41f8-9ed7-0663c17d9665
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: '"BATTERY" value manually assigned to Cost Center'
+        name: BATTERY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0c9784c3-2d10-48f0-96e0-eb06cb0c24d4
+                stepCounter: eb1b2281-e707-4ae1-a339-b0bd789400ff
+            transform: TARGET.BATTERY
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a7ff0037-c0be-429e-942a-55232d1fb0a7
+          stepCounter: 849135d9-bff3-41f8-9ed7-0663c17d9665
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: ""
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TARGET
+            nodeName: ODS_BI_APP_T_APP_COST_CENTER_ATTRIBUTES_MANUAL
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT C.CC_NUM,
+                           C.MANUAL_FOREMAN,
+                           C.BATTERY
+                      FROM (
+                            SELECT CC_NUM,
+                                   "'MANUAL_FOREMAN'" AS MANUAL_FOREMAN,
+                                   "'BATTERY'" AS BATTERY
+                              FROM (
+                                    SELECT CC_NUM ,
+                                           ATTRIBUTE_KEY ,
+                                           VALUE
+                                      FROM WS_DATA_STORE.ODS_BI_APP_T_APP_COST_CENTER_ATTRIBUTES_MANUAL
+                                     WHERE DSS_CURRENT_FLAG = 'Y'
+                                       AND DSS_DELETE_FLAG != 'Y'
+                                   ) AS A PIVOT (MAX(A.VALUE) FOR A.ATTRIBUTE_KEY IN ('MANUAL_FOREMAN','BATTERY'))
+                           ) AS C
+                   ) AS TARGET
+        name: STAGE_FIN_SAP_BI_APP_CC_ATTR
+        noLinkRefs: []
+  name: STAGE_FIN_SAP_BI_APP_CC_ATTR
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

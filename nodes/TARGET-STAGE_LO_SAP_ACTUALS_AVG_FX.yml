@@ -1,0 +1,89 @@
+fileVersion: 1
+id: 10610c79-961d-496a-bfe6-69c8014bf2b1
+name: STAGE_LO_SAP_ACTUALS_AVG_FX
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TARGET
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eeb31403-417a-4374-ac9c-4947a3b34480
+          stepCounter: 10610c79-961d-496a-bfe6-69c8014bf2b1
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ACTIVITY PERIOD DATE dimension key. Integer transformation of the Date value
+        isBusinessKey: true
+        name: DIM_ACTVY_PER_DATE_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a9ce251f-1d1a-4c57-b32d-0e79bccf3ec3
+                stepCounter: a12e113e-c1e1-48ab-9f81-fdc5cfa0e26c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8b12c0f8-23af-4cb1-9134-a5dd2d34f729
+          stepCounter: 10610c79-961d-496a-bfe6-69c8014bf2b1
+        config: {}
+        dataType: VARCHAR(6)
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: OP_CURR_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e7cf83eb-0256-4f0f-9d7e-6e63f4d3ac83
+                stepCounter: a12e113e-c1e1-48ab-9f81-fdc5cfa0e26c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dcbde35d-e3cc-4711-971d-0632027d418d
+          stepCounter: 10610c79-961d-496a-bfe6-69c8014bf2b1
+        config: {}
+        dataType: NUMBER(26,5)
+        defaultValue: ""
+        description: The Exchange rate for the transaction Only for Lease Ops reporting. Average of all line items
+        name: AVG_EXCHANGE_RATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8b8d49a2-6133-44d7-a1af-ed5ca3a5acaf
+                stepCounter: a12e113e-c1e1-48ab-9f81-fdc5cfa0e26c
+            transform: AVG(DECODE(FACT_LO_SAP_ACTUALS.OP_CURR_CODE,'CAD',1,FACT_LO_SAP_ACTUALS.GLOP_EXCHANGE_RATE))
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          FACT_LO_SAP_ACTUALS: a12e113e-c1e1-48ab-9f81-fdc5cfa0e26c
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TARGET
+            nodeName: FACT_LO_SAP_ACTUALS
+        join:
+          joinCondition: |-
+            FROM {{ ref('TARGET','FACT_LO_SAP_ACTUALS') }} FACT_LO_SAP_ACTUALS
+             GROUP BY DIM_ACTVY_PER_DATE_KEY ,
+                      OP_CURR_CODE
+        name: STAGE_LO_SAP_ACTUALS_AVG_FX
+        noLinkRefs: []
+  name: STAGE_LO_SAP_ACTUALS_AVG_FX
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

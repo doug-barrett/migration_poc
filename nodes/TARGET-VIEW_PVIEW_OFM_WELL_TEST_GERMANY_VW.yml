@@ -1,0 +1,175 @@
+fileVersion: 1
+id: 8e663128-0ae5-486b-b675-3f5ee8c0e6f9
+name: VIEW_PVIEW_OFM_WELL_TEST_GERMANY_VW
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TARGET
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 82b22c5b-ff6a-4855-85b8-06adcda4a7bc
+          stepCounter: 8e663128-0ae5-486b-b675-3f5ee8c0e6f9
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: UWI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 34049d64-581c-4b03-95d5-3056aed45ddd
+                stepCounter: 81e6b0b1-1728-45bf-932d-6356544cf13a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 940cb586-2903-4285-bf12-e87f3fe58bab
+          stepCounter: 8e663128-0ae5-486b-b675-3f5ee8c0e6f9
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: ""
+        name: PROD_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4af52595-84cb-4015-9b7d-71cd8287ad95
+                stepCounter: c90d88ea-3fe2-4276-a045-9d96c5346b01
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fcc3c020-a04a-4849-af42-ca404328db0e
+          stepCounter: 8e663128-0ae5-486b-b675-3f5ee8c0e6f9
+        config: {}
+        dataType: DOUBLE(38)
+        defaultValue: ""
+        description: ""
+        name: TESTHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 84b5a54d-0ac8-4ef8-bd09-b6c7b1181d67
+                stepCounter: c90d88ea-3fe2-4276-a045-9d96c5346b01
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: df5a5c54-5f6b-4988-8e57-0b66c710f0df
+          stepCounter: 8e663128-0ae5-486b-b675-3f5ee8c0e6f9
+        config: {}
+        dataType: DOUBLE(38)
+        defaultValue: ""
+        description: ""
+        name: GAS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 46890d16-7162-401b-bcd3-77f68f541cad
+          stepCounter: 8e663128-0ae5-486b-b675-3f5ee8c0e6f9
+        config: {}
+        dataType: DOUBLE(38)
+        defaultValue: ""
+        description: ""
+        name: OIL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4bd8a825-a73e-4cf8-a8ca-8c44425ca49e
+          stepCounter: 8e663128-0ae5-486b-b675-3f5ee8c0e6f9
+        config: {}
+        dataType: DOUBLE(38)
+        defaultValue: ""
+        description: ""
+        name: WATER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f07dcfcf-618f-421b-9c9e-43dd9a52736c
+          stepCounter: 8e663128-0ae5-486b-b675-3f5ee8c0e6f9
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: TESTEDBY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6401ae1e-e3e5-496d-8d07-ebfb2dea57a4
+                stepCounter: c90d88ea-3fe2-4276-a045-9d96c5346b01
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a1811a59-edc7-45c8-825c-a5cc9f6f541b
+          stepCounter: 8e663128-0ae5-486b-b675-3f5ee8c0e6f9
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: BU_SF_ROLE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e2461b3f-8900-4460-9da7-dc1b4d0593bc
+                stepCounter: a23239e4-617a-4ab9-a42c-1fd9220b7fb3
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          VIEW_PVIEW_OFM_WELL_TEST_GERMANY_VW: 8e663128-0ae5-486b-b675-3f5ee8c0e6f9
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('TARGET','VIEW_PVIEW_OFM_WELL_TEST_GERMANY_VW') }} AS SELECT uc2.wellidb uwi,
+                   ct.DtTm AS prod_date,
+                   durtest * 24 AS testhours,
+                   ifnull(ct.volgascalc, ct.volgas) / 1000 AS gas,
+                   ifnull(ct.volhcliqcalc, ct.volhcliq) AS oil,
+                   ifnull(ct.volwatercalc, ct.volwater) AS water,
+                   ct.testedby,
+                   WS_EDW.PVIEW_SYSSECURITYTYP_VET_BU_ROLE(f.SYSSECURITYTYP) AS BU_SF_ROLE
+              FROM DS_PRODVIEW.PVT_pvflownetheader f
+             INNER JOIN DS_PRODVIEW.PVT_pvunitcomp uc2
+                ON f.idflownet = uc2.idflownet
+               AND f.syssecuritytyp = 'Germany'
+             INNER JOIN DS_PRODVIEW.PVT_pvunitcomptest ct
+                ON uc2.idrec = ct.idrecparent
+               AND ifnull(ct.dontuse, 0) != 1
+        dependencies:
+          - locationName: TARGET
+            nodeName: ODS_PVIEW_PVT_PVUNITCOMP
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TARGET','ODS_PVIEW_PVT_PVUNITCOMP') }}
+        name: VIEW_PVIEW_OFM_WELL_TEST_GERMANY_VW
+        noLinkRefs: []
+  name: VIEW_PVIEW_OFM_WELL_TEST_GERMANY_VW
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

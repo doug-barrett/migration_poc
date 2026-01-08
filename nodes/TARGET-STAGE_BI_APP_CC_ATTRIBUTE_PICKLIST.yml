@@ -1,0 +1,148 @@
+fileVersion: 1
+id: adc7e64e-deb8-4fc4-9588-cce9d1493b66
+name: STAGE_BI_APP_CC_ATTRIBUTE_PICKLIST
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TARGET
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: be0c3e70-b109-47b0-b74d-928a91e318af
+          stepCounter: adc7e64e-deb8-4fc4-9588-cce9d1493b66
+        config: {}
+        dataType: VARCHAR(14)
+        defaultValue: ""
+        description: ""
+        name: ATTRIBUTE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d22ccf9e-3b74-4b35-a677-8575b61cd2c2
+          stepCounter: adc7e64e-deb8-4fc4-9588-cce9d1493b66
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: ATTRIBUTE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 972fa160-a4d3-4edb-a3b3-9772e4c61774
+          stepCounter: adc7e64e-deb8-4fc4-9588-cce9d1493b66
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: VALUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8bc7455f-bcdf-42e2-9e58-790d2bf85daa
+          stepCounter: adc7e64e-deb8-4fc4-9588-cce9d1493b66
+        config: {}
+        dataType: VARCHAR(240)
+        defaultValue: ""
+        description: ""
+        name: COREAREA_NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 82c19d20-056e-4e48-8c45-19e7b3d97a7b
+          stepCounter: adc7e64e-deb8-4fc4-9588-cce9d1493b66
+        config: {}
+        dataType: VARCHAR(240)
+        defaultValue: ""
+        description: ""
+        name: AREA_NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eeff404b-c364-4014-a95a-2c32ba45beb8
+          stepCounter: adc7e64e-deb8-4fc4-9588-cce9d1493b66
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: ""
+        name: DSS_LOAD_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          STAGE_BI_APP_CC_ATTRIBUTE_PICKLIST: adc7e64e-deb8-4fc4-9588-cce9d1493b66
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('TARGET','STAGE_BI_APP_CC_ATTRIBUTE_PICKLIST') }} AS SELECT DISTINCT attribute,
+                   attribute_key,
+                   value,
+                   corearea_name,
+                   area_name,
+                   CAST(current_timestamp() AS timestamp_ntz) AS DSS_LOAD_DATE
+              FROM (
+                    SELECT DISTINCT 'BATTERY' AS attribute,
+                           u.usertxt2 AS attribute_key,
+                           u.usertxt2 AS value,
+                           u.costcenterida AS cc_num
+                      FROM ds_prodview.pvt_pvunit u
+                     WHERE u.usertxt2 IS NOT NULL --
+
+                 UNION ALL --
+             SELECT DISTINCT 'MANUAL_FOREMAN' AS attribute,
+                           'MANUAL_FOREMAN' AS attribute_key,
+                           MANUAL_FOREMAN AS value,
+                           first_value(cc_num) OVER (PARTITION BY area_name ORDER BY cc_num) AS cc_num
+                      FROM {{ ref('UNKNOWN','DIM_LO_COST_CENTER_HIER') }}
+                     WHERE MANUAL_FOREMAN IS NOT NULL
+                   ) v
+              JOIN {{ ref('UNKNOWN','DIM_LO_COST_CENTER_HIER') }} cc
+                ON v.cc_num = cc.cc_num
+        dependencies:
+          - locationName: UNKNOWN
+            nodeName: DIM_LO_COST_CENTER_HIER
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('UNKNOWN','DIM_LO_COST_CENTER_HIER') }}
+        name: STAGE_BI_APP_CC_ATTRIBUTE_PICKLIST
+        noLinkRefs: []
+  name: STAGE_BI_APP_CC_ATTRIBUTE_PICKLIST
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,87 @@
+fileVersion: 1
+id: 6a572c32-d6dd-449f-85ca-86670587982d
+name: VIEW_PWAPP_ATTRIBUTE_PICKLIST
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TARGET
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c0c85413-8fa3-4be1-aea4-1be43b8bd7d4
+          stepCounter: 6a572c32-d6dd-449f-85ca-86670587982d
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: ATTRIBUTE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d8a8be06-40af-4323-8ed3-f6d3f2b25244
+          stepCounter: 6a572c32-d6dd-449f-85ca-86670587982d
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: CC_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          VIEW_PWAPP_ATTRIBUTE_PICKLIST: 6a572c32-d6dd-449f-85ca-86670587982d
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('TARGET','VIEW_PWAPP_ATTRIBUTE_PICKLIST') }} AS SELECT DISTINCT attribute,
+                   attribute_key,
+                   value,
+                   corearea_name,
+                   area_name
+              FROM (
+                    SELECT DISTINCT 'BATTERY' AS attribute,
+                           u.usertxt2 AS attribute_key,
+                           u.usertxt2 AS value,
+                           u.costcenterida AS cc_num
+                      FROM ds_prodview.pvt_pvunit u
+                     WHERE u.usertxt2 IS NOT NULL --
+
+                 UNION ALL --
+             SELECT DISTINCT 'MANUAL_FOREMAN' AS attribute,
+                           'MANUAL_FOREMAN' AS attribute_key,
+                           MANUAL_FOREMAN AS value,
+                           first_value(cc_num) OVER (PARTITION BY area_name ORDER BY cc_num) AS cc_num
+                      FROM "WS_EDW"."DIM_LO_SAP_COST_CENTER_HIER"
+                     WHERE MANUAL_FOREMAN IS NOT NULL
+                   ) v
+              JOIN "WS_EDW"."DIM_LO_SAP_COST_CENTER_HIER" cc
+                ON v.cc_num = cc.cc_num
+        dependencies: []
+        join:
+          joinCondition: None
+        name: VIEW_PWAPP_ATTRIBUTE_PICKLIST
+        noLinkRefs: []
+  name: VIEW_PWAPP_ATTRIBUTE_PICKLIST
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

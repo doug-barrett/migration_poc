@@ -1,0 +1,93 @@
+fileVersion: 1
+id: 35326990-5195-42ef-966a-e7cc9139ed13
+name: VIEW_CSLAND_MINERAL_CONTRACTS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TARGET
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f4256350-19c9-437b-a4ec-8c87f79751ee
+          stepCounter: 35326990-5195-42ef-966a-e7cc9139ed13
+        config: {}
+        dataType: CHAR(10)
+        defaultValue: ""
+        description: MINERAL FILE SUB KEY
+        isBusinessKey: true
+        name: MINERAL_FILE_SUB_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4008de33-b3fc-4bf8-ae09-cfe641730379
+                stepCounter: dcc537cb-acad-4aff-930a-bcf3f759d9ab
+            transform: TRIM(ODS_CSLAND_X_REFERENCE.FILE_NUMBER)||TRIM(ODS_CSLAND_X_REFERENCE.FILE_SUB)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c86f6a46-91bd-443a-9c02-3a66906fb935
+          stepCounter: 35326990-5195-42ef-966a-e7cc9139ed13
+        config: {}
+        dataType: CHAR(10)
+        defaultValue: ""
+        description: CONTRACT_FILE_KEY
+        isBusinessKey: true
+        name: CONTRACT_FILE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f9adabd8-2bee-418b-b1d0-eff9728dd4e4
+                stepCounter: dcc537cb-acad-4aff-930a-bcf3f759d9ab
+            transform: TRIM(ODS_CSLAND_X_REFERENCE.REL_FILE_NUMBER)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 16c13e2c-5c8f-4ddc-93ba-e93e41188141
+          stepCounter: 35326990-5195-42ef-966a-e7cc9139ed13
+        config: {}
+        dataType: VARCHAR(40)
+        defaultValue: ""
+        description: ""
+        name: COMMENTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 16c13e2c-5c8f-4ddc-93ba-e93e41188141
+                stepCounter: 35326990-5195-42ef-966a-e7cc9139ed13
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          VIEW_CSLAND_MINERAL_CONTRACTS: 35326990-5195-42ef-966a-e7cc9139ed13
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('TARGET','VIEW_CSLAND_MINERAL_CONTRACTS') }} AS SELECT TRIM(XR.REL_FILE_NUMBER)||TRIM(XR.REL_FILE_SUB) "MINERAL_FILE_SUB_KEY",
+                   TRIM(XR.FILE_NUMBER)||TRIM(XR.FILE_SUB) "CONTRACT_FILE_KEY",
+                   XR.COMMENTS
+              FROM DS_CSLAND.X_REFERENCE XR
+             WHERE XR.SUBSYSTEM = 'C'
+               AND XR.REL_SUBSYSTEM = 'M'
+        dependencies:
+          - locationName: TARGET
+            nodeName: ODS_CSLAND_X_REFERENCE
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TARGET','ODS_CSLAND_X_REFERENCE') }}
+        name: VIEW_CSLAND_MINERAL_CONTRACTS
+        noLinkRefs: []
+  name: VIEW_CSLAND_MINERAL_CONTRACTS
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

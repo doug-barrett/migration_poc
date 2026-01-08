@@ -1,0 +1,147 @@
+fileVersion: 1
+id: e754cd7f-a4a6-408d-b97d-f3ca4c1d7f10
+name: VIEW_FDC_DOWNTIME_CODES
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TARGET
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c121dfee-c6e7-44ba-8354-3d6556d6f1b8
+          stepCounter: e754cd7f-a4a6-408d-b97d-f3ca4c1d7f10
+        config: {}
+        dataType: VARCHAR(753)
+        defaultValue: ""
+        description: ""
+        name: SCENARIO_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a588f0ac-43ef-4fc6-9206-ce4eebb0de3e
+          stepCounter: e754cd7f-a4a6-408d-b97d-f3ca4c1d7f10
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CODE1
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5cb38dfb-7470-448e-977e-96dd518b7f1d
+          stepCounter: e754cd7f-a4a6-408d-b97d-f3ca4c1d7f10
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CODE2
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 78bfa20e-a5a0-46da-b323-3c0e1fe7c2a5
+          stepCounter: e754cd7f-a4a6-408d-b97d-f3ca4c1d7f10
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CODE3
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 91391928-79b4-4b6f-b419-7ee5cfe66ff5
+          stepCounter: e754cd7f-a4a6-408d-b97d-f3ca4c1d7f10
+        config: {}
+        dataType: VARCHAR(300)
+        defaultValue: ""
+        description: ""
+        name: COUNTRY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          VIEW_FDC_DOWNTIME_CODES: e754cd7f-a4a6-408d-b97d-f3ca4c1d7f10
+          ODS_PVIEW_PVT_PVUNITALLOCMONTHDAY: d08539ff-37af-4c21-9836-963dca56c39d
+          ODS_PVIEW_PVT_PVUNITCOMPDOWNTM: 74f44647-9ca6-45b0-bbe0-7eba25f1476b
+          STAGE_PRODVIEW_WELLS: e3f3cfdf-bda2-498e-bd55-26e7262626ae
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('TARGET','VIEW_FDC_DOWNTIME_CODES') }} AS SELECT DISTINCT NVL(UPPER(TRIM(CODEDOWNTM1)), 'UNKNOWN') || '-' || NVL(UPPER(TRIM(CODEDOWNTM2)), 'UNKNOWN') || '-' || NVL(UPPER(TRIM(CODEDOWNTM3)), 'UNKNOWN') || '-' || NVL(UPPER(TRIM(W.COUNTRY)), 'UNKNOWN') AS SCENARIO_KEY ,
+                   NVL(UPPER(TRIM(CODEDOWNTM1)), 'UNKNOWN') AS CODE1 ,
+                   CASE WHEN UPPER(REPLACE(TRIM(CODEDOWNTM2), ' ', '')) IN ('PLANT/BATTERY/SALESLINE', 'PROCESSINGPLANT/BATTERY/SALES LINE', 'PROCESSINGPLATFORM/SALES') THEN 'PROCESSING PLANT/BATTERY/SALES LINE'
+                        WHEN UPPER(REPLACE(TRIM(CODEDOWNTM2), ' ', '')) = 'SURFACELEASE/GATHERINGSYSTEM'                                                                 THEN 'SURFACE LEASE/GATHERING SYSTEM'
+                        ELSE NVL(UPPER(TRIM(CODEDOWNTM2)), 'UNKNOWN')
+                         END AS CODE2 ,
+                   NVL(UPPER(TRIM(CODEDOWNTM3)), 'UNKNOWN') AS CODE3 ,
+                   NVL(UPPER(TRIM(W.COUNTRY)), 'UNKNOWN') AS DIVISION
+              FROM {{ ref('TARGET','ODS_PVIEW_PVT_PVUNITALLOCMONTHDAY') }} P
+              LEFT JOIN {{ ref('TARGET','ODS_PVIEW_PVT_PVUNITCOMPDOWNTM') }} DT
+                ON DT.IDREC = P.IDRECDOWNTIME
+               AND DT.DSS_CURRENT_FLAG = 'Y'
+               AND DT.DSS_DELETE_FLAG != 'Y'
+              JOIN {{ ref('TARGET','STAGE_PRODVIEW_WELLS') }} W
+                ON P.IDFLOWNET = W.IDFLOWNET
+               AND P.IDRECUNIT = W.ENTITY_KEY
+             WHERE W.COUNTRY IS NOT NULL
+               AND P.DSS_CURRENT_FLAG = 'Y'
+               AND P.DSS_DELETE_FLAG != 'Y'
+               AND YEAR(P.DTTM) > {{ parameters.FDC_DOWNTIME_CODES_YEAR }}
+        dependencies:
+          - locationName: TARGET
+            nodeName: VIEW_DOWNTIME_CODES
+          - locationName: TARGET
+            nodeName: ODS_PVIEW_PVT_PVUNITALLOCMONTHDAY
+          - locationName: TARGET
+            nodeName: ODS_PVIEW_PVT_PVUNITCOMPDOWNTM
+          - locationName: TARGET
+            nodeName: STAGE_PRODVIEW_WELLS
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TARGET','VIEW_DOWNTIME_CODES') }}
+            {{ ref('TARGET','ODS_PVIEW_PVT_PVUNITALLOCMONTHDAY') }}
+            {{ ref('TARGET','ODS_PVIEW_PVT_PVUNITCOMPDOWNTM') }}
+            {{ ref('TARGET','STAGE_PRODVIEW_WELLS') }}
+        name: VIEW_FDC_DOWNTIME_CODES
+        noLinkRefs: []
+  name: VIEW_FDC_DOWNTIME_CODES
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

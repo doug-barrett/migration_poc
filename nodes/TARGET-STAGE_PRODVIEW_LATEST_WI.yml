@@ -1,0 +1,141 @@
+fileVersion: 1
+id: 8f27dbf0-fd3d-4fbe-a394-1e18598ebd7c
+name: STAGE_PRODVIEW_LATEST_WI
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TARGET
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ab341acf-1391-485e-b490-f5ace16a90d3
+          stepCounter: 8f27dbf0-fd3d-4fbe-a394-1e18598ebd7c
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: IDRECUNIT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6b6e1d74-6828-42ae-b9d7-69ba4615f389
+                stepCounter: e5728334-2b6e-40fb-ae5e-e78da1de0994
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6e492e39-c889-4e6b-bcb3-5f33760756c7
+          stepCounter: 8f27dbf0-fd3d-4fbe-a394-1e18598ebd7c
+        config: {}
+        dataType: FLOAT
+        defaultValue: ""
+        description: ""
+        name: GAS_WI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ef135fd3-29ca-4192-ae3c-b84d4a82b57c
+                stepCounter: d08539ff-37af-4c21-9836-963dca56c39d
+            transform: FIRST_VALUE(ODS_PVIEW_PVT_PVUNITALLOCMONTHDAY.WIGAS) OVER (PARTITION BY IDRECUNIT ORDER BY DTTM DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8f72b42f-4068-4a93-8126-feeb6ce59efc
+          stepCounter: 8f27dbf0-fd3d-4fbe-a394-1e18598ebd7c
+        config: {}
+        dataType: FLOAT
+        defaultValue: ""
+        description: ""
+        name: HCLIQ_WI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1025f801-aa3b-4996-9bb3-4e2358493c31
+                stepCounter: d08539ff-37af-4c21-9836-963dca56c39d
+            transform: FIRST_VALUE(ODS_PVIEW_PVT_PVUNITALLOCMONTHDAY.WIHCLIQ) OVER (PARTITION BY IDRECUNIT ORDER BY DTTM DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7b61882d-15cf-40ae-949a-d7c68f7fbfc2
+          stepCounter: 8f27dbf0-fd3d-4fbe-a394-1e18598ebd7c
+        config: {}
+        dataType: FLOAT
+        defaultValue: ""
+        description: ""
+        name: SAND_WI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3e04651b-53ca-49bb-82ef-835c27428375
+                stepCounter: d08539ff-37af-4c21-9836-963dca56c39d
+            transform: FIRST_VALUE(ODS_PVIEW_PVT_PVUNITALLOCMONTHDAY.WISAND) OVER (PARTITION BY IDRECUNIT ORDER BY DTTM DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 032180d1-851f-48d2-bcaf-70de64a0df5b
+          stepCounter: 8f27dbf0-fd3d-4fbe-a394-1e18598ebd7c
+        config: {}
+        dataType: FLOAT
+        defaultValue: ""
+        description: ""
+        name: WATER_WI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9c2fb5b3-ff9c-4ae0-995e-e6dc900f95ec
+                stepCounter: d08539ff-37af-4c21-9836-963dca56c39d
+            transform: FIRST_VALUE(ODS_PVIEW_PVT_PVUNITALLOCMONTHDAY.WIWATER) OVER (PARTITION BY IDRECUNIT ORDER BY DTTM DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8d5794f6-af2d-4a70-a204-d891f7fbd9b2
+          stepCounter: 8f27dbf0-fd3d-4fbe-a394-1e18598ebd7c
+        config: {}
+        dataType: VARCHAR(26)
+        defaultValue: ""
+        description: ""
+        name: LATEST_PUMP_TYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 075a9602-cb61-44d4-b106-28f5a0fd7e51
+                stepCounter: d08539ff-37af-4c21-9836-963dca56c39d
+            transform: FIRST_VALUE(ODS_PVIEW_PVT_PVUNITALLOCMONTHDAY.IDRECPUMPENTRYTK) OVER (PARTITION BY IDRECUNIT ORDER BY DTTM DESC)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          ODS_PVIEW_PVT_PVUNITALLOCMONTHDAY: d08539ff-37af-4c21-9836-963dca56c39d
+          ODS_PVIEW_PVT_PVUNIT: e5728334-2b6e-40fb-ae5e-e78da1de0994
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TARGET
+            nodeName: ODS_PVIEW_PVT_PVUNIT
+          - locationName: TARGET
+            nodeName: ODS_PVIEW_PVT_PVUNITALLOCMONTHDAY
+        join:
+          joinCondition: |-
+            FROM {{ ref('TARGET','ODS_PVIEW_PVT_PVUNITALLOCMONTHDAY') }} ODS_PVIEW_PVT_PVUNITALLOCMONTHDAY
+              JOIN {{ ref('TARGET','ODS_PVIEW_PVT_PVUNIT') }} ODS_PVIEW_PVT_PVUNIT
+                ON ODS_PVIEW_PVT_PVUNITALLOCMONTHDAY.IDFLOWNET = ODS_PVIEW_PVT_PVUNIT.IDFLOWNET
+               AND ODS_PVIEW_PVT_PVUNITALLOCMONTHDAY.IDRECUNIT = ODS_PVIEW_PVT_PVUNIT.IDREC
+               AND ODS_PVIEW_PVT_PVUNIT.DSS_CURRENT_FLAG = 'Y'
+               AND ODS_PVIEW_PVT_PVUNIT.DSS_DELETE_FLAG != 'Y'
+             WHERE ODS_PVIEW_PVT_PVUNITALLOCMONTHDAY.DSS_CURRENT_FLAG = 'Y'
+               AND ODS_PVIEW_PVT_PVUNITALLOCMONTHDAY.DSS_DELETE_FLAG != 'Y'
+        name: STAGE_PRODVIEW_LATEST_WI
+        noLinkRefs: []
+  name: STAGE_PRODVIEW_LATEST_WI
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

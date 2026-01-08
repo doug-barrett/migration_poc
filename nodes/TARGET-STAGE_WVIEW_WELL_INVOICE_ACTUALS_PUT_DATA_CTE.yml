@@ -1,0 +1,116 @@
+fileVersion: 1
+id: c87c66a2-1cc8-49a1-9900-5888f6b532be
+name: STAGE_WVIEW_WELL_INVOICE_ACTUALS_PUT_DATA_CTE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TARGET
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 89f500c0-28af-445d-88a7-6ee6f03d51b1
+          stepCounter: c87c66a2-1cc8-49a1-9900-5888f6b532be
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: IDWELL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 421c784a-ab83-44e7-a1f9-8a508736edc8
+                stepCounter: 146829bc-2eb5-4e37-90ab-ca666a28f86a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 19d501d6-dfb9-47a8-8387-5bfaf8cc7561
+          stepCounter: c87c66a2-1cc8-49a1-9900-5888f6b532be
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: IDREC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ee6f8157-2958-44ba-9950-a659f0d739a1
+                stepCounter: 7215a27a-2295-4978-980c-c6de57b1e5c3
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aeb149e5-bbdc-4c84-b124-4035faa502d8
+          stepCounter: c87c66a2-1cc8-49a1-9900-5888f6b532be
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: IDREC_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f4ff9018-a710-4dbb-ada8-ae86fd82f377
+                stepCounter: 7215a27a-2295-4978-980c-c6de57b1e5c3
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 080842b3-ff7d-46bb-8907-7fbae637a311
+          stepCounter: c87c66a2-1cc8-49a1-9900-5888f6b532be
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f02f61c8-a52e-497f-963f-92a7a0aff259
+                stepCounter: 146829bc-2eb5-4e37-90ab-ca666a28f86a
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW WS_STAGE_DT.STAGE_WVIEW_WELL_INVOICE_ACTUALS_PUT_DATA_CTE AS SELECT WELLHEADER_IDWELL AS "idwell",
+                   load.idrec AS "idrec",
+                   sum(wvInvoiceCost.amount) AS "idrec_amount",
+                   sum(CAD_AMT_FLPD) AS "amount"
+              FROM WS_EDW.VIEW_WVIEW_WBS_INVOICE_ACTUALS VWWIA
+              LEFT JOIN MAT_LOAD.LOAD_WVIEW_WVJOBAFEFINALINVOICECOST_RTN LOAD
+                ON VWWIA.WELLHEADER_IDWELL = load.idwell
+               AND VWWIA.GL_ACCOUNT = load.code3
+               AND VWWIA.JOBAFE_IDREC = load.idrecparent
+               AND coalesce(VWWIA.BUSINESS_ASSOCIATE_ID, 'UNKNOWN') = coalesce(load.vendorcode, 'UNKNOWN')
+               AND coalesce(VWWIA.INVOICE_NUM, 'UNKNOWN') = coalesce(load.invoicerefno, 'UNKNOWN')
+              LEFT JOIN DS_WELLVIEW.WVT_WVJOBAFEFINALINVOICECOST wvInvoiceCost
+                ON load.idrec = wvInvoiceCost.idrec
+             WHERE VWWIA.GL_ACCOUNT <> '600020'
+               AND load.idrec IS NOT NULL
+             GROUP BY VWWIA.WELLHEADER_IDWELL,
+                      load.idrec
+        dependencies:
+          - locationName: TARGET
+            nodeName: VIEW_WVIEW_WBS_INVOICE_ACTUALS
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TARGET','VIEW_WVIEW_WBS_INVOICE_ACTUALS') }}
+        name: STAGE_WVIEW_WELL_INVOICE_ACTUALS_PUT_DATA_CTE
+        noLinkRefs: []
+  name: STAGE_WVIEW_WELL_INVOICE_ACTUALS_PUT_DATA_CTE
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

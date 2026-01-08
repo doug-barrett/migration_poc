@@ -1,0 +1,130 @@
+fileVersion: 1
+id: a1f77b68-66f1-43fa-80eb-8fc55750f6be
+name: STAGE_BUDGET_EXP_BUDGET_FX_VW
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "Budget Export Staging table for direct load into BI_REPORT.BUDGET_FX_VW@BIPR"
+  isMultisource: false
+  locationName: TARGET
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c10df7d5-f118-49b2-ab2f-a859b98a4589
+          stepCounter: a1f77b68-66f1-43fa-80eb-8fc55750f6be
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: VERSION_NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1c283494-2ab3-49ed-a82c-65b3d65725de
+                stepCounter: a3d102cb-2314-4d5c-97e1-7fd9a978f1c9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 195e6923-440b-43c1-a193-9b405ed55ec3
+          stepCounter: a1f77b68-66f1-43fa-80eb-8fc55750f6be
+        config: {}
+        dataType: VARCHAR(6)
+        defaultValue: ""
+        description: ""
+        name: SYMBOL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: effe626d-947c-42e5-8bbf-5939838caf42
+                stepCounter: be7a3a5f-199b-4588-a06a-4701f7a8b755
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4bb2f4e7-d048-4c4a-a263-26ad61fdb668
+          stepCounter: a1f77b68-66f1-43fa-80eb-8fc55750f6be
+        config: {}
+        dataType: NUMBER(14,10)
+        defaultValue: ""
+        description: ""
+        name: FACTOR_FROM_CAD
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6fa1e507-b5d7-4f1e-a169-f42c94664858
+                stepCounter: be7a3a5f-199b-4588-a06a-4701f7a8b755
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 02ba092c-bf86-4f13-95f2-00b1b0bdd164
+          stepCounter: a1f77b68-66f1-43fa-80eb-8fc55750f6be
+        config: {}
+        dataType: NUMBER(14,10)
+        defaultValue: ""
+        description: ""
+        name: FACTOR_TO_CAD
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6fa1e507-b5d7-4f1e-a169-f42c94664858
+                stepCounter: be7a3a5f-199b-4588-a06a-4701f7a8b755
+            transform: 1/LOAD_BUDGET_R_VERSION_FX.FX_RATE
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7d25f145-14ab-4b4f-b618-715519129890
+          stepCounter: a1f77b68-66f1-43fa-80eb-8fc55750f6be
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: The calendar date for this row.
+        name: PERIOD
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 22fc0aa6-a875-4164-ab11-fd35b6a269ec
+                stepCounter: 514e5b21-eab9-4985-9a00-e22a0e84a361
+            transform: TO_CHAR(DIM_DATE.CALENDAR_DATE,'YYYY-MM-DD')
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          LOAD_BUDGET_R_VERSION: a3d102cb-2314-4d5c-97e1-7fd9a978f1c9
+          LOAD_BUDGET_R_VERSION_FX: be7a3a5f-199b-4588-a06a-4701f7a8b755
+          DIM_DATE: 514e5b21-eab9-4985-9a00-e22a0e84a361
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TARGET
+            nodeName: LOAD_BUDGET_R_VERSION
+          - locationName: TARGET
+            nodeName: LOAD_BUDGET_R_VERSION_FX
+          - locationName: TARGET
+            nodeName: DIM_DATE
+        join:
+          joinCondition: |-
+            FROM {{ ref('TARGET','LOAD_BUDGET_R_VERSION') }} LOAD_BUDGET_R_VERSION
+              JOIN {{ ref('TARGET','LOAD_BUDGET_R_VERSION_FX') }} LOAD_BUDGET_R_VERSION_FX
+                ON LOAD_BUDGET_R_VERSION.IDX = LOAD_BUDGET_R_VERSION_FX.FK_R_VERSION_IDX
+              JOIN (
+                    SELECT CALENDAR_DATE
+                      FROM {{ ref('TARGET','DIM_DATE') }}
+                     WHERE DAY(CALENDAR_DATE)=1
+                   ) DIM_DATE
+                ON YEAR(LOAD_BUDGET_R_VERSION.EFFECTIVE_DATE) = YEAR(DIM_DATE.CALENDAR_DATE)
+        name: STAGE_BUDGET_EXP_BUDGET_FX_VW
+        noLinkRefs: []
+  name: STAGE_BUDGET_EXP_BUDGET_FX_VW
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node
