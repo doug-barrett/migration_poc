@@ -1,0 +1,479 @@
+fileVersion: 1
+id: f246acde-d115-482c-9cfa-4c4d26f54aca
+name: S_OUTPATIENT_SLOT_40
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Merge together details of time slots available and the number of patients booked in each time slot."
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c8a7b459-1fae-45ce-a23b-15b7cc620264
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Unique identifier for the slot within an outpatient session.
+        name: OUTPATIENT_SLOT_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fb3a3e53-d08c-4ad3-a049-ff2a625e37b7
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 324ab3ab-4510-440a-b05f-07e6fb3a94d8
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Unique identifier for the outpatient session.
+        name: OUTPATIENT_SESSION_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6f0adc73-08b8-4ad1-b1a7-79648c9de2ab
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bea2e0e9-8d6a-4d91-8f54-7ebe62218a70
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: SESSION_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 20c2341a-8b7e-4ff2-94a4-72b015c2691f
+                stepCounter: 8152c67e-e9e3-43f0-b624-8ba3f0ba31aa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1a637c46-8968-40f2-9728-e6e7a7a5f785
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: ""
+        name: SESSION_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1e7f2778-4d11-4214-a799-d6e6f31945bc
+                stepCounter: 8152c67e-e9e3-43f0-b624-8ba3f0ba31aa
+            transform: LEFT(ds_session_05.appointment_code + ':' + ISNULL(ds_session_05.appointment_desc, ''), 255)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 45e9b602-b32d-40e5-afc4-948238c617b0
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time when the session started.
+        name: SESSION_START_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d1820583-23be-4261-bdae-40eda026bc41
+                stepCounter: 8152c67e-e9e3-43f0-b624-8ba3f0ba31aa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eb3f5e91-937a-4e4e-b424-52c21ff8ca52
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Unique identifier of the outpatient clinic.
+        name: OUTPATIENT_CLINIC_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 05867f84-370d-48b7-889b-5757a6f73039
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 861c9604-6169-49d0-bea6-aec2afaba752
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Slot sequence number within the session in start time order.
+        name: SLOT_SEQ_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6f0adc73-08b8-4ad1-b1a7-79648c9de2ab
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ROW_NUMBER() OVER(PARTITION BY s_outpatient_slot_20.outpatient_session_reference_no ORDER BY s_outpatient_slot_20.slot_start_date)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eb38c9cb-d81e-48f6-8793-36d25597d39d
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Slot sequence number within the session in descending start time order.
+        name: SLOT_SEQ_NUM_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6f0adc73-08b8-4ad1-b1a7-79648c9de2ab
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ROW_NUMBER() OVER(PARTITION BY s_outpatient_slot_20.outpatient_session_reference_no ORDER BY s_outpatient_slot_20.slot_start_date DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e08c5f8d-9a53-4548-9473-5c0b54c0de80
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Start date and time of the session slot.
+        name: SLOT_START_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: aaca4bae-fba2-4ff6-9d54-aced9e48af92
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cae7b53b-2b4f-4e1d-a05e-db99a9b205d7
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: End date and time of the session slot.
+        name: SLOT_END_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 794fe9ff-8656-4d25-bb25-a0caf138c201
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 82ec8271-a5b6-42dd-b7ad-9f1f85d27189
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: Possible values include AVAIL (Available), NOLAV (No longer available), BUKED (Booked), RESRV (Reserved).
+        name: SLOT_STATUS_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1b29a2b3-1170-4c0b-af6f-7a308e350621
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 685b3d52-9ebd-44df-8482-1d9e4a8d295d
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Duration of a session slot in minutes.
+        name: SLOT_DURATION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 42ff6c0a-4709-4835-8a43-00c507e7c555
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 80bdc9e2-7790-4ea8-8302-5a156a7ba427
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Set to 1 if the session slot has been cancelled
+        name: SLOT_CANCELLED_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b9e5ee11-90e7-4203-984a-45841d276e0d
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e1713666-f517-4793-b7a7-0f824d88a345
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Number of FSA appointments available in the slot.
+        name: SLOT_FSA_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 12a6258a-3f2c-4129-896b-e0b09696f2ad
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5b433b50-4d49-497d-97d2-747f7cabd119
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Number of FUP appointments available in the slot.
+        name: SLOT_FUP_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6db4c124-5e26-4ba8-a3a6-393d77f5a550
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f3d547b3-6484-4337-90f7-645f5c02b8ff
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Number of Inpatient appointments available in the slot.
+        name: SLOT_INPATIENT_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8022c1a7-11df-47a2-8692-3b828ed92ed1
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f77a09c4-111c-42aa-9018-8c8b42c597b6
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Number of PAC appointments available in the slot.
+        name: SLOT_PAC_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 51bcf028-3b7c-420b-89fb-13eddee6d325
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 18ebe69e-bb1d-4988-825f-0aadbe6b3df3
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Number of SOSFU appointments available in the slot.
+        name: SLOT_SOSFU_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 30643bd2-0eae-4344-8015-c22b70efb792
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 79a5befc-ad59-4971-9955-8a3ae05b6c00
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Number of appointments available in the slot that are not FSA, FUP, Inpatient, PAC or SOSFU.
+        name: SLOT_OTHER_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 69eb0def-3c68-4a75-a359-1ab2d4a83beb
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 26fbff0b-68e3-4f85-96ab-f2a4cc33d9ab
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Number of appointments booked in the slot.
+        name: SLOT_BOOKING_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3ef84bca-57a0-4847-a901-9bfc1bafa8d3
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7f3aa916-5b62-4e53-a111-ef03bdde8322
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Set to 1 if the slot has a forced booking i.e. slot not normally available but has been booked anyway. Such bookings have no visit type.
+        name: FORCED_BOOKING_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 757815bd-e964-4949-8b6d-0af289e7b3f7
+                stepCounter: 7b87b310-d61e-46b0-9602-2119fa33d742
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f6f5270d-fb79-4b56-afc5-ad4a967078da
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Number of FSA appointments booked in the slot.
+        name: BOOKED_FSA_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5e9a8283-07ba-46d1-8516-e2d4d73b6886
+                stepCounter: 345ee69a-6f3f-4a4d-9ffd-32e45a0649e9
+            transform: ISNULL(s_outpatient_slot_30.booked_fsa_count, 0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8dbd65ea-1a9d-4110-bb58-da9f4e61f005
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Number of FUP appointments booked in the slot.
+        name: BOOKED_FUP_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4d2bac4b-051d-4501-b900-b7ef5197887f
+                stepCounter: 345ee69a-6f3f-4a4d-9ffd-32e45a0649e9
+            transform: ISNULL(s_outpatient_slot_30.booked_fup_count, 0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b0048aca-7fe2-4862-92f4-f80dcc5636cd
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Number of Inpatient appointments booked in the slot.
+        name: BOOKED_INPATIENT_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 371f54d0-2cad-4b8b-be19-8b41c61f22ea
+                stepCounter: 345ee69a-6f3f-4a4d-9ffd-32e45a0649e9
+            transform: ISNULL(s_outpatient_slot_30.booked_inpatient_count, 0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4fd5fd50-fbef-4a28-812c-7327afbe36e2
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Number of PAC appointments booked in the slot.
+        name: BOOKED_PAC_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 292e7c2c-c8c6-4dc5-8f3b-3853d9bcdf43
+                stepCounter: 345ee69a-6f3f-4a4d-9ffd-32e45a0649e9
+            transform: ISNULL(s_outpatient_slot_30.booked_pac_count, 0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 66c844b3-6c5b-4368-b5cf-ab1912bbc00d
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Number of SOSFU appointments booked in the slot.
+        name: BOOKED_SOSFU_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3755a26a-82c6-44d9-9f0c-f1f98477f573
+                stepCounter: 345ee69a-6f3f-4a4d-9ffd-32e45a0649e9
+            transform: ISNULL(s_outpatient_slot_30.booked_sosfu_count, 0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c5e939ee-3b1f-49a5-90df-fbfa56602cca
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Number of appointments booked in the slot that are not FSA, FUP, Inpatient, PAC or SOSFU.
+        name: BOOKED_OTHER_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 09dd06ee-07b9-4dcb-909a-d3e09de56dba
+                stepCounter: 345ee69a-6f3f-4a4d-9ffd-32e45a0649e9
+            transform: ISNULL(s_outpatient_slot_30.booked_other_count, 0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 795861f1-331e-4d00-9abc-303776beba7d
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PATIENT_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fc4d3f4b-3fbc-4394-8e87-83acc9b14c63
+                stepCounter: 345ee69a-6f3f-4a4d-9ffd-32e45a0649e9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e4e5e09e-eb03-427f-95ca-3d36e0ca27bd
+          stepCounter: f246acde-d115-482c-9cfa-4c4d26f54aca
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: S_OUTPATIENT_SLOT_20
+        join:
+          joinCondition: |-
+            FROM s_outpatient_slot_20
+              LEFT OUTER JOIN ds_session_05
+                ON s_outpatient_slot_20.outpatient_session_reference_no = ds_session_05.service_point_session_reference_no
+              LEFT OUTER JOIN s_outpatient_slot_30
+                ON s_outpatient_slot_30.outpatient_session_reference_no = s_outpatient_slot_20.outpatient_session_reference_no
+               AND s_outpatient_slot_30.outpatient_slot_reference_no = s_outpatient_slot_20.outpatient_slot_reference_no
+               AND s_outpatient_slot_30.slot_start_date = s_outpatient_slot_20.slot_start_date
+               AND s_outpatient_slot_30.slot_end_date = s_outpatient_slot_20.slot_end_date
+        name: S_OUTPATIENT_SLOT_40
+        noLinkRefs: []
+  name: S_OUTPATIENT_SLOT_40
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

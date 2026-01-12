@@ -1,0 +1,101 @@
+fileVersion: 1
+id: 75c338a7-8966-4ff5-8895-cb4a584c89c7
+name: DS_SHARED_SCHEDULE_OUTPATIENT_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: false
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 121d8f17-29fa-4f33-a731-9fe01ab613b5
+          stepCounter: 75c338a7-8966-4ff5-8895-cb4a584c89c7
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: SCHEDULE_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b900b78d-1bf5-4094-99b9-c274debe6915
+          stepCounter: 75c338a7-8966-4ff5-8895-cb4a584c89c7
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: SESSION_APPOINTMENT_SEQ_NUM
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN ds_shared_schedule.service_point_session_reference_no IS NULL THEN NULL
+                          ELSE ROW_NUMBER() OVER (PARTITION BY ds_shared_schedule.service_point_session_reference_no ORDER BY start_date)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d6b47e92-b751-4a0a-b669-ff4de54f1cca
+          stepCounter: 75c338a7-8966-4ff5-8895-cb4a584c89c7
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: SESSION_APPOINTMENT_COUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN ds_shared_schedule.service_point_session_reference_no IS NULL THEN NULL
+                          ELSE COUNT(1) OVER (PARTITION BY ds_shared_schedule.service_point_session_reference_no)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 47b4b635-d48a-4374-ae45-3273df3e424e
+          stepCounter: 75c338a7-8966-4ff5-8895-cb4a584c89c7
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: SERVICE_POINT_SESSION_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: UNKNOWN
+            nodeName: DS_SHARED_SCHEDULE
+        join:
+          joinCondition: |-
+            FROM {{ ref('UNKNOWN','DS_SHARED_SCHEDULE') }}
+             WHERE 1=1
+               AND schedule_type_code = 'OTPAT'
+        name: DS_SHARED_SCHEDULE_OUTPATIENT_V
+        noLinkRefs: []
+  name: DS_SHARED_SCHEDULE_OUTPATIENT_V
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

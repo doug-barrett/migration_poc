@@ -1,0 +1,91 @@
+fileVersion: 1
+id: f11a6090-a295-49e8-9ae4-052de05fcf53
+name: S_OUTPATIENT_APPOINTMENT_05
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a3452b29-c0cd-425a-9d1d-71e6d86d015f
+          stepCounter: f11a6090-a295-49e8-9ae4-052de05fcf53
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PATIENT_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4673c5ed-46b6-4ebd-996c-3c9f62986f43
+          stepCounter: f11a6090-a295-49e8-9ae4-052de05fcf53
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: UNKNOWN
+            nodeName: DS_SHARED_SCHEDULE
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT DISTINCT ds_shared_schedule.patient_reference_no
+                      FROM {{ ref('UNKNOWN','DS_SHARED_SCHEDULE') }} ds_shared_schedule
+                     WHERE 1=1
+                       AND ds_shared_schedule.dss_update_time > @v_pa_outpatient_incremental
+                       AND schedule_type_code = 'OTPAT'
+                     UNION SELECT DISTINCT patient_reference_no
+                      FROM fact.fact_outpatient_appointment fa
+                      JOIN (
+                            SELECT DISTINCT map_id
+                              FROM ds_mappings_PurchaseUnit_IPM_Outpatients_RC WITH (nolock)
+                             WHERE 1=1
+                               AND dss_update_time > @v_pa_outpatient_incremental
+                           ) map
+                        ON map.map_id=fa.puc_map_id
+                      JOIN dim.dim_patient p
+                        ON fa.patient_NHI=p.patient_NHI
+                       AND NHI_sequence =1
+                     WHERE 1=1
+                       AND fa.puc_map_id IS NOT NULL
+                     UNION SELECT DISTINCT patient_reference_no
+                      FROM ds_outpatient_diagnosis_procedure fa
+                     WHERE 1=1
+                       AND dss_update_time > @v_pa_outpatient_incremental
+                   ) ds_shared_schedule
+        name: S_OUTPATIENT_APPOINTMENT_05
+        noLinkRefs: []
+  name: S_OUTPATIENT_APPOINTMENT_05
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

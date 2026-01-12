@@ -1,0 +1,143 @@
+fileVersion: 1
+id: b7c85475-f60c-4a6a-ae0b-e3ea2929add4
+name: S_OUTPATIENT_DIAGNOSIS_PROCEDURE_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: false
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5cc09750-8744-4db8-bf8e-befd81e49fd3
+          stepCounter: b7c85475-f60c-4a6a-ae0b-e3ea2929add4
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: OUTPATIENT_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1f218c8a-384f-4467-86e8-a106e5b50009
+          stepCounter: b7c85475-f60c-4a6a-ae0b-e3ea2929add4
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PATIENT_DIAGNOSIS_SEQ_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN ds_pims_diagnosis_procedures.dptyp_code = 'DIAGN' THEN ROW_NUMBER() OVER (PARTITION BY ds_pims_schedules.patnt_refno, (CASE WHEN ds_pims_diagnosis_procedures.dptyp_code = 'DIAGN' THEN 1 ELSE NULL END) ORDER BY ds_pims_diagnosis_procedures.sort_order,ds_pims_schedules.start_dttm,ds_pims_schedules.schdl_refno)
+                          ELSE NULL
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 05145a00-a299-448a-826d-6483a94eddc7
+          stepCounter: b7c85475-f60c-4a6a-ae0b-e3ea2929add4
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: PATIENT_DIAGNOSIS_COUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN ds_pims_diagnosis_procedures.dptyp_code = 'DIAGN' THEN COUNT(1) OVER (PARTITION BY ds_pims_schedules.patnt_refno, (CASE WHEN ds_pims_diagnosis_procedures.dptyp_code = 'DIAGN' THEN 1 ELSE NULL END))
+                          ELSE NULL
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 58139584-0dfa-48e5-8303-8979af104453
+          stepCounter: b7c85475-f60c-4a6a-ae0b-e3ea2929add4
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: PATIENT_PROCEDURE_SEQ_NUM
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN ds_pims_diagnosis_procedures.dptyp_code = 'PROCE' THEN ROW_NUMBER() OVER (PARTITION BY ds_pims_schedules.patnt_refno, (CASE WHEN ds_pims_diagnosis_procedures.dptyp_code = 'PROCE' THEN 1 ELSE NULL END) ORDER BY ds_pims_diagnosis_procedures.sort_order,ds_pims_schedules.start_dttm)
+                          ELSE NULL
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 74fc5a3a-2f26-4b8b-b74d-dcb69574b4fa
+          stepCounter: b7c85475-f60c-4a6a-ae0b-e3ea2929add4
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: PATIENT_PROCEDURE_COUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN ds_pims_diagnosis_procedures.dptyp_code = 'PROCE' THEN COUNT(1) OVER (PARTITION BY ds_pims_schedules.patnt_refno, (CASE WHEN ds_pims_diagnosis_procedures.dptyp_code = 'PROCE' THEN 1 ELSE NULL END))
+                          ELSE NULL
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 52123af1-0faa-4291-9254-c547e3995498
+          stepCounter: b7c85475-f60c-4a6a-ae0b-e3ea2929add4
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: MEDICAL_PROBLEM_LEVEL_NO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: UNKNOWN
+            nodeName: DS_PIMS_SCHEDULES
+        join:
+          joinCondition: |-
+            FROM ds_pims_schedules
+             INNER JOIN ds_pims_diagnosis_procedures
+                ON ds_pims_diagnosis_procedures.sorce_refno = ds_pims_schedules.schdl_refno
+               AND ds_pims_diagnosis_procedures.sorce_code = 'SCHDL'
+               AND ds_pims_schedules.sctyp_refno = 12186 --'OTPAT'
+        name: S_OUTPATIENT_DIAGNOSIS_PROCEDURE_V
+        noLinkRefs: []
+  name: S_OUTPATIENT_DIAGNOSIS_PROCEDURE_V
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node
