@@ -1,0 +1,127 @@
+fileVersion: 1
+id: 5d6cfcc4-a06e-486b-87d8-1af2d62b405f
+name: S_ED_FIRST_IP_SEENBY_IPM_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "First seen by that is not an EMMED seen by"
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b8fb35e5-36e8-4e50-ba4e-8095e1b980b4
+          stepCounter: 5d6cfcc4-a06e-486b-87d8-1af2d62b405f
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: ATTENDANCE_ENCOUNTER_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 45b5c97b-a31e-4b54-8430-1cac1f65d13c
+          stepCounter: 5d6cfcc4-a06e-486b-87d8-1af2d62b405f
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: WHITEBOARD_REFERENCE_NO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6d799d7a-61c8-40b7-bbb0-db3b2bbc41fb
+          stepCounter: 5d6cfcc4-a06e-486b-87d8-1af2d62b405f
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: SEEN_BY_DATE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a08e0719-6371-4842-bc7e-8b493d6eed95
+          stepCounter: 5d6cfcc4-a06e-486b-87d8-1af2d62b405f
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: DIM_SEEN_BY_CLINICIAN_USER_LOGIN_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: abe3d73b-e4e2-4136-91eb-bd45cbb8935f
+          stepCounter: 5d6cfcc4-a06e-486b-87d8-1af2d62b405f
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: SPECIALTY_CODE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT DISTINCT encounter,
+                   aesty_refno*-1,
+                   seen_date,
+                   ss.proca_refno,
+                   spec.specialty_code
+              FROM s_ed_stay_05 ss
+             INNER JOIN s_specialty_1 spec
+                ON spec.specialty_reference_no = ss.spect_refno
+             INNER JOIN (
+                    SELECT MIN (ms.aesty_refno) ddd
+                      FROM s_ed_stay_05 ms
+                     INNER JOIN s_specialty_1 mspec
+                        ON mspec.specialty_reference_no = ms.spect_refno
+                     WHERE mspec.specialty_code <> 'EMMED'
+                       AND seen_date IS NOT NULL
+                     GROUP BY encounter
+                   ) d
+                ON ddd = aesty_refno
+             WHERE ss.encounter IN (
+                    SELECT identifier
+                      FROM s_ed_attendance_05
+                    EXCEPT SELECT attendance_encounter_id
+                      FROM [s_ed_seen_by_30]
+                   )
+               AND seen_date IS NOT NULL
+               AND arrived_date > '01-Jan-2014'
+               AND spec.specialty_code <> 'EMMED'
+        dependencies: []
+        join:
+          joinCondition: None
+        name: S_ED_FIRST_IP_SEENBY_IPM_V
+        noLinkRefs: []
+  name: S_ED_FIRST_IP_SEENBY_IPM_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

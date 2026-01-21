@@ -1,0 +1,100 @@
+fileVersion: 1
+id: 66af6800-0041-4602-93b2-e37f76573836
+name: S_EVITALS_ADMISSION_CHECKLIST_08
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Find the NHIs where an admission has recently been updated."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5fd31fa7-d712-4b37-ac78-31c9f35b1aac
+          stepCounter: 66af6800-0041-4602-93b2-e37f76573836
+        config: {}
+        dataType: BIGINT
+        defaultValue: ""
+        description: ""
+        name: ADMISSION_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3f68edb3-1e8d-48b7-8850-2400c40ab4f7
+                stepCounter: 6866bc35-1164-43e9-9ff9-15b44d426855
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fc71fb89-10a4-458a-be4b-7386e308b7f9
+          stepCounter: 66af6800-0041-4602-93b2-e37f76573836
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: PATIENT_NHI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f58abcc4-b66f-4cf5-8846-aad87d0100f1
+                stepCounter: c1e0f526-d197-4a07-a7fc-86a7b5560d37
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3890a471-a1c2-4cc1-8658-44e512c8f63c
+          stepCounter: 66af6800-0041-4602-93b2-e37f76573836
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Allows for a distinct list of NHIs to be selected.
+        name: ROW_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f58abcc4-b66f-4cf5-8846-aad87d0100f1
+                stepCounter: c1e0f526-d197-4a07-a7fc-86a7b5560d37
+            transform: ROW_NUMBER() OVER(PARTITION BY patient_NHI ORDER BY form_instance_id)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f24bc49a-a612-47cc-b24c-a9ad460bf149
+          stepCounter: 66af6800-0041-4602-93b2-e37f76573836
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_EVITALS_ADMISSION_CHANGES
+        join:
+          joinCondition: |-
+            FROM s_eVitals_admission_changes
+              JOIN fact.fact_eVitals_form
+                ON fact.fact_eVitals_form.admission_id = s_eVitals_admission_changes.admission_id
+               AND fact.fact_eVitals_form.form_seq_no = 1
+        name: S_EVITALS_ADMISSION_CHECKLIST_08
+        noLinkRefs: []
+  name: S_EVITALS_ADMISSION_CHECKLIST_08
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,79 @@
+fileVersion: 1
+id: f407f61b-a488-45b0-8d11-48c1ce331269
+name: S_THEATRE_SESSION_REFERENCE_05
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c117a913-5e0f-491d-8212-360f03791d95
+          stepCounter: f407f61b-a488-45b0-8d11-48c1ce331269
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: THEATRE_SESSION_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7a59682b-31ab-4f97-bcb8-c036691b29fe
+                stepCounter: caa39b00-2a5b-4123-adae-e59884a2006d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: deb60e49-12cb-450d-b8dd-d13dd506bc56
+          stepCounter: f407f61b-a488-45b0-8d11-48c1ce331269
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_SESSION_05
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT service_point_session_reference_no
+                      FROM ds_session_05
+                     WHERE dss_update_time > @v_pa_theatre_incremental
+                     UNION SELECT theatre_session_reference_no
+                      FROM fact.fact_theatre_session with(nolock)
+                     WHERE 1=1
+                       AND session_status_code ='P'
+                       AND session_start_date < convert(datetime,@v_ca_date,120)
+                     UNION SELECT theatre_session_reference_no
+                      FROM ds_theatre_visit_summary
+                     WHERE dss_update_time > @v_pa_theatre_incremental
+                   ) ds_session_05
+        name: S_THEATRE_SESSION_REFERENCE_05
+        noLinkRefs: []
+  name: S_THEATRE_SESSION_REFERENCE_05
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

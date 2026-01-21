@@ -1,0 +1,73 @@
+fileVersion: 1
+id: 367f4e98-fdec-49c2-b686-18e94768a072
+name: S_IN_PATIENT_EVENT_STAYS_SPECIALTY_PATH_10_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8627e046-e9fe-41d6-a1da-af4db7efbfc7
+          stepCounter: 367f4e98-fdec-49c2-b686-18e94768a072
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: EVENT_ENCOUNTER_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 68497c95-f814-4c6a-af66-5e71e81fa7b5
+                stepCounter: 88e6f6aa-cd8d-4970-ad0e-3fd1e8a9896e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4c8880c3-eae0-4c00-aa0c-4ff19441a0ee
+          stepCounter: 367f4e98-fdec-49c2-b686-18e94768a072
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: string of wards that patient stayed-in during the encounter
+        name: EVENT_STAYS_SPECIALTY_PATH
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 34aaedab-cfa1-4bd1-960b-4cf1af1f4b58
+                stepCounter: 88e6f6aa-cd8d-4970-ad0e-3fd1e8a9896e
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT DISTINCT event_encounter_id,
+                   '|^' + STUFF((SELECT '|' + a.specialty_desc FROM s_in_patient_event_stays_specialty_path a WHERE a.event_encounter_id = b.event_encounter_id AND (previous_spec <> specialty_desc OR previous_spec IS NULL)--AND spec_used <> 0
+             ORDER BY event_encounter_id, event_seen_by_seq_num FOR XML PATH('')), 1, 1, '') + '^|' event_stay_specialty_path
+              FROM s_in_patient_event_stays_specialty_path b
+        dependencies:
+          - locationName: TGT
+            nodeName: S_IN_PATIENT_EVENT_STAYS_SPECIALTY_PATH
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_IN_PATIENT_EVENT_STAYS_SPECIALTY_PATH') }}
+        name: S_IN_PATIENT_EVENT_STAYS_SPECIALTY_PATH_10_V
+        noLinkRefs: []
+  name: S_IN_PATIENT_EVENT_STAYS_SPECIALTY_PATH_10_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

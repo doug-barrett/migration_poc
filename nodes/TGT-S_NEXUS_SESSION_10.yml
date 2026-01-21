@@ -1,0 +1,566 @@
+fileVersion: 1
+id: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+name: S_NEXUS_SESSION_10
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aefdbf1d-316e-4dbb-ad5d-65c7fd3abb44
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: BIGINT
+        defaultValue: ""
+        description: ""
+        name: SESSION_REFNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN s_nexus_Aud_SessCanc_v.cancelledreason = 'REINSTATED' THEN cast(cast(a.flexsess_session AS varchar(2)) +cast(a.theatre AS varchar(2)) +CONVERT(varchar(8),a.sessdate,112) AS bigint)
+                          ELSE cast(cast(a.flexsess_session AS varchar(2)) +cast(a.theatre AS varchar(2)) +CONVERT(varchar(8),a.sessdate,112) +IFNULL(CAST(ds_nexus_SESSSTAT.reason AS varchar(3)),'') +IFNULL(cast(s_nexus_Aud_SessCanc_v.primkey AS varchar(5)),'')AS bigint)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 21183c3a-1c5e-4083-afed-0ac33f46a2f9
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: SESSION_STATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 42cc16da-dfff-4f96-8bff-6df2dc4babfd
+                stepCounter: b1b53e8a-b17f-4432-8478-a448c5ebd324
+            transform: |-
+              CASE WHEN cancdate IS NULL THEN CASE WHEN a.sessdate> getdate() THEN 'P' ELSE 'A' END
+                          ELSE CASE WHEN CancelledReason = 'REINSTATED' THEN CASE WHEN a.sessdate > getdate() THEN 'P' ELSE 'A' END ELSE 'C' END
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bac714ce-118e-42d0-8595-98b0ef64b86f
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: STARTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: a.sessdate+a.starttime
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a2ec381e-baa4-4d87-b9f1-12eb7ae4de2c
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: ENDDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: a.sessdate+a.endtime
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e0ecb4d8-e024-4018-a4d9-8a72479cb3c0
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: CANCELLED_SESSION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4f88bced-a690-467d-ae67-ed716024d589
+                stepCounter: b1b53e8a-b17f-4432-8478-a448c5ebd324
+            transform: |-
+              CASE WHEN ds_nexus_SESSSTAT.cancdate IS NULL THEN 'A'
+                          ELSE CASE WHEN s_nexus_Aud_SessCanc_v.cancelledreason = 'REINSTATED' THEN 'A' ELSE 'C' END
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b1c330ac-9fd3-4f18-aecd-97beaf8cb53f
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: ""
+        name: CANCELLED_REASON
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b5aef45c-7c11-4b8b-9ae8-54b6a1f12c2a
+                stepCounter: 25857d41-855a-4230-88b7-ec693c0b5581
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 20157a79-cd7c-4398-8b9b-f82b2a85e66a
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: ""
+        name: CR_COMMENTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 575087ac-68f1-4b20-801f-450848c78af5
+                stepCounter: b1b53e8a-b17f-4432-8478-a448c5ebd324
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 403eda27-311c-4124-a21b-eb4e3bd0de52
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: SESSION_OWNER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7b1d5272-802f-45c6-8f33-b004d5d8f79e
+                stepCounter: 0e5d1910-611d-4f26-a64a-4189199510be
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4f8004a9-f86e-4eec-8eb3-216e6b2c501c
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: VARCHAR(2)
+        defaultValue: ""
+        description: ""
+        name: THEATRECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 27a3a09d-3cab-40e7-a01e-d0604de461a1
+                stepCounter: 71cbc210-e0db-418a-a4bb-72d460841789
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e1fd15f1-8911-48fd-8d7a-f27983f87705
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: SPECIALTY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 926ce874-e078-4c47-a95e-e3712f97ed9e
+                stepCounter: e909397e-fafc-435f-8cd2-cff7689648c4
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6baf005f-a3d0-4597-9bb3-ef35eb07253a
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: VARCHAR(24)
+        defaultValue: ""
+        description: ""
+        name: SESSIONDESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: a.sesstitle+'POC'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 69bd2297-0512-434a-9b02-cc784c62a696
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: SESSIONCANCELLEDDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN s_nexus_Aud_SessCanc_v.cancelledreason = 'REINSTATED' THEN NULL
+                          ELSE ds_nexus_SESSSTAT.cancdate+ds_nexus_SESSSTAT.canctime
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7bc66a22-732b-4739-a239-30c0c4da1637
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: SCHSTAFF_NUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ddd9fed7-a227-4e8b-bf89-f9f6334b059e
+                stepCounter: 8b6ded74-0ddb-4e4d-97c1-c3dfab073228
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fef3756f-d130-4260-8b5d-19128deea01b
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: CONSCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7b1d5272-802f-45c6-8f33-b004d5d8f79e
+                stepCounter: 0e5d1910-611d-4f26-a64a-4189199510be
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b8ea767f-b9ca-4393-9508-732d3def4932
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Generated artificial key
+        name: DIM_CONSOLIDATE_SESSION_DELAY_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1ebd5530-9846-47d1-9e30-306a15df8a9a
+                stepCounter: e169fe2b-3714-40d3-98e5-43e67d3b3491
+            transform: IFNULL(dim_consolidate_session_delay.dim_consolidate_session_delay_key,0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3c1a713f-a9a6-4635-8111-f119b7ff448f
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: FLEXSESS_SESSION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 46d761d6-d99e-489c-b3d7-af0a49a37a06
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: THEATRE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 42f2a3cc-5f07-4c02-b51f-7e376a0b2a7d
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: VARCHAR(5)
+        defaultValue: ""
+        description: ""
+        name: ENDTIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bfdc2d9f-00f8-41d1-9103-252a8b4c69ca
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: SESSDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0774f42a-fe48-41ae-9cc2-0e3242ca0895
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: session_anaesthetist
+        name: SESSION_ANAESTHETIST
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 88dabd8f-7995-42bd-bc30-695f7937f21a
+                stepCounter: f6b4f93d-a644-48e3-93fd-eb4c6bca6c3e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e1a1347a-497c-4acd-bcb2-6858abfe7e76
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: session_late_reason
+        name: SESSION_LATE_REASON
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4d7ac2c3-8668-4310-a059-086ba6744bc4
+                stepCounter: e31416b4-49df-44b3-a571-584460be1f77
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3290d9ec-5117-4989-9aa9-bb969ec5b0d5
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: session_late_reason_notes
+        name: SESSION_LATE_REASON_NOTES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f8b70ec8-57f2-4148-931c-a1fbffba57c8
+                stepCounter: e31416b4-49df-44b3-a571-584460be1f77
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fc6aa507-d7f9-41d1-a01b-b231f1bc10bc
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: session_change_reason_reference_no
+        name: SESSION_CHANGE_REASON_REFERENCE_NO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5166ae28-045e-429a-bdc8-1441e019d042
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: session_change_by_request_reference_no
+        name: SESSION_CHANGE_BY_REQUEST_REFERENCE_NO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 985c7759-e8cf-4762-baf2-8a265f4720d2
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: create_date
+        name: CREATE_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 14b87cf0-6df1-40ec-92ef-6cf4ab75d316
+                stepCounter: b35352e6-b85c-475e-a665-535663a2443c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7eb74ea4-b6ac-4223-9a5d-cbe79269fc20
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: create_user_login_code
+        name: CREATE_USER_LOGIN_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 674015c3-8530-4955-b142-7989c8e88d88
+                stepCounter: b35352e6-b85c-475e-a665-535663a2443c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 430f7f89-b8fd-4b04-9d24-3d35b4dc0c2b
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: MODIFY_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3351f8ff-fa6f-4ae1-918d-41db3729d775
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: MODIFY_USER_LOGIN_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a5f0ba68-5536-43cc-8437-d0d880e5f4be
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: SURGICAL_THEATRE_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d7e8e416-fa92-4f08-a53c-36fe718460d0
+                stepCounter: 71cbc210-e0db-418a-a4bb-72d460841789
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0b7d8162-f874-4e96-96b3-c71878a5b571
+          stepCounter: a58537fc-7739-479c-b8bf-8a62ca55d0c9
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_NEXUS_FLEXSESS: 4b43ba77-04db-48ba-a6bc-cb68f677d59a
+          DS_NEXUS_SESSSTAT: b1b53e8a-b17f-4432-8478-a448c5ebd324
+          S_NEXUS_AUD_SESSCANC_V: 25857d41-855a-4230-88b7-ec693c0b5581
+          DS_NEXUS_FLEXCONS: 0e5d1910-611d-4f26-a64a-4189199510be
+          DS_NEXUS_SCHDREAS: cf33e001-7c6a-4c9b-a813-428bf4b68d58
+          DS_NEXUS_DBO_SPECIALTY: e909397e-fafc-435f-8cd2-cff7689648c4
+          DS_NEXUS_THEATRE: 71cbc210-e0db-418a-a4bb-72d460841789
+          S_NEXUS_SCHSTAFF_V: 8b6ded74-0ddb-4e4d-97c1-c3dfab073228
+          DS_NEXUS_STAFF: f6b4f93d-a644-48e3-93fd-eb4c6bca6c3e
+          S_NEXUS_SESSION_DELAY: e31416b4-49df-44b3-a571-584460be1f77
+          DIM_CONSOLIDATE_SESSION_DELAY: e169fe2b-3714-40d3-98e5-43e67d3b3491
+          S_NEXUS_SESS_CREATE_MODIF: b35352e6-b85c-475e-a665-535663a2443c
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_NEXUS_FLEXSESS
+          - locationName: TGT
+            nodeName: DS_NEXUS_SESSSTAT
+          - locationName: TGT
+            nodeName: S_NEXUS_AUD_SESSCANC_V
+          - locationName: TGT
+            nodeName: DS_NEXUS_FLEXCONS
+          - locationName: TGT
+            nodeName: DS_NEXUS_SCHDREAS
+          - locationName: TGT
+            nodeName: DS_NEXUS_DBO_SPECIALTY
+          - locationName: TGT
+            nodeName: DS_NEXUS_THEATRE
+          - locationName: TGT
+            nodeName: S_NEXUS_SCHSTAFF_V
+          - locationName: TGT
+            nodeName: DS_NEXUS_STAFF
+          - locationName: TGT
+            nodeName: S_NEXUS_SESSION_DELAY
+          - locationName: TGT
+            nodeName: DIM_CONSOLIDATE_SESSION_DELAY
+          - locationName: TGT
+            nodeName: S_NEXUS_SESS_CREATE_MODIF
+        join:
+          joinCondition: |-
+            FROM {{ ref('TGT','DS_NEXUS_FLEXSESS') }} a
+              LEFT OUTER JOIN {{ ref('TGT','DS_NEXUS_SESSSTAT') }}
+                ON a.flexsess_session = ds_nexus_SESSSTAT.sessstat_session
+               AND a.theatre = ds_nexus_SESSSTAT.theatre
+               AND a.sessdate = ds_nexus_SESSSTAT.opdate
+              LEFT OUTER JOIN {{ ref('TGT','S_NEXUS_AUD_SESSCANC_V') }}
+                ON a.flexsess_session = s_nexus_Aud_SessCanc_v.cancelledsession
+               AND a.theatre = s_nexus_Aud_SessCanc_v.cancelledtheatre
+               AND a.sessdate = s_nexus_Aud_SessCanc_v.cancelleddate
+              JOIN {{ ref('TGT','DS_NEXUS_FLEXCONS') }}
+                ON a.flexsess_session = ds_nexus_FLEXCONS.flexcons_session
+               AND a.theatre = ds_nexus_FLEXCONS.theatre
+               AND a.sessdate = ds_nexus_FLEXCONS.sessdate
+              JOIN {{ ref('TGT','DS_NEXUS_SCHDREAS') }}
+                ON a.reason = ds_nexus_SCHDREAS.schd_number
+              LEFT OUTER JOIN {{ ref('TGT','DS_NEXUS_DBO_SPECIALTY') }}
+                ON a.specialty = ds_nexus_dbo_SPECIALTY.theatrespecialtycode
+              JOIN {{ ref('TGT','DS_NEXUS_THEATRE') }}
+                ON a.theatre = ds_nexus_THEATRE.theatre_code
+              LEFT OUTER JOIN {{ ref('TGT','S_NEXUS_SCHSTAFF_V') }}
+                ON a.flexsess_session = s_nexus_SCHSTAFF_v.schstaff_session
+               AND a.theatre = s_nexus_SCHSTAFF_v.theatre
+               AND a.sessdate = s_nexus_SCHSTAFF_v.opdate
+              LEFT OUTER JOIN {{ ref('TGT','DS_NEXUS_STAFF') }}
+                ON s_nexus_SCHSTAFF_v.schstaff_number = ds_nexus_STAFF.s_number
+              LEFT OUTER JOIN {{ ref('TGT','S_NEXUS_SESSION_DELAY') }}
+                ON a.flexsess_session = s_nexus_session_delay.sesdelay_session
+               AND a.theatre = s_nexus_session_delay.theatre
+               AND a.sessdate = s_nexus_session_delay.opdate
+              LEFT OUTER JOIN {{ ref('TGT','DIM_CONSOLIDATE_SESSION_DELAY') }}
+                ON s_nexus_session_delay.reason_description = dim_consolidate_session_delay.session_late_start_reason_desc
+               AND dim_consolidate_session_delay.source_system = 'Nexus'
+              LEFT OUTER JOIN {{ ref('TGT','S_NEXUS_SESS_CREATE_MODIF') }}
+                ON a.sessdate = s_nexus_sess_create_modif.sessdate
+               AND a.theatre = s_nexus_sess_create_modif.theatre
+               AND a.flexsess_session = s_nexus_sess_create_modif.flexsess_session
+               AND s_nexus_sess_create_modif.rncreate = 1
+              LEFT OUTER JOIN {{ ref('TGT','S_NEXUS_SESS_CREATE_MODIF') }} modif
+                ON a.sessdate = modif.sessdate
+               AND a.theatre = modif.theatre
+               AND a.flexsess_session = modif.flexsess_session
+               AND modif.rnmodif = 1
+        name: S_NEXUS_SESSION_10
+        noLinkRefs: []
+  name: S_NEXUS_SESSION_10
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

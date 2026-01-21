@@ -1,0 +1,130 @@
+fileVersion: 1
+id: a16650f8-dc64-4756-986a-73c08dc6cc2e
+name: S_IP_NOTE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Clinician notes for each encounter."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 07eb084a-d6fe-472c-9f37-733da14e0b0d
+          stepCounter: a16650f8-dc64-4756-986a-73c08dc6cc2e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PRVSP_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a1c7a3a3-1474-4270-ae9b-54e5b66ee6e1
+                stepCounter: a7d7c8ec-88ee-49a8-b500-e3f4bce83e59
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 580d0db4-862e-4a4d-978e-a93b3b97a5a3
+          stepCounter: a16650f8-dc64-4756-986a-73c08dc6cc2e
+        config: {}
+        dataType: DECIMAL(10)
+        defaultValue: ""
+        description: Equates to aeatt_refno (attendance_reference_no) when sorce_code = AEPWI.
+        name: SORCE_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fa311f04-1a20-4f03-a5b7-602efa2bdaf4
+                stepCounter: 0f2c28d6-5d4a-4bb6-a9e2-a0fb820af70d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f2a752a8-a3ca-4258-8068-42cdab20c90a
+          stepCounter: a16650f8-dc64-4756-986a-73c08dc6cc2e
+        config: {}
+        dataType: VARCHAR(5)
+        defaultValue: ""
+        description: Set to AEPWI for Notes relating to an ED encounter
+        name: SORCE_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b0a2d3fc-4f84-48ff-8c3d-08d25514882e
+                stepCounter: 0f2c28d6-5d4a-4bb6-a9e2-a0fb820af70d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0de1911f-fb83-4f6e-b33b-c4e8eed15f44
+          stepCounter: a16650f8-dc64-4756-986a-73c08dc6cc2e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Number for each row for an encounter.
+        name: ROW_NUM
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ROW_NUMBER() OVER(PARTITION BY ds_pims_note_roles.sorce_refno ORDER BY ds_pims_notes.note DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2757ebcf-cd06-4adb-b522-f524f9ca5a9d
+          stepCounter: a16650f8-dc64-4756-986a-73c08dc6cc2e
+        config: {}
+        dataType: VARCHAR(2000)
+        defaultValue: ""
+        description: Clinician notes for the encounter.
+        name: NOTE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fbab881d-00cc-4689-a24d-dc4eac20ed5b
+                stepCounter: 8132e10c-cb6f-416f-97aa-7dec7177518c
+            transform: LEFT(ds_pims_notes.note, 2000)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2f472fbf-c960-4479-8819-43e684a3a04b
+          stepCounter: a16650f8-dc64-4756-986a-73c08dc6cc2e
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_INPATIENT_CHANGES
+        join:
+          joinCondition: |-
+            FROM s_inpatient_changes
+              JOIN ds_pims_note_roles
+                ON s_inpatient_changes.prvsp_refno = ds_pims_note_roles.sorce_refno
+              JOIN ds_pims_notes
+                ON ds_pims_note_roles.notes_refno = ds_pims_notes.notes_refno
+             WHERE ds_pims_note_roles.sorce_code = 'ADDTE'
+        name: S_IP_NOTE
+        noLinkRefs: []
+  name: S_IP_NOTE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

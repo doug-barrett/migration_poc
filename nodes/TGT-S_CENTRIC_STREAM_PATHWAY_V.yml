@@ -1,0 +1,70 @@
+fileVersion: 1
+id: cfefdddb-576e-43a7-87e3-f4c968ad71f0
+name: S_CENTRIC_STREAM_PATHWAY_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7da7d5d4-e898-4ead-9fa0-f28e75455a23
+          stepCounter: cfefdddb-576e-43a7-87e3-f4c968ad71f0
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: ENCOUNTER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b4f97a7e-049a-45f9-900c-dbdcfa9627bd
+                stepCounter: 0d7f9003-15a5-4132-9bb4-9030b6a90a6b
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0ae3666d-e2cb-41a5-af66-fa920510c14e
+          stepCounter: cfefdddb-576e-43a7-87e3-f4c968ad71f0
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: string of streams that patient have during the encounter
+        name: STREAM_PATH
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT DISTINCT encounter ,
+                   '|^' + (stuff((SELECT '|' + a.stream FROM s_centric_comments_20 a WHERE a.encounter=b.encounter AND stream_used <> 0 ORDER BY created_date FOR XML PATH('')),1,1,'') + '^|')stream_path
+              FROM s_centric_comments_20 b
+        dependencies:
+          - locationName: TGT
+            nodeName: S_CENTRIC_COMMENTS_10
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_CENTRIC_COMMENTS_10') }}
+        name: S_CENTRIC_STREAM_PATHWAY_V
+        noLinkRefs: []
+  name: S_CENTRIC_STREAM_PATHWAY_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

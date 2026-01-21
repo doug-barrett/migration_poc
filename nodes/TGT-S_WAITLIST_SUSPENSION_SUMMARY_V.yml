@@ -1,0 +1,121 @@
+fileVersion: 1
+id: a4c83cc6-133c-4dfe-8a46-8928097c96e5
+name: S_WAITLIST_SUSPENSION_SUMMARY_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 04284c5c-d9a2-4006-8ca7-e977bef6112c
+          stepCounter: a4c83cc6-133c-4dfe-8a46-8928097c96e5
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: WAITLIST_REFERENCE_NO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b6bf19c3-5c29-4b28-ac48-4339b7c4b2ff
+                stepCounter: 3a063457-fddc-4654-9856-f68c8de54f16
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c847703d-af57-4622-96ca-f2e09161bd5e
+          stepCounter: a4c83cc6-133c-4dfe-8a46-8928097c96e5
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: TOTAL_WAITLIST_SUSPENSION_DAYS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 037fc100-4fb0-4c41-bfd3-6ba2ddc51a1b
+                stepCounter: 3a063457-fddc-4654-9856-f68c8de54f16
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ccde3dee-ee04-4eba-89bd-7f1ba4514587
+          stepCounter: a4c83cc6-133c-4dfe-8a46-8928097c96e5
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: TOTAL_WAITLIST_SUSPENSION_DAYS_PLANNED
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 91a7d9f6-28ab-43ce-80bd-d94b66556f83
+                stepCounter: 3a063457-fddc-4654-9856-f68c8de54f16
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a5ff11ca-c8fd-46d3-b4f9-3345406d90db
+          stepCounter: a4c83cc6-133c-4dfe-8a46-8928097c96e5
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: ""
+        name: SUSPENDED
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9957c7eb-7bea-41d6-9b9d-dc6859bef186
+                stepCounter: 3a063457-fddc-4654-9856-f68c8de54f16
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4592bb99-91fb-4a10-aa60-436fc45d5890
+          stepCounter: a4c83cc6-133c-4dfe-8a46-8928097c96e5
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Start date of the open suspension record
+        name: WAITLIST_SUSPENSION_START_DATE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1a90df77-fbf3-4f67-bf08-d6cfe3d21643
+                stepCounter: 3a063457-fddc-4654-9856-f68c8de54f16
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT waitlist_reference_no,
+                   sum(waitlist_suspension_days)total_waitlist_suspension_days ,
+                   sum(waitlist_suspension_days_planned) waitlist_suspension_days_planned ,
+                   max(CASE WHEN getdate() BETWEEN waitlist_suspension_start_date AND IFNULL(waitlist_suspension_end_date,getdate()+1) THEN 'Y' ELSE 'N' END)Suspended ,
+                   max(CASE WHEN getdate() BETWEEN waitlist_suspension_start_date AND IFNULL(waitlist_suspension_end_date,getdate()+1) THEN waitlist_suspension_start_date ELSE NULL END) waitlist_suspension_start_date
+              FROM s_waitlist_suspension_10
+             GROUP BY waitlist_reference_no
+        dependencies:
+          - locationName: TGT
+            nodeName: S_WAITLIST_SUSPENSION_10
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_WAITLIST_SUSPENSION_10') }}
+        name: S_WAITLIST_SUSPENSION_SUMMARY_V
+        noLinkRefs: []
+  name: S_WAITLIST_SUSPENSION_SUMMARY_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

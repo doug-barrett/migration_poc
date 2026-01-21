@@ -1,0 +1,146 @@
+fileVersion: 1
+id: b40d5001-ac74-45b6-80f8-677b2241f609
+name: S_PATIENTRACK_MULTIPLE_LIST_VALUES_10
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Prepare the multiple list data so that it can be easily processed by the recursive join in the custom proc for s_Patientrack_Multiple_List_values."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b0e2a441-3211-45ec-851a-46d35fab7d69
+          stepCounter: b40d5001-ac74-45b6-80f8-677b2241f609
+        config: {}
+        dataType: BIGINT
+        defaultValue: ""
+        description: ""
+        name: ADMISSION_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3f68edb3-1e8d-48b7-8850-2400c40ab4f7
+                stepCounter: 6866bc35-1164-43e9-9ff9-15b44d426855
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 56aad173-a59c-4304-a8cd-ef4e5c7a1bba
+          stepCounter: b40d5001-ac74-45b6-80f8-677b2241f609
+        config: {}
+        dataType: BIGINT
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: FORM_INSTANCE_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f7533d27-9bfe-40f2-9f5b-ca8df6f9ca9e
+                stepCounter: 9cc58f84-f106-402f-96ab-293efcfe84ca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ae0b3ec5-3b7c-4e17-9ecc-5e1a7aa57841
+          stepCounter: b40d5001-ac74-45b6-80f8-677b2241f609
+        config: {}
+        dataType: BIGINT
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: ITEM_DEFINITION_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7d0fab74-78b8-4634-bfc0-f244d385fe22
+                stepCounter: 957b70a8-4683-49bc-a6ef-b09fb2bed67d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4b0e1c90-02d7-4f86-ae28-6d9562bafd5d
+          stepCounter: b40d5001-ac74-45b6-80f8-677b2241f609
+        config: {}
+        dataType: VARCHAR(512)
+        defaultValue: ""
+        description: ""
+        name: DISPLAY_VALUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 47bc506f-91ee-42e4-83f3-212f789e4bce
+                stepCounter: b3cc9170-c5b9-4cde-a8e0-c4118092ea4f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6031f831-8487-46d0-8b3c-f48a5bda84ab
+          stepCounter: b40d5001-ac74-45b6-80f8-677b2241f609
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Counts the rows for each form_instance_id, item_definition_id combination.
+        name: ROW_COUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: COUNT(1) OVER(PARTITION BY ds_Patientrack_form_instance.form_instance_id, item_definition_id)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 863a1e3a-11d8-4a05-9fbb-e5f14a0d9f1f
+          stepCounter: b40d5001-ac74-45b6-80f8-677b2241f609
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Numbers the rows in each form_instance_id, item_definition_id combination.
+        name: ROW_NUM
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ROW_NUMBER() OVER(PARTITION BY ds_Patientrack_form_instance.form_instance_id, item_definition_id ORDER BY display_value)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b80841ac-f6e5-4916-b386-4ca0a53f324b
+          stepCounter: b40d5001-ac74-45b6-80f8-677b2241f609
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_EVITALS_ADMISSION_CHANGES
+        join:
+          joinCondition: |-
+            FROM s_eVitals_admission_changes
+              JOIN ds_Patientrack_form_instance
+                ON s_eVitals_admission_changes.admission_id = ds_Patientrack_form_instance.admsn_pk
+              JOIN ds_patientrack_item_instance_list
+                ON ds_Patientrack_form_instance.form_instance_id = ds_patientrack_item_instance_list.form_instance_id
+              JOIN l_patientrack_selection_item
+                ON ds_patientrack_item_instance_list.entry_siid = l_patientrack_selection_item.selection_item_id
+        name: S_PATIENTRACK_MULTIPLE_LIST_VALUES_10
+        noLinkRefs: []
+  name: S_PATIENTRACK_MULTIPLE_LIST_VALUES_10
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

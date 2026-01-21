@@ -1,0 +1,132 @@
+fileVersion: 1
+id: e44bacd2-61b5-40f4-bf74-921aac5f3b29
+name: S_EVITALS_TASK_08
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Find all the tasks related to admissions where something has changed."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d5d9e392-fb5e-4ad6-9d56-e1796ced5c52
+          stepCounter: e44bacd2-61b5-40f4-bf74-921aac5f3b29
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: ADMISSION_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3f68edb3-1e8d-48b7-8850-2400c40ab4f7
+                stepCounter: 6866bc35-1164-43e9-9ff9-15b44d426855
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2593cf4f-1600-4a66-a0f5-18288c317f7b
+          stepCounter: e44bacd2-61b5-40f4-bf74-921aac5f3b29
+        config: {}
+        dataType: BIGINT
+        defaultValue: ""
+        description: ""
+        name: TASK_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 77816af4-aa7a-405c-aaee-cf1bf08ef86a
+                stepCounter: 44b6390a-63b2-4e30-add9-7ccc20c1578c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 10c31c9b-732b-4dbb-99d9-0b5a9d645da7
+          stepCounter: e44bacd2-61b5-40f4-bf74-921aac5f3b29
+        config: {}
+        dataType: BIGINT
+        defaultValue: ""
+        description: ""
+        name: FORM_INSTANCE_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f7533d27-9bfe-40f2-9f5b-ca8df6f9ca9e
+                stepCounter: 9cc58f84-f106-402f-96ab-293efcfe84ca
+            transform: COALESCE(NULLIF(ds_Patientrack_TASK.form_instance_id, 0), ds_Patientrack_FORM_INSTANCE.form_instance_id)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ea0bf6ea-dbad-4d1b-918e-dfa0238e8bbc
+          stepCounter: e44bacd2-61b5-40f4-bf74-921aac5f3b29
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: FORM_CREATED_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b208477c-b8ea-4b96-ac01-4b0d196ea2fd
+                stepCounter: 9cc58f84-f106-402f-96ab-293efcfe84ca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7389dc64-3b0d-4e23-9349-04928ce8d4b7
+          stepCounter: e44bacd2-61b5-40f4-bf74-921aac5f3b29
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: FORM_ROW_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b208477c-b8ea-4b96-ac01-4b0d196ea2fd
+                stepCounter: 9cc58f84-f106-402f-96ab-293efcfe84ca
+            transform: ROW_NUMBER() OVER(PARTITION BY ds_Patientrack_TASK.TASK_PK ORDER BY ds_Patientrack_FORM_INSTANCE.CREATE_DTTM)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: abd23b53-acb1-4edd-a56f-f37e293dd96d
+          stepCounter: e44bacd2-61b5-40f4-bf74-921aac5f3b29
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_EVITALS_ADMISSION_CHANGES
+        join:
+          joinCondition: |-
+            FROM s_eVitals_admission_changes
+              JOIN ds_Patientrack_TASK
+                ON s_eVitals_admission_changes.admission_id = ds_Patientrack_TASK.ADMSN_PK
+              JOIN ds_Patientrack_FORM_INSTANCE
+                ON ds_Patientrack_TASK.ADMSN_PK = ds_Patientrack_FORM_INSTANCE.ADMSN_PK
+               AND DATEDIFF(SS, ds_Patientrack_TASK.create_dttm, ds_Patientrack_form_instance.create_dttm) BETWEEN 0 AND 180
+        name: S_EVITALS_TASK_08
+        noLinkRefs: []
+  name: S_EVITALS_TASK_08
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

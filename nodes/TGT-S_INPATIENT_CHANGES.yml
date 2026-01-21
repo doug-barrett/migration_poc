@@ -1,0 +1,192 @@
+fileVersion: 1
+id: a7d7c8ec-88ee-49a8-b500-e3f4bce83e59
+name: S_INPATIENT_CHANGES
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Find all events where something has changed in one of the source data stores.  Custom procedure will insert a row for all events.  "
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a1c7a3a3-1474-4270-ae9b-54e5b66ee6e1
+          stepCounter: a7d7c8ec-88ee-49a8-b500-e3f4bce83e59
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PRVSP_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 36850326-3c41-4377-a830-2d8a61ea80e9
+                stepCounter: d61d8700-8fcf-4043-a839-3593f69c003d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0d23504a-0045-4609-8c74-c5b3a5dec0dc
+          stepCounter: a7d7c8ec-88ee-49a8-b500-e3f4bce83e59
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: EVENT_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 30ef9510-f4f5-4775-b782-853c7d5763a7
+                stepCounter: d61d8700-8fcf-4043-a839-3593f69c003d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 31275077-fdc5-4150-93e4-19d39242f442
+          stepCounter: a7d7c8ec-88ee-49a8-b500-e3f4bce83e59
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PATNT_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 00f0a3e1-e4bb-4c08-8fbc-3f08b71f63e1
+                stepCounter: d61d8700-8fcf-4043-a839-3593f69c003d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6161f61f-8388-4072-997a-480de4716426
+          stepCounter: a7d7c8ec-88ee-49a8-b500-e3f4bce83e59
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Numbers rows by patnt_refno so that distinct patnt_refno values can be easily selected.
+        name: PATNT_ROWNUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 00f0a3e1-e4bb-4c08-8fbc-3f08b71f63e1
+                stepCounter: d61d8700-8fcf-4043-a839-3593f69c003d
+            transform: ROW_NUMBER() OVER(PARTITION BY patnt_refno ORDER BY prvsp_refno)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 097b05ed-cfc0-4674-b767-5aaee1ac8a11
+          stepCounter: a7d7c8ec-88ee-49a8-b500-e3f4bce83e59
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Dummy column to show join to ds_shared_inpatient_stay
+        name: SSTAY_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 49fe8e0f-9d21-4548-95c3-4b324d79dee4
+                stepCounter: 3574e047-03db-4aba-af69-06f8858b99cd
+            transform: 'NULL'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1e3bfbe4-cc56-44f4-a7d2-67a8dda31a20
+          stepCounter: a7d7c8ec-88ee-49a8-b500-e3f4bce83e59
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Dummy column to show join to ds_shared_ed_attendance
+        name: AEATT_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f105f398-1042-471d-ba39-935c000ef834
+                stepCounter: 94527cff-ab41-440e-8de3-e7da6726bc81
+            transform: 'NULL'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 98048a4f-d920-4336-a0de-029c0d45fce4
+          stepCounter: a7d7c8ec-88ee-49a8-b500-e3f4bce83e59
+        config: {}
+        dataType: VARCHAR(5)
+        defaultValue: ""
+        description: 'Dummy column to show join to ds_shared_inpatient_coding  '
+        name: RECORD_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 505f8d17-ff0e-4bcb-86aa-11c7bf5d5f7c
+                stepCounter: b96aa69a-403f-4209-908d-d8132361efe3
+            transform: 'NULL'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a06fffa5-83f7-42d2-a746-b9e1e4040d50
+          stepCounter: a7d7c8ec-88ee-49a8-b500-e3f4bce83e59
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_SHARED_INPATIENT_EVENT
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT DISTINCT i.prvsp_refno,
+                           i.event_encounter_id,
+                           i.patnt_refno
+                      FROM ds_shared_inpatient_event i
+                      LEFT OUTER JOIN ds_shared_inpatient_stay s
+                        ON i.prvsp_refno = s.prvsp_refno
+                      LEFT OUTER JOIN ds_shared_ed_attendance e
+                        ON i.aeatt_refno = e.aeatt_refno
+                      LEFT OUTER JOIN ds_shared_inpatient_coding c
+                        ON i.event_encounter_id = c.event_encounter_id
+                      LEFT OUTER JOIN (
+                            SELECT DISTINCT encounter_id,
+                                   dss_update_time
+                              FROM (
+                                    SELECT encounter_id,
+                                           c.actual_cost,
+                                           c.budget_cost,
+                                           getdate() dss_update_time
+                                      FROM fact.fact_cost_encounter c
+                                      JOIN fact.fact_inpatient_event f
+                                        ON event_encounter_id=encounter_id
+                                    EXCEPT SELECT event_encounter_id,
+                                           f.actual_cost,
+                                           f.budget_cost,
+                                           getdate() dss_update_time
+                                      FROM fact.fact_inpatient_event f
+                                   )t
+                           ) fact_cost_encounter
+                        ON i.event_encounter_id=fact_cost_encounter.encounter_id
+                     WHERE i.dss_update_time > @v_pa_inpatient_incremental
+                        OR s.dss_update_time > @v_pa_inpatient_incremental
+                        OR e.dss_update_time > @v_pa_inpatient_incremental
+                        OR c.dss_update_time > @v_pa_inpatient_incremental
+                        OR fact_cost_encounter.dss_update_time > @v_pa_inpatient_incremental
+                   ) ds_shared_inpatient_event
+        name: S_INPATIENT_CHANGES
+        noLinkRefs: []
+  name: S_INPATIENT_CHANGES
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,183 @@
+fileVersion: 1
+id: e0fd60bd-121d-46cd-bf47-8874000a2b46
+name: S_ACUTE_THEATRE_FLAGS_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 43e8345d-72a9-4ee2-a21f-d4d0782d67eb
+          stepCounter: e0fd60bd-121d-46cd-bf47-8874000a2b46
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: THEATRE_VISIT_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f756d38f-87cf-4e9b-99b6-39e74c4c96da
+                stepCounter: a455ee5e-c4dc-455f-9b22-78d1cfa0c2c9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fb284a08-6ab7-495e-9776-08162a2a4a1b
+          stepCounter: e0fd60bd-121d-46cd-bf47-8874000a2b46
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: InHoursFlag
+        name: INHOURSFLAG
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: afc54b8d-2805-42f4-a0c2-5cf85ac72889
+          stepCounter: e0fd60bd-121d-46cd-bf47-8874000a2b46
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: LateSessionFlag
+        name: LATESESSIONFLAG
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c0165d94-4eda-4449-8473-eb43566c44d9
+          stepCounter: e0fd60bd-121d-46cd-bf47-8874000a2b46
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: AfterHoursFlag
+        name: AFTERHOURSFLAG
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dfbf5fa8-4944-424f-bcfc-6ef2671593da
+          stepCounter: e0fd60bd-121d-46cd-bf47-8874000a2b46
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: InHoursWDFlag
+        name: INHOURSWDFLAG
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a27a46d2-9039-4319-a368-823e98abed27
+          stepCounter: e0fd60bd-121d-46cd-bf47-8874000a2b46
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: InHoursWEFlag
+        name: INHOURSWEFLAG
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ba0bb892-3043-40e1-8c13-f09b8b4b23ed
+          stepCounter: e0fd60bd-121d-46cd-bf47-8874000a2b46
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: AfterHoursWDFlag
+        name: AFTERHOURSWDFLAG
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b5fe708c-66e3-4996-bcfd-30e3264b6239
+          stepCounter: e0fd60bd-121d-46cd-bf47-8874000a2b46
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: AfterHoursWEFlag
+        name: AFTERHOURSWEFLAG
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE VIEW {{ this }}(theatre_visit_encounter_id, InHoursFlag, LateSessionFlag, AfterHoursFlag, InHoursWDFlag, InHoursWEFlag, AfterHoursWDFlag, AfterHoursWEFlag) AS SELECT a.theatre_visit_encounter_id ,
+                   InHoursFlag = CASE WHEN b.week_day_flag = 'Y' THEN CASE WHEN (('08:30:00' BETWEEN d.time_of_day AND e.time_of_day) OR ('17:30:00' BETWEEN d.time_of_day AND e.time_of_day) OR (d.time_of_day BETWEEN '08:30:00' AND '17:30:00')) THEN 'Y' ELSE 'N' END
+                        ELSE 'N'
+                         END ,
+                   LateSessionFlag = CASE WHEN b.week_day_flag = 'Y' THEN CASE WHEN (('17:31:00' BETWEEN d.time_of_day AND e.time_of_day) OR ('22:30:00' BETWEEN d.time_of_day AND e.time_of_day) OR (d.time_of_day BETWEEN '17:31:00' AND '22:30:00')) AND not(('08:30:00' BETWEEN d.time_of_day AND e.time_of_day) OR ('17:30:00' BETWEEN d.time_of_day AND e.time_of_day) OR (d.time_of_day BETWEEN '08:30:00' AND '17:30:00')) THEN 'Y' ELSE 'N' END
+                        ELSE 'N'
+                         END ,
+                   AfterHoursFlag = CASE WHEN b.week_end_flag = 'Y' OR (('08:30:00' NOT BETWEEN d.time_of_day AND e.time_of_day) AND ('22:30:00' NOT BETWEEN d.time_of_day AND e.time_of_day) AND (d.time_of_day NOT BETWEEN '08:30:00' AND '22:30:00')) THEN 'Y'
+                        ELSE 'N'
+                         END ,
+                   inHoursWDFlag = CASE WHEN b.week_day_flag = 'Y' AND (('07:00:00' BETWEEN d.time_of_day AND e.time_of_day) OR ('17:30:00' BETWEEN d.time_of_day AND e.time_of_day) OR (d.time_of_day BETWEEN '07:00:00' AND '17:30:00')) THEN 'Y'
+                        ELSE 'N'
+                         END ,
+                   inHoursWEFlag = CASE WHEN b.week_end_flag = 'Y' AND (('07:00:00' BETWEEN d.time_of_day AND e.time_of_day) OR ('17:30:00' BETWEEN d.time_of_day AND e.time_of_day) OR (d.time_of_day BETWEEN '07:00:00' AND '17:30:00')) THEN 'Y'
+                        ELSE 'N'
+                         END ,
+                   AfterHoursWDFlag = CASE WHEN b.week_day_flag = 'Y' AND NOT (('07:00:00' BETWEEN d.time_of_day AND e.time_of_day) OR ('17:30:00' BETWEEN d.time_of_day AND e.time_of_day) OR (d.time_of_day BETWEEN '07:00:00' AND '17:30:00')) THEN 'Y'
+                        ELSE 'N'
+                         END ,
+                   AfterHoursWEFlag = CASE WHEN b.week_end_flag = 'Y' AND NOT (('07:00:00' BETWEEN d.time_of_day AND e.time_of_day) OR ('17:30:00' BETWEEN d.time_of_day AND e.time_of_day) OR (d.time_of_day BETWEEN '07:00:00' AND '17:30:00')) THEN 'Y'
+                        ELSE 'N'
+                         END
+              FROM ds_consolidate_theatre a
+              JOIN fact.fact_theatre_session s
+                ON a.theatre_session_reference_no = s.theatre_session_reference_no
+              LEFT JOIN dim.dim_date b
+                ON cast(a.into_theatre_date AS date) = b.calendar_date
+              LEFT JOIN dim.dim_date c
+                ON cast(a.out_of_theatre_date AS date) = c.calendar_date
+              LEFT JOIN dim.dim_time_minutes d
+                ON cast(a.into_theatre_date AS TIME) = d.time_of_day
+              LEFT JOIN dim.dim_time_minutes e
+                ON cast(a.out_of_theatre_date AS TIME) = e.time_of_day
+             WHERE 1 = 1
+               AND a.into_theatre_date IS NOT NULL
+               AND s.session_acute_flag = 'Y'
+               AND a.schedule_status_code = 'A'
+               AND s.session_status_code = 'A'
+        dependencies:
+          - locationName: TGT
+            nodeName: S_CONSOLIDATE_THEATRE
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_CONSOLIDATE_THEATRE') }}
+        name: S_ACUTE_THEATRE_FLAGS_V
+        noLinkRefs: []
+  name: S_ACUTE_THEATRE_FLAGS_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

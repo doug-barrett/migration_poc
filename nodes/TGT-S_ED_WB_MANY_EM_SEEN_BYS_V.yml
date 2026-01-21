@@ -1,0 +1,76 @@
+fileVersion: 1
+id: b2d5f1b6-4e48-4de5-acd2-2a385cf804fa
+name: S_ED_WB_MANY_EM_SEEN_BYS_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0188022c-b5a5-4831-a85d-e82462511d40
+          stepCounter: b2d5f1b6-4e48-4de5-acd2-2a385cf804fa
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: attendance_encounter_id
+        name: ATTENDANCE_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c2d5accf-5847-4762-97b8-7ad9e3d441a8
+                stepCounter: 72ef2eec-eaf1-4bc9-b7c7-363a6be4db73
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0cabbf1d-59d3-4192-9e0b-f41e453793f0
+          stepCounter: b2d5f1b6-4e48-4de5-acd2-2a385cf804fa
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Seen by multiple EM clinicians
+        name: MANY_SEEN_BYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c2d5accf-5847-4762-97b8-7ad9e3d441a8
+                stepCounter: 72ef2eec-eaf1-4bc9-b7c7-363a6be4db73
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT em1.attendance_encounter_id --,count(distinct dim_ED_WB_action_seenby_clinician_key) SBs
+            ,
+                   'Y' ManySeenBys
+              FROM s_ed_wb_action_seen_by_v EM1
+             WHERE specialty_code_group = 'EMMED'
+             GROUP BY em1.attendance_encounter_id
+            HAVING count(DISTINCT dim_ED_WB_action_seenby_clinician_key) > 1
+        dependencies:
+          - locationName: TGT
+            nodeName: S_ED_WB_ACTION_SEEN_BY_V
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_ED_WB_ACTION_SEEN_BY_V') }}
+        name: S_ED_WB_MANY_EM_SEEN_BYS_V
+        noLinkRefs: []
+  name: S_ED_WB_MANY_EM_SEEN_BYS_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

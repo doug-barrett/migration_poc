@@ -1,0 +1,119 @@
+fileVersion: 1
+id: 6bba0578-7ad6-41df-94c4-5d25f4782845
+name: S_PJ_REVENUE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Get revenue info from fact_contract_activity_event."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 59af718a-9868-448f-aa0e-f26443647a60
+          stepCounter: 6bba0578-7ad6-41df-94c4-5d25f4782845
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: SOURCE_ENCOUNTER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cd2eea2e-490b-473f-b856-7592b419614b
+                stepCounter: b86f2d59-0e9d-49d4-8adc-3496ab9a7a08
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 437728bc-ab6c-465a-91f3-6d7560d70a29
+          stepCounter: 6bba0578-7ad6-41df-94c4-5d25f4782845
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Patient National Health Index (NMPI)
+        name: NHI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3f993c56-f16b-4417-a3cd-4ca949348aed
+                stepCounter: b86f2d59-0e9d-49d4-8adc-3496ab9a7a08
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2c99c4ad-8f4f-4089-a2af-458b1f5205e7
+          stepCounter: 6bba0578-7ad6-41df-94c4-5d25f4782845
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: first character of the encounter (A, H, etc...)
+        name: ENCOUNTER_TYPE_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 48bfbdb5-d483-491a-a85d-2e714bff2ca8
+                stepCounter: 1d0ea6a1-9563-4fb3-a1fa-9d43dbdf296e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1e6d82e8-597d-4e09-bd26-905c599c9800
+          stepCounter: 6bba0578-7ad6-41df-94c4-5d25f4782845
+        config: {}
+        dataType: MONEY
+        defaultValue: ""
+        description: Planned price x purchase unit volume
+        name: REVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f722efd4-48be-48d8-b9b4-8cf65bc9c106
+                stepCounter: b86f2d59-0e9d-49d4-8adc-3496ab9a7a08
+            transform: SUM(fact_contract_activity_event.revenue)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 72528a78-e752-4d38-9f1e-224e73c6b403
+          stepCounter: 6bba0578-7ad6-41df-94c4-5d25f4782845
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: FACT_CONTRACT_ACTIVITY_EVENT
+        join:
+          joinCondition: |-
+            FROM fact.fact_contract_activity_event
+              JOIN dim.dim_encounter_type
+                ON fact_contract_activity_event.dim_encounter_type_key = dim_encounter_type.dim_encounter_type_key
+             WHERE fact_contract_activity_event.revenue IS NOT NULL
+               AND dim_encounter_type.encounter_type_code IN ('A','H','T')
+             GROUP BY fact_contract_activity_event.source_encounter,
+                      fact_contract_activity_event.patient_NHI,
+                      dim_encounter_type.encounter_type_code
+        name: S_PJ_REVENUE
+        noLinkRefs: []
+  name: S_PJ_REVENUE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

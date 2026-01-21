@@ -1,0 +1,144 @@
+fileVersion: 1
+id: 34da1f9c-0303-4ea2-b7b5-c52341f3adfe
+name: S_SHARED_WAITLIST_ACTIVITY_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Calculate the number of appointments and admissions for each waitlist entry."
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6b69ba09-3f95-41d8-95d9-a1bb50037e2b
+          stepCounter: 34da1f9c-0303-4ea2-b7b5-c52341f3adfe
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: 'wailtist reference number '
+        name: WLIST_REFNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6fce7108-976b-4e53-8120-01bae2bfe399
+          stepCounter: 34da1f9c-0303-4ea2-b7b5-c52341f3adfe
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: count of appointments against a waitlist including DNAs
+        name: WAITLIST_APPOINTMENT_COUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7b5ab558-a34e-4fd8-9b8e-311c0d96346a
+                stepCounter: 91a0e39f-bf7f-4006-bd7b-65a534f637a9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 65ff024d-f9c6-407f-9ce2-74b7efdb90e4
+          stepCounter: 34da1f9c-0303-4ea2-b7b5-c52341f3adfe
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Count of atteneded appointments on this waitlist
+        name: WAITLIST_ATTENDED_APPOINTMENT_COUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7b5ab558-a34e-4fd8-9b8e-311c0d96346a
+                stepCounter: 91a0e39f-bf7f-4006-bd7b-65a534f637a9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d62a33c3-dc7a-4e1b-bc47-92e64d48334a
+          stepCounter: 34da1f9c-0303-4ea2-b7b5-c52341f3adfe
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Count of admissions on this waitlist
+        name: WAITLIST_ADMISSION_COUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f993f650-d845-4c5d-be64-636ff53122f0
+                stepCounter: cb8cd7bc-c5c1-4ee3-a1f5-2c0bda3624d5
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7ed52573-9459-48d2-8951-7064dcc19448
+          stepCounter: 34da1f9c-0303-4ea2-b7b5-c52341f3adfe
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Flag indicating that activity has occured on this waitlist
+        name: WAITLIST_ACTIVITY_OCCURED
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f993f650-d845-4c5d-be64-636ff53122f0
+                stepCounter: cb8cd7bc-c5c1-4ee3-a1f5-2c0bda3624d5
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT c.wlist_refno,
+                   SUM(c.appointment_count) appointment_count,
+                   SUM(c.attended_count) attended_count,
+                   COUNT(DISTINCT prvsp_refno) admission_count,
+                   MAX(activity_flag) waitlist_activity_occured
+              FROM (
+                    SELECT wlist_refno,
+                           1 appointment_count,
+                           CASE WHEN attnd_refno = 11306 THEN 1
+                                ELSE 0
+                                 END attended_count,
+                           CASE WHEN attnd_refno = 11306 THEN 1
+                                ELSE 0
+                                 END activity_flag,
+                           CONVERT(int, NULL) prvsp_refno
+                      FROM s_shared_waitlist_10 w
+                      JOIN ds_pims_schedules s
+                        ON w.patnt_refno = s.patnt_refno
+                       AND s.sctyp_refno = 12186
+                 UNION ALL SELECT wlist_refno,
+                           0,
+                           0,
+                           1,
+                           prvsp_refno
+                      FROM s_shared_waitlist_10 w with(nolock)
+                      JOIN ds_pims_prof_carer_episodes e with(nolock)
+                        ON w.patnt_refno = e.patnt_refno
+                       AND e.prvsn_flag = 'N'
+                   ) c
+             GROUP BY c.wlist_refno
+        dependencies:
+          - locationName: TGT
+            nodeName: S_SHARED_WAITLIST_10
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_SHARED_WAITLIST_10') }}
+        name: S_SHARED_WAITLIST_ACTIVITY_V
+        noLinkRefs: []
+  name: S_SHARED_WAITLIST_ACTIVITY_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

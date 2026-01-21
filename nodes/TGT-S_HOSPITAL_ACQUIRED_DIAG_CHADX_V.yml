@@ -1,0 +1,143 @@
+fileVersion: 1
+id: 6ee78f31-11a2-48a5-b85b-a55210c55dc1
+name: S_HOSPITAL_ACQUIRED_DIAG_CHADX_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c273ab2c-e264-4f12-bd4c-4ff2120a0f68
+          stepCounter: 6ee78f31-11a2-48a5-b85b-a55210c55dc1
+        config: {}
+        dataType: VARCHAR(16)
+        defaultValue: ""
+        description: ""
+        name: EVENT_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fed5b295-0d88-4c5e-af42-a1f2fbb30d83
+                stepCounter: 069a8ae5-0465-4904-97f4-4480f8c0e5c4
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2b7fbfcb-eb9c-4107-8205-007cce2391f7
+          stepCounter: 6ee78f31-11a2-48a5-b85b-a55210c55dc1
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_in_patient_clinical_coding_20.patient_reference_no=dim_patient.patient_reference_no
+        name: DIM_PATIENT_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2dfaf554-19b0-4f56-a6c6-271e3e58dbf1
+                stepCounter: 069a8ae5-0465-4904-97f4-4480f8c0e5c4
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f4149424-d14e-4fc8-ae44-1b9a9752890b
+          stepCounter: 6ee78f31-11a2-48a5-b85b-a55210c55dc1
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: CHADX_CLASS_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9dff08bf-e62a-47a4-96e8-a9fc7048d0f3
+                stepCounter: 577bcdba-529c-4fd0-9f05-62203f25ad4f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1d920762-8aa6-4138-8ffc-d554c3997055
+          stepCounter: 6ee78f31-11a2-48a5-b85b-a55210c55dc1
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: ""
+        name: CHADX_CLASS_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 42824253-1d0b-4d26-b9a5-0fe6575b8eb1
+                stepCounter: 577bcdba-529c-4fd0-9f05-62203f25ad4f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c90630e5-23f1-4fd3-bb03-b04108b42aa6
+          stepCounter: 6ee78f31-11a2-48a5-b85b-a55210c55dc1
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: CHADX_COUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN [Code_combination_flag] = 'Diag' AND sum(DISTINCT [weight])=1        THEN 1
+                          WHEN [Code_combination_flag] = 'DiagExt' AND sum(DISTINCT [weight]) = 1.5 THEN 1
+                          WHEN [Code_combination_flag] = 'Ext' AND sum(DISTINCT [weight]) = 0.5     THEN 1
+                          ELSE 0
+                           END
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT event_encounter_id,
+                   dim_patient_key ,
+                   [l_mappings_CHADx_Class].CHADx_class_code ,
+                   [l_mappings_CHADx_Class].[CHADx_class_desc] ,
+                   CASE WHEN [Code_combination_flag] = 'Diag' AND sum(DISTINCT [weight])=1        THEN 1
+                        WHEN [Code_combination_flag] = 'DiagExt' AND sum(DISTINCT [weight]) = 1.5 THEN 1
+                        WHEN [Code_combination_flag] = 'Ext' AND sum(DISTINCT [weight]) = 0.5     THEN 1
+                        ELSE 0
+                         END AS CHADx_Count
+              FROM dbo.[s_in_patient_clinical_coding_20] ic
+              JOIN dbo.[l_mappings_CHADx_ICD]
+                ON l_mappings_CHADx_ICD.[ICD_code] = ic.[diagnosis_procedure_code]
+              JOIN dbo.[l_mappings_CHADx_Class]
+                ON l_mappings_CHADx_Class.CHADx_class_code = [l_mappings_CHADx_ICD].CHADx_class_code
+             WHERE condition_onset_flag = 1 --(In Hospital)
+
+             GROUP BY ic.event_encounter_id ,
+                      dim_patient_key ,
+                      [l_mappings_CHADx_Class].CHADx_class_code ,
+                      [l_mappings_CHADx_Class].[CHADx_class_desc] ,
+                      [Code_combination_flag]
+            HAVING CASE WHEN [Code_combination_flag] = 'Diag' AND sum(DISTINCT [weight])=1        THEN 1
+                        WHEN [Code_combination_flag] = 'DiagExt' AND sum(DISTINCT [weight]) = 1.5 THEN 1
+                        WHEN [Code_combination_flag] = 'Ext' AND sum(DISTINCT [weight]) = 0.5     THEN 1
+                        ELSE 0
+                         END =1
+        dependencies:
+          - locationName: TGT
+            nodeName: S_IN_PATIENT_CLINICAL_CODING_20
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_IN_PATIENT_CLINICAL_CODING_20') }}
+        name: S_HOSPITAL_ACQUIRED_DIAG_CHADX_V
+        noLinkRefs: []
+  name: S_HOSPITAL_ACQUIRED_DIAG_CHADX_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

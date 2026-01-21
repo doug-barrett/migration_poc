@@ -1,0 +1,143 @@
+fileVersion: 1
+id: 217c8030-a1c4-424d-8df7-bf9c3cbd5458
+name: S_CANCELLED_PROCEDURES_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bc05a54f-7dc6-4db1-b2ca-c95e6146461e
+          stepCounter: 217c8030-a1c4-424d-8df7-bf9c3cbd5458
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: IP_EVENT_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bc05a54f-7dc6-4db1-b2ca-c95e6146461e
+                stepCounter: 217c8030-a1c4-424d-8df7-bf9c3cbd5458
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 634c8b5a-c4d0-4f7a-a32c-b445ba245129
+          stepCounter: 217c8030-a1c4-424d-8df7-bf9c3cbd5458
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: THEATRE_VISIT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 634c8b5a-c4d0-4f7a-a32c-b445ba245129
+                stepCounter: 217c8030-a1c4-424d-8df7-bf9c3cbd5458
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4f27050f-0c3f-420a-b09e-317b1adb2787
+          stepCounter: 217c8030-a1c4-424d-8df7-bf9c3cbd5458
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: CANCELLED_THEATRE_VISITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4f27050f-0c3f-420a-b09e-317b1adb2787
+                stepCounter: 217c8030-a1c4-424d-8df7-bf9c3cbd5458
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 37ff8f4a-ee0e-4d44-b53c-0789ca1d0d58
+          stepCounter: 217c8030-a1c4-424d-8df7-bf9c3cbd5458
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: HEALTH_SPECIALTY_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 37ff8f4a-ee0e-4d44-b53c-0789ca1d0d58
+                stepCounter: 217c8030-a1c4-424d-8df7-bf9c3cbd5458
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 37fe4bfb-3a4d-4aac-b452-6af608fe7422
+          stepCounter: 217c8030-a1c4-424d-8df7-bf9c3cbd5458
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: CANCELLED_OP_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 37fe4bfb-3a4d-4aac-b452-6af608fe7422
+                stepCounter: 217c8030-a1c4-424d-8df7-bf9c3cbd5458
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE VIEW dbo.s_cancelled_procedures_v AS SELECT IP_Event_encounter_ID ,
+                   count(*) AS theatre_visit ,
+                   sum(CASE WHEN cancellation_reason_date IS NOT NULL THEN 1 WHEN cancellation_reason_date IS NOT NULL THEN 1 ELSE 0 END) AS cancelled_theatre_visits ,
+                   spec.health_specialty_code ,
+                   1 cancelled_op_flag
+              FROM ds_consolidate_theatre
+             INNER JOIN dim.dim_theatre_outcome
+                ON ds_consolidate_theatre.dim_theatre_outcome_key = dim_theatre_outcome.dim_theatre_outcome_key
+              LEFT JOIN ds_pims_provider_spells prov
+                ON IP_Event_encounter_ID = 'H' + cast(prov.prvsp_refno AS varchar)
+              LEFT JOIN ds_plato_event_details
+                ON IP_Event_encounter_ID = ds_plato_event_details.pimsencounter
+              LEFT JOIN s_admission_method rf
+                ON prov.admet_refno = rf.admission_method_reference_no
+              LEFT JOIN s_specialty_2 spec
+                ON prov.spect_refno = spec.specialty_reference_no
+             WHERE 1=1 --and dischargedate >= '1 jul 2017'
+
+               AND cast(prov.admit_dttm AS date) = cast(disch_dttm AS date) -- sameday
+
+               AND admet_refno =200600 -- elective only
+
+               AND ds_plato_event_details.pimsencounter IS NULL
+             GROUP BY IP_Event_encounter_ID ,
+                      rf.admission_type_code ,
+                      prov.admet_refno ,
+                      spec.health_specialty_code
+            HAVING sum(CASE WHEN cancellation_reason_date IS NOT NULL THEN 1 WHEN cancellation_reason_date IS NOT NULL THEN 1 ELSE 0 END) =1
+               AND count(*) = 1
+        dependencies:
+          - locationName: TGT
+            nodeName: S_CANCELLED_PROCEDURES_V
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_CANCELLED_PROCEDURES_V') }}
+        name: S_CANCELLED_PROCEDURES_V
+        noLinkRefs: []
+  name: S_CANCELLED_PROCEDURES_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

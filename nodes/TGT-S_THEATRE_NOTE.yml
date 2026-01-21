@@ -1,0 +1,122 @@
+fileVersion: 1
+id: 692210fc-faf8-4a6e-a890-7c3c8c0b7a62
+name: S_THEATRE_NOTE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Clinician notes for each Surgical Theatre visit/event"
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 959fd6dd-910b-4472-8426-50531ab787a9
+          stepCounter: 692210fc-faf8-4a6e-a890-7c3c8c0b7a62
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: "Equates to schdl_refno or theve_refno for  sorce_code 'THCMT','INTHE','RECOV'   "
+        name: NOTE_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: efe0ea90-34a7-4d74-94f5-3d3a3d081478
+          stepCounter: 692210fc-faf8-4a6e-a890-7c3c8c0b7a62
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: ""
+        name: THEATRE_COMMENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7a03ea8c-6783-441e-90e5-d2ae33bc0ad1
+          stepCounter: 692210fc-faf8-4a6e-a890-7c3c8c0b7a62
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: ""
+        name: IN_THEATRE_COMMENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e4b53b15-f3c8-486e-a202-45b65edcaf78
+          stepCounter: 692210fc-faf8-4a6e-a890-7c3c8c0b7a62
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: ""
+        name: RECOVERY_COMMENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ad90ec5f-7646-45f1-9de6-457910a93509
+          stepCounter: 692210fc-faf8-4a6e-a890-7c3c8c0b7a62
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PIMS_NOTES
+        join:
+          joinCondition: |-
+            FROM (SELECT sorce_refno,
+                   [THCMT] AS note_theatre,
+                   [INTHE] AS note_in_theatre,
+                   [RECOV] AS note_recovery
+              FROM (SELECT ds_pims_note_roles.sorce_refno,
+                   ds_pims_note_roles.sorce_code,
+                   SUBSTRING(ds_pims_notes.note,1,255) note
+              FROM ds_pims_note_roles
+             INNER JOIN ds_pims_notes
+                ON ds_pims_note_roles.notes_refno = ds_pims_notes.notes_refno
+             WHERE ds_pims_note_roles.sorce_code IN ('THCMT','INTHE','RECOV') ------  and sorce_refno in   (  select distinct sorce_refno from ds_pims_note_roles with(nolock)  where 1=1  and dss_update_time > @v_pa_theatre_incremental --  getdate()-1    union   select distinct sorce_refno from ds_pims_note_roles with(nolock)  where 1=1  and notes_refno in (  select notes_refno from ds_pims_notes with(nolock)    where dss_update_time > @v_pa_theatre_incremental-- getdate()-1        ))  -----------    ) note      PIVOT (MAX(note)     FOR sorce_code IN ([THCMT],[INTHE],[RECOV])) notes) ds_pims_notes
+        name: S_THEATRE_NOTE
+        noLinkRefs: []
+  name: S_THEATRE_NOTE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,76 @@
+fileVersion: 1
+id: ec48fc17-b2c0-42d8-b18f-e005bf9ce1a0
+name: S_ED_ENCOUNTER_STAY_SUMMARY
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5c930251-095b-4a85-87f1-ca7bd45b3d46
+          stepCounter: ec48fc17-b2c0-42d8-b18f-e005bf9ce1a0
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: attendance_encounter_id
+        name: ATTENDANCE_ENCOUNTER_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: dbbeb4e9-78bc-4983-a012-a7df5851b198
+                stepCounter: 4b1d171d-a11a-44de-a63a-c852dfdf7724
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b033fdba-1ee0-468f-9337-e38acf65d063
+          stepCounter: ec48fc17-b2c0-42d8-b18f-e005bf9ce1a0
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date of admissios to OBS
+        name: OBS_ADMIT_DATE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7fa53686-cdc0-429c-a873-2e2f0d32d6a7
+                stepCounter: 4b1d171d-a11a-44de-a63a-c852dfdf7724
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT ed.attendance_encounter_id ,
+                   min(ed.stay_start_date) OBS_admit_date
+              FROM s_ed_stay_50 ed
+             INNER JOIN dim.dim_ED_location lo
+                ON lo.dim_ed_location_key = ed.dim_ed_location_key
+               AND observation_location_flag = 'Y'
+             GROUP BY ed.attendance_encounter_id
+        dependencies:
+          - locationName: TGT
+            nodeName: S_ED_STAY_50
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_ED_STAY_50') }}
+        name: S_ED_ENCOUNTER_STAY_SUMMARY
+        noLinkRefs: []
+  name: S_ED_ENCOUNTER_STAY_SUMMARY
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

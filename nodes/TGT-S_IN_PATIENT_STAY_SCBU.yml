@@ -1,0 +1,86 @@
+fileVersion: 1
+id: b3db02b2-73e6-4b50-8873-51eb92151fdd
+name: S_IN_PATIENT_STAY_SCBU
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Contains IP events that have had a stay in an SCBU (Special Care Baby Unit) ward."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6425c40c-46f3-4898-a10c-0b1e7b0f3310
+          stepCounter: b3db02b2-73e6-4b50-8873-51eb92151fdd
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: PRVSP_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fd338d02-eac7-4d45-806a-1831b0f3775b
+                stepCounter: 3e756094-7e86-4086-a4af-59124cd9e961
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1caaad2e-96c6-432f-9ac4-3a908b7724af
+          stepCounter: b3db02b2-73e6-4b50-8873-51eb92151fdd
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Stay Service Point Code
+        name: STAY_SERVICE_POINT_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cbb52b4f-9b44-46b6-ac1d-bbde6815fcf5
+                stepCounter: 3574e047-03db-4aba-af69-06f8858b99cd
+            transform: MAX(stay_service_point_code)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8848f68d-7015-4420-bf8d-4489e1fd08e7
+          stepCounter: b3db02b2-73e6-4b50-8873-51eb92151fdd
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_SHARED_INPATIENT_CHANGES
+        join:
+          joinCondition: |-
+            FROM s_shared_inpatient_changes
+              JOIN ds_shared_inpatient_stay
+                ON s_shared_inpatient_changes.prvsp_refno = ds_shared_inpatient_stay.prvsp_refno
+             WHERE stay_service_point_code like '%SCBU%'
+             GROUP BY s_shared_inpatient_changes.prvsp_refno
+        name: S_IN_PATIENT_STAY_SCBU
+        noLinkRefs: []
+  name: S_IN_PATIENT_STAY_SCBU
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

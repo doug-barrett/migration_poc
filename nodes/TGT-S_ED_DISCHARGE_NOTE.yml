@@ -1,0 +1,114 @@
+fileVersion: 1
+id: fda09028-5409-4a2f-8da0-03d506737519
+name: S_ED_DISCHARGE_NOTE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "discharge notes for each encounter."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bb5bc583-22a6-4e2b-93fa-5293b4f9c9da
+          stepCounter: fda09028-5409-4a2f-8da0-03d506737519
+        config: {}
+        dataType: DECIMAL(10)
+        defaultValue: ""
+        description: Equates to aeatt_refno (attendance_reference_no) when sorce_code = AEPWI.
+        name: SORCE_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fa311f04-1a20-4f03-a5b7-602efa2bdaf4
+                stepCounter: 0f2c28d6-5d4a-4bb6-a9e2-a0fb820af70d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 58a89ffc-918c-4113-be78-3302ebd66be1
+          stepCounter: fda09028-5409-4a2f-8da0-03d506737519
+        config: {}
+        dataType: VARCHAR(5)
+        defaultValue: ""
+        description: Set to AEPWI for Notes relating to an ED encounter
+        name: SORCE_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b0a2d3fc-4f84-48ff-8c3d-08d25514882e
+                stepCounter: 0f2c28d6-5d4a-4bb6-a9e2-a0fb820af70d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 27e654fd-9e7b-4638-8ce0-4bb5ac011ac9
+          stepCounter: fda09028-5409-4a2f-8da0-03d506737519
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Number for each row for an encounter.
+        name: ROW_NUM
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ROW_NUMBER() OVER(PARTITION BY ds_pims_note_roles.sorce_refno ORDER BY ds_pims_notes.note DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 332f3de6-1675-49b6-9290-79b4801359c9
+          stepCounter: fda09028-5409-4a2f-8da0-03d506737519
+        config: {}
+        dataType: VARCHAR(2000)
+        defaultValue: ""
+        description: Clinician notes for the encounter.
+        name: NOTE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fbab881d-00cc-4689-a24d-dc4eac20ed5b
+                stepCounter: 8132e10c-cb6f-416f-97aa-7dec7177518c
+            transform: LEFT(ds_pims_notes.note, 2000)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 065f1727-814f-487d-8257-375e500cd3b6
+          stepCounter: fda09028-5409-4a2f-8da0-03d506737519
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PIMS_NOTE_ROLES
+        join:
+          joinCondition: |-
+            FROM ds_pims_note_roles
+              JOIN ds_pims_notes
+                ON ds_pims_note_roles.notes_refno = ds_pims_notes.notes_refno
+             WHERE 1=1
+               AND ds_pims_note_roles.sorce_code = 'AEDIS' --and ds_pims_note_roles.sorce_refno in (select distinct sorce_refno from ds_pims_note_roles  --where 1=1  --and dss_update_time > @v_pa_ed_incremental  --and ds_pims_note_roles.sorce_code = 'AEPWI'  --)
+        name: S_ED_DISCHARGE_NOTE
+        noLinkRefs: []
+  name: S_ED_DISCHARGE_NOTE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

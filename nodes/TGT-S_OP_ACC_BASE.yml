@@ -1,0 +1,163 @@
+fileVersion: 1
+id: bc40b86d-b5c5-4a5e-9649-3a6eb386498c
+name: S_OP_ACC_BASE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c8cb490e-5c89-4b08-a84b-73dc144b25d3
+          stepCounter: bc40b86d-b5c5-4a5e-9649-3a6eb386498c
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: REFRL_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 01568488-c9c7-4129-991f-c4b5dc886de6
+                stepCounter: 32661289-2246-4a7c-a2ad-9907fdccd6ac
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c0da68b1-80e6-4c09-95f3-91d60d17d99b
+          stepCounter: bc40b86d-b5c5-4a5e-9649-3a6eb386498c
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: ACC_NUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9e078fa0-f40a-4fd3-bf8b-317838d7a6d2
+                stepCounter: 32661289-2246-4a7c-a2ad-9907fdccd6ac
+            transform: coalesce(ds_shared_referral.ACC_no, ds_shared_referral.ACC_no_derived,ds_shared_referral.insurer_no)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0c7a3300-966a-462a-8437-e6b6a4a93bc9
+          stepCounter: bc40b86d-b5c5-4a5e-9649-3a6eb386498c
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: REFERRALSTART
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3cc8d360-c57c-41f4-9119-af0a40c41d34
+                stepCounter: 32661289-2246-4a7c-a2ad-9907fdccd6ac
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 03a307d3-f91a-47ad-bcfa-d2a55f50a81e
+          stepCounter: bc40b86d-b5c5-4a5e-9649-3a6eb386498c
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 399c6d72-1b21-46bf-96bf-4b16c953ce3e
+          stepCounter: bc40b86d-b5c5-4a5e-9649-3a6eb386498c
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: STARTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f35225ac-f88d-475a-81bf-039aad07ff5e
+          stepCounter: bc40b86d-b5c5-4a5e-9649-3a6eb386498c
+        config: {}
+        dataType: CHAR(2)
+        defaultValue: ""
+        description: ""
+        name: ENCOUNTERTYPE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 46b02b5f-9c24-4295-b7b7-4044a9dfb386
+          stepCounter: bc40b86d-b5c5-4a5e-9649-3a6eb386498c
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_SHARED_REFERRAL: 32661289-2246-4a7c-a2ad-9907fdccd6ac
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_SHARED_REFERRAL
+        join:
+          joinCondition: |-
+            FROM {{ ref('TGT','DS_SHARED_REFERRAL') }}
+              JOIN (
+                    SELECT 'OP' AS EncounterType ,
+                           schedule_encounter_id AS EncounterID ,
+                           referral_reference_no AS refrl_refno ,
+                           start_date AS StartDate
+                      FROM ds_shared_schedule
+                     UNION SELECT 'ED' ,
+                           identifier encounter ,
+                           refrl_refno ,
+                           arrived_dttm arrived_Date
+                      FROM s_ed_attendance_05
+                     UNION SELECT 'IP' ,
+                           event_encounter_id ,
+                           refrl_refno ,
+                           admit_date
+                      FROM s_in_patient_event_05
+                   ) x
+                ON ds_shared_referral.refrl_refno = x.refrl_refno
+             WHERE 1 = 1
+               AND IFNULL(coalesce(ds_shared_referral.ACC_no, ds_shared_referral.ACC_no_derived,ds_shared_referral.insurer_no),'none') NOT IN ('none' ,'-' ,'########' ,'*' ,'**' ,'******' ,',' ,'.' ,'...' ,'....' ,'.....' ,'\'  ,'===='  ,'====='  ,'0'  ,'00'  ,'000'  ,'0000'  ,'00000'  ,'000000'  ,'0000000'  ,'00000000'  ,'000000000'  ,'0000000000'  ,'00000000000'  ,'000000000000'  ,'000000.')
+        name: S_OP_ACC_BASE
+        noLinkRefs: []
+  name: S_OP_ACC_BASE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

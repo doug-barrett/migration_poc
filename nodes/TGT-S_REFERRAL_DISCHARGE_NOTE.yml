@@ -1,0 +1,129 @@
+fileVersion: 1
+id: b6dcbeac-3ec9-4047-b09d-f3ea06c5425c
+name: S_REFERRAL_DISCHARGE_NOTE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Clinician notes for each encounter."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 742b5606-4325-4a51-8d48-e4b0fdc77cec
+          stepCounter: b6dcbeac-3ec9-4047-b09d-f3ea06c5425c
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: NOTE_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7509a993-f2d2-4b90-9549-d04577496bc2
+                stepCounter: 0f2c28d6-5d4a-4bb6-a9e2-a0fb820af70d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7cbe1ce4-9150-44f9-ba93-e0b367e4f8d5
+          stepCounter: b6dcbeac-3ec9-4047-b09d-f3ea06c5425c
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Equates to wlist_refno (waitlist_reference_no) when sorce_code = WLCMT
+        name: SORCE_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fa311f04-1a20-4f03-a5b7-602efa2bdaf4
+                stepCounter: 0f2c28d6-5d4a-4bb6-a9e2-a0fb820af70d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e56852d4-4860-4399-8a3f-a64d441de806
+          stepCounter: b6dcbeac-3ec9-4047-b09d-f3ea06c5425c
+        config: {}
+        dataType: VARCHAR(5)
+        defaultValue: ""
+        description: Set to RFCMT for Notes relating to Waitlists
+        name: SORCE_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b0a2d3fc-4f84-48ff-8c3d-08d25514882e
+                stepCounter: 0f2c28d6-5d4a-4bb6-a9e2-a0fb820af70d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9c9acc5e-6c15-4184-9c4d-9037625ef623
+          stepCounter: b6dcbeac-3ec9-4047-b09d-f3ea06c5425c
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Number for each row for an encounter.
+        name: ROW_NUM
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ROW_NUMBER() OVER(PARTITION BY ds_pims_note_roles.sorce_refno ORDER BY ds_pims_notes.note DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dca4a937-e2c9-40f2-bac5-5acfac6758e2
+          stepCounter: b6dcbeac-3ec9-4047-b09d-f3ea06c5425c
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: Clinician notes for the encounter.
+        name: NOTE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fbab881d-00cc-4689-a24d-dc4eac20ed5b
+                stepCounter: 8132e10c-cb6f-416f-97aa-7dec7177518c
+            transform: LEFT(REPLACE(REPLACE(ds_pims_notes.note,CHAR(10),' '),CHAR(13),' '),255)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 24ded55e-909f-4ca2-a7de-b0f98e096c12
+          stepCounter: b6dcbeac-3ec9-4047-b09d-f3ea06c5425c
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PIMS_NOTE_ROLES
+        join:
+          joinCondition: |-
+            FROM ds_pims_note_roles
+              JOIN ds_pims_notes
+                ON ds_pims_note_roles.notes_refno = ds_pims_notes.notes_refno
+             WHERE ds_pims_note_roles.sorce_code = 'RDCMT'
+               AND (ds_pims_note_roles.modif_dttm > getdate() -5 OR ds_pims_notes.modif_dttm > getdate() -5)
+        name: S_REFERRAL_DISCHARGE_NOTE
+        noLinkRefs: []
+  name: S_REFERRAL_DISCHARGE_NOTE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

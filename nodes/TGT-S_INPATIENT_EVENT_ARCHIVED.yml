@@ -1,0 +1,100 @@
+fileVersion: 1
+id: d6335f1e-a604-4054-b407-8b6f421d4a25
+name: S_INPATIENT_EVENT_ARCHIVED
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Find archived events (archv_flag = Y) in l_pims_provider_spells.  Will be used by the custom proc to delete such events from data stores and fact tables.  Rows in this table will be deleted by custom proc once processed.  "
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5f0c6624-2bd6-4053-b907-83260cda5cf7
+          stepCounter: d6335f1e-a604-4054-b407-8b6f421d4a25
+        config: {}
+        dataType: DECIMAL(10)
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: PRVSP_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 483ec3b6-6159-497c-a963-09042285f414
+                stepCounter: 6bb3c4ec-d733-43ff-8994-2e992d8bd893
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eed5ebb3-e7c0-4e73-8a2c-a596c905a53b
+          stepCounter: d6335f1e-a604-4054-b407-8b6f421d4a25
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: EVENT_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 483ec3b6-6159-497c-a963-09042285f414
+                stepCounter: 6bb3c4ec-d733-43ff-8994-2e992d8bd893
+            transform: "'H' + CONVERT(varchar, l_pims_provider_spells.prvsp_refno)"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 08396007-86b8-49b0-8e70-c4e114bb6abe
+          stepCounter: d6335f1e-a604-4054-b407-8b6f421d4a25
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Set to 1 when the row has been processed and so can be deleted.
+        name: ROW_PROCESSED_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f7250210-a487-484a-bd4f-0a0fc730695d
+          stepCounter: d6335f1e-a604-4054-b407-8b6f421d4a25
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: L_PIMS_PROVIDER_SPELLS
+        join:
+          joinCondition: |-
+            FROM l_pims_provider_spells
+              LEFT OUTER JOIN s_inpatient_event_archived
+                ON l_pims_provider_spells.prvsp_refno = s_inpatient_event_archived.prvsp_refno
+             WHERE l_pims_provider_spells.archv_flag = 'Y'
+               AND s_inpatient_event_archived.prvsp_refno IS NULL
+        name: S_INPATIENT_EVENT_ARCHIVED
+        noLinkRefs: []
+  name: S_INPATIENT_EVENT_ARCHIVED
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

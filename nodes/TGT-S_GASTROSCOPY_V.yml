@@ -1,0 +1,92 @@
+fileVersion: 1
+id: c7e465fb-5e39-471a-83ed-fa1d84af350b
+name: S_GASTROSCOPY_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e27955e7-c850-485c-8e88-a89751c7147a
+          stepCounter: c7e465fb-5e39-471a-83ed-fa1d84af350b
+        config: {}
+        dataType: NUMERIC(10)
+        defaultValue: ""
+        description: ""
+        name: PRVSP_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e27955e7-c850-485c-8e88-a89751c7147a
+                stepCounter: c7e465fb-5e39-471a-83ed-fa1d84af350b
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 797dd318-f7d0-4dc0-a784-36dc88734183
+          stepCounter: c7e465fb-5e39-471a-83ed-fa1d84af350b
+        config: {}
+        dataType: VARCHAR(1)
+        defaultValue: ""
+        description: indicates if a gastroscopy has occurred based on the theatre codes. Used for purchase unit allocation for uncoded events.
+        name: GASTROSCOPY_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 797dd318-f7d0-4dc0-a784-36dc88734183
+                stepCounter: c7e465fb-5e39-471a-83ed-fa1d84af350b
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE VIEW dbo.s_gastroscopy_v AS SELECT DISTINCT ds_pims_provider_spells.prvsp_refno ,
+                   'Y' Gastroscopy_Flag -- ,schedules.start_date AS theatre_date
+             -- ,SCHEDULES.patient_reference_no
+             -- ,col.[DESCRIPTION]
+
+              FROM ds_pims_schedules schedules
+             INNER JOIN ds_pims_diagnosis_procedures
+                ON ds_pims_diagnosis_procedures.sorce_refno = schedules.schdl_refno
+               AND ds_pims_diagnosis_procedures.sorce_code = 'SCHDL'
+             INNER JOIN (
+                    SELECT [CODE] ,
+                           [CCSXT_CODE] ,
+                           [DESCRIPTION]
+                      FROM ds_pims_odpcd_codes [ODPCD_CODES]
+                     WHERE description LIKE '%gastrosc%'
+                   ) col
+                ON col.code = ds_pims_diagnosis_procedures.code
+             INNER JOIN ds_pims_provider_spells
+                ON ds_pims_provider_spells.patnt_refno = SCHEDULES.patnt_refno
+               AND schedules.start_dttm BETWEEN ds_pims_provider_spells.admit_dttm AND IFNULL(disch_dttm,getdate())
+               AND datediff(DAY,ds_pims_provider_spells.ADMIT_DTTM,ds_pims_provider_spells.DISCH_DTTM)=0
+               AND ds_pims_provider_spells.ADMET_REFNO <>200599
+               AND schedules.cancr_dttm IS NULL
+        dependencies:
+          - locationName: TGT
+            nodeName: S_GASTROSCOPY_V
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_GASTROSCOPY_V') }}
+        name: S_GASTROSCOPY_V
+        noLinkRefs: []
+  name: S_GASTROSCOPY_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

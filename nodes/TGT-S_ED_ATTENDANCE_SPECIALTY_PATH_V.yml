@@ -1,0 +1,72 @@
+fileVersion: 1
+id: 4b25cdd5-d4bc-4358-92cd-4acdcf32f05a
+name: S_ED_ATTENDANCE_SPECIALTY_PATH_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Concatenates rows of ED seen by clinician specialty to the encounter level"
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 210f1894-0ab7-4bea-8eb9-a92711527f99
+          stepCounter: 4b25cdd5-d4bc-4358-92cd-4acdcf32f05a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: AEATT_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: decef4af-31f8-4491-8813-d6282b13b362
+                stepCounter: 67ed942c-e015-4c6e-abcc-46d4a5aa19e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 24c9f7bc-bdfd-4be0-9c3b-db625065e9d8
+          stepCounter: 4b25cdd5-d4bc-4358-92cd-4acdcf32f05a
+        config: {}
+        dataType: VARCHAR (150)
+        defaultValue: ""
+        description: Concatenation of ED seen by clinicians specialty
+        name: ED_SPECIALTY_PATH
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT aeatt_refno ,
+                   replace((SELECT '|*'+ REPLACE (REPLACE ((SELECT s_ed_stay_30.specialty AS x FROM s_ed_stay_30 WHERE 1=1 AND s_ed_stay_30.aeatt_refno = s_ed_attendance_20.aeatt_refno AND s_ed_stay_30.specialty <> IFNULL(s_ed_stay_30.next_specialty_code,'x') --and s_ed_seen_by_30.attendance_encounter_id = 'A1401257539'
+            ORDER BY aeatt_refno , aesty_refno --start_date
+            FOR XML PATH('')), '<x>',''), '</x>',' | ') AS ED_specialty_path) +'*|',' | *|','*|') ED_specialty_path
+              FROM s_ed_attendance_20 --where s_ed_attendance_20.encounter in ('A1000630789')
+        dependencies:
+          - locationName: TGT
+            nodeName: S_ED_ATTENDANCE_20
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_ED_ATTENDANCE_20') }}
+        name: S_ED_ATTENDANCE_SPECIALTY_PATH_V
+        noLinkRefs: []
+  name: S_ED_ATTENDANCE_SPECIALTY_PATH_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

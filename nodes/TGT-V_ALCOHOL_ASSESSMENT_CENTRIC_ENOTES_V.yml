@@ -1,0 +1,118 @@
+fileVersion: 1
+id: e430f763-a79a-4da9-85cd-ce4df228907a
+name: V_ALCOHOL_ASSESSMENT_CENTRIC_ENOTES_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 77f2836b-39d1-4890-91aa-117476dc4ec6
+          stepCounter: e430f763-a79a-4da9-85cd-ce4df228907a
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: ENCOUNTER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 29d72c42-de83-4fd7-95c7-615d48a82789
+                stepCounter: 5cde1930-85a5-44b0-a43c-1550dc496d96
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 36399348-0068-4c64-ab6a-e68764764da4
+          stepCounter: e430f763-a79a-4da9-85cd-ce4df228907a
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: ALCOHOL_ANSWER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN content LIKE '%"AlcoholInvolved__Yes" type="checkbox" value="on" checked="checked"%'         THEN 'Yes'
+                          WHEN content LIKE '%AlcoholInvolved__No" type="checkbox" value="on" checked="checked"%'           THEN 'No'
+                          WHEN content LIKE '%SecondaryOtherConsumedAlcohol" type="checkbox" value="on" checked="checked"%' THEN 'Secondary'
+                          WHEN content LIKE '%AlcoholInvolved__NotKnown" type="checkbox" value="on" checked="checked"%'     THEN 'Not Known'
+                          ELSE 'Unknown'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b21c115d-271a-4698-841d-10800eb61988
+          stepCounter: e430f763-a79a-4da9-85cd-ce4df228907a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: allows filtering out all but the last answer
+        name: ALCOHOL_ANSWERS_REVERSE_SEQUENCE_NO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ROW_NUMBER() OVER (PARTITION BY encounter ORDER BY createddttm DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a0192e6c-e793-4277-bc72-1a0bbde8adbb
+          stepCounter: e430f763-a79a-4da9-85cd-ce4df228907a
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d6ca0635-a99f-42ab-ac23-4e8134f8bce0
+                stepCounter: 5cde1930-85a5-44b0-a43c-1550dc496d96
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f473d641-0f8e-41ae-84ff-b4d6948fcf8d
+          stepCounter: e430f763-a79a-4da9-85cd-ce4df228907a
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: DSS_RECORD_SOURCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'Centric eNotes'"
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_CENTRIC_NOTES_CONTENT
+        join:
+          joinCondition: |-
+            FROM [dbo].[ds_centric_notes_content]
+             WHERE templateid IN (10917, 10913, 10914, 10261, 10262, 10287)
+               AND createdDTTM >= '2023-04-04 00:00:00.000'
+               AND IFNULL(encounter,'') <> ''
+        name: V_ALCOHOL_ASSESSMENT_CENTRIC_ENOTES_V
+        noLinkRefs: []
+  name: V_ALCOHOL_ASSESSMENT_CENTRIC_ENOTES_V
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

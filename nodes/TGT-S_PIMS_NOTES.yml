@@ -1,0 +1,173 @@
+fileVersion: 1
+id: d3856277-6281-4eba-9e1a-47829690e1dc
+name: S_PIMS_NOTES
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dd892d60-91a3-4640-87c3-c028599e187a
+          stepCounter: d3856277-6281-4eba-9e1a-47829690e1dc
+        config: {}
+        dataType: DECIMAL(10)
+        defaultValue: ""
+        description: ""
+        name: NOTES_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 22e7914e-2db9-4762-b3fa-66286c9dd419
+                stepCounter: 8132e10c-cb6f-416f-97aa-7dec7177518c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8abf3456-2398-449d-b0f9-33ab0d5645d8
+          stepCounter: d3856277-6281-4eba-9e1a-47829690e1dc
+        config: {}
+        dataType: VARCHAR(MAX)
+        defaultValue: ""
+        description: ""
+        name: NOTE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fbab881d-00cc-4689-a24d-dc4eac20ed5b
+                stepCounter: 8132e10c-cb6f-416f-97aa-7dec7177518c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6cdee56d-00ba-487f-a013-0c535c64b889
+          stepCounter: d3856277-6281-4eba-9e1a-47829690e1dc
+        config: {}
+        dataType: DECIMAL(10)
+        defaultValue: ""
+        description: ""
+        name: SORCE_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fa311f04-1a20-4f03-a5b7-602efa2bdaf4
+                stepCounter: 0f2c28d6-5d4a-4bb6-a9e2-a0fb820af70d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e336ad47-6187-44b2-bba8-6c2f2e48f2a4
+          stepCounter: d3856277-6281-4eba-9e1a-47829690e1dc
+        config: {}
+        dataType: VARCHAR(5)
+        defaultValue: ""
+        description: ""
+        name: SORCE_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b0a2d3fc-4f84-48ff-8c3d-08d25514882e
+                stepCounter: 0f2c28d6-5d4a-4bb6-a9e2-a0fb820af70d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 992a4cba-f12a-4f10-827d-ce6240a1b1f7
+          stepCounter: d3856277-6281-4eba-9e1a-47829690e1dc
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Row number to handle occasional duplicates
+        name: ROW_NUM
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              --ROW_NUMBER() OVER(PARTITION BY ds_pims_note_roles.sorce_refno
+              --,sorce_code
+              --                    ORDER BY ds_pims_notes.note DESC)
+              1
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9637f560-4055-45de-94b3-8a1282a0865d
+          stepCounter: d3856277-6281-4eba-9e1a-47829690e1dc
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Waitlist identifier where approriate
+        name: WAITLIST_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fa311f04-1a20-4f03-a5b7-602efa2bdaf4
+                stepCounter: 0f2c28d6-5d4a-4bb6-a9e2-a0fb820af70d
+            transform: |-
+              CASE WHEN sorce_code = 'wlcmt' THEN 'W' + cast(sorce_refno AS varchar(15))
+                          ELSE NULL
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f1c6049f-0fc2-4558-a47e-8aa94d836f00
+          stepCounter: d3856277-6281-4eba-9e1a-47829690e1dc
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Referral identifier where approriate
+        name: REFERRAL_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fa311f04-1a20-4f03-a5b7-602efa2bdaf4
+                stepCounter: 0f2c28d6-5d4a-4bb6-a9e2-a0fb820af70d
+            transform: |-
+              CASE WHEN sorce_code = 'RFCMT' THEN 'R' + cast(sorce_refno AS varchar(15))
+                          ELSE NULL
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aba6b6ba-11a9-402d-908d-c56a7b4eb6da
+          stepCounter: d3856277-6281-4eba-9e1a-47829690e1dc
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_PIMS_NOTES: 8132e10c-cb6f-416f-97aa-7dec7177518c
+          DS_PIMS_NOTE_ROLES: 0f2c28d6-5d4a-4bb6-a9e2-a0fb820af70d
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PIMS_NOTES
+          - locationName: TGT
+            nodeName: DS_PIMS_NOTE_ROLES
+        join:
+          joinCondition: |-
+            FROM {{ ref('TGT','DS_PIMS_NOTES') }}
+              JOIN {{ ref('TGT','DS_PIMS_NOTE_ROLES') }}
+                ON ds_pims_notes.notes_refno = ds_pims_note_roles.notes_refno
+              JOIN s_pims_notes_05 ch
+                ON ds_pims_notes.notes_refno = ch.notes_refno
+        name: S_PIMS_NOTES
+        noLinkRefs: []
+  name: S_PIMS_NOTES
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

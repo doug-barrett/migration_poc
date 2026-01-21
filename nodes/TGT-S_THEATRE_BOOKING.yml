@@ -1,0 +1,611 @@
+fileVersion: 1
+id: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+name: S_THEATRE_BOOKING
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Calculate patient_booking_num and look up dimension keys."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c59726e2-7818-409e-a848-602b1694275e
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: BOOKING_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e34a6c5f-fac3-4dd0-bbab-8a22c6116a8f
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6f58d32c-2109-40b4-94fd-b17ca733c7af
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: PATIENT_NHI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1eda1e16-cacd-47f2-863f-25a78267b9eb
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 56c5d27d-8ee5-4fb7-ae98-9822dabd1f71
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Internal unique identifier for a patient from the Patient Management System
+        name: PATIENT_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: afbdf457-abfa-430c-9936-9cec06d42993
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 32ab9c6c-8565-45bb-9256-82acdfbd8e9e
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Sequence number for the bookings of a patient.
+        name: PATIENT_BOOKING_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1eda1e16-cacd-47f2-863f-25a78267b9eb
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ROW_NUMBER() OVER(PARTITION BY s_theatre_booking_10.patient_nhi ORDER BY s_theatre_booking_10.booking_sent_date)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c1e88bd2-f67a-4ed4-8ec4-63426d787a99
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: BOOKING_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c95f2e2b-4320-4f26-a06c-fa9b8ddf3aa4
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0f279e11-01f9-41d2-a1ac-000184a5713a
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: IP_EVENT_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f02ccb48-dcc7-4989-a1e2-aa9320f6f93c
+                stepCounter: 19758f14-edc2-4471-8c3a-c682eddd8e07
+            transform: |-
+              CASE WHEN LEFT(s_theatre_booking_10.booking_encounter_id, 1) = 'H' THEN s_theatre_booking_10.booking_encounter_id
+                          ELSE s_theatre_booking_20.IP_event_encounter_id
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 52580ff9-393a-4b13-93ea-86cfc1e25eb9
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: 'The next acute theatre visit for the patient - either for the same specialty or occurring in the next 10 days if no such visit exists.  '
+        name: THEATRE_VISIT_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3d539c98-ecb0-441c-8dc3-8260ee647d56
+                stepCounter: b1b58f8a-2821-4902-ac42-276cb6e02d39
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b8367204-58e0-4ef6-ba10-13cec0c6b174
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: BOOKING_SENT_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 57fea6b7-f878-4df3-92ad-957557db3a63
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: abaa116e-f0be-4393-bc8b-47c54ad47276
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: BOOKING_SPECIALTY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 42648fca-a995-48e4-a68f-7bad0f5ec77c
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6092d014-f2a3-4362-a56b-0a92b2873358
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Specialty Code
+        name: SPECIALTY_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1772cae4-4521-4c05-a581-e879729cbb4d
+                stepCounter: 4f8121e6-dca1-44bb-928a-e19f6491f39d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2085fbf1-2657-4d80-b256-aa439842380b
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: BOOKING_PROCEDURE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 183d1ee7-2246-4205-8ef0-b8f3e458b313
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4a54909b-acb6-453b-8abe-73b003ad6629
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: BOOKING_SUB_PROCEDURE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 474e8cb4-df2c-4d5b-9d76-11acd05d4cff
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 75c57497-a614-45ee-9fe5-1581ce1b240c
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: BOOKING_SUB_PROCEDURE_OTHER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9c1188ed-3f1b-452b-a534-03404e076212
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 18c41722-116d-4d81-9cf0-ea82d3f410f8
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: ""
+        name: BOOKING_STATUS_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4579cdee-fe11-4e09-8f1b-d5a06210a586
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5dc53f85-abae-4bac-88d2-261a799ca578
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: 'Set to either the Adjusted Theatre Time (if a value is entered and it can be converted to minutes) or the Current Average Theatre Time.  '
+        name: BOOKED_THEATRE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d46892b6-2bae-4b1b-ae7f-d82fb0e208a9
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 28f7e618-073d-4add-9513-b820dde8dbc5
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Current average theatre time loaded from HES.
+        name: CURRENT_AVERAGE_THEATRE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e0208afd-906a-4666-80dd-29d33b2ac55f
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 00a0f685-8e2b-4305-a596-1efa384207bb
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Set to 1 if an adjusted booking time was entered and is different to the Curent Average Theatre Time.
+        name: BOOKING_TIME_ADJUSTED_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e0208afd-906a-4666-80dd-29d33b2ac55f
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: |-
+              CASE WHEN booked_theatre_time <> current_average_theatre_time THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 08dfb4e9-4d1e-4f39-b2e4-204e68986412
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: ""
+        name: ACUTE_BOOKING_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 95b81251-e342-4c89-b79b-69f921fbce1d
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2713a523-e0e7-4082-8a09-55f486021e9f
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: ""
+        name: CONSENT_SIGNED_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5534146f-5f31-40b8-bdf2-98c9bd01c7c5
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d8a48c00-fc07-4919-8a80-370188fd4b71
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: ""
+        name: INTERPRETER_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 91334bac-c226-4c39-91b7-d13e50268728
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6d0f25cc-7cd3-4187-b0c5-9eb03bb57cc7
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: ""
+        name: THEATRE_COORD_CONTACTED_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 740f23c7-2f10-4cde-8bdd-d9f6307b50ea
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e2e22e13-8a44-4d64-858e-bc253e622d15
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: ""
+        name: ANAESTHETIST_CONTACTED_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9add32a9-8fc7-4947-a220-0ac5f85ec67c
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: be4066da-f853-4e8a-8aba-66142f6b66b6
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: LAST_FLUID_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 71ce5f3a-4772-438b-9a76-f32937dec170
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 56e8a684-df97-4c10-8167-b70760aadd6d
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: LAST_FLUID_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f9ea3148-6593-4490-8b74-547f70268f9d
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1d0e83ca-66a1-4fdb-8f97-6f43e3bf23aa
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: LAST_FLUID_DATETIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 553dd244-6ecf-4a30-9407-5a43c65e30e0
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 01cad63a-22c5-4b8b-ad28-e44412765829
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: LAST_ATE_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a446edec-3db0-4c98-8a40-b1e92ca666e2
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 026b7cf5-417f-4439-920d-7f14d4908e19
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: LAST_ATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2c735bce-4c78-460f-9efd-169e94d03794
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f7038a9d-0c4d-472f-b697-d8bfe9a069c6
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: LAST_ATE_DATETIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 528af105-67f4-468b-b18d-5c7dc00cf31e
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 15a4ddcd-5e49-4b35-b885-01abecc9d320
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: VARCHAR(2510)
+        defaultValue: ""
+        description: ""
+        name: OSSUBPROCEDURE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a3660f76-45a7-43dd-af50-0660e53520d3
+                stepCounter: 9d3cd9c4-6e6d-45a3-a066-4105d90bbaca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e8f6a895-c69b-4e40-b4a1-165835e834f8
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: General counter always set to 1.
+        name: BOOKING_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '1'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f81324e9-5f85-4dcc-89b1-5ae954f3cb72
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_theatre_booking.booking_sent_date=dim_booking_date.booking_date
+        name: DIM_BOOKING_DATE_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3f5e2b66-caa0-422b-a711-15a7a76b2288
+                stepCounter: b4c2e4bb-aa41-420b-9135-492874ce3872
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 682b239e-dd2c-4ddf-b077-f10f226da6be
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_theatre_booking.booking_id=dim_theatre_booking.booking_id
+        name: DIM_THEATRE_BOOKING_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e8f626cc-1c3a-47ea-a43e-baf512754bb1
+                stepCounter: 8a0f4770-2531-4823-a314-1f7db24f325c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 516a7e67-481c-4b38-bd58-ce1633d45c12
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_theatre_booking.booking_specialty=dim_theatre_booking_procedure.booking_specialty  s_theatre_booking.booking_procedure=dim_theatre_booking_procedure.booking_procedure  s_theatre_booking.booking_sub_procedure=dim_theatre_booking_procedure.booking_sub_procedure  s_theatre_booking.booking_sub_procedure_other=dim_theatre_booking_procedure.booking_sub_procedure_other
+        name: DIM_THEATRE_BOOKING_PROCEDURE_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8dd1ba89-158e-425c-8500-b6d7fbdce66f
+                stepCounter: e2bedfb6-4e4a-4772-b218-923451ca6cfc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e87c5596-394d-4979-933f-d42016e9635b
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_theatre_booking.booking_status_code=dim_theatre_booking_status.booking_status_code
+        name: DIM_THEATRE_BOOKING_STATUS_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5fe85580-0af4-4dbb-b563-15b8889c1a3f
+                stepCounter: 009a1d58-bbf3-4029-85a6-f9254e5e29a8
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 857c0ce3-cb45-4ae6-bb91-3803c7e373db
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_theatre_booking.patient_reference_no=dim_patient.patient_reference_no
+        name: DIM_PATIENT_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9962a01b-5f3d-4c1a-b371-997edef38d0f
+                stepCounter: d52dd438-7899-4242-9e38-539d2a1447df
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 106dc0e7-3df2-408b-8459-3ff576bd68df
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Generated artificial key
+        name: DIM_SPECIALTY_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 79aee918-ff6f-4b0a-a656-000827899f3e
+                stepCounter: 4182a75e-d07b-4637-97fa-4c01e2878360
+            transform: IFNULL(dim_specialty.dim_specialty_key, 0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e9debf21-34f9-4af5-a0f9-99d6060768b3
+          stepCounter: 3a909932-16c1-4ef4-a6e9-3510c65781ca
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_THEATRE_BOOKING_10
+        join:
+          joinCondition: |-
+            FROM s_theatre_booking_10
+              LEFT OUTER JOIN s_theatre_booking_20
+                ON s_theatre_booking_20.booking_id = s_theatre_booking_10.booking_id
+               AND s_theatre_booking_20.row_num = 1
+              LEFT OUTER JOIN (
+                    SELECT DISTINCT booking_specialty,
+                           specialty_code
+                      FROM s_theatre_booking_procedure
+                   ) s_theatre_booking_procedure
+                ON s_theatre_booking_10.booking_specialty = s_theatre_booking_procedure.booking_specialty
+              LEFT OUTER JOIN dim.dim_specialty
+                ON s_theatre_booking_procedure.specialty_code = dim_specialty.specialty_code
+               AND dss_current_flag='Y'
+              LEFT OUTER JOIN s_theatre_booking_30
+                ON s_theatre_booking_30.booking_id = s_theatre_booking_10.booking_id
+               AND s_theatre_booking_30.row_num = 1
+        name: S_THEATRE_BOOKING
+        noLinkRefs: []
+  name: S_THEATRE_BOOKING
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

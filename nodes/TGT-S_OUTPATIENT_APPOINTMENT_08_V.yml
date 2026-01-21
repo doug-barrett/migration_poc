@@ -1,0 +1,233 @@
+fileVersion: 1
+id: 9a9e5958-c09a-4dbf-b07a-bbb46f021e98
+name: S_OUTPATIENT_APPOINTMENT_08_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ea2f8adf-ab0a-42f3-94a9-3316b1de1010
+          stepCounter: 9a9e5958-c09a-4dbf-b07a-bbb46f021e98
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: SCHEDULE_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 73522497-b3f9-4b96-9c59-36a707f27842
+                stepCounter: ab7b9f91-81b3-4d0a-bd4c-90aa5d071bb9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 410e4308-0a92-4459-b83b-bf4b8d2f10f7
+          stepCounter: 9a9e5958-c09a-4dbf-b07a-bbb46f021e98
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PATIENT_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0455e557-e935-485a-a5bb-d848ee249cfd
+                stepCounter: ab7b9f91-81b3-4d0a-bd4c-90aa5d071bb9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cae9b2a0-4611-4d5a-996f-34a3e102e317
+          stepCounter: 9a9e5958-c09a-4dbf-b07a-bbb46f021e98
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b544a4f0-a08e-49bd-9a27-8ff4618bae60
+                stepCounter: ab7b9f91-81b3-4d0a-bd4c-90aa5d071bb9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2f6f9577-e98d-451d-bce4-2429699482e7
+          stepCounter: 9a9e5958-c09a-4dbf-b07a-bbb46f021e98
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: SERVICE_POINT_SESSION_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 73f114e0-536a-40f1-94a8-14b175e3b926
+                stepCounter: ab7b9f91-81b3-4d0a-bd4c-90aa5d071bb9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: be774db6-0c8d-4dcd-a2b0-aafc591c0664
+          stepCounter: 9a9e5958-c09a-4dbf-b07a-bbb46f021e98
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: START_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cc35ef61-dc52-49a2-ad90-fd31dd905d53
+                stepCounter: ab7b9f91-81b3-4d0a-bd4c-90aa5d071bb9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aa32a3d1-e3ed-4f8e-ac7b-61eed0c8d3d9
+          stepCounter: 9a9e5958-c09a-4dbf-b07a-bbb46f021e98
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PATIENT_APPOINTMENT_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: COUNT(1) OVER (PARTITION BY patient_reference_no)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5f7f7a63-5281-4036-a9ed-b951dae4f3aa
+          stepCounter: 9a9e5958-c09a-4dbf-b07a-bbb46f021e98
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PATIENT_APPOINTMENT_SEQ_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ROW_NUMBER() OVER (PARTITION BY patient_reference_no ORDER BY start_date,schedule_reference_no)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 909055fe-78af-4e00-81f0-d43f96d5d5aa
+          stepCounter: 9a9e5958-c09a-4dbf-b07a-bbb46f021e98
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: SESSION_APPOINTMENT_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN service_point_session_reference_no IS NULL THEN NULL
+                          ELSE COUNT(1) OVER (PARTITION BY service_point_session_reference_no)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f1d1cbb8-492f-4081-a812-eb7695654de6
+          stepCounter: 9a9e5958-c09a-4dbf-b07a-bbb46f021e98
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: SESSION_APPOINTMENT_SEQ_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN service_point_session_reference_no IS NULL THEN NULL
+                          ELSE ROW_NUMBER() OVER (PARTITION BY service_point_session_reference_no ORDER BY start_date)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3e2a0b91-d775-4bad-9fad-4667f1782187
+          stepCounter: 9a9e5958-c09a-4dbf-b07a-bbb46f021e98
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_APPOINTMENT_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN referral_reference_no IS NULL THEN NULL
+                          ELSE COUNT(1) OVER (PARTITION BY referral_reference_no)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 05d62621-c666-49d0-9691-3143182147d8
+          stepCounter: 9a9e5958-c09a-4dbf-b07a-bbb46f021e98
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_APPOINTMENT_SEQ_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN referral_reference_no IS NULL THEN NULL
+                          ELSE ROW_NUMBER() OVER (PARTITION BY referral_reference_no ORDER BY start_date)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eed8ea96-0c20-4eda-832f-c9ca705fc796
+          stepCounter: 9a9e5958-c09a-4dbf-b07a-bbb46f021e98
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6cc91efa-f88f-41d9-8f72-a663496ad59a
+                stepCounter: ab7b9f91-81b3-4d0a-bd4c-90aa5d071bb9
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_SHARED_SCHEDULE: ab7b9f91-81b3-4d0a-bd4c-90aa5d071bb9
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_SHARED_SCHEDULE
+        join:
+          joinCondition: |-
+            FROM {{ ref('TGT','DS_SHARED_SCHEDULE') }}
+             WHERE schedule_type_code = 'OTPAT'
+        name: S_OUTPATIENT_APPOINTMENT_08_V
+        noLinkRefs: []
+  name: S_OUTPATIENT_APPOINTMENT_08_V
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

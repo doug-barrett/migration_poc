@@ -1,0 +1,80 @@
+fileVersion: 1
+id: b8407cc3-ddea-4d32-b1e2-dd88d647282f
+name: S_SHARED_SCHEDULE_THEATRE_SERVICE_POINT_05
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 214b6ebf-b7b0-4ccb-b57d-18e6974a5a10
+          stepCounter: b8407cc3-ddea-4d32-b1e2-dd88d647282f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: SERVICE_POINT_SESSION_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 73f114e0-536a-40f1-94a8-14b175e3b926
+                stepCounter: ab7b9f91-81b3-4d0a-bd4c-90aa5d071bb9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a769daf3-7d2f-4192-b676-7f4bee8de490
+          stepCounter: b8407cc3-ddea-4d32-b1e2-dd88d647282f
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_SHARED_SCHEDULE
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT DISTINCT ds_shared_schedule.service_point_session_reference_no
+                      FROM ds_shared_schedule
+                     WHERE 1=1
+                       AND schedule_type_code = 'THEAT'
+                       AND ds_shared_schedule.dss_update_time > @v_pa_theatre_incremental
+                     UNION SELECT DISTINCT ds_shared_schedule.service_point_session_reference_no
+                      FROM ds_shared_schedule
+                      JOIN (
+                            SELECT patient_reference_no
+                              FROM s_shared_schedule_theatre_05
+                           ) s
+                        ON s.patient_reference_no= ds_shared_schedule.patient_reference_no
+                   ) ds_shared_schedule
+        name: S_SHARED_SCHEDULE_THEATRE_SERVICE_POINT_05
+        noLinkRefs: []
+  name: S_SHARED_SCHEDULE_THEATRE_SERVICE_POINT_05
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

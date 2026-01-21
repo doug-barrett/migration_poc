@@ -1,0 +1,134 @@
+fileVersion: 1
+id: a3f12380-2ec2-4f3e-b1ab-e4750734d6b4
+name: S_ROLE_COMMUNITY
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 40a521af-82a3-47c2-9c5d-85b87dd86e86
+          stepCounter: a3f12380-2ec2-4f3e-b1ab-e4750734d6b4
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: ROLE_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c33deea2-3912-443c-a09e-8964949cb92b
+                stepCounter: 50453852-0ff9-4314-9a55-7e14868f6b0a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d095d5d1-9008-4d9a-b53c-0b80fbf733c8
+          stepCounter: a3f12380-2ec2-4f3e-b1ab-e4750734d6b4
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: ROLE_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 76ab2e8b-247b-4247-9b05-d17d6bd82b20
+                stepCounter: 8015b997-bbd1-4c66-aa9e-64c7b3ba77af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e47f93b1-b160-4775-81c8-fb1417fc5d88
+          stepCounter: a3f12380-2ec2-4f3e-b1ab-e4750734d6b4
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: DEPARTMENT_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: MAX(l_cdsswe_programme.department_desc)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 39aa4e35-c71b-41f8-bd40-cb847a59d85b
+          stepCounter: a3f12380-2ec2-4f3e-b1ab-e4750734d6b4
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: SERVICE_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: MAX(l_cdsswe_programme.service_desc)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: df0a75e1-1c0f-453d-97d4-e9f2a32fa866
+          stepCounter: a3f12380-2ec2-4f3e-b1ab-e4750734d6b4
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          L_MAPPINGS_CDSSWE_CLINICAIN_ROLE: 8015b997-bbd1-4c66-aa9e-64c7b3ba77af
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: L_CDSSWE_PROGRAMME
+          - locationName: TGT
+            nodeName: L_MAPPINGS_CDSSWE_CLINICAIN_ROLE
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT l_cdsswe_programme.name name,
+                           IFNULL(NULLIF(MAX(SUBSTRING(l_cdsswe_programme.description,1,100)),''),l_cdsswe_programme.name) description,
+                           l_cdsswe_programme_dept.name department_desc,
+                           IFNULL(l_cdsswe_programme_serv.name,'COMMUNITY SERVICES') service_desc
+                      FROM l_cdsswe_programme
+                      LEFT OUTER JOIN l_cdsswe_programme l_cdsswe_programme_dept
+                        ON l_cdsswe_programme_dept.programme_id = l_cdsswe_programme.parent_programme_id
+                      LEFT OUTER JOIN l_cdsswe_programme l_cdsswe_programme_serv
+                        ON l_cdsswe_programme_serv.programme_id = l_cdsswe_programme_dept.parent_programme_id
+                     WHERE l_cdsswe_programme.parent_programme_id IS NOT NULL
+                     GROUP BY l_cdsswe_programme.name,
+                              l_cdsswe_programme_dept.name,
+                              l_cdsswe_programme_serv.name
+                   ) l_cdsswe_programme
+              LEFT OUTER JOIN {{ ref('TGT','L_MAPPINGS_CDSSWE_CLINICAIN_ROLE') }}
+                ON l_cdsswe_programme.name = l_mappings_cdsswe_clinicain_role.Role_code
+             GROUP BY l_cdsswe_programme.name,
+                      l_mappings_cdsswe_clinicain_role.Role_description
+            HAVING MAX(department_desc) <> MAX(service_desc)
+        name: S_ROLE_COMMUNITY
+        noLinkRefs: []
+  name: S_ROLE_COMMUNITY
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

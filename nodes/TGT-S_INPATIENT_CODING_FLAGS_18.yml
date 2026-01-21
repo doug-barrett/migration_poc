@@ -1,0 +1,87 @@
+fileVersion: 1
+id: 35bb2d98-5ba6-4eef-946f-c2eb402d24c7
+name: S_INPATIENT_CODING_FLAGS_18
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Covers the 18 ED and outsourced flag"
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9a072d0f-d113-491e-a2fd-350df9b3694e
+          stepCounter: 35bb2d98-5ba6-4eef-946f-c2eb402d24c7
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: PRVSP_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fd338d02-eac7-4d45-806a-1831b0f3775b
+                stepCounter: 3e756094-7e86-4086-a4af-59124cd9e961
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4ccbd47c-f689-4a5a-8be5-6bee8b9426cf
+          stepCounter: 35bb2d98-5ba6-4eef-946f-c2eb402d24c7
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: ""
+        name: OUTSOURCED_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: IIF(Outsourced_Flag = 'Y', 1, 0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: df032f59-7c0e-4ca8-b433-7c0feb90cb94
+          stepCounter: 35bb2d98-5ba6-4eef-946f-c2eb402d24c7
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          S_SHARED_INPATIENT_CHANGES: 3e756094-7e86-4086-a4af-59124cd9e961
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_SHARED_INPATIENT_CHANGES
+          - locationName: UNKNOWN
+            nodeName: S_OUTSOURCED_IP_FLAG_V
+        join:
+          joinCondition: |-
+            FROM {{ ref('TGT','S_SHARED_INPATIENT_CHANGES') }} s_shared_inpatient_changes
+              JOIN {{ ref('UNKNOWN','S_OUTSOURCED_IP_FLAG_V') }} s_outsourced_ip_flag_v
+                ON s_shared_inpatient_changes.prvsp_refno = s_outsourced_ip_flag_v.prvsp_refno
+        name: S_INPATIENT_CODING_FLAGS_18
+        noLinkRefs: []
+  name: S_INPATIENT_CODING_FLAGS_18
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

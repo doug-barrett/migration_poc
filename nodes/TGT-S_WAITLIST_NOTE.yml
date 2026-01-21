@@ -1,0 +1,115 @@
+fileVersion: 1
+id: d0578c3c-e29c-4bd7-adaa-6db6a10a08c3
+name: S_WAITLIST_NOTE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Clinician notes for each encounter."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6333cc62-1861-4478-8d10-4673f07e770a
+          stepCounter: d0578c3c-e29c-4bd7-adaa-6db6a10a08c3
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Equates to wlist_refno (waitlist_reference_no) when sorce_code = WLCMT
+        name: SORCE_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c69fabd2-f9d8-49ea-93af-9e4eda621f22
+                stepCounter: 77908805-72eb-4c85-a359-689a7e8e3afe
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 302d90e1-8ebb-4656-b961-b7c13d8ff060
+          stepCounter: d0578c3c-e29c-4bd7-adaa-6db6a10a08c3
+        config: {}
+        dataType: VARCHAR(5)
+        defaultValue: ""
+        description: Set to WLCMT for Notes relating to Waitlists
+        name: SORCE_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b0a2d3fc-4f84-48ff-8c3d-08d25514882e
+                stepCounter: 0f2c28d6-5d4a-4bb6-a9e2-a0fb820af70d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1f4d0b9a-3e23-4dd8-a66b-5ab1c56864bc
+          stepCounter: d0578c3c-e29c-4bd7-adaa-6db6a10a08c3
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Number for each row for an encounter.
+        name: ROW_NUM
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ROW_NUMBER() OVER(PARTITION BY ds_pims_note_roles.sorce_refno ORDER BY ds_pims_notes.note DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: af521199-d4f8-4b01-933c-07dc2da55225
+          stepCounter: d0578c3c-e29c-4bd7-adaa-6db6a10a08c3
+        config: {}
+        dataType: VARCHAR(MAX)
+        defaultValue: ""
+        description: Clinician notes for the encounter.
+        name: NOTE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fbab881d-00cc-4689-a24d-dc4eac20ed5b
+                stepCounter: 8132e10c-cb6f-416f-97aa-7dec7177518c
+            transform: LEFT(REPLACE(REPLACE(ds_pims_notes.note,CHAR(10),' '),CHAR(13),' '),2000)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7bd719f6-08dd-4a10-8237-2736bca93c85
+          stepCounter: d0578c3c-e29c-4bd7-adaa-6db6a10a08c3
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_WAITLIST_10
+        join:
+          joinCondition: |-
+            FROM ds_pims_note_roles
+              JOIN ds_pims_notes
+                ON ds_pims_note_roles.notes_refno = ds_pims_notes.notes_refno
+              JOIN s_waitlist_10
+                ON s_waitlist_10.waitlist_reference_no = ds_pims_note_roles.sorce_refno
+             WHERE ds_pims_note_roles.sorce_code = 'WLCMT'
+        name: S_WAITLIST_NOTE
+        noLinkRefs: []
+  name: S_WAITLIST_NOTE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,182 @@
+fileVersion: 1
+id: 58f3d07c-1eb3-46ec-b6fc-e121ffb2cacd
+name: S_REFERRAL_ACTIVITY_05_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Single row activity summary for an iPM referral.  Gives the count of each type of activity attched."
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8fb2e8d5-39d6-467c-81d2-bd1f39655d1a
+          stepCounter: 58f3d07c-1eb3-46ec-b6fc-e121ffb2cacd
+        config: {}
+        dataType: NUMERIC(10)
+        defaultValue: ""
+        description: ""
+        name: REFRL_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8c47dfac-ce6a-46f0-ad10-9ff1f1221a86
+          stepCounter: 58f3d07c-1eb3-46ec-b6fc-e121ffb2cacd
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_WAITLIST_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 85cdb8fc-1ed0-4d8a-86e7-72e2fb1e2f87
+          stepCounter: 58f3d07c-1eb3-46ec-b6fc-e121ffb2cacd
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_AE_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 22ccf26b-6fd8-48e7-9ca5-83bcc6d7ee6b
+          stepCounter: 58f3d07c-1eb3-46ec-b6fc-e121ffb2cacd
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_APPOINTMENT_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b1ccf00b-2ec8-4bf2-b1b5-cf695a10d163
+          stepCounter: 58f3d07c-1eb3-46ec-b6fc-e121ffb2cacd
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_ADMISSION_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6211d883-48d6-4cac-9d5e-08ec98d944b6
+          stepCounter: 58f3d07c-1eb3-46ec-b6fc-e121ffb2cacd
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: NPF_EXCLUDED_WL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6c833d8f-02f1-46ac-b3af-e94da2811404
+          stepCounter: 58f3d07c-1eb3-46ec-b6fc-e121ffb2cacd
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: NPF_SUSPENSION_EXCEPTION_WL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE VIEW s_referral_activity_05_v (refrl_refno ,referral_waitlist_count,referral_AE_count ,referral_appointment_count, referral_admission_count,NPF_excluded_WL,NPF_suspension_exception_WL) AS SELECT refrl_refno ,
+                   sum(referral_waitlist_count) referral_waitlist_count ,
+                   sum(c.referral_AE_count) referral_AE_count ,
+                   sum(c.referral_appointment_count) referral_appointment_count ,
+                   sum(c.referral_admission_count) referral_admission_count ,
+                   sum(NPF_Excluded) NPF_Excluded_WL ,
+                   sum(NPF_Suspension_exception) NPF_Suspension_exception_WL
+              FROM (
+                    SELECT dd.refrl_refno ,
+                           count(*) referral_waitlist_count ,
+                           0 referral_AE_count ,
+                           0 referral_appointment_count ,
+                           0 referral_admission_count ,
+                           sum(IFNULL(NPF_Excluded,0)) NPF_Excluded ,
+                           sum(CASE WHEN ord = 1 THEN IFNULL(NPF_Suspension_exception,0) ELSE 0 END) NPF_Suspension_exception
+                      FROM (
+                            SELECT * ,
+                                   ROW_NUMBER() OVER (PARTITION BY ds_pims_waiting_list_entries.refrl_refno,ds_pims_waiting_list_entries.patnt_refno ORDER BY COALESCE(ds_pims_waiting_list_entries.waiting_start_dttm,ds_pims_waiting_list_entries.wlist_dttm ,ds_pims_waiting_list_entries.remvl_dttm) ,ds_pims_waiting_list_entries.svtyp_refno DESC ,ds_pims_waiting_list_entries.wlist_refno) ORD
+                              FROM ds_pims_waiting_list_entries
+                           ) dd
+                      LEFT JOIN dbo.l_mappings_WaitlistCategories wc
+                        ON wc.wlrul_refno = dd.local_wlrul_refno
+                     WHERE dd.refrl_refno IS NOT NULL
+                     GROUP BY dd.refrl_refno
+                 UNION ALL SELECT dd.refrl_refno ,
+                           0 ,
+                           count(*) referral_AE_count ,
+                           0 ,
+                           0 ,
+                           0 ,
+                           0
+                      FROM ds_pims_ae_attendances dd
+                     WHERE dd.refrl_refno IS NOT NULL
+                     GROUP BY dd.refrl_refno
+                 UNION ALL SELECT dd.refrl_refno ,
+                           0 ,
+                           0 ,
+                           count(*) referral_appointment_count ,
+                           0 ,
+                           0 ,
+                           0
+                      FROM ds_pims_schedules dd
+                     WHERE dd.refrl_refno IS NOT NULL
+                     GROUP BY dd.refrl_refno
+                 UNION ALL SELECT dd.refrl_refno ,
+                           0 ,
+                           0 ,
+                           0 ,
+                           count(*) referral_admission_count ,
+                           0 ,
+                           0
+                      FROM ds_pims_provider_spells dd
+                     WHERE dd.refrl_refno IS NOT NULL
+                     GROUP BY dd.refrl_refno
+                   ) c
+             GROUP BY c.refrl_refno
+        dependencies: []
+        join:
+          joinCondition: None
+        name: S_REFERRAL_ACTIVITY_05_V
+        noLinkRefs: []
+  name: S_REFERRAL_ACTIVITY_05_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,99 @@
+fileVersion: 1
+id: 795446e9-9fb5-4494-a424-4697208d1f42
+name: S_CYSTOSCOPY_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2105d33b-1c6f-49a9-8467-58e5bd20529c
+          stepCounter: 795446e9-9fb5-4494-a424-4697208d1f42
+        config: {}
+        dataType: NUMERIC(10)
+        defaultValue: ""
+        description: ""
+        name: PRVSP_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 235cd63d-7888-4d8a-a65b-439b198e54c4
+          stepCounter: 795446e9-9fb5-4494-a424-4697208d1f42
+        config: {}
+        dataType: VARCHAR(1)
+        defaultValue: ""
+        description: ""
+        name: CYSTOSCOPY_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT t.prvsp_refno ,
+                   'Y' cystoscopy_Flag
+              FROM (
+                    SELECT ds_pims_provider_spells.prvsp_refno
+                      FROM ds_pims_schedules schedules
+                     INNER JOIN ds_pims_diagnosis_procedures
+                        ON ds_pims_diagnosis_procedures.sorce_refno = schedules.schdl_refno
+                       AND ds_pims_diagnosis_procedures.sorce_code = 'SCHDL'
+                     INNER JOIN ds_pims_odpcd_codes cyst
+                        ON cyst.code = ds_pims_diagnosis_procedures.code
+                     INNER JOIN ds_pims_provider_spells
+                        ON ds_pims_provider_spells.patnt_refno = SCHEDULES.patnt_refno
+                       AND schedules.start_dttm BETWEEN ds_pims_provider_spells.admit_dttm AND IFNULL(disch_dttm,getdate())
+                       AND datediff(DAY,ds_pims_provider_spells.ADMIT_DTTM,ds_pims_provider_spells.DISCH_DTTM)=0
+                       AND ds_pims_provider_spells.ADMET_REFNO <>200599
+                       AND schedules.cancr_dttm IS NULL
+                       AND cyst.code IN ('GXY22','UGU21','UGU22','UGU69')
+                 UNION ALL -- Nexus
+            SELECT cast(replace(nhsno,'H','') AS int) prvsp_refno
+                      FROM l_nexus_OPPROC a
+                     INNER JOIN l_nexus_OPS b
+                        ON a.opnumber = b.opnumber
+                     INNER JOIN ds_pims_provider_spells
+                        ON ds_pims_provider_spells.prvsp_refno = cast(replace(nhsno,'H','') AS int)
+                       AND datediff(DAY,ds_pims_provider_spells.ADMIT_DTTM,ds_pims_provider_spells.DISCH_DTTM)=0
+                       AND ds_pims_provider_spells.ADMET_REFNO <>200599
+                     WHERE proccode IN ('GXY22','UGU21','UGU22','UGU69')
+                   ) t
+             GROUP BY prvsp_refno
+            HAVING sum(1) = 1
+        dependencies:
+          - locationName: TGT
+            nodeName: S_CYSTOSCOPY
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_CYSTOSCOPY') }}
+        name: S_CYSTOSCOPY_V
+        noLinkRefs: []
+  name: S_CYSTOSCOPY_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

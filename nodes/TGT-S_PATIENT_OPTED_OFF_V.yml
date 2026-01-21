@@ -1,0 +1,77 @@
+fileVersion: 1
+id: e42ef230-d1ce-4616-a81b-3d469c7851b0
+name: S_PATIENT_OPTED_OFF_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "View of Patnt_refno who opted off from online booking"
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c546ee38-e357-46b9-bca4-c5dbd4923b20
+          stepCounter: e42ef230-d1ce-4616-a81b-3d469c7851b0
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: patnt_refno
+        name: PATNT_REFNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3b97bdc6-cf45-46a3-b6b6-36dca9fe2232
+                stepCounter: 91a0e39f-bf7f-4006-bd7b-65a534f637a9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f9378359-fe24-4f49-a436-941b6f678aee
+          stepCounter: e42ef230-d1ce-4616-a81b-3d469c7851b0
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: patient_opted_off_flag
+        name: PATIENT_OPTED_OFF_FLAG
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT DISTINCT SCHDL.patnt_refno,
+                   CASE WHEN EXISTS (SELECT 'x' FROM ds_pims_ldd_local_datavalues LDD WHERE LDD.USSOB_VALUE_1 = 'Y' AND USSCR_REFNO IN (1410020800)--(SELECT USSCR_REFNO FROM l_pims_user_screens WHERE CODE = 'PATPREF')--12.07.2023 SR
+            AND ARCHV_FLAG = 'N' AND LDD.patnt_refno = SCHDL.patnt_refno) THEN 'N'
+                        ELSE 'Y'
+                         END online_booking_flag
+              FROM ds_pims_schedules SCHDL
+              JOIN s_shared_patient_address_10
+                ON s_shared_patient_address_10.patnt_refno=SCHDL.patnt_refno
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PIMS_SCHEDULES
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','DS_PIMS_SCHEDULES') }}
+        name: S_PATIENT_OPTED_OFF_V
+        noLinkRefs: []
+  name: S_PATIENT_OPTED_OFF_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

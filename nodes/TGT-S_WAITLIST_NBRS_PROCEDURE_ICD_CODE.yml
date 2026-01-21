@@ -1,0 +1,154 @@
+fileVersion: 1
+id: 74cee5ef-711a-4220-9a8d-feaea60f1b01
+name: S_WAITLIST_NBRS_PROCEDURE_ICD_CODE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 204bcc2a-4e01-4db0-802e-1fa3a164da97
+          stepCounter: 74cee5ef-711a-4220-9a8d-feaea60f1b01
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: WLIST_REFNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 17c43712-3f95-493f-9aea-b7f7c370036b
+          stepCounter: 74cee5ef-711a-4220-9a8d-feaea60f1b01
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: DGPRO_REFNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 55c001bb-59ed-48bd-b40b-cfb8627f7f6c
+          stepCounter: 74cee5ef-711a-4220-9a8d-feaea60f1b01
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: PROCEDURE_CODE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1b018c2b-16bf-4648-a62e-840fa5d79305
+          stepCounter: 74cee5ef-711a-4220-9a8d-feaea60f1b01
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: PROCEDURE_DESC
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b799a6ca-241a-4223-a1ef-93b4640430cd
+          stepCounter: 74cee5ef-711a-4220-9a8d-feaea60f1b01
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: ICD8_CODE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5d69f18c-f3df-4232-b7d8-e8c82ebb2973
+          stepCounter: 74cee5ef-711a-4220-9a8d-feaea60f1b01
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: PROCEDURE_SPECIALTY_CODE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 96a206cb-e455-4e73-9332-27970bc4b29d
+          stepCounter: 74cee5ef-711a-4220-9a8d-feaea60f1b01
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: MAPPING_SEQUENCE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT DISTINCT sorce_refno WLIST_REFNO,
+                   dgpro.dgpro_refno,
+                   dgpro.code procedure_code ,
+                   dgpro.description procedure_desc ,
+                   odpcd_nbrs.code ICD8_code ,
+                   left(odpcd_nbrs2.code,3) procedure_specialty_code ,
+                   row_number() over(PARTITION BY sorce_refno ORDER BY odpcd_nbrs.code) mapping_sequence
+              FROM dbo.ds_pims_DIAGNOSIS_PROCEDURES dgpro
+             INNER JOIN ds_pims_ODPCD_CODE_LINKS odpli
+                ON odpli.from_odpcd_refno = dgpro.odpcd_refno
+             INNER JOIN ds_pims_ODPCD_CODES odpcd_nbrs
+                ON odpli.to_odpcd_refno = odpcd_nbrs.odpcd_refno
+               AND odpcd_nbrs.ccsxt_code = 'I10P8'
+             INNER JOIN ds_pims_REFERENCE_VALUES mplev
+                ON dgpro.mplev_refno = mplev.rfval_refno
+             INNER JOIN ds_pims_ODPCD_CODE_LINKS odpli2
+                ON odpli2.from_odpcd_refno = dgpro.odpcd_refno
+             INNER JOIN ds_pims_ODPCD_CODES odpcd_nbrs2
+                ON odpli2.to_odpcd_refno = odpcd_nbrs2.odpcd_refno
+               AND odpcd_nbrs2.ccsxt_code ='NBRS'
+             WHERE 1=1 --and dgpro.sorce_refno = @V_Sorce_Refno
+
+               AND dgpro.sorce_code = 'WLIST'
+               AND dgpro.dptyp_code = 'PROCE'
+               AND mplev.main_code = 'PRIME'
+               AND IFNULL(dgpro.archv_flag, 'N') = 'N'
+               AND dgpro.sort_order = 1
+               AND dgpro.description IS NOT NULL
+        dependencies: []
+        join:
+          joinCondition: None
+        name: S_WAITLIST_NBRS_PROCEDURE_ICD_CODE
+        noLinkRefs: []
+  name: S_WAITLIST_NBRS_PROCEDURE_ICD_CODE
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

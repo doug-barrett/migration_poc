@@ -1,0 +1,113 @@
+fileVersion: 1
+id: c391d428-95ae-4535-b3af-0671396d2573
+name: S_ED_EVENT_END_TYPE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4f84280f-680a-4dd3-8c47-fc1c36745af3
+          stepCounter: c391d428-95ae-4535-b3af-0671396d2573
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: EVENT_END_TYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1a6f947c-e8e7-43c2-a455-ea32143fad73
+                stepCounter: 67ed942c-e015-4c6e-abcc-46d4a5aa19e6
+            transform: IFNULL(s_ed_attendance_20.event_end_type,'Unknown')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 18b5ac54-285e-4f15-936c-be2954bbf07e
+          stepCounter: c391d428-95ae-4535-b3af-0671396d2573
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: EVENT_END_TYPE_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1a6f947c-e8e7-43c2-a455-ea32143fad73
+                stepCounter: 67ed942c-e015-4c6e-abcc-46d4a5aa19e6
+            transform: |-
+              CASE WHEN event_end_type='ED'                                                   THEN 'Died while still in Emergency department acute facility'
+                          WHEN event_end_type='ER'                                                   THEN 'Routine discharge from an Emergency department acute facility'
+                          WHEN event_end_type='ET'                                                   THEN 'Discharge from ED acute facility to another healthcare facility'
+                          WHEN event_end_type='EA'                                                   THEN 'Discharge from ED acute to specialist facility (neonates & burns only)'
+                          WHEN event_end_type='EI'                                                   THEN 'Self discharge from an ED acute facility with indemnity signed'
+                          WHEN event_end_type='ES'                                                   THEN 'Self discharge from an ED acute facility without indemnity'
+                          WHEN event_end_type='DW'                                                   THEN 'Discharge to other service within same facility '
+                          WHEN event_end_type='OB' AND s_ed_attendance_20.clinical_disposition='ODI' THEN 'Discharge from ED acute facility to an observation facility- Discharge'
+                          WHEN event_end_type='OB' AND s_ed_attendance_20.clinical_disposition='OAD' THEN 'Discharge from ED acute facility to an observation facility- Admit'
+                          WHEN event_end_type='OB' AND s_ed_attendance_20.clinical_disposition='ODD' THEN 'Discharge from ED acute facility to an observation facility- Died'
+                          WHEN event_end_type='OB' AND s_ed_attendance_20.clinical_disposition='ONW' THEN 'Discharge from ED acute facility to an observation facility- DNW'
+                          WHEN event_end_type='OB' AND s_ed_attendance_20.clinical_disposition='OTR' THEN 'Discharge from ED acute facility to an observation facility- Transfer'
+                          WHEN event_end_type='OB' AND s_ed_attendance_20.clinical_disposition='OSW' THEN 'Discharge from ED acute facility to an observation facility- Self-Discharge with Indemnity'
+                          WHEN event_end_type='OB' AND s_ed_attendance_20.clinical_disposition='OSD' THEN 'Discharge from ED acute facility to an observation facility- Self-Discharge without Indemnity '
+                          WHEN event_end_type IS NULL                                                THEN 'Unknown'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3b833c90-f9e7-4552-b018-f4a86d8deda9
+          stepCounter: c391d428-95ae-4535-b3af-0671396d2573
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: CLINICAL_DISPOSITION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4a1d010c-59f9-4f0e-a086-88037bd3086a
+                stepCounter: 67ed942c-e015-4c6e-abcc-46d4a5aa19e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f2b42529-64a4-4ec9-afbc-3122a526de2d
+          stepCounter: c391d428-95ae-4535-b3af-0671396d2573
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          S_ED_ATTENDANCE_20: 67ed942c-e015-4c6e-abcc-46d4a5aa19e6
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_ED_ATTENDANCE_20
+        join:
+          joinCondition: FROM {{ ref('TGT','S_ED_ATTENDANCE_20') }} s_ed_attendance_20
+        name: S_ED_EVENT_END_TYPE
+        noLinkRefs: []
+  name: S_ED_EVENT_END_TYPE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

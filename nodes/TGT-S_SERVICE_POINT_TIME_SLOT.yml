@@ -1,0 +1,99 @@
+fileVersion: 1
+id: 26e9d2a5-d387-4c66-b1ca-71c463e57593
+name: S_SERVICE_POINT_TIME_SLOT
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Service Point Time Slot summaries for a Outpatient Session facts"
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a1ab6251-0d0e-48b6-8b3b-35ee17b7562c
+          stepCounter: 26e9d2a5-d387-4c66-b1ca-71c463e57593
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: SERVICE_POINT_SESSION_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0057f2b6-a8a2-4954-ab97-1cc4cf13b49c
+                stepCounter: a6d2459c-3a81-4cc6-a8ef-69bc595a759f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a96d0f23-a067-4d09-876e-7d918637ade9
+          stepCounter: 26e9d2a5-d387-4c66-b1ca-71c463e57593
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: NEW_SLOTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ds_pims_dependant_rules.value = 11388 THEN 1 ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 80c3da51-adc9-4b9d-86d9-1e238be18034
+          stepCounter: 26e9d2a5-d387-4c66-b1ca-71c463e57593
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: FUP_SLOTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ds_pims_dependant_rules.value = 11389 THEN 1 ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 17f9c2b3-c827-43e7-a3c0-417756b3b3ae
+          stepCounter: 26e9d2a5-d387-4c66-b1ca-71c463e57593
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: AVAILABLE_SLOTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: Count(DISTINCT ds_pims_service_point_time_slots.spslt_refno)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PIMS_SERVICE_POINT_TIME_SLOTS
+        join:
+          joinCondition: |-
+            FROM ds_pims_service_point_time_slots
+             INNER JOIN ds_pims_dependant_rules
+                ON ds_pims_dependant_rules.sorce_refno = ds_pims_service_point_time_slots.spslt_refno
+               AND ds_pims_dependant_rules.sorce_code = 'SPSLT'
+             INNER JOIN l_pims_rules
+                ON l_pims_rules.rules_refno = ds_pims_dependant_rules.rules_refno
+               AND l_pims_rules.code = 'VISIT'
+             GROUP BY ds_pims_service_point_time_slots.spssn_refno
+        name: S_SERVICE_POINT_TIME_SLOT
+        noLinkRefs: []
+  name: S_SERVICE_POINT_TIME_SLOT
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

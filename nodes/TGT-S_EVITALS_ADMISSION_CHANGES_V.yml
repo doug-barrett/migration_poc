@@ -1,0 +1,82 @@
+fileVersion: 1
+id: ab51c9ff-e03b-4142-a234-69925dbc6449
+name: S_EVITALS_ADMISSION_CHANGES_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Return a list of admission_id values where something has changed in one of the eVitals data stores."
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e868b878-4407-44a3-bb6b-5e662eaaf934
+          stepCounter: ab51c9ff-e03b-4142-a234-69925dbc6449
+        config: {}
+        dataType: BIGINT
+        defaultValue: ""
+        description: ""
+        name: ADMISSION_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 585eb4aa-5380-4f45-9ddf-e2b67adb3ca1
+                stepCounter: a8e499ca-300b-48a9-9045-922a42433271
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT DISTINCT epsde_pk
+              FROM ds_Patientrack_EPISODE
+             WHERE dss_update_time > (
+                    SELECT convert(datetime, dss_parameter_value)
+                      FROM dss_parameter
+                     WHERE dss_parameter_name = 'pa_eVitals_incremental'
+                   )
+             UNION SELECT DISTINCT admsn_pk
+              FROM ds_Patientrack_FORM_INSTANCE
+             WHERE dss_update_time > (
+                    SELECT convert(datetime, dss_parameter_value)
+                      FROM dss_parameter
+                     WHERE dss_parameter_name = 'pa_eVitals_incremental'
+                   )
+             UNION SELECT DISTINCT admsn_pk
+              FROM ds_Patientrack_TASK
+             WHERE dss_update_time > (
+                    SELECT convert(datetime, dss_parameter_value)
+                      FROM dss_parameter
+                     WHERE dss_parameter_name = 'pa_eVitals_incremental'
+                   )
+             UNION SELECT DISTINCT epsde_pk
+              FROM ds_Patientrack_OBSERVATION_SET
+             WHERE dss_update_time > (
+                    SELECT convert(datetime, dss_parameter_value)
+                      FROM dss_parameter
+                     WHERE dss_parameter_name = 'pa_eVitals_incremental'
+                   )
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PATIENTRACK_EPISODE
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','DS_PATIENTRACK_EPISODE') }}
+        name: S_EVITALS_ADMISSION_CHANGES_V
+        noLinkRefs: []
+  name: S_EVITALS_ADMISSION_CHANGES_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,150 @@
+fileVersion: 1
+id: 5e758969-738f-4eea-b470-8fe7f82aea97
+name: S_TCARE_STAFF
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bf242ce1-c5cd-4228-b441-791af8c99715
+          stepCounter: 5e758969-738f-4eea-b470-8fe7f82aea97
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: USER_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: --'010' + ltrim(RTRIM(stPayrollNumber))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 05927564-5853-4e21-8773-dcb2c28b452b
+          stepCounter: 5e758969-738f-4eea-b470-8fe7f82aea97
+        config: {}
+        dataType: VARCHAR(1)
+        defaultValue: ""
+        description: ""
+        name: USER_ACTIVE_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: --CASE WHEN l_tcare_Staff.stIsActive = 1 THEN 'Y' ELSE 'N' END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2cc2a25d-39c2-4159-b112-60695bd4c477
+          stepCounter: 5e758969-738f-4eea-b470-8fe7f82aea97
+        config: {}
+        dataType: NVARCHAR(60)
+        defaultValue: ""
+        description: ""
+        name: USER_SURNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: '#NAME?'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cdd8f454-ec7f-4091-b90e-2ed0b91488b3
+          stepCounter: 5e758969-738f-4eea-b470-8fe7f82aea97
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: USER_GIVEN_NAMES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: '#NAME?'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 69e2ef91-16bc-4de9-a3cc-bb9481d0d8ea
+          stepCounter: 5e758969-738f-4eea-b470-8fe7f82aea97
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: USER_FULL_NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              --CASE WHEN CHARINDEX(RTRIM(stSurname), RTRIM(stGivenNames)) > 0
+              --THEN RTRIM(stGivenNames)
+              --ELSE RTRIM(stGivenNames) + ' ' + RTRIM(stSurname)
+              --END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b60e9141-b996-442a-97b9-7e440a1c3265
+          stepCounter: 5e758969-738f-4eea-b470-8fe7f82aea97
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: L_TCARE_STAFF
+        join:
+          joinCondition: |-
+            FROM ( SELECT '010' + ltrim(RTRIM(stPayrollNumber)) user_code,
+                   CASE WHEN l_tcare_Staff.stIsActive = 1 THEN 'Y'
+                        ELSE 'N'
+                         END user_active_flag,
+                   ltrim(RTRIM(stSurname)) user_surname,
+                   RTRIM(stGivenNames) user_given_names,
+                   CASE WHEN CHARINDEX(RTRIM(stSurname), RTRIM(stGivenNames)) > 0 THEN RTRIM(stGivenNames)
+                        ELSE RTRIM(stGivenNames) + ' ' + RTRIM(stSurname)
+                         END user_full_name,
+                   getdate() dss_update_time
+              FROM l_tcare_Staff
+              LEFT JOIN (
+                    SELECT DISTINCT phcaSignonCode
+                      FROM ds_tcare_PatientHealthCare_Activity
+                      LEFT JOIN dim.dim_allied_health_user
+                        ON phcaSignonCode = user_code
+                     WHERE user_code IS NULL
+                   ) t
+                ON t.phcaSignonCode= '010' + ltrim(RTRIM(stPayrollNumber))
+             WHERE t.phcaSignonCode IS NOT NULL --and stIsActive=1    union    SELECT distinct      '010' + ltrim(RTRIM(stPayrollNumber)) user_code,      CASE WHEN l_tcare_Staff.stIsActive = 1 THEN 'Y' ELSE 'N' END user_active_flag,      ltrim(RTRIM(stSurname)) user_surname,      RTRIM(stGivenNames ) user_given_names,      CASE WHEN CHARINDEX(RTRIM(stSurname), RTRIM(stGivenNames)) > 0  THEN RTRIM(stGivenNames)  ELSE RTRIM(stGivenNames) + ' ' + RTRIM(stSurname)  END user_full_name,    getdate() dss_update_time    FROM          l_tcare_Staff  where '010' + ltrim(RTRIM(stPayrollNumber)) in (       select distinct '010' + ltrim(RTRIM(stPayrollNumber)) from l_tcare_staff       where '010' + ltrim(RTRIM(stPayrollNumber)) <> '010'  except    select  distinct rtrim(ltrim(seSignonCode)) from l_tcare_Secur)    )l_tcare_staff
+        name: S_TCARE_STAFF
+        noLinkRefs: []
+  name: S_TCARE_STAFF
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

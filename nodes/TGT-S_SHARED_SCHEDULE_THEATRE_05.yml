@@ -1,0 +1,78 @@
+fileVersion: 1
+id: 9687f32b-5cb8-4a2d-9bd6-bc9fb6ec78f7
+name: S_SHARED_SCHEDULE_THEATRE_05
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dc4b6a53-16b1-4d7b-8e87-ad675896d02d
+          stepCounter: 9687f32b-5cb8-4a2d-9bd6-bc9fb6ec78f7
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PATIENT_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0455e557-e935-485a-a5bb-d848ee249cfd
+                stepCounter: ab7b9f91-81b3-4d0a-bd4c-90aa5d071bb9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 37e3978b-c77d-44d5-87fc-3ade207b42bc
+          stepCounter: 9687f32b-5cb8-4a2d-9bd6-bc9fb6ec78f7
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_SHARED_SCHEDULE: ab7b9f91-81b3-4d0a-bd4c-90aa5d071bb9
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_SHARED_SCHEDULE
+        join:
+          joinCondition: |-
+            FROM ( SELECT DISTINCT patnt_refno patient_reference_no
+              FROM ds_pims_diagnosis_procedures
+             WHERE ds_pims_diagnosis_procedures.dss_update_time > @v_pa_theatre_incremental
+             UNION SELECT DISTINCT patient_reference_no
+              FROM {{ ref('TGT','DS_SHARED_SCHEDULE') }} ds_shared_schedule
+             WHERE ds_shared_schedule.dss_update_time > @v_pa_theatre_incremental
+             UNION SELECT DISTINCT p.patient_reference_no
+              FROM fact.fact_theatre_visit t
+              JOIN s_in_patient_event_05 i
+                ON i.patient_NHI = t.patient_NHI
+               AND t.into_theatre_date BETWEEN i.admit_date AND IFNULL(i.disch_date,getdate()) --join db_red.dim.dim_surgical_theatre th on th.dim_surgical_theatre_key = t.dim_surgical_theatre_key  --join db_red.dim.dim_theatre_specialty s on s.dim_theatre_specialty_key = t.dim_theatre_specialty_key  join dim.dim_patient p   on p.patient_reference_no = i.patnt_refno  where 1=1    --and  into_theatre_date>='2023-01-01'  and schedule_status_code='A'   and IP_Event_encounter_ID is null  and t.into_theatre_date is not null  --union   --select distinct patient_reference_no from    --ds_theatre_visit_diagnosis_procedure     --where  ds_theatre_visit_diagnosis_procedure.dss_update_time > @v_pa_theatre_incremental      )ds_shared_schedule
+        name: S_SHARED_SCHEDULE_THEATRE_05
+        noLinkRefs: []
+  name: S_SHARED_SCHEDULE_THEATRE_05
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

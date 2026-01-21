@@ -1,0 +1,105 @@
+fileVersion: 1
+id: 817fbf5c-5799-4bcb-9b66-9ad5b75c55b8
+name: S_ED_ATTENDANCE_STREAM_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3aace5b3-a5a0-495f-9ac3-30a47c6a4cdb
+          stepCounter: 817fbf5c-5799-4bcb-9b66-9ad5b75c55b8
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: ENCOUNTER
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 68196ff7-a070-4e31-8157-a60300ab174d
+                stepCounter: 99bbbe22-5934-4b71-a05c-126d23681f8f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: daae5d51-303a-49f2-b66b-5fd9e6aa6aa9
+          stepCounter: 817fbf5c-5799-4bcb-9b66-9ad5b75c55b8
+        config: {}
+        dataType: NVARCHAR(MAX)
+        defaultValue: ""
+        description: ""
+        name: STREAM
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5ff2dadb-0a19-4e4b-bea4-1b41cf2ffaaf
+                stepCounter: 7a40215e-0ffd-475e-a3d6-62ec10fe46d7
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d1e4d977-385a-42e3-afeb-44b96abd31a3
+          stepCounter: 817fbf5c-5799-4bcb-9b66-9ad5b75c55b8
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: PRIORITY_SEQUENCE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT encounter,
+                   stream,
+                   row_number() OVER (PARTITION BY encounter ORDER BY priority_sequence) priority_sequence
+              FROM (
+                    SELECT P.encounter,
+                           c.comment stream,
+                           c.type,
+                           CASE WHEN COMMENT='Blue'   THEN 1
+                                WHEN COMMENT='Yellow' THEN 2
+                                WHEN COMMENT='Lilac'  THEN 3
+                                WHEN COMMENT='White'  THEN 4
+                                 END AS priority_sequence
+                      FROM ds_Centric_WB_Patient P
+                      JOIN ds_Centric_Comments C
+                        ON P.encounter = C.encounter
+                     WHERE 1=1 --and p.encounter='A1412122889'
+
+                       AND C.type = 4
+                       AND C.deprecatedFlag = 0 --and C.deletedDTTM is null
+            --and P.departedDTTM is null
+
+                       AND P.archv_flag = 'N'
+                   )t
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_CENTRIC_WB_PATIENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','DS_CENTRIC_WB_PATIENT') }}
+        name: S_ED_ATTENDANCE_STREAM_V
+        noLinkRefs: []
+  name: S_ED_ATTENDANCE_STREAM_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,112 @@
+fileVersion: 1
+id: f4b441f0-df3c-4e1f-9ae5-135135b4f096
+name: S_ACCCOMMENTS
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9c95d315-854d-4032-aa02-8d2150228747
+          stepCounter: f4b441f0-df3c-4e1f-9ae5-135135b4f096
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Comment_row
+        name: COMMENT_ROW
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: row_number() OVER (PARTITION BY ds_pims_ldd_local_datavalues.sorce_refno ORDER BY ds_pims_notes.modif_dttm DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 41976958-3417-4932-9a54-9df97800b316
+          stepCounter: f4b441f0-df3c-4e1f-9ae5-135135b4f096
+        config: {}
+        dataType: DECIMAL(10)
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4a398f10-0e5d-4eca-b3cf-6cc0b87b7515
+                stepCounter: c5429209-b899-4e7f-9548-ca0e9a55f302
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9605eacf-5804-4a75-9ce4-08c05aff3e19
+          stepCounter: f4b441f0-df3c-4e1f-9ae5-135135b4f096
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: ""
+        name: ACCCOMMENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fbab881d-00cc-4689-a24d-dc4eac20ed5b
+                stepCounter: 8132e10c-cb6f-416f-97aa-7dec7177518c
+            transform: cast(ds_pims_notes.note AS varchar(255))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 809f84de-a9f1-4c5c-9f23-b7208c7d5a96
+          stepCounter: f4b441f0-df3c-4e1f-9ae5-135135b4f096
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_PIMS_NOTES: 8132e10c-cb6f-416f-97aa-7dec7177518c
+          DS_PIMS_NOTE_ROLES: 0f2c28d6-5d4a-4bb6-a9e2-a0fb820af70d
+          DS_PIMS_LDD_LOCAL_DATAVALUES: c5429209-b899-4e7f-9548-ca0e9a55f302
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PIMS_NOTES
+          - locationName: TGT
+            nodeName: DS_PIMS_NOTE_ROLES
+          - locationName: TGT
+            nodeName: DS_PIMS_LDD_LOCAL_DATAVALUES
+        join:
+          joinCondition: |-
+            FROM {{ ref('TGT','DS_PIMS_NOTES') }}
+              JOIN {{ ref('TGT','DS_PIMS_NOTE_ROLES') }}
+                ON ds_pims_notes.notes_refno = ds_pims_note_roles.notes_refno
+              JOIN {{ ref('TGT','DS_PIMS_LDD_LOCAL_DATAVALUES') }}
+                ON ds_pims_note_roles.sorce_refno = ds_pims_ldd_local_datavalues.lclda_refno
+             WHERE 1 = 1
+               AND ds_pims_ldd_local_datavalues.usscr_refno = 2000020301
+               AND ds_pims_ldd_local_datavalues.ussob_memo_1 = 'Y'
+               AND ds_pims_note_roles.sorce_code = 'MEM01'
+               AND ds_pims_note_roles.ARCHV_FLAG = 'N'
+               AND ds_pims_notes.archv_flag = 'N'
+        name: S_ACCCOMMENTS
+        noLinkRefs: []
+  name: S_ACCCOMMENTS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

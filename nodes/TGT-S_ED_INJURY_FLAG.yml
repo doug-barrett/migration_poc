@@ -1,0 +1,97 @@
+fileVersion: 1
+id: 80735e6c-8a12-41ae-8034-6cf7e83a9a5f
+name: S_ED_INJURY_FLAG
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "The LDDI field in the ED event indicates if an accidental injury has occured"
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eed075df-910a-4379-933b-e7754d716b7d
+          stepCounter: 80735e6c-8a12-41ae-8034-6cf7e83a9a5f
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: ED_ATTENDANCE_REFERENCE_NO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4a398f10-0e5d-4eca-b3cf-6cc0b87b7515
+                stepCounter: c5429209-b899-4e7f-9548-ca0e9a55f302
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c7ab5511-8500-439e-9cfb-ce6b427cff6f
+          stepCounter: 80735e6c-8a12-41ae-8034-6cf7e83a9a5f
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: observation value
+        name: USSOB_VALUE_2
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 80d92f98-7d23-41c5-9b85-10a320dea324
+                stepCounter: c5429209-b899-4e7f-9548-ca0e9a55f302
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5e351246-e2eb-4546-8be7-a698f8db8611
+          stepCounter: 80735e6c-8a12-41ae-8034-6cf7e83a9a5f
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: Y.N indicator
+        name: TEXTVALUE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT sorce_refno,
+                   max(ussob_value_2)ussob_value_2,
+                   max(TextValue)TextValue
+              FROM (
+                    SELECT DISTINCT sorce_refno,
+                           ussob_value_2 ,
+                           CASE WHEN 1400018182 = ussob_value_2 THEN 'Y'
+                                ELSE 'N'
+                                 END TextValue
+                      FROM ds_pims_ldd_local_datavalues lcd
+                     WHERE [SORCE_CODE] = 'AEATT'
+                       AND lcd.usscr_refno = 1400020320
+                       AND lcd.archv_flag = 'N'
+                   ) d
+             GROUP BY sorce_refno
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PIMS_LDD_LOCAL_DATAVALUES
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','DS_PIMS_LDD_LOCAL_DATAVALUES') }}
+        name: S_ED_INJURY_FLAG
+        noLinkRefs: []
+  name: S_ED_INJURY_FLAG
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

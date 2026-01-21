@@ -1,0 +1,135 @@
+fileVersion: 1
+id: a799972a-fe82-4f7c-b85c-8f983d0547ae
+name: S_ED_ATTENDANCE_PATIENT_COUNT_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "patient count and visit_num"
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 81dac158-1c5c-44ed-89a6-9dac027950c6
+          stepCounter: a799972a-fe82-4f7c-b85c-8f983d0547ae
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: patnt_refno
+        name: PATNT_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ccc5b70b-93b2-4083-8a6a-640bcf63f44e
+                stepCounter: 94527cff-ab41-440e-8de3-e7da6726bc81
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4c99bb05-321c-4501-b2d1-1dc77f96c344
+          stepCounter: a799972a-fe82-4f7c-b85c-8f983d0547ae
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Attendance ref no.
+        isBusinessKey: true
+        name: AEATT_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f105f398-1042-471d-ba39-935c000ef834
+                stepCounter: 94527cff-ab41-440e-8de3-e7da6726bc81
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a2ec0601-6777-43af-aa60-6f11dec5fef0
+          stepCounter: a799972a-fe82-4f7c-b85c-8f983d0547ae
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: patient_visit_num
+        name: PATIENT_VISIT_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ROW_NUMBER() OVER (PARTITION BY ds_shared_ed_Attendance.patnt_refno ORDER BY ds_shared_ed_Attendance.arrived_date)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 37c41337-20ce-4286-b318-903e80b73598
+          stepCounter: a799972a-fe82-4f7c-b85c-8f983d0547ae
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: patient_visit_count
+        name: PATIENT_VISIT_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: COUNT(1) OVER (PARTITION BY ds_shared_ed_Attendance.patnt_refno)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE VIEW {{ this }}(identifier, aeatt_refno, heorg_refno, spont_refno, service_point_code, health_org_code, intend_spect_refno, refrl_refno, referral_date, arrived_dttm, departed_dttm, med_disch_dttm, disde_refno, discharge_destination, atdis_refno, discharge_reason_code, self_discharge_flag, armod_refno, atcat_refno, attendance_category_code, planned_return_visit_flag, patnt_refno, patient_NHI, patient_date_of_birth, domicile_code, patient_age_on_arrival_years, patient_age_on_arrival_months, patient_visit_num, patient_visit_count, create_dttm, user_create, modif_dttm, user_modif, nurse_seen_flag, nurse_seen_dttm, neref_refno, dss_update_time) AS SELECT ds_shared_ed_Attendance.encounter,
+                   ds_shared_ed_Attendance.aeatt_refno,
+                   ds_shared_ed_Attendance.heorg_refno,
+                   ds_shared_ed_Attendance.spont_refno,
+                   ds_shared_ed_Attendance.service_point_code,
+                   ds_shared_ed_Attendance.health_org_code,
+                   ds_shared_ed_Attendance.intended_spect_refno,
+                   ds_shared_ed_Attendance.refrl_refno,
+                   ds_shared_ed_Attendance.referral_date,
+                   ds_shared_ed_Attendance.arrived_date,
+                   ds_shared_ed_Attendance.departed_date,
+                   ds_shared_ed_Attendance.medical_discharge_date,
+                   ds_shared_ed_Attendance.discharge_destination_reference_no,
+                   ds_shared_ed_Attendance.discharge_destination,
+                   ds_shared_ed_Attendance.discharge_reason_reference_no,
+                   ds_shared_ed_Attendance.discharge_reason_code,
+                   ds_shared_ed_Attendance.self_discharge_flag,
+                   ds_shared_ed_Attendance.armod_refno,
+                   ds_shared_ed_Attendance.atcat_refno,
+                   ds_shared_ed_Attendance.attendance_category_code,
+                   ds_shared_ed_Attendance.planned_return_visit_flag,
+                   ds_shared_ed_Attendance.patnt_refno,
+                   ds_shared_ed_Attendance.patient_NHI,
+                   ds_shared_ed_Attendance.patient_date_of_birth,
+                   ds_shared_ed_Attendance.domicile_code,
+                   ds_shared_ed_Attendance.patient_age_on_arrival_years,
+                   ds_shared_ed_Attendance.patient_age_on_arrival_months,
+                   ds_shared_ed_Attendance.patient_visit_num,
+                   ds_shared_ed_Attendance.patient_visit_count,
+                   ds_shared_ed_Attendance.create_dttm,
+                   ds_shared_ed_Attendance.user_create,
+                   ds_shared_ed_Attendance.modif_dttm,
+                   ds_shared_ed_Attendance.user_modif,
+                   ds_shared_ed_Attendance.nurse_seen_flag,
+                   ds_shared_ed_Attendance.nurse_seen_dttm,
+                   ds_shared_ed_Attendance.neref_refno,
+                   ds_shared_ed_Attendance.dss_update_time
+              FROM dbo.ds_shared_ed_Attendance ds_shared_ed_Attendance
+             WHERE ds_shared_ed_ATTENDANCE.arrived_Date > CONVERT(datetime,'{{ parameters.pa_ED_Incremental_Store }}',120)
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_SHARED_ED_ATTENDANCE
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','DS_SHARED_ED_ATTENDANCE') }}
+        name: S_ED_ATTENDANCE_PATIENT_COUNT_V
+        noLinkRefs: []
+  name: S_ED_ATTENDANCE_PATIENT_COUNT_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

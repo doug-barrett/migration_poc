@@ -1,0 +1,117 @@
+fileVersion: 1
+id: 804e4481-4b5b-4b0c-ad30-4660d2191e3c
+name: S_OUTPATIENT_COMMENT_NOTE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a317e1d1-37e0-41c8-8778-6b746918390c
+          stepCounter: 804e4481-4b5b-4b0c-ad30-4660d2191e3c
+        config: {}
+        dataType: VARCHAR(MAX)
+        defaultValue: ""
+        description: ""
+        name: NOTE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fbab881d-00cc-4689-a24d-dc4eac20ed5b
+                stepCounter: 8132e10c-cb6f-416f-97aa-7dec7177518c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ca7430b5-b94f-484f-9f5c-2c78f9df7b36
+          stepCounter: 804e4481-4b5b-4b0c-ad30-4660d2191e3c
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: ROW_NUM
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ROW_NUMBER() OVER(PARTITION BY ds_pims_note_roles.sorce_refno ORDER BY ds_pims_notes.modif_dttm DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f9bed6e1-242d-4751-97df-a1d0937ce1f6
+          stepCounter: 804e4481-4b5b-4b0c-ad30-4660d2191e3c
+        config: {}
+        dataType: DECIMAL(10)
+        defaultValue: ""
+        description: ""
+        name: SORCE_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fa311f04-1a20-4f03-a5b7-602efa2bdaf4
+                stepCounter: 0f2c28d6-5d4a-4bb6-a9e2-a0fb820af70d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 97f5116a-8ae9-4ba4-8b27-37ea3a2065c5
+          stepCounter: 804e4481-4b5b-4b0c-ad30-4660d2191e3c
+        config: {}
+        dataType: VARCHAR(5)
+        defaultValue: ""
+        description: ""
+        name: SORCE_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b0a2d3fc-4f84-48ff-8c3d-08d25514882e
+                stepCounter: 0f2c28d6-5d4a-4bb6-a9e2-a0fb820af70d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4c10b34c-e816-423f-b5dc-91b25bbca3a1
+          stepCounter: 804e4481-4b5b-4b0c-ad30-4660d2191e3c
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_PIMS_NOTES: 8132e10c-cb6f-416f-97aa-7dec7177518c
+          DS_PIMS_NOTE_ROLES: 0f2c28d6-5d4a-4bb6-a9e2-a0fb820af70d
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PIMS_NOTES
+          - locationName: TGT
+            nodeName: DS_PIMS_NOTE_ROLES
+        join:
+          joinCondition: |-
+            FROM {{ ref('TGT','DS_PIMS_NOTES') }}
+              JOIN {{ ref('TGT','DS_PIMS_NOTE_ROLES') }}
+                ON ds_pims_notes.notes_refno = ds_pims_note_roles.notes_refno
+             WHERE ds_pims_note_roles.sorce_code = 'OTPAT'
+        name: S_OUTPATIENT_COMMENT_NOTE
+        noLinkRefs: []
+  name: S_OUTPATIENT_COMMENT_NOTE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

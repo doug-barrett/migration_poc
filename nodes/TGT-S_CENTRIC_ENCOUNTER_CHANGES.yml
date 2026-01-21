@@ -1,0 +1,73 @@
+fileVersion: 1
+id: 3780b6ae-de68-49c7-aff3-0a34c07e229f
+name: S_CENTRIC_ENCOUNTER_CHANGES
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Find all encounter where something has changed in one of the source data stores.    "
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 689fcdbf-c459-4faf-95ae-35ac1e3d1548
+          stepCounter: 3780b6ae-de68-49c7-aff3-0a34c07e229f
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: ENCOUNTER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: dba6e569-0eb6-49a2-8e0b-c50fa5562fc3
+                stepCounter: 60ab9d33-92b5-415b-8c36-69df6265898d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 28c9b976-92f4-482a-8315-e7175108acf6
+          stepCounter: 3780b6ae-de68-49c7-aff3-0a34c07e229f
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_CENTRIC_PATIENT_CLINICIAN
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT DISTINCT encounter
+                      FROM ds_Centric_patient_clinician
+                     WHERE dss_update_time > @v_pa_ed_incremental
+                     UNION SELECT DISTINCT encounter
+                      FROM s_ed_changes
+                   )ds_Centric_patient_clinician
+        name: S_CENTRIC_ENCOUNTER_CHANGES
+        noLinkRefs: []
+  name: S_CENTRIC_ENCOUNTER_CHANGES
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

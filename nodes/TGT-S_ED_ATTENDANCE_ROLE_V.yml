@@ -1,0 +1,147 @@
+fileVersion: 1
+id: 8ae7d8f3-bbca-4c09-981b-c715dd1cc566
+name: S_ED_ATTENDANCE_ROLE_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 242a80ea-fc2a-4a26-b6ae-92f63b3d7e8d
+          stepCounter: 8ae7d8f3-bbca-4c09-981b-c715dd1cc566
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: aeatt_refno
+        name: AEATT_REFNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 20df61f4-b674-4ffd-bd50-cde199588df3
+                stepCounter: 8e6fba6b-6a34-4370-b109-d1c7854000cc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 74b8928b-2372-449d-bf03-37948d30054f
+          stepCounter: 8ae7d8f3-bbca-4c09-981b-c715dd1cc566
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: atrol_refno
+        name: ATROL_REFNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2c7fc397-b426-413b-907b-8db32b9e7235
+                stepCounter: 8e6fba6b-6a34-4370-b109-d1c7854000cc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9d481450-8927-4017-9459-4bbfe7b9a322
+          stepCounter: 8ae7d8f3-bbca-4c09-981b-c715dd1cc566
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: trcat_refno
+        name: TRCAT_REFNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 925946a5-a92d-49f1-81fc-9e170cb8672f
+                stepCounter: 8e6fba6b-6a34-4370-b109-d1c7854000cc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 99a0bde1-b057-42c7-9169-298c7566c7e1
+          stepCounter: 8ae7d8f3-bbca-4c09-981b-c715dd1cc566
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: triag_proca_refno
+        name: TRIAG_PROCA_REFNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2e313b68-1ab0-4218-bf26-6e759a90838e
+                stepCounter: 8e6fba6b-6a34-4370-b109-d1c7854000cc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0f8b7379-6baf-4fbe-b210-8ffcd87e4bff
+          stepCounter: 8ae7d8f3-bbca-4c09-981b-c715dd1cc566
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: triag_start_dttm
+        name: TRIAG_START_DTTM
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9ee9481e-acc9-4cf2-8f58-0e09a3ce54e3
+                stepCounter: 8e6fba6b-6a34-4370-b109-d1c7854000cc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 61a64da2-d998-471e-bb26-d184a9b34da8
+          stepCounter: 8ae7d8f3-bbca-4c09-981b-c715dd1cc566
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: triag_end_dttm
+        name: TRIAG_END_DTTM
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ed9e1510-4be3-43da-9e79-dcec17c0ac34
+                stepCounter: 8e6fba6b-6a34-4370-b109-d1c7854000cc
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT aeatt_refno,
+                   atrol_refno,
+                   trcat_refno,
+                   triag_proca_refno,
+                   triag_start_dttm,
+                   triag_end_dttm
+              FROM (
+                    SELECT aeatt_refno,
+                           atrol_refno,
+                           trcat_refno,
+                           triag_proca_refno,
+                           triag_start_dttm,
+                           triag_end_dttm,
+                           ROW_NUMBER() OVER(PARTITION BY aeatt_refno ORDER BY atrol_refno) row_num
+                      FROM ds_pims_ae_attendance_roles
+                     WHERE curnt_flag = 'Y'
+                   ) t
+             WHERE row_num = 1
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PIMS_AE_ATTENDANCE_ROLES
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','DS_PIMS_AE_ATTENDANCE_ROLES') }}
+        name: S_ED_ATTENDANCE_ROLE_V
+        noLinkRefs: []
+  name: S_ED_ATTENDANCE_ROLE_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,89 @@
+fileVersion: 1
+id: bc2471d9-a4b2-4d97-a8dc-6093298edc51
+name: S_NEXUS_OPPROC_SUMMARY_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b8563601-4220-4256-9f1a-5d13114b0a61
+          stepCounter: bc2471d9-a4b2-4d97-a8dc-6093298edc51
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: OPNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 18e68482-d9dd-4834-8454-cb95860e25cc
+                stepCounter: f4863973-3016-4ce7-8368-5b5aa4fbad1d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c1b9c010-10e4-4537-8d83-899ffc9416ff
+          stepCounter: bc2471d9-a4b2-4d97-a8dc-6093298edc51
+        config: {}
+        dataType: BIGINT
+        defaultValue: ""
+        description: ""
+        name: PROC_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0f42ad44-cffc-4dd1-bd08-5a55676b46a3
+                stepCounter: f4863973-3016-4ce7-8368-5b5aa4fbad1d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 788bab2d-8b32-4bff-8ee4-2420d5973392
+          stepCounter: bc2471d9-a4b2-4d97-a8dc-6093298edc51
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e53d4f1d-8630-4210-a80c-7c34b5d1358a
+                stepCounter: f4863973-3016-4ce7-8368-5b5aa4fbad1d
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE VIEW {{ this }}(opnumber, proc_time) AS SELECT s_nexus_OPPROC_summary.opnumber,
+                   sum(s_nexus_OPPROC_summary.proc_time)
+              FROM dbo.s_nexus_OPPROC_summary s_nexus_OPPROC_summary
+             GROUP BY s_nexus_OPPROC_summary.opnumber ;
+        dependencies:
+          - locationName: TGT
+            nodeName: S_NEXUS_OPPROC_SUMMARY
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_NEXUS_OPPROC_SUMMARY') }}
+        name: S_NEXUS_OPPROC_SUMMARY_V
+        noLinkRefs: []
+  name: S_NEXUS_OPPROC_SUMMARY_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

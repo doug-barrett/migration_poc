@@ -1,0 +1,207 @@
+fileVersion: 1
+id: b30d7e24-1b52-47cb-b1c4-b9ab31afbd0f
+name: S_PJ_JOURNEY_20
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Group the radiology data by journey_id."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7af31283-687c-4551-8698-8bc9edb863ad
+          stepCounter: b30d7e24-1b52-47cb-b1c4-b9ab31afbd0f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Unique ID for a patient journey
+        name: JOURNEY_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7f7dd4ca-4b72-4471-8e15-dd1ec0a54c3c
+                stepCounter: 025cc51b-16d6-4445-83f7-5229e679b705
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bda2c9e2-7d46-41db-b070-4a02e4f12a08
+          stepCounter: b30d7e24-1b52-47cb-b1c4-b9ab31afbd0f
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Patient National Health Index (NMPI)
+        name: PATIENT_NHI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e7f60003-b7a5-4f17-92d1-b8cb3e8fce89
+                stepCounter: 025cc51b-16d6-4445-83f7-5229e679b705
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 84f3be06-0b95-4e93-89d3-57c79ca30602
+          stepCounter: b30d7e24-1b52-47cb-b1c4-b9ab31afbd0f
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Journey number for the patient.
+        name: JOURNEY_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e8017333-8bf1-48d8-ae28-60f8be1ba8fd
+                stepCounter: 025cc51b-16d6-4445-83f7-5229e679b705
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b55093be-d7f5-4b85-a408-a8e3c1a9ad7c
+          stepCounter: b30d7e24-1b52-47cb-b1c4-b9ab31afbd0f
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: encounter unique identifier
+        name: ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 574b9ff8-3604-4f73-b718-1ec758c0ff18
+                stepCounter: 025cc51b-16d6-4445-83f7-5229e679b705
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 722745c3-aeb3-48f3-9608-3b056524328c
+          stepCounter: b30d7e24-1b52-47cb-b1c4-b9ab31afbd0f
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Row number by journey_id ordered by start_date.
+        name: ROW_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7f7dd4ca-4b72-4471-8e15-dd1ec0a54c3c
+                stepCounter: 025cc51b-16d6-4445-83f7-5229e679b705
+            transform: ROW_NUMBER() OVER(PARTITION BY s_PJ_event.journey_id ORDER BY s_PJ_radiology_event.exam_date)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 83663af9-a9d1-4c45-85e2-c195c93457f4
+          stepCounter: b30d7e24-1b52-47cb-b1c4-b9ab31afbd0f
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Row number by journey_id ordered by start_date for each row with Eorder ID populated.
+        name: EORDER_ROW_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7f7dd4ca-4b72-4471-8e15-dd1ec0a54c3c
+                stepCounter: 025cc51b-16d6-4445-83f7-5229e679b705
+            transform: |-
+              CASE WHEN s_PJ_radiology_event.radiology_eOrder_id IS NULL THEN NULL
+                          ELSE ROW_NUMBER() OVER(PARTITION BY s_PJ_event.journey_id, CASE WHEN s_PJ_radiology_event.radiology_eOrder_id IS NULL THEN 1 ELSE 0 END ORDER BY s_PJ_radiology_event.exam_date)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d6e1739e-90af-4383-a21d-54cd4dec7f11
+          stepCounter: b30d7e24-1b52-47cb-b1c4-b9ab31afbd0f
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: ACCESSION_NUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5c9c3a92-4618-4a7c-9860-e370c1014caa
+                stepCounter: 599dda53-de86-414a-a6a2-52dff404c37f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6d647e18-0e60-4072-a8bc-465f48cd8dd4
+          stepCounter: b30d7e24-1b52-47cb-b1c4-b9ab31afbd0f
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: RADIOLOGY_EORDER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 68e17349-2a2e-47a4-994c-96a3ac80eca3
+                stepCounter: 599dda53-de86-414a-a6a2-52dff404c37f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 51155ff7-8dc0-4574-9907-5eb615f4f929
+          stepCounter: b30d7e24-1b52-47cb-b1c4-b9ab31afbd0f
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: EXAM_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5bf5e0ad-b356-41bf-ab76-ab78daa21910
+                stepCounter: 599dda53-de86-414a-a6a2-52dff404c37f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 765c4b94-9b91-465a-b144-a6891f6043eb
+          stepCounter: b30d7e24-1b52-47cb-b1c4-b9ab31afbd0f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_RIS_procedures_completed.perf_department=dim_radiology_exam_performed.performing_department  s_RIS_procedures_completed.procedure_exam_code=dim_radiology_exam_performed.performed_exam_code
+        name: DIM_RADIOLOGY_EXAM_PERFORMED_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 09a8d8d2-ae6f-47b8-9a1c-20124dc71f0f
+                stepCounter: 599dda53-de86-414a-a6a2-52dff404c37f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5f8f7b4d-1086-4f9e-8b4e-bca1c2a62a02
+          stepCounter: b30d7e24-1b52-47cb-b1c4-b9ab31afbd0f
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_PJ_EVENT
+        join:
+          joinCondition: |-
+            FROM s_PJ_event
+              JOIN s_PJ_radiology_event
+                ON s_PJ_radiology_event.encounter_id = s_PJ_event.encounter_id
+        name: S_PJ_JOURNEY_20
+        noLinkRefs: []
+  name: S_PJ_JOURNEY_20
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

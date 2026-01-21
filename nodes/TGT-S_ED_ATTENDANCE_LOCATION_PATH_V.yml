@@ -1,0 +1,70 @@
+fileVersion: 1
+id: 54b2f02a-b840-43e5-a510-821a8264294d
+name: S_ED_ATTENDANCE_LOCATION_PATH_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5d46b78f-8a0b-45ac-a0ef-a0d2e4edd63d
+          stepCounter: 54b2f02a-b840-43e5-a510-821a8264294d
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: attendance_encounter_id
+        name: AEATT_REFNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: decef4af-31f8-4491-8813-d6282b13b362
+                stepCounter: 67ed942c-e015-4c6e-abcc-46d4a5aa19e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6b1f3553-5c98-4127-8daf-5c2aadb0edc9
+          stepCounter: 54b2f02a-b840-43e5-a510-821a8264294d
+        config: {}
+        dataType: VARCHAR(1000)
+        defaultValue: ""
+        description: ed_location_path
+        name: ED_LOCATION_PATH
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT aeatt_refno,
+                   replace((SELECT '|*'+replace(replace((SELECT s_ed_stay_20.location AS x FROM s_ed_stay_20 WHERE s_ed_stay_20.aeatt_refno = s_ed_attendance_20.aeatt_refno AND s_ed_stay_20.location <> IFNULL(s_ed_stay_20.next_service_point_code,'x') ORDER BY aeatt_refno, start_date,aesty_refno FOR XML path('')), '<x>',''), '</x>',' | ') AS ward_path) +'*|',' | *|','*|') ward_path
+              FROM s_ed_attendance_20
+        dependencies:
+          - locationName: TGT
+            nodeName: S_ED_ATTENDANCE_20
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_ED_ATTENDANCE_20') }}
+        name: S_ED_ATTENDANCE_LOCATION_PATH_V
+        noLinkRefs: []
+  name: S_ED_ATTENDANCE_LOCATION_PATH_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

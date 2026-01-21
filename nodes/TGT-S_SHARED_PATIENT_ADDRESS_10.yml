@@ -1,0 +1,78 @@
+fileVersion: 1
+id: 7872d04b-3d80-4b03-b6eb-330a43d36fb7
+name: S_SHARED_PATIENT_ADDRESS_10
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Get a distinct list of patnt refnos which have had data updated by the last load. Checks  PIMS data stores:   ds_pims_patients,ds_pims_address_roles,ds_pims_provider_spells"
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8793cc07-eb0a-44cb-a83a-439f3d348bed
+          stepCounter: 7872d04b-3d80-4b03-b6eb-330a43d36fb7
+        config: {}
+        dataType: NUMERIC(10)
+        defaultValue: ""
+        description: ""
+        name: PATNT_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5c1d681d-fba6-4c9e-bfdf-cc4bbe97e046
+                stepCounter: 34c6fd4e-f463-4453-bad1-3a1d762d3caa
+            transform: t.patnt_refno
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 95f29127-dbc2-40c8-8306-5577b196a998
+          stepCounter: 7872d04b-3d80-4b03-b6eb-330a43d36fb7
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PIMS_PATIENTS
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT patnt_refno
+                      FROM ds_pims_patients
+                     WHERE ds_pims_patients.dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT patnt_refno
+                      FROM ds_pims_address_roles
+                     WHERE dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT patnt_refno
+                      FROM ds_pims_provider_spells
+                     WHERE dss_update_time > @v_pa_Shared_Incremental
+                   ) t
+             WHERE patnt_refno IS NOT NULL
+        name: S_SHARED_PATIENT_ADDRESS_10
+        noLinkRefs: []
+  name: S_SHARED_PATIENT_ADDRESS_10
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

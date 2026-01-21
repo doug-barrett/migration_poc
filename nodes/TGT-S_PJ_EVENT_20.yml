@@ -1,0 +1,491 @@
+fileVersion: 1
+id: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+name: S_PJ_EVENT_20
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Calculate the journey number for each event. Events will be allocated the same number if they have the same IP event number or are no further apart than the number of minutes defined in parameter journey_max_mins.    Journey linkages determined HERE"
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eeaabf02-84e7-4d26-a716-8ed6b7328d76
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Patient National Health Index (NMPI)
+        name: PATIENT_NHI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 06eacd13-77c1-4e2e-88f8-085d8a225957
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 009aa51f-7f5c-40b1-851c-22266f8d00d2
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Numbers events for each patient in event_start_date order.
+        name: EVENT_SEQ_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 55675504-0696-4ca4-8793-f706553372c3
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 239d7fae-912a-4167-930d-e03a6a9a5439
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Numbers IP events (i.e. not OP) for each patient in event_start_date order.
+        name: IP_EVENT_SEQ_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9cead6cd-7b36-4145-abad-46a300d0e9bb
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 09667de7-ed54-4e88-af7c-182724ad7c65
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Total number of events for each patient.
+        name: EVENT_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1d475105-9ab9-486c-9682-c0fda15d87ad
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3c503556-d1be-4005-8951-c1f1677f461f
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Journey number for the patient.
+        name: JOURNEY_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN s_PJ_event_10.event_seq_num = 1 THEN 1 WHEN DATEDIFF(MI, IFNULL(prev.event_end_date, prev.event_Start_date), s_PJ_event_10.event_start_date) < 180 THEN 0 WHEN DATEDIFF(MI, IFNULL(prevaip.event_end_date, prevaip.event_Start_date), s_PJ_event_10.event_start_date) < 180 THEN 0 WHEN DATEDIFF(MI, IFNULL(previp.event_end_date, previp.event_start_date), s_PJ_event_10.event_start_date) < 180 THEN 0 WHEN s_PJ_event_10.ip_event_seq_num = 1 AND prev.ip_encounter_id = s_PJ_event_10.ip_encounter_id THEN 0 WHEN s_PJ_event_10.ip_event_seq_num = 1 THEN 1 WHEN previp.ip_encounter_id = s_PJ_event_10.ip_encounter_id THEN 0 WHEN prev.ip_encounter_id = s_PJ_event_10.ip_encounter_id AND s_PJ_event_10.event_start_date BETWEEN IPChk.event_start_date AND IFNULL(IPChk.event_end_date, GETDATE()) THEN 0 WHEN prev.ed_encounter_id = s_PJ_event_10.ed_encounter_id THEN 0 WHEN DATEDIFF(MI, IFNULL(prev.event_end_date, prev.event_start_date), s_PJ_event_10.event_start_date) >= 180 THEN 1 ELSE 0 END) OVER(PARTITION BY s_PJ_event_10.patient_nhi ORDER BY s_PJ_event_10.event_seq_num)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 561c6f94-783e-46cc-805a-f45c46f93013
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Source for this event e.g. ED, Inpatient.
+        name: EVENT_SOURCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1c7867af-c163-4671-b306-1622d184fbe7
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5ae600c6-5569-4ce2-89c3-8bd480c0ffd9
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: IP encounter unique identifier
+        name: IP_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4163ce58-b600-4d58-9dfb-aef70a433792
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 11e373f2-7aee-4f67-b72d-173c27debb49
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ED Encounter unique identifier
+        name: ED_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2c0a9d96-d713-4749-8038-36ae77c1f720
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 53ea9c69-d107-4676-928c-8f3f21da422e
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: ED_HOSPITAL_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9d6454b7-10f5-4d78-b7be-ad4d87e89981
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c2d8d520-ae04-4576-88bd-614d8f854242
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Theatre Encounter unique identifier
+        name: THEATRE_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c1f7d776-51c3-4b81-99bf-8cf6cf8bd538
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5cf2bee5-8338-41db-b526-f40ce8469434
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: theatre_acute_flag
+        name: THEATRE_ACUTE_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0c6dea33-0687-442c-a0aa-f6517f17b1d4
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4ddbb2f8-2668-4caa-8158-131a121f0738
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: ""
+        name: THEATRE_CANCELLED_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4052c6eb-89d1-4927-8859-fb34941931fe
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5afaad2b-e229-4fdb-9c93-f9a1fba7588d
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: RADIOLOGY_ACCESSION_NUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4d1d5ac6-4e9f-4901-9371-a1a48da535c2
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1705276d-a81f-41f8-85a9-0754ba7895a6
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: VARCHAR(22)
+        defaultValue: ""
+        description: eOrder_id
+        name: RADIOLOGY_EORDER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a81e34d5-bae7-4586-9cf9-7c13e1a9526f
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 516f7e15-d7d6-4b56-8fbf-88ce82eacd2c
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: OP encounter unique identifier
+        name: OP_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ca41f150-d384-4ffd-81b3-4ff0890f8bf8
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8095645f-f787-49d9-8aa5-b0e6db894fbc
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Event start date and time e.g. admit time.
+        name: EVENT_START_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 94e24acb-f959-4976-ba32-ac9bec8adea9
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d0f16f36-2df8-475d-b58b-9ad2b435e2cf
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time when the event ended e.g. discharge time.
+        name: EVENT_END_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3577e9d1-814e-465d-970a-a2d132b4ab97
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0b756e24-2c30-4f59-a16e-c4b4c7838b36
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Number of minutes since the previous event for the patient.
+        name: PREV_EVENT_MINS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1d475105-9ab9-486c-9682-c0fda15d87ad
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: DATEDIFF(MI, prev.event_end_date, s_PJ_event_10.event_start_date)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3d977721-8458-4751-ab7d-f87536ee87b7
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Set to 1 if the period between this event and the previous patient event is more than parameter journey_max_mins.
+        name: JOURNEY_START_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN s_PJ_event_10.ip_event_seq_num = 1 OR (prev.ip_encounter_id <> s_PJ_event_10.ip_encounter_id AND DATEDIFF(MI, prev.event_end_date, s_PJ_event_10.event_start_date) >= @v_journey_max_mins) THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 97f80dbb-b022-4cb1-ae83-bde99be0f059
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: 'ip event_length_of_stay '
+        name: IP_EVENT_LENGTH_OF_STAY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 72220672-6f3f-4ede-9ace-2a3179186d61
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 71aeb333-76d6-4c9d-9859-3f9a9f998934
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Service_Point_Code
+        name: IP_ADMIT_WARD_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 99b6e5d1-81be-4358-ac74-a00cf1857be0
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 68f65bb3-f36d-4ec4-99c6-97105565fb05
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Service_Point_Code
+        name: IP_DISCHARGE_WARD_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7c791422-428c-4ba6-86e6-78a596182c9c
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8e1c03a7-22de-4e51-a5e2-4cece000940a
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Specialty Code
+        name: IP_ADMIT_SPECIALTY_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 45b3c55f-398b-4bb8-b4c4-aa9bb51827b5
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7416447b-36e2-41de-bbb3-c7ebc3712fa7
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Specialty Code
+        name: IP_DISCHARGE_SPECIALTY_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 16e88621-f6d7-4453-84ed-390186e51e1c
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 196e82d3-177e-4816-9339-6e08031fcbb8
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Flag indicating whether this is an IP rehab event i.e. discharge specialty = AT&R.
+        name: REHAB_EVENT_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 16e88621-f6d7-4453-84ed-390186e51e1c
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: |-
+              CASE WHEN s_PJ_event_10.event_source = 'IP' AND s_PJ_event_10.ip_discharge_specialty_code = 'AT&R' THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dbe1b10d-b465-4b4b-94aa-865a78d076a2
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Flag indicating whether this is an IP rehab event i.e. admission_specialty_level2_code = 'MHSSE'
+        name: MH_EVENT_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 16e88621-f6d7-4453-84ed-390186e51e1c
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: |-
+              CASE WHEN s_PJ_event_10.event_source = 'IP' AND s_PJ_event_10.ip_admit_specialty_code IN ('AAMHIP', 'ACMHICU', 'ACRMHCOM', 'AMHCOM', 'CHI&YMH', 'FOCOM', 'FOMAX', 'FOMED', 'PSGCO', 'PSGIP', 'RADS', 'SAAMHIP') THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 89aa0f56-32eb-4095-b00c-09f9fe1a1dc5
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: VARCHAR(5)
+        defaultValue: ""
+        description: ""
+        name: DRG_FAMILY_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6037d479-97ec-4cc3-bfab-d555d5c6a318
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 45b1b0b4-00bd-45e0-be97-5907b64aa2cc
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Set to 1 if the event has been clinically coded to a DRG.
+        name: CODED_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 179b2008-671c-4467-ae55-6ee32ff2ded8
+                stepCounter: 0d25165c-0f95-4d39-a64a-78bd48349b98
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 888a0f1e-d7d5-4975-a9d6-b74bba0fab3a
+          stepCounter: 7388d62e-1f14-4ae1-9bff-d8d4f0f2c956
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_PJ_EVENT_10
+        join:
+          joinCondition: |-
+            FROM s_PJ_event_10
+              LEFT OUTER JOIN s_PJ_event_10 prev
+                ON prev.patient_nhi = s_PJ_event_10.patient_nhi
+               AND prev.event_seq_num = s_PJ_event_10.event_seq_num - 1
+              LEFT OUTER JOIN s_PJ_event_10 previp
+                ON previp.patient_nhi = s_PJ_event_10.patient_nhi
+               AND previp.ip_event_seq_num = s_PJ_event_10.ip_event_seq_num - 1
+              LEFT OUTER JOIN s_PJ_event_10 prevAip
+                ON prevAip.patient_nhi = s_PJ_event_10.patient_nhi
+               AND prevAip.act_ip_event_seq_num = s_PJ_event_10.act_ip_event_seq_num - 1
+              LEFT OUTER JOIN s_PJ_event_10 IPChk
+                ON IPChk.ip_encounter_id = s_PJ_event_10.ip_encounter_id
+               AND IPChk.event_source = 'IP'
+        name: S_PJ_EVENT_20
+        noLinkRefs: []
+  name: S_PJ_EVENT_20
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

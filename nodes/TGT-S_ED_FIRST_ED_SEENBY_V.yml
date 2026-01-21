@@ -1,0 +1,113 @@
+fileVersion: 1
+id: 8867476c-2e96-43f0-9e07-dc71d8007168
+name: S_ED_FIRST_ED_SEENBY_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "First seen by that is not an EMMED seen by"
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 259ee7fe-700f-4495-b3c3-14b24f5dcdd9
+          stepCounter: 8867476c-2e96-43f0-9e07-dc71d8007168
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: ATTENDANCE_ENCOUNTER_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c5ab6708-69e0-4889-991e-e908281c000d
+          stepCounter: 8867476c-2e96-43f0-9e07-dc71d8007168
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: WHITEBOARD_REFERENCE_NO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4faaea9c-c6cf-4029-847f-8820a7b7a419
+          stepCounter: 8867476c-2e96-43f0-9e07-dc71d8007168
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: SEEN_BY_DATE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ba202c98-894f-4eff-b464-cb89ab46aa90
+          stepCounter: 8867476c-2e96-43f0-9e07-dc71d8007168
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: DIM_SEEN_BY_CLINICIAN_USER_LOGIN_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e5496ebd-5cff-4f0c-b57f-37870813d919
+          stepCounter: 8867476c-2e96-43f0-9e07-dc71d8007168
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: SPECIALTY_CODE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT DISTINCT attendance_encounter_id,
+                   whiteboard_reference_no,
+                   seen_by_date ,
+                   dim_seen_by_clinician_user_login_key,
+                   specialty_code
+              FROM [dbo].[s_ed_seen_by_30] d
+             INNER JOIN (
+                    SELECT min(whiteboard_reference_no) wr
+                      FROM [dbo].[s_ed_seen_by_30] l
+                     WHERE specialty_code = 'EMMED'
+                     GROUP BY l.attendance_encounter_id
+                   ) h
+                ON whiteboard_reference_no = wr
+        dependencies: []
+        join:
+          joinCondition: None
+        name: S_ED_FIRST_ED_SEENBY_V
+        noLinkRefs: []
+  name: S_ED_FIRST_ED_SEENBY_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,121 @@
+fileVersion: 1
+id: 12a9da21-24cf-4357-b245-a246273d1511
+name: S_FCT_IPM_MATCH
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Matches the FCT events with the previous view of distinct caner events recorded in IPM"
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6bd8cb92-23f3-4e33-b22b-3bd15be9eec4
+          stepCounter: 12a9da21-24cf-4357-b245-a246273d1511
+        config: {}
+        dataType: NUMERIC(18)
+        defaultValue: ""
+        description: Uniquely identifies a document.
+        isBusinessKey: true
+        name: FCT_EVENT_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2cf9e1a5-7b7f-4d40-a841-5c795d64278b
+          stepCounter: 12a9da21-24cf-4357-b245-a246273d1511
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: Value from document field DXDate.
+        name: DX_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 51da7002-eecf-4023-a082-8e78459203d8
+          stepCounter: 12a9da21-24cf-4357-b245-a246273d1511
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: Value from document field Episode End Date.
+        name: EPISODE_END_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7d6e6c5a-7ce0-42a5-82c6-1b93c359b492
+          stepCounter: 12a9da21-24cf-4357-b245-a246273d1511
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: MATCHING_ENCOUNTER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 51c7f587-b3d1-429d-89d4-665d078e8dac
+                stepCounter: 014ffaec-c64c-46cd-b0fc-2de412f11f82
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 88d1875c-e37d-48f7-8a99-9c186ed3499b
+          stepCounter: 12a9da21-24cf-4357-b245-a246273d1511
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          S_FCT_IPM_MATCH_V: 014ffaec-c64c-46cd-b0fc-2de412f11f82
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_FCT_EVENT
+          - locationName: UNKNOWN
+            nodeName: S_FCT_EVENT
+          - locationName: TGT
+            nodeName: S_FCT_IPM_MATCH_V
+        join:
+          joinCondition: |-
+            FROM {{ ref('UNKNOWN','S_FCT_EVENT') }}
+              JOIN {{ ref('TGT','S_FCT_IPM_MATCH_V') }}
+                ON s_FCT_event.patient_nhi = s_FCT_iPM_match_v.patient_NHI
+               AND s_FCT_iPM_match_v.matching_date BETWEEN s_FCT_event.dx_date AND s_FCT_event.episode_end_date
+        name: S_FCT_IPM_MATCH
+        noLinkRefs: []
+  name: S_FCT_IPM_MATCH
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

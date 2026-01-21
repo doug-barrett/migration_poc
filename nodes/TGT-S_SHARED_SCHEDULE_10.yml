@@ -1,0 +1,72 @@
+fileVersion: 1
+id: 923a04f6-e640-4ee1-b20d-de38500311b1
+name: S_SHARED_SCHEDULE_10
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Get a distinct list of patnt refnos which have had data updated by the last load. Checks  PIMS data stores: ae_attandance, referrals, schedules, waiting_list_entries, patient,provider_spells."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 934ed4b9-b995-497a-b257-9f94e0cff366
+          stepCounter: 923a04f6-e640-4ee1-b20d-de38500311b1
+        config: {}
+        dataType: NUMERIC(10)
+        defaultValue: ""
+        description: ""
+        name: PATNT_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: t.patnt_refno
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 692b7a3c-f708-40d0-b4c3-478090c6dfbe
+          stepCounter: 923a04f6-e640-4ee1-b20d-de38500311b1
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PIMS_SCHEDULE
+        join:
+          joinCondition: |-
+            FROM (SELECT ds_pims_schedules.patnt_refno
+              FROM ds_pims_schedules
+              LEFT OUTER JOIN ds_pims_schedules p
+                ON ds_pims_schedules.parnt_refno = p.schdl_refno
+               AND ds_pims_schedules.parnt_refno IS NOT NULL
+             WHERE 1=1 --and s.patnt_refno is  null       and ds_pims_schedules.dss_update_time > @v_pa_Shared_Incremental           union          select patnt_refno from ds_pims_theatre_resources          WHERE 1=1       and dss_update_time > @v_pa_Shared_Incremental          union                    SELECT patnt_refno              FROM ds_pims_referrals rf      WHERE 1=1    and rf.dss_update_time > @v_pa_Shared_Incremental             UNION              SELECT patnt_refno FROM ds_pims_patients              WHERE 1=1    and dss_update_time > @v_pa_Shared_Incremental              UNION                        SELECT patnt_refno                FROM  ds_pims_waiting_list_entries                WHERE 1=1          --and schd_refno is not null           and dss_update_time >  @v_pa_Shared_Incremental             union                                          SELECT patnt_refno              FROM ds_pims_prof_carer_episodes            WHERE 1=1    and dss_update_time > @v_pa_Shared_Incremental              Union              select patnt_refno              FROM ds_pims_ldd_local_datavalues              WHERE 1=1    and ds_pims_ldd_local_datavalues.sorce_code = 'SCHDL'           and dss_update_time > @v_pa_Shared_Incremental              union              SELECT ds_pims_diagnosis_procedures.patnt_refno               FROM  ds_pims_diagnosis_procedures           WHERE 1=1    and ds_pims_diagnosis_procedures.sorce_code = 'SCHDL'         and dss_update_time > @v_pa_Shared_Incremental           union          select  ds_pims_provider_spells.patnt_refno from ds_pims_provider_spells                        WHERE 1=1    and  dss_update_time > @v_pa_Shared_Incremental         union         select  patnt_refno from ds_pims_ae_attendances            WHERE 1=1    and   dss_update_time > @v_pa_Shared_Incremental          union         SELECT distinct patnt_refno              FROM  ds_pims_service_point_stays                WHERE 1=1             and dss_update_time > @v_pa_Shared_Incremental          union       select patnt_refno from ds_pims_acute_list       where schdl_refno is not null      and dss_update_time > @v_pa_Shared_Incremental     union     SELECT patnt_refno              FROM ds_pims_personal_carers          WHERE 1=1    and dss_update_time > @v_pa_Shared_Incremental        union        SELECT patnt_refno              FROM ds_pims_patient_prof_carers            WHERE 1=1    and dss_update_time > @v_pa_Shared_Incremental       union       SELECT patnt_refno              FROM ds_pims_patient_personal_carers             WHERE 1=1    and dss_update_time > @v_pa_Shared_Incremental        union       SELECT patnt_refno              FROM ds_pims_patient_ids           WHERE 1=1    and dss_update_time > @v_pa_Shared_Incremental                    union       SELECT patnt_refno              FROM ds_pims_patient_ids           WHERE 1=1    and dss_update_time > @v_pa_Shared_Incremental       union       SELECT patnt_refno              FROM ds_pims_patient_assessments         WHERE 1=1    and dss_update_time > @v_pa_Shared_Incremental              union       SELECT patnt_refno              FROM ds_pims_home_leaves         WHERE 1=1    and dss_update_time > @v_pa_Shared_Incremental       union       SELECT patnt_refno              FROM ds_pims_address_roles            WHERE 1=1    and dss_update_time > @v_pa_Shared_Incremental       union       SELECT patnt_refno              FROM ds_pims_admission_decisions            WHERE 1=1    and dss_update_time > @v_pa_Shared_Incremental                          ) t            WHERE patnt_refno IS NOT NULL
+        name: S_SHARED_SCHEDULE_10
+        noLinkRefs: []
+  name: S_SHARED_SCHEDULE_10
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

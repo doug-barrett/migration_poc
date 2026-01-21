@@ -1,0 +1,106 @@
+fileVersion: 1
+id: 14a9733a-2051-4c6b-b9eb-02e1561188ee
+name: S_EVITALS_PATIENT
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Find the most recently created row in ds_Patientrack_PATIENT_IDENTIFIER for each patnt_pk value."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d01eb85d-38c3-4c7f-bc98-20bd756d57ec
+          stepCounter: 14a9733a-2051-4c6b-b9eb-02e1561188ee
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: PATNT_PK
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f7825efc-017b-4b2e-b649-dadc8890143c
+                stepCounter: 9b0f71c6-a154-44cd-a1cd-0f6887fd454e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e31b1246-4b2b-4282-8f8f-b1731a705e9e
+          stepCounter: 14a9733a-2051-4c6b-b9eb-02e1561188ee
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: PATIENT_NHI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 52bf553b-2c02-46c4-973f-a3503fe4cf42
+                stepCounter: 9b0f71c6-a154-44cd-a1cd-0f6887fd454e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f8a2d467-d6c8-41a2-b18f-ed9e8c7efcbc
+          stepCounter: 14a9733a-2051-4c6b-b9eb-02e1561188ee
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: CREATED_DTTM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: dc0f6564-9980-4b49-89b7-78ec97ecdb3e
+                stepCounter: 9b0f71c6-a154-44cd-a1cd-0f6887fd454e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 20c2f883-4ff2-4e53-a638-07d214bb260d
+          stepCounter: 14a9733a-2051-4c6b-b9eb-02e1561188ee
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PATIENTRACK_PATIENT_IDENTIFIER
+        join:
+          joinCondition: |-
+            FROM ds_Patientrack_PATIENT_IDENTIFIER
+              JOIN (
+                    SELECT patnt_pk,
+                           MAX(created_dttm) max_dttm
+                      FROM ds_Patientrack_PATIENT_IDENTIFIER
+                     WHERE deleted_flag = 0
+                     GROUP BY patnt_pk
+                   ) p2
+                ON ds_Patientrack_PATIENT_IDENTIFIER.patnt_pk = p2.patnt_pk
+               AND ds_Patientrack_PATIENT_IDENTIFIER.created_dttm = p2.max_dttm
+        name: S_EVITALS_PATIENT
+        noLinkRefs: []
+  name: S_EVITALS_PATIENT
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

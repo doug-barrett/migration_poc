@@ -1,0 +1,72 @@
+fileVersion: 1
+id: 3c7b9e22-23c7-4b1c-afaa-08690af509ea
+name: S_IN_PATIENT_EVENT_WARD_PATH_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Generates a pipe delimited ward path for each event being updated."
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8255ab28-918b-49b6-83b6-57fd9ae764a6
+          stepCounter: 3c7b9e22-23c7-4b1c-afaa-08690af509ea
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: EVENT_ENCOUNTER_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 61fcaf1e-5758-41ab-8a69-803d32d7a5e0
+                stepCounter: 3785c411-0818-4b5e-9d42-9d553d84ebd6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7b150240-1569-4274-a9f8-65e5f1db3b34
+          stepCounter: 3c7b9e22-23c7-4b1c-afaa-08690af509ea
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: string of wards that patient stayed-in during the encounter
+        name: WARD_PATH
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cbb52b4f-9b44-46b6-ac1d-bbde6815fcf5
+                stepCounter: 3574e047-03db-4aba-af69-06f8858b99cd
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT event_encounter_id,
+                   '| ' + REPLACE(REPLACE((SELECT stay_service_point_code AS x FROM ds_shared_inpatient_stay s WHERE s.prvsp_refno = e.event_reference_no ORDER BY event_encounter_id, stay_start_date FOR XML PATH('')), '<x>', ''), '</x>', ' | ') AS ward_path
+              FROM s_in_patient_event_10 e
+        dependencies:
+          - locationName: TGT
+            nodeName: S_IN_PATIENT_EVENT_10
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_IN_PATIENT_EVENT_10') }}
+        name: S_IN_PATIENT_EVENT_WARD_PATH_V
+        noLinkRefs: []
+  name: S_IN_PATIENT_EVENT_WARD_PATH_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

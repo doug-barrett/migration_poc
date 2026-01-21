@@ -1,0 +1,86 @@
+fileVersion: 1
+id: 2696bece-78b1-4c6b-a213-e9c34d475a94
+name: S_BRONCHOSCOPY_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 00e4f039-c5ba-4e68-9a8f-a891a785eeaf
+          stepCounter: 2696bece-78b1-4c6b-a213-e9c34d475a94
+        config: {}
+        dataType: NUMERIC(10)
+        defaultValue: ""
+        description: ""
+        name: PRVSP_REFNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7cb8a2cc-f9d4-4471-9128-24c2641ddedb
+          stepCounter: 2696bece-78b1-4c6b-a213-e9c34d475a94
+        config: {}
+        dataType: VARCHAR(1)
+        defaultValue: ""
+        description: ""
+        name: BRONCHOSCOPY_FLAG
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE VIEW dbo.s_bronchoscopy_v AS SELECT ds_pims_provider_spells.prvsp_refno ,
+                   'Y' bronchoscopy_flag
+              FROM ds_pims_schedules schedules
+             INNER JOIN ds_pims_diagnosis_procedures
+                ON ds_pims_diagnosis_procedures.sorce_refno = schedules.schdl_refno
+               AND ds_pims_diagnosis_procedures.sorce_code = 'SCHDL'
+             INNER JOIN ds_pims_odpcd_codes [ODPCD_CODES]
+                ON [ODPCD_CODES].code = ds_pims_diagnosis_procedures.code OUTER apply (
+                    SELECT [CODE] ,
+                           [CCSXT_CODE] ,
+                           [DESCRIPTION]
+                      FROM ds_pims_odpcd_codes Colp
+                     WHERE CODe IN ('BRO01','BRO02','BRO03','BRO04')
+                       AND Colp.code = ds_pims_diagnosis_procedures.code
+                   ) colp
+             INNER JOIN ds_pims_provider_spells
+                ON ds_pims_provider_spells.patnt_refno = SCHEDULES.patnt_refno
+               AND schedules.start_dttm BETWEEN ds_pims_provider_spells.admit_dttm AND IFNULL(disch_dttm,getdate())
+               AND datediff(DAY,ds_pims_provider_spells.ADMIT_DTTM,ds_pims_provider_spells.DISCH_DTTM)=0
+               AND ds_pims_provider_spells.ADMET_REFNO <>200599
+               AND schedules.cancr_dttm IS NULL --AND ds_pims_diagnosis_procedures.sort_order in (1, 2)
+
+             GROUP BY prvsp_refno
+            HAVING sum(CASE WHEN [ODPCD_CODES].CODe IN ('BRO01','BRO02','BRO03','BRO04') THEN 1 ELSE 0 END) = 1
+               AND sum(1) = 1
+        dependencies: []
+        join:
+          joinCondition: None
+        name: S_BRONCHOSCOPY_V
+        noLinkRefs: []
+  name: S_BRONCHOSCOPY_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

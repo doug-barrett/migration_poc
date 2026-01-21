@@ -1,0 +1,155 @@
+fileVersion: 1
+id: fc73f0e9-b367-4032-a07d-fdbf699cf5b6
+name: S_ED_DISCHARGE_SPECIALTY_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2e37815d-c281-4b56-8751-8183024a9252
+          stepCounter: fc73f0e9-b367-4032-a07d-fdbf699cf5b6
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: ENCOUNTER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8e08a28e-93fc-4605-85e2-0b787c491aed
+                stepCounter: 19f97281-8cc4-4660-83be-6049689bc9c9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dc15811c-7c84-47ae-816f-e449a597a2ea
+          stepCounter: fc73f0e9-b367-4032-a07d-fdbf699cf5b6
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: AEATT_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ec126043-c07d-4c60-ade7-bcac96a6c9ea
+          stepCounter: fc73f0e9-b367-4032-a07d-fdbf699cf5b6
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: DISCH_SPONT_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cb1d8428-1260-4e99-8e19-b0d1a17a5dbe
+                stepCounter: 19f97281-8cc4-4660-83be-6049689bc9c9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dadcd2cf-6482-48a0-8e18-217f1ad56fc8
+          stepCounter: fc73f0e9-b367-4032-a07d-fdbf699cf5b6
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: DISCH_PROCA_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c86d158e-2ebe-4059-ab38-6f80129f2ae7
+                stepCounter: 19f97281-8cc4-4660-83be-6049689bc9c9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 58d3fa76-4d73-4cd0-8964-6a69d9ad69bd
+          stepCounter: fc73f0e9-b367-4032-a07d-fdbf699cf5b6
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: DISCH_SPECT_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cb1d8428-1260-4e99-8e19-b0d1a17a5dbe
+                stepCounter: 19f97281-8cc4-4660-83be-6049689bc9c9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 09c48a0a-2d81-48ff-b334-c34f43154968
+          stepCounter: fc73f0e9-b367-4032-a07d-fdbf699cf5b6
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: ""
+        name: NON_EMMED_SPECT_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 99b3ffe5-93d9-4d27-8c6e-2e1248abbee1
+                stepCounter: 19f97281-8cc4-4660-83be-6049689bc9c9
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT DISTINCT encounter,
+                   aeatt_refno,
+                   disch_spont_refno,
+                   disch_proca_refno,
+                   disch_spect_refno,
+                   CONVERT(char(1), non_emmed_spect_flag) non_emmed_spect_flag
+              FROM (
+                    SELECT s1.encounter,
+                           s1.aeatt_refno,
+                           COALESCE(s2.spont_refno,s3.spont_refno,s1.spont_refno) disch_spont_refno,
+                           COALESCE(s2.proca_refno,s3.proca_refno,s1.proca_refno) disch_proca_refno,
+                           COALESCE(s2.spect_refno,s3.spect_refno,s1.spect_refno) disch_spect_refno,
+                           COALESCE(s2.specialty,s3.specialty,s1.specialty) specialty,
+                           MAX(CASE WHEN COALESCE(s2.specialty,s3.specialty,s1.specialty) <> 'EMMED' THEN 'Y' ELSE 'N' END) OVER (PARTITION BY s1.encounter) non_emmed_spect_flag,
+                           ROW_NUMBER() OVER(PARTITION BY s1.encounter ORDER BY (CASE WHEN s1.spect_refno IS NOT NULL THEN s1.start_date ELSE NULL END) DESC) row_num
+                      FROM s_ed_stay_10 s1
+                      LEFT OUTER JOIN s_ed_stay_10 s2
+                        ON s2.encounter = s1.encounter
+                       AND s2.last_stay_flag = 'Y'
+                      LEFT OUTER JOIN s_ed_stay_10 s3
+                        ON s3.encounter = s1.encounter
+                       AND s3.last_stay_rank = 1
+                   ) t1
+             WHERE t1.row_num = 1 -- last specialty
+
+               AND (specialty <> 'EMMED' OR (specialty = 'EMMED' AND non_emmed_spect_flag = 'N'))
+        dependencies:
+          - locationName: TGT
+            nodeName: S_ED_STAY_10
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_ED_STAY_10') }}
+        name: S_ED_DISCHARGE_SPECIALTY_V
+        noLinkRefs: []
+  name: S_ED_DISCHARGE_SPECIALTY_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

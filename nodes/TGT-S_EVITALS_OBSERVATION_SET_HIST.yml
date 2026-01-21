@@ -1,0 +1,244 @@
+fileVersion: 1
+id: 2e14848e-f345-46e7-a979-de9f31d41803
+name: S_EVITALS_OBSERVATION_SET_HIST
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Get details of each observation set and try to link them to a dim_patient row."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d954ee75-ec1a-4ebf-bacd-b18a48c3f714
+          stepCounter: 2e14848e-f345-46e7-a979-de9f31d41803
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Integer ID that uniquely identifies a patient admission in Patientrack. Sourced from admsn_pk.
+        name: ADMISSION_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3f68edb3-1e8d-48b7-8850-2400c40ab4f7
+                stepCounter: 6866bc35-1164-43e9-9ff9-15b44d426855
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3ffeeeb8-e1c5-497b-9c8d-52d923c93366
+          stepCounter: 2e14848e-f345-46e7-a979-de9f31d41803
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Integer ID that uniquely identifies an observation set in Patientrack. Sourced from obset_pk.
+        name: OBSERVATION_SET_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e6b716d0-5197-4ac0-92af-0fb734c834ac
+                stepCounter: 2988e8b8-1ea5-46f9-8504-e1b140f344fa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 16c167f7-41d2-41ed-b663-126cac729e04
+          stepCounter: 2e14848e-f345-46e7-a979-de9f31d41803
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: PARENT_OBSERVATION_SET_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8b4ecc70-c8af-45d0-8ba8-d51cb93c52e4
+                stepCounter: 2988e8b8-1ea5-46f9-8504-e1b140f344fa
+            transform: COALESCE(ds_Patientrack_OBSERVATION_SET.PARENT_OBSET_PK, ds_Patientrack_OBSERVATION_SET.OBSET_PK)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9d35e0fd-cc5b-4190-b75d-5c72069a2eb8
+          stepCounter: 2e14848e-f345-46e7-a979-de9f31d41803
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: CURRENT_OBSERVATION_SET_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e6b716d0-5197-4ac0-92af-0fb734c834ac
+                stepCounter: 2988e8b8-1ea5-46f9-8504-e1b140f344fa
+            transform: COALESCE(l2.OBSET_PK, ds_Patientrack_OBSERVATION_SET.OBSET_PK)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4fdca2bc-55e4-41a4-b7b4-06f6b407af5d
+          stepCounter: 2e14848e-f345-46e7-a979-de9f31d41803
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: ""
+        name: CURRENT_OBSERVATION_SET_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4636631c-7503-40b5-a7c6-e5cfa7317339
+                stepCounter: 2988e8b8-1ea5-46f9-8504-e1b140f344fa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7093f62b-d8ee-448c-8718-3d8311233028
+          stepCounter: 2e14848e-f345-46e7-a979-de9f31d41803
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: 'Numbers each observation set for the parent observation set. If 2 rows have the same obs_taken_dttm the row with current_obset_flag = 1 takes precedence.  '
+        name: OBSERVATION_SET_HIST_SEQ_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8b4ecc70-c8af-45d0-8ba8-d51cb93c52e4
+                stepCounter: 2988e8b8-1ea5-46f9-8504-e1b140f344fa
+            transform: ROW_NUMBER() OVER(PARTITION BY COALESCE(l2.OBSET_PK, ds_Patientrack_OBSERVATION_SET.OBSET_PK) ORDER BY ds_Patientrack_OBSERVATION_SET.OBS_TAKEN_DTTM, ds_Patientrack_OBSERVATION_SET.CURRENT_OBSET_FLAG DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6623fadc-cf92-4fda-a4ba-ddbbb66fdac1
+          stepCounter: 2e14848e-f345-46e7-a979-de9f31d41803
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: The number of observation set versions that exist for the parent_observation_set_id.
+        name: OBSERVATION_SET_HIST_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8b4ecc70-c8af-45d0-8ba8-d51cb93c52e4
+                stepCounter: 2988e8b8-1ea5-46f9-8504-e1b140f344fa
+            transform: COUNT(1) OVER(PARTITION BY COALESCE(l2.OBSET_PK, ds_Patientrack_OBSERVATION_SET.OBSET_PK))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6d334e5c-975d-402d-a41a-c381a456be15
+          stepCounter: 2e14848e-f345-46e7-a979-de9f31d41803
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: 'UTC Date and time when the observation measure was taken. '
+        name: OBSERVATION_TAKEN_DATE_UTC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 88c1b257-80ee-41fc-93fe-f7cb1eb05bb4
+                stepCounter: 2988e8b8-1ea5-46f9-8504-e1b140f344fa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 86610885-e796-47c6-9daf-d79445216b4b
+          stepCounter: 2e14848e-f345-46e7-a979-de9f31d41803
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: 'NZ Date and time when the observation measure was taken. '
+        name: OBSERVATION_TAKEN_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 88c1b257-80ee-41fc-93fe-f7cb1eb05bb4
+                stepCounter: 2988e8b8-1ea5-46f9-8504-e1b140f344fa
+            transform: dbo.fn_convert_utc_datetime2(ds_Patientrack_OBSERVATION_SET.OBS_TAKEN_DTTM)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 34510af0-e9a1-4d7d-b387-9ced0faf648c
+          stepCounter: 2e14848e-f345-46e7-a979-de9f31d41803
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Patient NHI number.
+        name: PATIENT_NHI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e31b1246-4b2b-4282-8f8f-b1731a705e9e
+                stepCounter: 14a9733a-2051-4c6b-b9eb-02e1561188ee
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a6fb42d6-c884-43c4-9dab-c7c89222c117
+          stepCounter: 2e14848e-f345-46e7-a979-de9f31d41803
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: 'Internal unique identifier for a patient from the Patient Management System '
+        name: PATIENT_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 702dfc9d-df5e-42d8-86f8-9e68f29c462c
+                stepCounter: d52dd438-7899-4242-9e38-539d2a1447df
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c04e59d3-4cc8-4323-9b4e-b41b741b09b2
+          stepCounter: 2e14848e-f345-46e7-a979-de9f31d41803
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_eVitals_observation_set_hist.patient_reference_no=dim_patient.patient_reference_no
+        name: DIM_PATIENT_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9962a01b-5f3d-4c1a-b371-997edef38d0f
+                stepCounter: d52dd438-7899-4242-9e38-539d2a1447df
+            transform: IFNULL(dim_patient.dim_patient_key, 0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 895750ae-d88c-4e50-b19d-d933993a1348
+          stepCounter: 2e14848e-f345-46e7-a979-de9f31d41803
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_EVITALS_ADMISSION_CHANGES
+        join:
+          joinCondition: |-
+            FROM s_eVitals_admission_changes
+              JOIN ds_Patientrack_OBSERVATION_SET
+                ON s_eVitals_admission_changes.admission_id = ds_Patientrack_OBSERVATION_SET.epsde_pk
+              LEFT OUTER JOIN ds_Patientrack_OBSERVATION_SET l2
+                ON l2.parent_obset_pk = COALESCE(ds_Patientrack_OBSERVATION_SET.parent_obset_pk, ds_Patientrack_OBSERVATION_SET.obset_pk)
+               AND l2.current_obset_flag = 1
+              LEFT OUTER JOIN ds_Patientrack_EPISODE
+                ON ds_Patientrack_OBSERVATION_SET.epsde_pk = ds_Patientrack_EPISODE.epsde_pk
+              LEFT OUTER JOIN s_eVitals_patient
+                ON s_eVitals_patient.patnt_pk = ds_Patientrack_EPISODE.patnt_pk
+              LEFT OUTER JOIN dim.dim_patient
+                ON dim_patient.patient_NHI = s_eVitals_patient.patient_NHI
+               AND dim_patient.NHI_sequence = 1
+        name: S_EVITALS_OBSERVATION_SET_HIST
+        noLinkRefs: []
+  name: S_EVITALS_OBSERVATION_SET_HIST
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

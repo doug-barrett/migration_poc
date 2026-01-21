@@ -1,0 +1,132 @@
+fileVersion: 1
+id: a20be5a9-7912-426d-8d02-9076d14d43b8
+name: S_WAITLIST_32
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Get a cound of outpatient appointments for each referral prior to the FSA date."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b48928bd-33e3-4901-b112-3cd814b0576f
+          stepCounter: a20be5a9-7912-426d-8d02-9076d14d43b8
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: WAITLIST_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 15d736c2-ff2d-4c46-986d-d9b4d61eb132
+                stepCounter: bd9cc559-d73c-43e5-89f5-129abddc9e86
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e946965e-3070-4ca7-8cbb-db0e5cb95ab6
+          stepCounter: a20be5a9-7912-426d-8d02-9076d14d43b8
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5b1f5ac3-7833-4f60-aaf0-84638b4a9829
+                stepCounter: bd9cc559-d73c-43e5-89f5-129abddc9e86
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: db6029a2-296f-4aa5-a7d0-d7192f3ebb7a
+          stepCounter: a20be5a9-7912-426d-8d02-9076d14d43b8
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Patient National Health Index (NMPI)
+        name: PATIENT_NHI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b909a696-a23b-4450-aab2-9094bb21ab0e
+                stepCounter: bd9cc559-d73c-43e5-89f5-129abddc9e86
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b8995be5-7436-4770-bf26-0fda8f28e003
+          stepCounter: a20be5a9-7912-426d-8d02-9076d14d43b8
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: FSA_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: caed160d-0492-4536-904c-f40c71844517
+                stepCounter: bd9cc559-d73c-43e5-89f5-129abddc9e86
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 13ed59e9-c0b4-4c58-b227-748f92d9b78f
+          stepCounter: a20be5a9-7912-426d-8d02-9076d14d43b8
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Number of outpatient appointments prior to referral FSA date
+        name: OUTPATIENT_APPOINTMENT_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: COUNT(1)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 536a2ead-542e-44f8-9d78-ff4d93940b62
+          stepCounter: a20be5a9-7912-426d-8d02-9076d14d43b8
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_WAITLIST_30
+        join:
+          joinCondition: |-
+            FROM s_waitlist_30
+              JOIN s_outpatient_appointment_08
+                ON s_outpatient_appointment_08.referral_reference_no = s_waitlist_30.referral_reference_no
+               AND s_outpatient_appointment_08.start_date < s_waitlist_30.FSA_date
+             GROUP BY s_waitlist_30.waitlist_reference_no,
+                      s_waitlist_30.referral_reference_no,
+                      s_waitlist_30.patient_NHI,
+                      s_waitlist_30.FSA_date
+        name: S_WAITLIST_32
+        noLinkRefs: []
+  name: S_WAITLIST_32
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

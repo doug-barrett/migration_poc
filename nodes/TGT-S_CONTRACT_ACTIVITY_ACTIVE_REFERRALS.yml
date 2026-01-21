@@ -1,0 +1,106 @@
+fileVersion: 1
+id: ba88d388-2a8d-436d-9224-973b9723a83e
+name: S_CONTRACT_ACTIVITY_ACTIVE_REFERRALS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6ece1429-99f5-4105-8609-8fc4caa4b548
+          stepCounter: ba88d388-2a8d-436d-9224-973b9723a83e
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: PATIENT_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c61adf0c-acce-43b3-a981-036da7f0d3fc
+                stepCounter: 0a559a56-196f-4906-bb39-293156133502
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1d5a3f3f-ec20-4f31-8437-5d970d2de3e1
+          stepCounter: ba88d388-2a8d-436d-9224-973b9723a83e
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 39880b31-164f-4a89-8557-8c94c3bca31c
+                stepCounter: 0a559a56-196f-4906-bb39-293156133502
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2a2576ea-85b3-47fe-b12e-b401f8425e79
+          stepCounter: ba88d388-2a8d-436d-9224-973b9723a83e
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Financial year. Format YYYY.
+        name: FIN_YEAR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c2ae52b1-4578-42d3-9e26-e153637ebee6
+                stepCounter: bc3fcb77-c0c4-477a-92d8-4db14f153b73
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8a0d9a1d-0692-406a-b1d2-1bd4a0ae8e6d
+          stepCounter: ba88d388-2a8d-436d-9224-973b9723a83e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ENCOUNTER_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c5ae2a69-0bba-4c16-b31b-2c1453c24eee
+                stepCounter: 0a559a56-196f-4906-bb39-293156133502
+            transform: count(s_patient_encounter_xref_10.encounter_id)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          S_PATIENT_ENCOUNTER_XREF_10: 0a559a56-196f-4906-bb39-293156133502
+          DIM_DATE: bc3fcb77-c0c4-477a-92d8-4db14f153b73
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_PATIENT_ENCOUNTER_XREF_10
+          - locationName: TGT
+            nodeName: DIM_DATE
+        join:
+          joinCondition: |-
+            FROM {{ ref('TGT','S_PATIENT_ENCOUNTER_XREF_10') }}
+              JOIN {{ ref('TGT','DIM_DATE') }}
+                ON cast(s_patient_encounter_xref_10.encounter_start_date AS date) = dim_date.calendar_date
+             GROUP BY patient_reference_no,
+                      referral_id,
+                      fin_year
+        name: S_CONTRACT_ACTIVITY_ACTIVE_REFERRALS
+        noLinkRefs: []
+  name: S_CONTRACT_ACTIVITY_ACTIVE_REFERRALS
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

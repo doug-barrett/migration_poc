@@ -1,0 +1,120 @@
+fileVersion: 1
+id: a95cb6e7-b222-4a40-a8c3-434f8956c450
+name: S_OUTPATIENT_LDD_DATA_VALUE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c4d62c7b-0d0b-4d46-98b4-cc90f62d2996
+          stepCounter: a95cb6e7-b222-4a40-a8c3-434f8956c450
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: SCHEDULE_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 73522497-b3f9-4b96-9c59-36a707f27842
+                stepCounter: ab7b9f91-81b3-4d0a-bd4c-90aa5d071bb9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e402ecd6-7068-4036-8258-d2b4271f507d
+          stepCounter: a95cb6e7-b222-4a40-a8c3-434f8956c450
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: TREATMENT_DELAY_REASON_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 97aebd53-8994-45f0-9fea-1b3150a90054
+                stepCounter: 06fa4241-360c-43d0-8e4a-8b860f92fc09
+            transform: NULLIF(MAX(ds_pims_reference_values.rfval_refno),1000020260)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 255ea9ca-43b3-462d-babf-d73f12b33528
+          stepCounter: a95cb6e7-b222-4a40-a8c3-434f8956c450
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: TREATMENT_DECISION_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 98ddbbfb-f092-4cba-9996-f7c0cc7c4a34
+                stepCounter: c5429209-b899-4e7f-9548-ca0e9a55f302
+            transform: NULLIF(MAX(ds_pims_ldd_local_datavalues.ussob_dttm_value_1),getdate())
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 211f3897-4b76-4ce0-a4ca-1455f59f4914
+          stepCounter: a95cb6e7-b222-4a40-a8c3-434f8956c450
+        config: {}
+        dataType: VARCHAR(5)
+        defaultValue: ""
+        description: ""
+        name: SORCE_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b2574627-8c28-455b-a4fc-1ecdb5d9829b
+                stepCounter: c5429209-b899-4e7f-9548-ca0e9a55f302
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4641447f-8708-4ba7-b605-a8e86a86183a
+          stepCounter: a95cb6e7-b222-4a40-a8c3-434f8956c450
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_SHARED_SCHEDULE
+        join:
+          joinCondition: |-
+            FROM ds_shared_schedule,
+                   ds_pims_ldd_local_datavalues,
+                   ds_pims_reference_values
+             WHERE ds_shared_schedule.schedule_reference_no = ds_pims_ldd_local_datavalues.sorce_refno
+               AND ds_pims_ldd_local_datavalues.sorce_code = 'SCHDL'
+               AND ds_pims_reference_values.rfvdm_code IN ('CTTDR')
+               AND CONVERT(varchar, ds_pims_reference_values.rfval_refno) IN (USSOB_VALUE_1)
+             GROUP BY ds_pims_ldd_local_datavalues.sorce_code,
+                      ds_shared_schedule.schedule_reference_no
+        name: S_OUTPATIENT_LDD_DATA_VALUE
+        noLinkRefs: []
+  name: S_OUTPATIENT_LDD_DATA_VALUE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

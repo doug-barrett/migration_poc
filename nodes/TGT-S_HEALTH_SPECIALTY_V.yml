@@ -1,0 +1,115 @@
+fileVersion: 1
+id: 810f0140-d555-4744-97b7-398fe4ee4d78
+name: S_HEALTH_SPECIALTY_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "View of Ministry Specialty Codes and Descriptions for each WDHB specialty."
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 08c76b8f-136e-4078-8264-b9d2cfc663c7
+          stepCounter: 810f0140-d555-4744-97b7-398fe4ee4d78
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Specialty Reference Number
+        name: SPECIALTY_REFERENCE_NO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: df9b1f7d-7b83-4697-aec3-f94f91f990a1
+                stepCounter: 266e35a6-c0df-4fad-a855-7f890a143cde
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eb9f10c2-27db-445e-baee-c136d6d85afd
+          stepCounter: 810f0140-d555-4744-97b7-398fe4ee4d78
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Ministry Specialty Code
+        name: MINISTRY_SPECIALTY_CODE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ddad2a3b-aa4a-46d2-acfb-aa3ebbf1b0ea
+                stepCounter: 5531657a-87d2-44c3-afb6-18d1bee2edb5
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 20733f97-a878-4d43-8c2d-83f489059bcf
+          stepCounter: 810f0140-d555-4744-97b7-398fe4ee4d78
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: Ministry Specialty Description
+        name: MINISTRY_SPECIALTY_DESC
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 74d6bcb1-9ad2-40d2-b945-31730016c729
+                stepCounter: 5531657a-87d2-44c3-afb6-18d1bee2edb5
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bdf7dbc0-e1da-48b9-acd5-b0be705e3925
+          stepCounter: 810f0140-d555-4744-97b7-398fe4ee4d78
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: Specialty Group Description
+        name: SPECIALTY_GROUP_DESC
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 382613a6-0a2f-4c51-8cc1-cc6c35de5f0c
+                stepCounter: cdb854c9-3a5c-4020-a5f4-71b58cb5e589
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT ds_pims_specialty_ids.spect_refno AS specialty_reference_no,
+                   l_reference_MOH_HealthSpecialty.healthspecialtycode AS ministry_specialty_code,
+                   l_reference_MOH_HealthSpecialty.description AS ministry_specialty_desc,
+                   ds_pims_reference_values.description AS specialty_group_desc
+              FROM ds_pims_specialties
+              JOIN ds_pims_specialty_ids
+                ON ds_pims_specialty_ids.spect_refno = ds_pims_specialties.spect_refno
+               AND IFNULL(ds_pims_specialty_ids.archv_flag,'N') = 'N'
+               AND IFNULL(ds_pims_specialties.archv_flag,'N') = 'N'
+              JOIN ds_pims_reference_values
+                ON ds_pims_reference_values.rfval_refno = ds_pims_specialty_ids.sityp_refno
+               AND ds_pims_reference_values.main_code = 'NAT'
+               AND GETDATE() BETWEEN ds_pims_reference_values.start_dttm AND IFNULL(ds_pims_reference_values.end_dttm,GETDATE())
+              LEFT OUTER JOIN l_reference_MOH_HealthSpecialty
+                ON l_reference_MOH_HealthSpecialty.healthspecialtycode = ds_pims_specialty_ids.identifier
+               AND getdate() BETWEEN l_reference_MOH_HealthSpecialty.startdate AND IFNULL(l_reference_MOH_HealthSpecialty.enddate,getdate());
+        dependencies:
+          - locationName: TGT
+            nodeName: L_PIMS_SPECIALTIES
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','L_PIMS_SPECIALTIES') }}
+        name: S_HEALTH_SPECIALTY_V
+        noLinkRefs: []
+  name: S_HEALTH_SPECIALTY_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

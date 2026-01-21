@@ -1,0 +1,120 @@
+fileVersion: 1
+id: 70f71ac9-17b4-4a75-bf31-3c3532a2373c
+name: S_EDS_LOCATION
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 89e6eea5-7ef6-458d-86ff-c9aa4ee874ad
+          stepCounter: 70f71ac9-17b4-4a75-bf31-3c3532a2373c
+        config: {}
+        dataType: NVARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: PHYSICALLOCATION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 19352f9d-970b-465b-a1c4-1695beeba7a6
+                stepCounter: af0d93b4-5c32-4e21-9a78-ad0b6557b0c1
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bc5e1b6a-22a8-4465-a100-c2a247d20a27
+          stepCounter: 70f71ac9-17b4-4a75-bf31-3c3532a2373c
+        config: {}
+        dataType: NVARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: PHYSICALLOCATIONTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a3d38c7c-f76a-4a87-98aa-129c03b108f4
+                stepCounter: af0d93b4-5c32-4e21-9a78-ad0b6557b0c1
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2bccae4d-5f44-470c-8b80-c659c976cc37
+          stepCounter: 70f71ac9-17b4-4a75-bf31-3c3532a2373c
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: Service_Point_Name
+        name: SERVICE_POINT_NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f4ac8c9a-fe6a-4c51-9c1a-dca83851f6ae
+                stepCounter: 6770796c-83a0-41f1-ad11-ff4993964d33
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 11cd6ad8-d119-4d47-bea4-809887aed165
+          stepCounter: 70f71ac9-17b4-4a75-bf31-3c3532a2373c
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Service_Point_Code
+        name: SERVICE_POINT_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 47498994-3d84-436b-a344-bef172a15a5c
+                stepCounter: 6770796c-83a0-41f1-ad11-ff4993964d33
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_EDS_DOCUMENT: af0d93b4-5c32-4e21-9a78-ad0b6557b0c1
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_EDS_DOCUMENT
+        join:
+          joinCondition: |-
+            FROM {{ ref('TGT','DS_EDS_DOCUMENT') }} ds_EDS_Document
+              JOIN (
+                    SELECT cast(service_point_reference_no AS varchar) service_point_reference_no ,
+                           service_point_name ,
+                           service_point_code ,
+                           'SPONT' location_type ,
+                           service_point_validity_start_date start_date ,
+                           service_point_validity_end_date end_date
+                      FROM dbo.[s_service_point_2]
+                     WHERE service_point_type_code = 'WARD'
+                     UNION SELECT cast(rfval_refno AS varchar) service_point_reference_no ,
+                           description ,
+                           main_code ,
+                           'EDLOC' location_type ,
+                           start_dttm ,
+                           end_dttm
+                      FROM ds_pims_reference_values
+                     WHERE RFVDM_CODE = 'ZZAHL'
+                   ) s_service_point_2
+                ON ds_EDS_Document.physicalLocation = s_service_point_2.service_point_reference_no
+               AND dischargeDate BETWEEN start_date AND IFNULL(end_date, getdatE()+100)
+               AND ds_EDS_Document.physicalLocationType = s_service_point_2.location_type
+        name: S_EDS_LOCATION
+        noLinkRefs: []
+  name: S_EDS_LOCATION
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

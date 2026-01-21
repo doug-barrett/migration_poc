@@ -1,0 +1,115 @@
+fileVersion: 1
+id: e692f39d-3a0e-4d79-8718-4ccc245c7570
+name: S_PJ_WARD_STAY
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Get details of those IP events that included a stay at a ward flagged as Interim Care."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4d872483-195f-4fee-8a1d-de1e859d091a
+          stepCounter: e692f39d-3a0e-4d79-8718-4ccc245c7570
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Unique business identifier for inpatient event.
+        name: EVENT_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 194cdf5e-a3fa-4264-9136-b2ac882bd77a
+                stepCounter: de2df92a-7e74-47f3-acd2-671ec922d593
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8b3c795c-be85-4d57-b4fe-a684584d3178
+          stepCounter: e692f39d-3a0e-4d79-8718-4ccc245c7570
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: The NHI is a unique 7-character identification number assigned to a healthcare user by the National Health Index (NHI) database.   There is a verification algorithm which ensures that the NHI number is in the correct format and is valid.     Also known as National Health Index, HCU identifier, NHI, HCU, HCU Number, Healthcare User identifier,   HCU identification number, NMPI number, Hospital Number, Patient Number.
+        name: PATIENT_NHI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e827fc2f-eb23-4e7d-998f-d3d29fe912e8
+                stepCounter: de2df92a-7e74-47f3-acd2-671ec922d593
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 92367a48-9017-4845-b366-1283341312bb
+          stepCounter: e692f39d-3a0e-4d79-8718-4ccc245c7570
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Specialty code.
+        name: SPECIALTY_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4aaa8eb6-15cc-4116-ac4e-aa33d9835468
+                stepCounter: 50c31151-9204-4154-9caf-5d28244bde1a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b48e503f-17d5-4d5e-9c11-7356245e4644
+          stepCounter: e692f39d-3a0e-4d79-8718-4ccc245c7570
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Set to 1 if the event includes a ward stay at a ward flagged as Interim Care.
+        name: INTERIM_CARE_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4aaa8eb6-15cc-4116-ac4e-aa33d9835468
+                stepCounter: 50c31151-9204-4154-9caf-5d28244bde1a
+            transform: '1'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 577eb5b7-88af-4e13-b4fe-e2425b63d53c
+          stepCounter: e692f39d-3a0e-4d79-8718-4ccc245c7570
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: FACT_INPATIENT_WARD_STAY
+        join:
+          joinCondition: |-
+            FROM fact.fact_inpatient_ward_stay
+              JOIN dim.dim_ward
+                ON fact_inpatient_ward_stay.dim_ward_key = dim_ward.dim_ward_key
+             WHERE dim_ward.specialty_code = 'INTCA' -- Interim Care
+        name: S_PJ_WARD_STAY
+        noLinkRefs: []
+  name: S_PJ_WARD_STAY
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

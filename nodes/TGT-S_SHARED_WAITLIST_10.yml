@@ -1,0 +1,122 @@
+fileVersion: 1
+id: 43ad6374-6454-4adf-9d38-8bb83b6bc81e
+name: S_SHARED_WAITLIST_10
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Get a distinct list of patnt refnos which have had data updated by the last load. Checks 4 PIMS data stores: prof_carer_episodes, referrals, schedules, waiting_list_entries."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4976149b-06ec-48a6-8b34-54e12eb07706
+          stepCounter: 43ad6374-6454-4adf-9d38-8bb83b6bc81e
+        config: {}
+        dataType: NUMERIC(10)
+        defaultValue: ""
+        description: ""
+        name: PATNT_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e16ad8e0-4912-482e-9888-176f95f3db3e
+                stepCounter: 5bae6c33-9021-48f2-90a9-01c3d6e29585
+            transform: t.patnt_refno
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 103b663f-0755-4ab2-9ba6-524a13e3611f
+          stepCounter: 43ad6374-6454-4adf-9d38-8bb83b6bc81e
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PIMS_WAITING_LIST_ENTRIES
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT wl.patnt_refno
+                      FROM ds_pims_waiting_list_entries wl
+                      LEFT OUTER JOIN ds_pims_referrals rf
+                        ON wl.refrl_refno = rf.refrl_refno
+                     WHERE wl.dss_update_time > @v_pa_Shared_Incremental
+                        OR rf.dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT patnt_refno
+                      FROM ds_pims_schedules
+                     WHERE dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT patnt_refno
+                      FROM ds_pims_prof_carer_episodes
+                     WHERE dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT patnt_refno
+                      FROM ds_pims_ldd_local_datavalues
+                     WHERE ds_pims_ldd_local_datavalues.sorce_code = 'WLIST'
+                       AND dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT ds_pims_diagnosis_procedures.patnt_refno
+                      FROM ds_pims_diagnosis_procedures
+                     WHERE ds_pims_diagnosis_procedures.sorce_code = 'WLIST'
+                       AND dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT ds_pims_schedules.patnt_refno
+                      FROM ds_pims_schedules
+                     WHERE ds_pims_schedules.wlist_refno IS NOT NULL
+                       AND dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT wl.patnt_refno
+                      FROM ds_pims_nbrs_details
+                      JOIN ds_pims_waiting_list_entries wl
+                        ON wl.wlist_refno = ds_pims_nbrs_details.wlist_refno
+                     WHERE ds_pims_nbrs_details.wlist_refno IS NOT NULL
+                       AND ds_pims_nbrs_details.dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT wl.patnt_refno
+                      FROM ds_pims_admission_offers
+                      JOIN ds_pims_waiting_list_entries wl
+                        ON wl.wlist_refno = ds_pims_admission_offers.wlist_refno
+                     WHERE ds_pims_admission_offers.dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT DISTINCT patnt_refno
+                      FROM ds_pims_note_roles
+                      JOIN ds_pims_notes
+                        ON ds_pims_note_roles.notes_refno = ds_pims_notes.notes_refno
+                      JOIN ds_pims_waiting_list_entries w
+                        ON w.wlist_refno = ds_pims_note_roles.sorce_refno
+                     WHERE ds_pims_note_roles.sorce_code = 'WLCMT'
+                       AND ds_pims_notes.dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT DISTINCT s.patnt_refno
+                      FROM [dbo].s_analysis_elective_los_pred_prod p
+                     INNER JOIN ds_shared_waitlist s
+                        ON s.waitlist_encounter_id = p.waitlist_encounter_id
+                     WHERE current_flag = 'Y'
+                       AND p.dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT patnt_refno
+                      FROM ds_pims_archived_data
+                     WHERE sorce_code = 'WLIST'
+                       AND dss_update_time > @v_pa_Shared_Incremental
+                   ) t
+             WHERE patnt_refno IS NOT NULL
+        name: S_SHARED_WAITLIST_10
+        noLinkRefs: []
+  name: S_SHARED_WAITLIST_10
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

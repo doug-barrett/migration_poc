@@ -1,0 +1,120 @@
+fileVersion: 1
+id: a854841b-2186-4d37-baf7-5582a0abf819
+name: V_ALCOHOL_ASSESSMENT_ECLAIR_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 57208337-6d60-415c-9bc9-9d6d4a2aa5bf
+          stepCounter: a854841b-2186-4d37-baf7-5582a0abf819
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: ENCOUNTER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 45917b9d-81ef-4f29-ac92-785da731cbf6
+                stepCounter: 0f3ebe34-e130-4645-b846-a8b18a90c18f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5dacf32c-7fc6-49fb-9913-5b9a214a2429
+          stepCounter: a854841b-2186-4d37-baf7-5582a0abf819
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: ALCOHOL_ANSWER
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a3471978-d721-4ad2-b7c9-4b0f50f97ce3
+                stepCounter: 0f3ebe34-e130-4645-b846-a8b18a90c18f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1e85b8a4-7deb-41c1-b43b-2831117e673f
+          stepCounter: a854841b-2186-4d37-baf7-5582a0abf819
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ALCOHOL_ANSWERS_REVERSE_SEQUENCE_NO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: row_number() OVER (PARTITION BY encounter ORDER BY date_entered DESC) AS alcohol_answers_reverse_sequence_no,
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bf509e33-963c-4d72-9e38-095ebcfb9b9a
+          stepCounter: a854841b-2186-4d37-baf7-5582a0abf819
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1f7bf677-00b8-4b59-a611-f3008108557f
+                stepCounter: 0f3ebe34-e130-4645-b846-a8b18a90c18f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: efb297fd-fd89-452f-a444-6083aa49fef8
+          stepCounter: a854841b-2186-4d37-baf7-5582a0abf819
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: DSS_RECORD_SOURCE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'eclair'"
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE VIEW {{ this }}(encounter, alcohol_answer, alcohol_answers_reverse_sequence_no, dss_update_time, dss_record_source) AS SELECT ds_eclair_alcohol_assessment.encounter,
+                   ds_eclair_alcohol_assessment.answer alcohol_answer,
+                   row_number() OVER (PARTITION BY encounter ORDER BY date_entered DESC) AS alcohol_answers_reverse_sequence_no,
+                   ds_eclair_alcohol_assessment.dss_update_time,
+                   'eclair'
+              FROM dbo.ds_eclair_alcohol_assessment ds_eclair_alcohol_assessment
+             WHERE IFNULL(encounter,'') <> ''
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_ECLAIR_ALCOHOL_ASSESSMENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','DS_ECLAIR_ALCOHOL_ASSESSMENT') }}
+        name: V_ALCOHOL_ASSESSMENT_ECLAIR_V
+        noLinkRefs: []
+  name: V_ALCOHOL_ASSESSMENT_ECLAIR_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

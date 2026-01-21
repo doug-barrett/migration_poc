@@ -1,0 +1,109 @@
+fileVersion: 1
+id: 014ffaec-c64c-46cd-b0fc-2de412f11f82
+name: S_FCT_IPM_MATCH_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Gives a distinct union of Referrals, Waitlist,and Outpatient Appointments where the diagnosis is Confirmed Cancer"
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8f3afe02-a052-44f6-8697-faa484aacd12
+          stepCounter: 014ffaec-c64c-46cd-b0fc-2de412f11f82
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Patient National Health Index (NMPI)
+        name: PATIENT_NHI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 596d481c-4edf-41fe-907c-464199c623c9
+                stepCounter: b07847c9-3421-4acf-bda2-39b0df747a68
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 51c7f587-b3d1-429d-89d4-665d078e8dac
+          stepCounter: 014ffaec-c64c-46cd-b0fc-2de412f11f82
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: MATCHING_ENCOUNTER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 51dafd1d-7ad0-4c8e-b7ff-361f4bc1e88d
+                stepCounter: b07847c9-3421-4acf-bda2-39b0df747a68
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 16c2ac8a-7745-4f43-abac-e4a5c30a3f47
+          stepCounter: 014ffaec-c64c-46cd-b0fc-2de412f11f82
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: MATCHING_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 76bea6e0-d464-4a82-b983-935ec9275957
+                stepCounter: b07847c9-3421-4acf-bda2-39b0df747a68
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE VIEW {{ this }}(patient_NHI, matching_encounter, matching_date) AS SELECT s_outpatient_diagnosis_procedure.patient_NHI,
+                   s_outpatient_diagnosis_procedure.outpatient_encounter_id,
+                   s_outpatient_diagnosis_procedure.appointment_start_date
+              FROM dbo.s_outpatient_diagnosis_procedure s_outpatient_diagnosis_procedure
+             WHERE diagnosis_procedure_code = 'CCA' --Confirmed Cancer
+
+             UNION SELECT s_referral_30.patient_NHI,
+                   s_referral_30.referral_encounter_id,
+                   s_referral_30.referral_start_date
+              FROM dbo.s_referral_30 s_referral_30
+              JOIN dim.dim_referral_authorisation_reason
+                ON s_referral_30.dim_referral_authorisation_reason_key = dim_referral_authorisation_reason.dim_referral_authorisation_reason_key
+             WHERE dim_referral_authorisation_reason.referral_authorisation_reason_code = 'CCA' --Confirmed Cancer
+
+             UNION SELECT s_referral_diagnosis_procedure.patient_NHI,
+                   s_referral_diagnosis_procedure.referral_encounter_id,
+                   s_referral_diagnosis_procedure.referral_received_date
+              FROM dbo.s_referral_diagnosis_procedure s_referral_diagnosis_procedure
+             WHERE diagnosis_procedure_code = 'CCA' --Confirmed Cancer
+
+             UNION SELECT s_waitlist_diagnosis_procedure.patient_NHI,
+                   s_waitlist_diagnosis_procedure.waitlist_encounter_id,
+                   s_waitlist_diagnosis_procedure.waiting_start_date
+              FROM dbo.s_waitlist_diagnosis_procedure s_waitlist_diagnosis_procedure
+             WHERE diagnosis_procedure_code = 'CCA' --Confirmed Cancer
+        dependencies:
+          - locationName: TGT
+            nodeName: S_OUTPATIENT_DIAGNOSIS_PROCEDURE
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_OUTPATIENT_DIAGNOSIS_PROCEDURE') }}
+        name: S_FCT_IPM_MATCH_V
+        noLinkRefs: []
+  name: S_FCT_IPM_MATCH_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

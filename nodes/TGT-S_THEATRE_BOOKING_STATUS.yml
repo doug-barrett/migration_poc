@@ -1,0 +1,92 @@
+fileVersion: 1
+id: 41ba0e7d-4016-4d82-9013-a4a8f7cc6d82
+name: S_THEATRE_BOOKING_STATUS
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Source table for dim_theatre_booking_status."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2b09a91a-26cc-4f4c-8aaa-345cd6ce2b04
+          stepCounter: 41ba0e7d-4016-4d82-9013-a4a8f7cc6d82
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: ""
+        name: BOOKING_STATUS_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: abfd7480-7271-4d02-9392-e6f92e36b7bc
+                stepCounter: ccdf1f63-49a3-40e0-85f0-985255ee2146
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6206a62d-b30d-451e-9c43-3ec3d6dfa969
+          stepCounter: 41ba0e7d-4016-4d82-9013-a4a8f7cc6d82
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: BOOKING_STATUS_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: abfd7480-7271-4d02-9392-e6f92e36b7bc
+                stepCounter: ccdf1f63-49a3-40e0-85f0-985255ee2146
+            transform: |-
+              CASE ds_cvdis_HES.status
+                          WHEN 0              THEN 'Saved'
+                          WHEN 1              THEN 'New/Sent'
+                          WHEN 2              THEN 'Accepted'
+                          WHEN 3              THEN 'Declined'
+                          WHEN 7              THEN 'On Hold'
+                          WHEN 8              THEN 'Cancelled'
+                          WHEN 9              THEN 'Completed'
+                          ELSE COALESCE(CONVERT(varchar, ds_cvdis_HES.status), 'Unknown')
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2d656549-cc21-4f88-b6f2-663b67489d2d
+          stepCounter: 41ba0e7d-4016-4d82-9013-a4a8f7cc6d82
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_CVDIS_HES: ccdf1f63-49a3-40e0-85f0-985255ee2146
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_CVDIS_HES
+        join:
+          joinCondition: FROM {{ ref('TGT','DS_CVDIS_HES') }}
+        name: S_THEATRE_BOOKING_STATUS
+        noLinkRefs: []
+  name: S_THEATRE_BOOKING_STATUS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

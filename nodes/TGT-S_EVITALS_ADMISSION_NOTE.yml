@@ -1,0 +1,106 @@
+fileVersion: 1
+id: a845e94f-2c24-437b-b3f0-64e558b07870
+name: S_EVITALS_ADMISSION_NOTE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Get a distinct list of different values entered for column admission_note."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 402365c5-208d-4cc2-bf62-0649d284c3fe
+          stepCounter: a845e94f-2c24-437b-b3f0-64e558b07870
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: ADMISSION_NOTE_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 39536ea1-552f-404a-8e1e-e2b24710f652
+                stepCounter: 432d1ae0-8bf7-472d-b6d2-54366c14d4ea
+            transform: MIN(admission_flag_id)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8faa02a8-35e3-43d5-a615-8c1299903e85
+          stepCounter: a845e94f-2c24-437b-b3f0-64e558b07870
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: Part of the admission note prior to the first pipe character.
+        name: FIRST_ADMISSION_NOTE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d3bb0d27-f4cd-47c8-bdf8-568616748ed5
+                stepCounter: 432d1ae0-8bf7-472d-b6d2-54366c14d4ea
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b87bfefe-2e32-4d6d-ba08-86b46a03003a
+          stepCounter: a845e94f-2c24-437b-b3f0-64e558b07870
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: Part of the admission note after the last pipe character. Will be null if no pipes found.
+        name: LAST_ADMISSION_NOTE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a7459177-d7e8-4297-a7e7-fab2f0a10e7d
+                stepCounter: 432d1ae0-8bf7-472d-b6d2-54366c14d4ea
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: afbc626a-0da2-4564-b202-41c51a8dc215
+          stepCounter: a845e94f-2c24-437b-b3f0-64e558b07870
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_EVITALS_ADMISSION_FLAG_30
+        join:
+          joinCondition: |-
+            FROM s_eVitals_admission_flag_30
+             WHERE first_admission_note IS NOT NULL
+               AND NOT EXISTS (
+                    SELECT 1
+                      FROM dim.dim_eVitals_admission_note d
+                     WHERE d.first_admission_note = s_eVitals_admission_flag_30.first_admission_note
+                       AND d.last_admission_note = s_eVitals_admission_flag_30.last_admission_note
+                   )
+             GROUP BY first_admission_note,
+                      last_admission_note
+        name: S_EVITALS_ADMISSION_NOTE
+        noLinkRefs: []
+  name: S_EVITALS_ADMISSION_NOTE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

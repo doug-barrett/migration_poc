@@ -1,0 +1,110 @@
+fileVersion: 1
+id: 752c13c7-edb1-4554-a80c-cdd62045c9b0
+name: S_SKIN_LESION_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Identifies uncoded skin lesions from theatre and  (GP skin lesion) admit wards"
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2b3eede9-e051-4f48-bd63-5e6c3ead3a07
+          stepCounter: 752c13c7-edb1-4554-a80c-cdd62045c9b0
+        config: {}
+        dataType: NUMERIC(10)
+        defaultValue: ""
+        description: ""
+        name: PRVSP_REFNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 234a0d7d-99ab-4ca7-b239-337e0e8114ff
+          stepCounter: 752c13c7-edb1-4554-a80c-cdd62045c9b0
+        config: {}
+        dataType: VARCHAR(1)
+        defaultValue: ""
+        description: ""
+        name: SKIN_LESION_FLAG
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE VIEW dbo.s_skin_lesion_v AS SELECT DISTINCT -- GP skins
+            ds_pims_provider_spells.prvsp_refno ,
+                   'Y' skin_lesion_flag
+              FROM ds_pims_provider_spells
+             WHERE ds_pims_provider_spells.spont_refno = 1000023826
+            UNION ALL SELECT -- simple skins
+            ds_pims_provider_spells.prvsp_refno ,
+                   'Y'skin_lesion_Flag
+              FROM ds_pims_schedules schedules
+             INNER JOIN ds_pims_diagnosis_procedures
+                ON ds_pims_diagnosis_procedures.sorce_refno = schedules.schdl_refno
+               AND ds_pims_diagnosis_procedures.sorce_code = 'SCHDL'
+             INNER JOIN (
+                    SELECT [CODE] ,
+                           [CCSXT_CODE] ,
+                           [DESCRIPTION] ,
+                           'Y' flag
+                      FROM ds_pims_odpcd_codes [ODPCD_CODES]
+                     WHERE [CODE] IN ('BXY02','GXY02','SXY08','SXY09','SXY12','SXY13','SXY14','SXY31','SXY38','EFC04','EMO04','ENO04','EEA04')
+                   ) skins
+                ON skins.code = ds_pims_diagnosis_procedures.code
+             INNER JOIN ds_pims_provider_spells
+                ON ds_pims_provider_spells.patnt_refno = SCHEDULES.patnt_refno
+               AND schedules.start_dttm BETWEEN ds_pims_provider_spells.admit_dttm AND IFNULL(disch_dttm,getdate())
+               AND datediff(DAY,ds_pims_provider_spells.ADMIT_DTTM,ds_pims_provider_spells.DISCH_DTTM)=0
+               AND ds_pims_provider_spells.ADMET_REFNO <>200599
+               AND schedules.cancr_dttm IS NULL
+            EXCEPT -- flaps and grafts
+             SELECT ds_pims_provider_spells.prvsp_refno ,
+                   'Y'skin_lesion_Flag
+              FROM ds_pims_schedules schedules
+             INNER JOIN ds_pims_diagnosis_procedures
+                ON ds_pims_diagnosis_procedures.sorce_refno = schedules.schdl_refno
+               AND ds_pims_diagnosis_procedures.sorce_code = 'SCHDL'
+             INNER JOIN (
+                    SELECT [CODE] ,
+                           [CCSXT_CODE] ,
+                           [DESCRIPTION] ,
+                           'Y' flag
+                      FROM ds_pims_odpcd_codes [ODPCD_CODES]
+                     WHERE [CODE] IN ('SFC00','SFC01','SFC02','BXY16','BXY17','EXY16','EXY17','EXY18','PHA16','PHA17','SXY16','SXY17','SXY18','SXY21','EFC05','EFC06','PXY08')
+                   ) skins
+                ON skins.code = ds_pims_diagnosis_procedures.code
+             INNER JOIN ds_pims_provider_spells
+                ON ds_pims_provider_spells.patnt_refno = SCHEDULES.patnt_refno
+               AND schedules.start_dttm BETWEEN ds_pims_provider_spells.admit_dttm AND IFNULL(disch_dttm,getdate())
+               AND datediff(DAY,ds_pims_provider_spells.ADMIT_DTTM,ds_pims_provider_spells.DISCH_DTTM)=0
+               AND ds_pims_provider_spells.ADMET_REFNO <>200599
+               AND schedules.cancr_dttm IS NULL
+        dependencies: []
+        join:
+          joinCondition: None
+        name: S_SKIN_LESION_V
+        noLinkRefs: []
+  name: S_SKIN_LESION_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

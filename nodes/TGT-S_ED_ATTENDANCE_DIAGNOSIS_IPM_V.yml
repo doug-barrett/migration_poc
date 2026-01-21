@@ -1,0 +1,125 @@
+fileVersion: 1
+id: 1aff8bb8-dca2-4f34-8857-eb8ec61fc635
+name: S_ED_ATTENDANCE_DIAGNOSIS_IPM_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5029f354-b678-4c1e-b436-bd0e4f1428bb
+          stepCounter: 1aff8bb8-dca2-4f34-8857-eb8ec61fc635
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: AEATT_REFNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b9b6de39-1d9d-45bf-8337-f940fb6df500
+          stepCounter: 1aff8bb8-dca2-4f34-8857-eb8ec61fc635
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: PATNT_REFNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e6bb5841-fd56-429d-a53f-16dccda3d686
+          stepCounter: 1aff8bb8-dca2-4f34-8857-eb8ec61fc635
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: ROW_NUM
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b117ded4-9eed-45bd-b9a0-ccd7b15e5f7e
+          stepCounter: 1aff8bb8-dca2-4f34-8857-eb8ec61fc635
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: DIAG_CODE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8927057d-cf2a-4413-a6ec-4e48adae5eb1
+          stepCounter: 1aff8bb8-dca2-4f34-8857-eb8ec61fc635
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: SOURCE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d8652058-43e7-4a64-a1dc-6438b1471b22
+          stepCounter: 1aff8bb8-dca2-4f34-8857-eb8ec61fc635
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: DIAGNOSIS_PROCEDURE_REFERENCE_NO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT ds_pims_diagnosis_procedures.sorce_refno,
+                   ds_pims_diagnosis_procedures.patnt_refno,
+                   ROW_NUMBER() OVER(PARTITION BY ds_pims_diagnosis_procedures.sorce_refno ORDER BY dim_diagnosis_procedure.diagnosis_procedure_code DESC) row_num,
+                   dim_diagnosis_procedure.diagnosis_procedure_code ,
+                   'IPM' SOURCE ,
+                   dim_diagnosis_procedure.diagnosis_procedure_reference_no
+              FROM ds_pims_diagnosis_procedures
+              LEFT OUTER JOIN dim.dim_diagnosis_procedure dim_diagnosis_procedure
+                ON ds_pims_diagnosis_procedures.odpcd_refno = dim_diagnosis_procedure.diagnosis_procedure_reference_no
+             WHERE ds_pims_diagnosis_procedures.sorce_code = 'AEATT'
+               AND ds_pims_diagnosis_procedures.dptyp_code = 'DIAGN'
+               AND ds_pims_diagnosis_procedures.sort_order = 1
+        dependencies: []
+        join:
+          joinCondition: None
+        name: S_ED_ATTENDANCE_DIAGNOSIS_IPM_V
+        noLinkRefs: []
+  name: S_ED_ATTENDANCE_DIAGNOSIS_IPM_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

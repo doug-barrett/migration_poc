@@ -1,0 +1,72 @@
+fileVersion: 1
+id: a7a1d539-8f72-4321-801e-2c97f4d3862f
+name: S_REFERRAL_ACC_NO_MULTIPLE_PATIENTS_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Shows where an ACC number has been used for more than one patient"
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fa82e0de-0cf4-414e-bec4-1215c656388a
+          stepCounter: a7a1d539-8f72-4321-801e-2c97f4d3862f
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: 'ACC number consloidated from '
+        name: ACC_NO_DERIVED
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4d008499-5bda-4793-8cdf-9af13e529132
+                stepCounter: 8767fc83-efac-4dec-84e0-b9a7401e2cff
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 411f98ec-e843-40f2-b90b-1c2f3f249431
+          stepCounter: a7a1d539-8f72-4321-801e-2c97f4d3862f
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: Y indicator for an easy join to stage table
+        name: MULTI_PATIENT_ACC
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE VIEW {{ this }}(ACC_no_derived, multi_patient_ACC) AS SELECT ACC_no_derived,
+                   'Y' multi_patient_ACC
+              FROM s_referral_10
+             GROUP BY ACC_no_derived
+            HAVING count(DISTINCT patient_NHI) > 1
+        dependencies:
+          - locationName: TGT
+            nodeName: S_REFERRAL_10
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_REFERRAL_10') }}
+        name: S_REFERRAL_ACC_NO_MULTIPLE_PATIENTS_V
+        noLinkRefs: []
+  name: S_REFERRAL_ACC_NO_MULTIPLE_PATIENTS_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

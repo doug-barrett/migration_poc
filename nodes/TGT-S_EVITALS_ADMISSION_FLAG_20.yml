@@ -1,0 +1,192 @@
+fileVersion: 1
+id: c1903550-bd87-42b1-bba3-941161362397
+name: S_EVITALS_ADMISSION_FLAG_20
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Link each admission flag record to the closest observation set."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ad05848c-9382-417c-915e-21626147c562
+          stepCounter: c1903550-bd87-42b1-bba3-941161362397
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: ADMISSION_FLAG_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ef94cd12-c916-4cf8-85e9-b6b6d936fe20
+                stepCounter: 17800dce-ce48-4da6-94b8-550ed58c38e5
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a84cd4a0-52d1-44d0-a2fc-9c3bc7f9a759
+          stepCounter: c1903550-bd87-42b1-bba3-941161362397
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Numbers rows for each admission_flag_id
+        name: ROW_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ef94cd12-c916-4cf8-85e9-b6b6d936fe20
+                stepCounter: 17800dce-ce48-4da6-94b8-550ed58c38e5
+            transform: ROW_NUMBER() OVER(PARTITION BY admission_flag_id ORDER BY ABS(DATEDIFF(MI, flag_start_date, s_eVitals_observation_set_hist.observation_taken_date)))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9efc8f7f-c79e-4dc0-a4c4-24841bd5e7c8
+          stepCounter: c1903550-bd87-42b1-bba3-941161362397
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: ADMISSION_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f8669752-860d-47d8-ae0b-57f7ef153010
+                stepCounter: 17800dce-ce48-4da6-94b8-550ed58c38e5
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ac65d765-0cb4-4bb9-8137-da8ef2cde87e
+          stepCounter: c1903550-bd87-42b1-bba3-941161362397
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: FLAG_START_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3211632e-8ff1-4f40-87da-f5f24a050833
+                stepCounter: 17800dce-ce48-4da6-94b8-550ed58c38e5
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 52f145bc-4ff0-42a7-af75-3306cdf96088
+          stepCounter: c1903550-bd87-42b1-bba3-941161362397
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Integer ID that uniquely identifies an observation set in Patientrack. Sourced from obset_pk.
+        name: OBSERVATION_SET_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3ffeeeb8-e1c5-497b-9c8d-52d923c93366
+                stepCounter: 2e14848e-f345-46e7-a979-de9f31d41803
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b02ea998-3fee-41a1-b564-7d18067e4915
+          stepCounter: c1903550-bd87-42b1-bba3-941161362397
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: 'UTC Date and time when the observation measure was taken. '
+        name: OBSERVATION_TAKEN_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 86610885-e796-47c6-9daf-d79445216b4b
+                stepCounter: 2e14848e-f345-46e7-a979-de9f31d41803
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9d39a055-2020-4d12-9a8c-000064ebb030
+          stepCounter: c1903550-bd87-42b1-bba3-941161362397
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Number of minutes between admission_start_date and oabservation_start_date.
+        name: MINUTES_DIFF
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 86610885-e796-47c6-9daf-d79445216b4b
+                stepCounter: 2e14848e-f345-46e7-a979-de9f31d41803
+            transform: ABS(DATEDIFF(SS, s_eVitals_observation_set_hist.observation_taken_date, s_eVitals_admission_flag_10.flag_start_date))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cf06acd7-f425-4163-90a2-2839022d9941
+          stepCounter: c1903550-bd87-42b1-bba3-941161362397
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: The most recent observation set for this admission_id.
+        name: CURRENT_OBSERVATION_SET_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9d35e0fd-cc5b-4190-b75d-5c72069a2eb8
+                stepCounter: 2e14848e-f345-46e7-a979-de9f31d41803
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 87736553-e1fe-497c-bfb8-c37e64d51008
+          stepCounter: c1903550-bd87-42b1-bba3-941161362397
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Look up to Patient Management System to match Inpatient or ED event associated with the observation set for the patient as PatienTrack version becomes unreliable under certain conditions
+        name: MATCHED_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 60ddc8a3-e18d-4eb6-90c6-9ac89ad51e2f
+                stepCounter: 0905c9ed-c5ee-4805-bf56-59c93549c3de
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0f03986f-991b-4a77-b6bf-7a82b483fe28
+          stepCounter: c1903550-bd87-42b1-bba3-941161362397
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_EVITALS_ADMISSION_FLAG_10
+        join:
+          joinCondition: |-
+            FROM s_eVitals_admission_flag_10
+              JOIN s_eVitals_observation_set_hist
+                ON s_eVitals_observation_set_hist.admission_id = s_eVitals_admission_flag_10.admission_id
+               AND ABS(DATEDIFF(MI, s_eVitals_observation_set_hist.observation_taken_date, s_eVitals_admission_flag_10.flag_start_date)) <= @v_eVitals_task_observation_diff
+              JOIN s_eVitals_observation_set
+                ON s_eVitals_observation_set_hist.current_observation_set_id = s_eVitals_observation_set.observation_set_id
+        name: S_EVITALS_ADMISSION_FLAG_20
+        noLinkRefs: []
+  name: S_EVITALS_ADMISSION_FLAG_20
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

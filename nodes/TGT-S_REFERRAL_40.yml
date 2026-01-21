@@ -1,0 +1,1499 @@
+fileVersion: 1
+id: 8b425abb-ee6e-4829-a138-595836c1da0a
+name: S_REFERRAL_40
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Materialise s_referral_30_changes_v i.e. referrals that have changed and need updating to fact_referral."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bebb62df-0682-4e81-a0cd-82e522f4cad7
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e41112e7-3d53-4e96-a7a1-7542a6030530
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 862d41ab-74d3-4940-b4b0-3fc49554ef70
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Datetime when the referral start date, completion date or specialty were last updated. Used to control the update of fact_patient_consolidation.
+        name: DATE_SPECIALTY_LAST_UPDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f1d6b594-0d5a-4638-aa37-ca1c6aec40d3
+                stepCounter: 8608df78-2980-4eda-89d6-b7928f84cb8a
+            transform: |-
+              CASE WHEN fact_referral.referral_encounter_id IS NULL -- new referral
+              OR fact_referral.dim_referred_to_specialty_key <> s_referral_30_changes_v.dim_referred_to_specialty_key OR fact_referral.referral_start_date <> s_referral_30_changes_v.referral_start_date OR IFNULL(fact_referral.referral_completion_date, '2000-01-01') <> IFNULL(s_referral_30_changes_v.referral_completion_date, '2000-01-01') THEN GETDATE()
+                          ELSE fact_referral.date_specialty_last_update -- no change
+
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2a8a0898-538e-4b60-865a-eadeb1805bfd
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Patient National Health Index (NMPI)
+        name: PATIENT_NHI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ef0b020e-8b0e-42da-acb0-2ff2ed0a4bc1
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1eaea950-1c14-4536-b5e0-dc8c412a0cce
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referral_encounter_type_code=dim_encounter_type.encounter_type_code
+        name: DIM_ENCOUNTER_TYPE_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a286e487-c619-4824-9938-28d806e81582
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8581b1ed-785a-4de4-8da4-4c00c088d8d1
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.patient_reference_no=dim_patient.patient_reference_no
+        name: DIM_PATIENT_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a3878114-1b2b-4e52-b3ea-4b628c30ed29
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1db2d41a-b036-490c-940d-1bf247f47101
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_START_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 64b58b95-3391-4190-a2f9-1af8e0beaae5
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aa85c941-1fb6-4606-bdee-2ec51611b250
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.patient_age_at_referral_years=dim_age_group.age_years
+        name: DIM_AGE_GROUP_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3d7ea940-00e7-44b7-b8ff-fed3604eef0d
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a348efc8-f604-4fdf-bae2-7990d64c1dfb
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referral_reason_reference_no=dim_referral_reason.referral_reason_reference_no
+        name: DIM_REFERRAL_REASON_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0e738012-069a-48b4-96d2-926ce115e2b5
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 04907e36-c7f6-49ce-aa5c-b5374258a5b0
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referral_type_reference_no=dim_referral_type.referral_type_reference_no
+        name: DIM_REFERRAL_TYPE_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 23521203-b93f-4b62-be9e-af72518c86bc
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5bc5b93d-ddcb-4e69-936f-70b0a59a69d5
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referral_status_reference_no=dim_referral_status.referral_status_reference_no
+        name: DIM_REFERRAL_STATUS_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 17885a1c-32ba-46b2-91ee-04a8911366f8
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eaaea84f-51fa-4476-a4da-0728f1caf3bf
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referral_priority_reference_no=dim_referral_priority.referral_priority_reference_no
+        name: DIM_REFERRAL_PRIORITY_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3ea7fe98-0307-4553-a69d-cacbd12dcddb
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 44c113ae-3bd8-4926-acd9-79bbe78b43f3
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: CLINICAL_PRIORITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 88c6ecbb-b576-46c3-b050-a8f0d9f02b5f
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0b173605-9a3f-47ed-ae65-bdf5acf7efc5
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.admin_category_reference_no=dim_referral_admin_category.referral_admin_category_reference_no
+        name: DIM_REFERRAL_ADMIN_CATEGORY_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cbd7b27a-0c72-4992-9413-071350fff25f
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1a2ac1ef-fa46-49fd-bfc9-0385c707f1b3
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.CONVERT(date,IFNULL(referral_received_date,referral_sent_date))=dim_referral_start_date.referral_start_calendar_date
+        name: DIM_REFERRAL_START_DATE_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9075af27-5530-4403-af47-51b9359313a9
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9d9f028f-3caf-407a-a653-c6eaf8172ee1
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.CONVERT(date,s_referral_20.referral_sent_date)=dim_referral_sent_date.referral_sent_calendar_date
+        name: DIM_REFERRAL_SENT_DATE_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bce07131-396c-4ddc-bcce-2f4696e21a01
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 41206361-45c1-4e66-a04a-355471119397
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.CONVERT(date,s_referral_20.referral_received_date)=dim_referral_received_date.referral_received_calendar_date
+        name: DIM_REFERRAL_RECEIVED_DATE_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f1070611-abbc-47c7-87be-5626053611e9
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 22efd1af-8e1d-48d0-8326-71f398fc5fd6
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referral_source_reference_no=dim_referral_source.referral_source_reference_no
+        name: DIM_REFERRAL_SOURCE_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 14549d2e-7447-4f61-a64e-557a84854e36
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ebb11965-22ea-4aaa-97f5-ef2f790a49b3
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referral_authorisation_reason_reference_no=dim_referral_authorisation_reason.referral_authorisation_reason_reference_no
+        name: DIM_REFERRAL_AUTHORISATION_REASON_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c9c6a8a1-88fd-4b44-80b4-9e455eeb6f5b
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 14fe22de-8228-43ce-a3d9-14e1bf88224f
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referral_authorisation_clinician_reference_no=dim_authorising_clinician.authorising_clinician_reference_no
+        name: DIM_AUTHORISING_CLINICIAN_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9f3e2bac-9b39-4adb-a9e4-afca19b42bbd
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f456b0e4-3e38-494b-9b17-86446c058365
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referral_cancellation_reason_reference_no=dim_referral_cancellation_reason.referral_cancellation_reason_reference_no
+        name: DIM_REFERRAL_CANCELLATION_REASON_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c85ef01b-23b9-47b5-afaa-c952aad7c63a
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 136903dd-b65a-4147-bb95-39ac230705c3
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: s_referral_30.CONVERT(date,referral_completion_date)=dim_completion_date.completion_calendar_date
+        name: DIM_COMPLETION_DATE_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6e80976c-f39a-45e8-8019-d8983e57f9f5
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 209b7566-aef1-42eb-8238-61f9bee681d4
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referral_completion_reason_reference_no=dim_referral_completion_reason.referral_completion_reason_reference_no
+        name: DIM_REFERRAL_COMPLETION_REASON_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8b97fd7d-a7d9-4b13-baa4-5ab5d7a206a7
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cd17ba5d-e4a3-47d5-b70b-479e361f353e
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referral_rejection_reason_reference_no=dim_referral_rejection_reason.referral_rejection_reason_reference_no
+        name: DIM_REFERRAL_REJECTION_REASON_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1f2faba5-cdb4-4333-974a-e1df2393611f
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 522f5e87-867b-4bcd-8094-d6978287a5e2
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referred_by_health_org_reference_no=dim_referred_by_health_organisation.referred_by_health_org_reference_no
+        name: DIM_REFERRED_BY_HEALTH_ORG_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c5f45293-ef5d-4632-82b8-533c0f34b406
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 27ace8f4-5ff5-403e-9900-9586fd8a0238
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referred_by_specialty_reference_no=dim_referred_by_specialty.referred_by_specialty_reference_no
+        name: DIM_REFERRED_BY_SPECIALTY_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 68750f11-afd1-4a2b-9530-50f3bc234e17
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cb21d048-179a-41c8-bbff-f9785acf8eba
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referred_by_clinician_reference_no=dim_referred_by_clinician.referred_by_clinician_reference_no
+        name: DIM_REFERRED_BY_CLINICIAN_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 80bfb13c-a8fd-43f3-ba0a-afb88e1f5ccc
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d72cb312-76ad-40ab-af77-b17af97a2f96
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referred_to_health_org_reference_no=dim_referred_to_health_organisation.referred_to_health_org_reference_no
+        name: DIM_REFERRED_TO_HEALTH_ORG_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bc3cead1-6e58-424b-8b3a-f7d42d27f0af
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f132471a-4ac8-4da9-bbf6-b4527c0b3f4e
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referred_to_ward_reference_no=dim_referred_to_ward.referred_to_ward_reference_no
+        name: DIM_REFERRED_TO_WARD_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 074fe9b9-388f-4654-b030-c66f9792d714
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cd1e65ac-6680-471b-afef-5e94b0a47a4e
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referred_to_specialty_reference_no=dim_referred_to_specialty.referred_to_specialty_reference_no
+        name: DIM_REFERRED_TO_SPECIALTY_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 410a39de-a740-459b-a8b8-73cb5f93ec17
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b871dbcf-5937-4471-ba16-87a0cb7faa78
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referred_to_clinician_reference_no=dim_referred_to_clinician.referred_to_clinician_reference_no
+        name: DIM_REFERRED_TO_CLINICIAN_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4295295e-9c35-4b36-87c8-1e322c34f048
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d0496566-c264-491c-b902-69baeb20f753
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.referred_to_staff_team_reference_no=dim_staff_team.staff_team_reference_no
+        name: DIM_STAFF_TEAM_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ebce2d77-66d9-4786-a0a2-9510625accb1
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 10d61d17-058d-4835-bbe4-786e4d9fdbd4
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.principal_diagnosis_procedure_code=dim_principal_diagnosis.principal_diagnosis_code
+        name: DIM_PRINCIPAL_DIAGNOSIS_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: de69d726-5a9e-429a-a618-ea1dd7890ff1
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a09dd0d9-4be8-4464-9f8e-6d2314b9cf03
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.accident_related_status_reference_no=dim_accident_related_status.accident_related_status_reference_no
+        name: DIM_ACCIDENT_RELATED_STATUS_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2e5a036c-1ce1-4ea6-a282-2ddd0577c347
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ebc790af-51fa-4ac0-9c2d-4cd98ae5cea0
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.accident_type_reference_no=dim_accident_type.accident_type_reference_no
+        name: DIM_ACCIDENT_TYPE_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8f0ae8ea-f6bc-400c-9b38-a76b598c61e5
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7e43a94d-db1b-441c-81c8-487f5ebfd806
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: s_referral_30.referral_reason_reference_no=dim_CADS_caseteam.referral_reason_reference_no
+        name: DIM_CADS_CASETEAM_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 16153a8f-9923-47de-a5b4-6f9ccd5065fc
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 61ea95b4-b752-44d4-9271-305bb1153a91
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.ACC_status_reference_no=dim_ACC_status.ACC_status_reference_no
+        name: DIM_ACC_STATUS_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 74dfc2cc-5c4f-4345-8e0c-c1df5ef8bd71
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 51c665c9-ddd2-4b83-b650-0688c23d84be
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: ACC_NO_REPORTED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 91ae5794-a4b8-49cc-933b-1fe6fdbf6412
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 70230296-534c-47c9-8805-cd7d5a4c9dbd
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: ""
+        name: ACC_VALID_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 87b1d65a-92c0-406a-83c2-0a9cb1ec44ad
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8e27f8f2-e0bf-44af-94db-7b4738dd7535
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: ACC_CLAIM_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d0f9f2cb-e0b0-4200-abe5-bcc1baa0ec79
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7a16be79-bda6-41fc-a406-2bae7bf8efa7
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ACC_INDICATORS_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d94bd872-40fc-4563-87ab-6d4da904003c
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 95bd0074-09a4-49dd-b6ad-ada1f91b5455
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.ACC_indicators_id=dim_referral_ACC_indicator.ACC_indicators_id
+        name: DIM_REFERRAL_ACC_INDICATOR_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f2fae7f7-9fa2-43f4-b370-84a015ef3874
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 59adf242-8600-423c-ae15-4b727f05856a
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: ACC45
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e5e8da15-e498-44e9-ab09-961296069f02
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9ce19f41-41b6-4c6b-9eea-5751376671bc
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.disability_type_reference_no=dim_disability_type.disability_type_reference_no
+        name: DIM_DISABILITY_TYPE_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a12b9683-41e8-4163-9e98-7c935ba3baf4
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 844e599c-eb3b-46d1-b949-cc63c33ecac9
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: s_referral_30.court_reference_no=dim_MOJ_court.MOJ_court_reference_no
+        name: DIM_MOJ_COURT_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9a661dc8-fdc1-4dca-9fc8-d60a3f157357
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a888bbb4-2b3a-4b74-b15b-fdce3a8507ab
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.prison_reference_no=dim_prison.prison_reference_no
+        name: DIM_PRISON_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: be0bc700-0871-4be3-b2ef-8d5777dd3638
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b4dac31b-ebe0-4505-bc37-be133300b9ca
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.prison_location_reference_no=dim_prison_location.prison_location_reference_no
+        name: DIM_PRISON_LOCATION_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d81083f1-4318-4bde-8e55-393843ed399c
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 20d3ab6c-5150-4d60-8540-9d4a9c652776
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: ""
+        name: CANCER_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 53430eb9-1f8b-4ef7-96f5-f8f697b7b1bc
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9bd0031e-04c4-4301-a9d0-fd40022a59d3
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: ""
+        name: ESPI1_ACCEPTED_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 36a363d0-4e4d-4cd6-b536-fca60cf6e87e
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9f6613a9-080d-48bf-ade1-31e5aed3f60a
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: ""
+        name: ESPI1_AUTHORISED_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cb7b1e44-25ef-461f-9849-a4813e24fa07
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 171d275e-21df-4b0f-81cb-4d8670082bd2
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: Was the ESPI 1 case processed and the patient notified within the compliance period.  As of 01-July-2016 the ESPI 1 compliance period change from 10 working days to 15 calendar days.
+        name: ESPI1_PROCESSED_IN_TIME_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 88ae7bc2-8987-4161-aea5-9218386a5826
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: de0633bd-0607-4583-80b0-e1f73e86fc8e
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: Is the case on at referral being assessed within 10 days as per the FSA waitlist criteria.  Note assessment may mean thay are not an FSA but they still need to be evaluated within 10 days  As of 01-July-2016 the ESPI 1 compliance measure change from 10 working days to 15 Calendar days.
+        name: ESPI1_ELIGIBLE_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 54e1de56-5e36-4fd2-814a-727be82dbf85
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cef96f8b-f92f-49c3-99cf-3fabdce3b370
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: Has the referral been assessed and considered inappropraite for the service?
+        name: ESPI1_REJECTED_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e685e44e-c4fe-4855-bf6e-fb2e82d3f474
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 49a72cdb-6854-40da-a0fe-1c9f7aaf3c13
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: Is this an NPF referral being sent ot the MoH.  Currently ESPI 1 referrals plus Surveillance cases
+        name: NPF_PRESENTING_REFERRAL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ece4ebb9-5509-43be-a465-2ef7ba2ae4b3
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 58f5e9a8-b406-402c-af40-65ed97fbcc6d
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: ""
+        name: NPF_REJECTED_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e4021fc4-7a15-4ab1-90a0-11c9f5190024
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 36a3fb71-1d03-46b7-8f65-c6b9497baa71
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: If an NPF referral is rejected it might be because the patient has opted not to be treated or the referral was mistakenly created.  These reason mean the referral is handled as an exception.
+        name: NPF_EXCEPTION_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c7c550e1-dea0-4ffc-a5f0-0aa25bb20202
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 38c280f8-6582-4368-aa88-a591be562757
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: Referrals with outpatient activity and no waitlists have this flag set to Y
+        name: NPF_FOLLOW_UP_REFERRAL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ff80c243-a38e-418f-b56e-98d0d131d61d
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 16207525-8f37-40af-a22a-566b98db0b51
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: NPF ESPI 1 is measured on the date that the patient is notified.  The best proxy for this is the waitlist create date.
+        name: NPF_ACKNOWLEDGEMENT_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 84dc0cdf-da0f-467b-a283-351605d80d2f
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 22b7ec30-d22a-4f93-91f0-9b1988f3e7d8
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: National Patient Flow processing indicator for NPF referrals closed with no activity
+        name: NPF_CLOSED_NO_ACTIVITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 60cd2a77-22d9-463b-86a2-076583e89d22
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 41e594d1-ce35-4075-ba79-076001602e1a
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: Referrals no activity that are closed as transfered to another DHB have this flag set to Y
+        name: NPF_TRANSFER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 29bdfa40-f0e5-4af8-94a9-e18373b0682f
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c4902cea-0f82-4c80-8d6a-9d1a7bcdb8c2
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: VARCHAR(31)
+        defaultValue: ""
+        description: Is the referral accepted or rejected within the ESPI 1 time frame
+        name: ESPI1_RULE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9eec8adc-c309-4f75-b93f-dc4df6c87bd0
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f49c73c7-7f3d-46d1-8b3e-37e100065691
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ESPI1_WAIT_TIME_DURATION_CALENDAR_DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8217b143-9fb9-4746-867b-7844dfbd47b6
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3c277736-1a94-4e37-bd38-3a4292fa0967
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ESPI1_WAIT_TIME_DURATION_WORKING_DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d5e2a361-9e85-44f7-87e3-dc0d05aaea54
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 87f065bd-ebb5-4391-b485-6a51a94b906a
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: The number of days the case took to be graded.  Pre 01-Jul-2016 this is working days, post 01-Jul-2016 it is calendar days.
+        name: ESPI1_WAIT_TIME_DURATION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fcdd11a5-4c9e-4246-9bd4-a61ffea23f3d
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e8ca22e4-c3b7-475a-b5f6-e65f2f9e8467
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: INJURY_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4b7b2eba-79a3-4c9b-841f-e43c727cd5b6
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f4879d95-d6d3-4fe0-af46-97d89a30d419
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: duration_unit
+        name: DURATION_UNIT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 778891f5-0736-4cf0-be66-e7c21109488e
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1b578e36-8317-4cc8-b0b4-da3452a464ff
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: MODIFY_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 40867265-303d-4e39-aabc-30d7af6ffcf6
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6a4e2c66-192c-40f6-a26b-4610146c7ed0
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: NEXT_REFERRAL_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7ef0303f-c8d1-4666-b4c4-a7950f6460ec
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 18aadcb3-437a-4890-8c35-0e33e97d15f8
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: PARENT_REFERRAL_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ca702d19-74c1-4301-8532-3eac948f8a2d
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e4bc7dc8-a746-46dd-9d14-9f21ffcfd4a6
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: ""
+        name: COMMENTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c8d47c89-dd74-44ed-8c88-83b7c59039ae
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f8676aa2-4c75-4478-95f1-cc2b8bfa9924
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: Clinician notes for the encounter.
+        name: DISCHARGE_COMMENTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a7d10e07-dc5e-4fe4-8393-6ac88ae6ad97
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 063cf328-42db-4297-b77a-dac49dedc6c4
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: CREATE_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7e1b8a4d-c979-4d21-80ab-ed5449bf02e4
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 198df58e-77d6-45a0-9b4f-142bad97796c
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: patient_referral_count
+        name: PATIENT_REFERRAL_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a06ceb4b-2761-4e1d-9238-bf9e0fbf448a
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: abd0d39e-8544-4611-b70f-5bfe0c7f087b
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Waitlists associated with this referral
+        name: REFERRAL_WAITLIST_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c2fee8d1-2d94-44c7-b311-cbc00f8adcdd
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 634a9528-5568-457d-a979-7abfb4d4d518
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Emergency attendances associated with this referral
+        name: REFERRAL_AE_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: faa1befa-52b1-484a-8dd2-1766ea58d2f0
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b4f6d5f2-b3f1-4a30-b7d3-6dbf8309b29b
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Admissions associated with this referral
+        name: REFERRAL_ADMISSION_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fdf59fbb-c17a-40fb-9415-2a5b3cbd698e
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aa70b47b-d0c4-43b9-9408-54a19e6f055d
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Appointment (theatre/contacts/outpatients) associated with this referral
+        name: REFERRAL_APPOINTMENT_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 072901ea-3e42-4fe7-ac77-2d5f66e20e79
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1dd5d9bb-e49e-4639-912f-e85b983d09a6
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Suspension wailtists associated with this referral
+        name: NPF_SUSPENSION_EXCEPTION_WAITLIST
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ce4e0020-84bf-43e3-9cf8-959e7c743d3d
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 45714396-748d-41c1-baeb-fd8a160a7203
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Excluded wailtists associated with this referral
+        name: NPF_EXCLUDED_WAITLIST_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d761e37a-1e3b-4758-9913-bb5896487d66
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 54b9f00d-4ef6-49ff-aa12-887efb23addb
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.create_user_login_code=dim_create_user_login.create_user_login_code
+        name: DIM_CREATE_USER_LOGIN_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 95ba2b86-d15f-47a3-bb1a-b3c417f90955
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 12cd1a15-338f-4751-be2c-6d1f69cc0674
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: patient_referral_seq_num
+        name: PATIENT_REFERRAL_SEQ_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a4f0cec8-4387-492c-a5ca-547801c71545
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d406d409-c4be-4afe-ae45-41473daf29b4
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: PREV_REFERRAL_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: dc5167bf-0f51-45b3-ae97-c86f37fcec2d
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b09442e5-fa19-4915-a362-9ba0e3e4540a
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.modify_user_login_code=dim_modify_user_login.modify_user_login_code
+        name: DIM_MODIFY_USER_LOGIN_KEY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7a054436-e02d-4758-9dc3-fbff4b0e7c39
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ca76984c-38fa-4f9a-a8c7-ff4788414a1a
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_AUTHORISATION_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7fb2c815-d855-424d-90c6-29f8ba646953
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e5257bb9-5073-4e7a-8b09-91f77ce1ff34
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_AUTHORISATION_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: dcce6726-8a7d-46ce-be9c-105f9fea9d95
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eb0e25be-a87f-4fd9-b3ac-8b8439ce7e32
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: DSS_DATA_QUALITY_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 428c297e-4342-4d62-ac4c-f545b1dec999
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fb7a84ad-edcc-4f37-a8db-efef244470ac
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_CANCELLATION_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 365174c1-622b-4547-b096-b05a9a2f8cdd
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 445f2723-4435-4938-af39-3ee103f92d57
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_COMPLETION_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0005472e-7ac8-45f7-af99-86f855ce2cbb
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0e29d468-cb9f-4fa4-9dc5-e3f7b6fa2364
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: s_referral_30.modify_user_login_code=dim_modify_user_login.modify_user_login_code
+        name: REFERRAL_COUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 49de1e0e-7b40-4b08-af84-c207d4e1339f
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4d20533a-5acf-43e6-889f-3565cbcde0ac
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_EXPIRY_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7c0d4b2d-1d7a-4240-878d-ee360f3f1f4f
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 950b5f00-2cd0-44cb-9c52-9aa158efd561
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_RECEIVED_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6e50fb60-69de-4e79-b40f-dde6463b85a1
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8926353f-d83a-4037-820f-1790982cca2a
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: REFERRAL_SENT_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a91d0b95-9588-4e36-8b4a-5d56ff557f97
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 02469f57-a6bf-4617-9a9f-1e430644af15
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: ""
+        name: ACCCOMMENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bde860f9-c51b-4981-be05-93af67a33de4
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: db081320-2dc3-4a3f-b672-4d3d261d5488
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: DATE_OF_CHANGE_FOR_CLAIM_LODGED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 02263ef3-6d95-4116-beeb-9964d1332e18
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7af93ab0-5c46-4845-b851-6682572ac34c
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: CHAR(2)
+        defaultValue: ""
+        description: ""
+        name: INJURYFLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f33dae64-3237-4b8e-902b-5415dcd53833
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b4400803-05a9-4b2b-9a7e-384de2827a01
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Populated when the MH referral was created for a team that replaces old teams that have been merged.
+        name: MH_LINKED_REFERRAL_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cea88046-5ccb-4675-95d2-7f72f06f89c7
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 14ce8e2a-e7d5-4766-a148-6737faa3fb63
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Start date of the referral that was closed when MH teams were merged.
+        name: MH_LINKED_REFERRAL_START_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 66e73f62-8632-4d0a-8fda-765ab7fc88af
+                stepCounter: a520718c-dd33-4b6f-b424-866b8f20076f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 52eee5d6-8d3e-4b1b-aea3-6a84d4c9ea9a
+          stepCounter: 8b425abb-ee6e-4829-a138-595836c1da0a
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_REFERRAL_30_CHANGES_V
+        join:
+          joinCondition: |-
+            FROM s_referral_30_changes_v
+              LEFT OUTER JOIN fact.fact_referral
+                ON s_referral_30_changes_v.referral_encounter_id = fact_referral.referral_encounter_id
+        name: S_REFERRAL_40
+        noLinkRefs: []
+  name: S_REFERRAL_40
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

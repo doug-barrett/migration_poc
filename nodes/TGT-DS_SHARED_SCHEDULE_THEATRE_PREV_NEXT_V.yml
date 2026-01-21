@@ -1,0 +1,190 @@
+fileVersion: 1
+id: 5407c474-d3cc-407c-849d-dce52ceee47d
+name: DS_SHARED_SCHEDULE_THEATRE_PREV_NEXT_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Detals of the previous and next theatre row for each patient."
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b3954591-2bd5-4021-b600-5ecdca09a562
+          stepCounter: 5407c474-d3cc-407c-849d-dce52ceee47d
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: THEATRE_VISIT_ENCOUNTER_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e6f7a662-40ca-4651-88c9-00681f468d5a
+          stepCounter: 5407c474-d3cc-407c-849d-dce52ceee47d
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: SESSION_FIRST_THEATRE_VISIT_ENCOUNTER_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b0714be2-ff9e-4604-9f62-4246ea46d9ac
+          stepCounter: 5407c474-d3cc-407c-849d-dce52ceee47d
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: SESSION_LAST_THEATRE_VISIT_ENCOUNTER_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d59d934e-c1b5-4df3-9a71-68590e2fe40f
+          stepCounter: 5407c474-d3cc-407c-849d-dce52ceee47d
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: SESSION_PREVIOUS_THEATRE_VISIT_ENCOUNTER_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3692083d-4c16-4a3a-b1e0-ca2e654ff2a4
+          stepCounter: 5407c474-d3cc-407c-849d-dce52ceee47d
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: SESSION_NEXT_THEATRE_VISIT_ENCOUNTER_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 44bd8c04-32a0-4b4f-ae4d-acec2794662d
+          stepCounter: 5407c474-d3cc-407c-849d-dce52ceee47d
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: SESSION_PREVIOUS_INTO_THEATRE_DATE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: IFNULL(s_theatre_visit_prev.into_theatre_date,s_theatre_visit_prev.visit_start_date)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b21026bd-4531-46c6-b637-c38595aa4912
+          stepCounter: 5407c474-d3cc-407c-849d-dce52ceee47d
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: SESSION_PREVIOUS_OUT_OF_THEATRE_DATE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '#NAME?'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b360e9de-e15f-48ca-ae9a-cadfb3cdd806
+          stepCounter: 5407c474-d3cc-407c-849d-dce52ceee47d
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: SESSION_NEXT_INTO_THEATRE_DATE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '#NAME?'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ad2c4109-96d2-48b5-bc02-dd8202629db1
+          stepCounter: 5407c474-d3cc-407c-849d-dce52ceee47d
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: SESSION_NEXT_OUT_OF_THEATRE_DATE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '#NAME?'
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT ds_shared_schedule_theatre_v.schedule_reference_no schedule_reference_no,
+                   s_theatre_visit_first.schedule_reference_no session_first_schedule_reference_no,
+                   s_theatre_visit_last.schedule_reference_no session_last_schedule_reference_no,
+                   s_theatre_visit_prev.schedule_reference_no session_previous_schedule_reference_no,
+                   s_theatre_visit_next.schedule_reference_no session_next_schedule_reference_no,
+                   IFNULL(s_theatre_visit_prev.into_theatre_date,s_theatre_visit_prev.visit_start_date) session_previous_into_theatre_date,
+                   CASE WHEN ds_shared_schedule_theatre_v.session_into_theatre_seq_num = 1 THEN ds_shared_schedule_theatre_v.into_theatre_date
+                        ELSE COALESCE(s_theatre_visit_prev.out_of_theatre_date,s_theatre_visit_prev.into_postop_date,s_theatre_visit_prev.visit_end_date)
+                         END session_previous_out_of_theatre_date,
+                   IFNULL(s_theatre_visit_next.into_theatre_date,s_theatre_visit_next.visit_start_date) session_next_into_theatre_date,
+                   COALESCE(s_theatre_visit_next.out_of_theatre_date,s_theatre_visit_next.into_postop_date,s_theatre_visit_next.visit_end_date) session_next_out_of_theatre_date
+              FROM ds_shared_schedule_theatre_v
+              LEFT OUTER JOIN ds_shared_schedule_theatre_v s_theatre_visit_prev
+                ON ds_shared_schedule_theatre_v.service_point_session_reference_no = s_theatre_visit_prev.service_point_session_reference_no
+               AND ds_shared_schedule_theatre_v.session_into_theatre_seq_num - 1 = s_theatre_visit_prev.session_into_theatre_seq_num
+              LEFT OUTER JOIN ds_shared_schedule_theatre_v s_theatre_visit_next
+                ON ds_shared_schedule_theatre_v.service_point_session_reference_no = s_theatre_visit_next.service_point_session_reference_no
+               AND ds_shared_schedule_theatre_v.session_into_theatre_seq_num + 1 = s_theatre_visit_next.session_into_theatre_seq_num
+              LEFT OUTER JOIN ds_shared_schedule_theatre_v s_theatre_visit_first
+                ON ds_shared_schedule_theatre_v.service_point_session_reference_no = s_theatre_visit_first.service_point_session_reference_no
+               AND s_theatre_visit_first.session_into_theatre_seq_num = 1
+              LEFT OUTER JOIN ds_shared_schedule_theatre_v s_theatre_visit_last
+                ON ds_shared_schedule_theatre_v.service_point_session_reference_no = s_theatre_visit_last.service_point_session_reference_no
+               AND s_theatre_visit_last.session_into_theatre_seq_num = s_theatre_visit_last.session_into_theatre_count
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_SHARED_SCHEDULE_THEATRE_V
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','DS_SHARED_SCHEDULE_THEATRE_V') }}
+        name: DS_SHARED_SCHEDULE_THEATRE_PREV_NEXT_V
+        noLinkRefs: []
+  name: DS_SHARED_SCHEDULE_THEATRE_PREV_NEXT_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

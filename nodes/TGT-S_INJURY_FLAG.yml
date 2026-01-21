@@ -1,0 +1,109 @@
+fileVersion: 1
+id: bead44ac-ed62-4369-a50b-b3b46aba936f
+name: S_INJURY_FLAG
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 403eaa3e-ab36-4dd3-9427-c42e0e6642c1
+          stepCounter: bead44ac-ed62-4369-a50b-b3b46aba936f
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: ROWNUMREFRL
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: row_number() over(PARTITION BY s_ed_attendance_05.refrl_refno ORDER BY s_ed_attendance_05.aeatt_refno DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4d7c5cf0-1764-426d-9bf4-dc90c83778ac
+          stepCounter: bead44ac-ed62-4369-a50b-b3b46aba936f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Referral ref no.
+        name: REFRL_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 04b24b96-20f7-4a13-9233-29c4393a87cb
+                stepCounter: cf203632-a7f8-4162-b3b5-cdc285b1d146
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8abab6bb-d4a7-4f26-9443-b3e47a0065ef
+          stepCounter: bead44ac-ed62-4369-a50b-b3b46aba936f
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: ""
+        name: DESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 551f483d-a948-4558-87f8-d3e65fffac3c
+                stepCounter: 06fa4241-360c-43d0-8e4a-8b860f92fc09
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 545571b9-4c41-4975-a0c5-359004570781
+          stepCounter: bead44ac-ed62-4369-a50b-b3b46aba936f
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_PIMS_LDD_LOCAL_DATAVALUES: c5429209-b899-4e7f-9548-ca0e9a55f302
+          DS_PIMS_REFERENCE_VALUES: 06fa4241-360c-43d0-8e4a-8b860f92fc09
+          S_ED_ATTENDANCE_05: cf203632-a7f8-4162-b3b5-cdc285b1d146
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PIMS_LDD_LOCAL_DATAVALUES
+          - locationName: TGT
+            nodeName: DS_PIMS_REFERENCE_VALUES
+          - locationName: TGT
+            nodeName: S_ED_ATTENDANCE_05
+        join:
+          joinCondition: |-
+            FROM {{ ref('TGT','DS_PIMS_LDD_LOCAL_DATAVALUES') }}
+              JOIN {{ ref('TGT','DS_PIMS_REFERENCE_VALUES') }}
+                ON ds_pims_ldd_local_datavalues.ussob_value_2 = ds_pims_reference_values.rfval_refno
+              JOIN {{ ref('TGT','S_ED_ATTENDANCE_05') }}
+                ON ds_pims_ldd_local_datavalues.sorce_refno = s_ed_attendance_05.aeatt_refno
+             WHERE ds_pims_ldd_local_datavalues.sorce_code = 'AEATT'
+               AND ds_pims_ldd_local_datavalues.usscr_refno = 1400020320
+               AND s_ed_attendance_05.refrl_refno IS NOT NULL
+        name: S_INJURY_FLAG
+        noLinkRefs: []
+  name: S_INJURY_FLAG
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

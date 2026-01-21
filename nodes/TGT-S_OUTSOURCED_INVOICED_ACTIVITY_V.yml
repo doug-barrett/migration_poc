@@ -1,0 +1,110 @@
+fileVersion: 1
+id: 3b9f7958-a729-44e0-a1fd-ded73b6c542d
+name: S_OUTSOURCED_INVOICED_ACTIVITY_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5eafc65b-c520-4e72-8f62-cb5bfc518a0c
+          stepCounter: 3b9f7958-a729-44e0-a1fd-ded73b6c542d
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: ENCOUNTER_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: efbda52b-de23-4be6-ac76-aedd9c45b5c1
+          stepCounter: 3b9f7958-a729-44e0-a1fd-ded73b6c542d
+        config: {}
+        dataType: MONEY
+        defaultValue: ""
+        description: ""
+        name: ANAESTHETIST_INVOICED_AMOUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: aff892c9-7293-4787-90c9-6c21d056fbc5
+                stepCounter: 2536187a-a053-47c6-b070-f5da462f36fd
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8eb9a745-d7fa-44a5-8a16-5d01da17a68b
+          stepCounter: 3b9f7958-a729-44e0-a1fd-ded73b6c542d
+        config: {}
+        dataType: MONEY
+        defaultValue: ""
+        description: ""
+        name: SURGEON_INVOICED_AMOUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: aff892c9-7293-4787-90c9-6c21d056fbc5
+                stepCounter: 2536187a-a053-47c6-b070-f5da462f36fd
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ac836e73-3d7f-4f47-8f33-a6285ba27162
+          stepCounter: 3b9f7958-a729-44e0-a1fd-ded73b6c542d
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: RESPONSIBILITY_CENTRE_ACCOUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8e61503d-7b1c-47e9-81d3-863f333dec87
+                stepCounter: 2536187a-a053-47c6-b070-f5da462f36fd
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE VIEW s_outsourced_invoiced_activity_v AS SELECT IFNULL(IP_event_encounter_id,outpatientencounter) encounter_id ,
+                   sum(CASE WHEN doctortype = 'Anaesthetist' THEN pricenet ELSE 0 END) anaesthetist_invoiced_amount ,
+                   sum(CASE WHEN doctortype = 'Surgeon' THEN pricenet ELSE 0 END) surgeon_invoiced_amount ,
+                   max(RC) responsibility_centre_account
+              FROM l_WDHB_datastore_ImplantInvoice
+              LEFT JOIN s_theatre_IP_encounter
+                ON theatre_visit_reference_no = CASE WHEN left(TheatreEncounter,1)='T'THEN substring(TheatreEncounter,2,20)
+                        ELSE try_convert(int,substring(TheatreEncounter,3,20))
+                         END --where outpatientencounter like 'T1%'
+
+             GROUP BY IFNULL(IP_event_encounter_id,outpatientencounter)
+        dependencies:
+          - locationName: TGT
+            nodeName: L_WDHB_DATASTORE_IMPLANTINVOICE
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','L_WDHB_DATASTORE_IMPLANTINVOICE') }}
+        name: S_OUTSOURCED_INVOICED_ACTIVITY_V
+        noLinkRefs: []
+  name: S_OUTSOURCED_INVOICED_ACTIVITY_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

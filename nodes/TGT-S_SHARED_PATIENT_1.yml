@@ -1,0 +1,766 @@
+fileVersion: 1
+id: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+name: S_SHARED_PATIENT_1
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Stage table for Patient data from PIMS and reference tables, prior to updating the Patients Dimension.  Uses a Custom Procedure to update Ethnicity"
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fdbf3b3e-7597-4640-a98e-f97650b075f3
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Patient Reference Number
+        name: PATIENT_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5c1d681d-fba6-4c9e-bfdf-cc4bbe97e046
+                stepCounter: 34c6fd4e-f463-4453-bad1-3a1d762d3caa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b5edbf04-1fe5-45ac-bd03-33ca97a4b3e4
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Patient Title
+        name: PATIENT_TITLE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c516c8a9-2418-4890-8fd7-56dc1f0c9bc2
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Patient Forename
+        name: PATIENT_FORENAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 670dec5e-1e36-445c-b654-5d573f94eb8a
+                stepCounter: 34c6fd4e-f463-4453-bad1-3a1d762d3caa
+            transform: IFNULL(ds_pims_patients.forename, 'Unknown')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b7885339-3bf3-4cc6-82ee-650a12db6fab
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Patient surname
+        name: PATIENT_SURNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 82bf8c6b-3687-4179-8d94-aef5ed75cae6
+                stepCounter: 34c6fd4e-f463-4453-bad1-3a1d762d3caa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dba116ed-59e3-423a-931d-f4e2fbd40a8d
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Preferred Forename
+        name: PREFERRED_FORENAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e34817fc-d0ec-401b-a051-53abd17de22a
+                stepCounter: 34c6fd4e-f463-4453-bad1-3a1d762d3caa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cf91a074-672d-4e84-bc8d-6524accac216
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(60)
+        defaultValue: ""
+        description: patient_fullname
+        name: PATIENT_FULLNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 82bf8c6b-3687-4179-8d94-aef5ed75cae6
+                stepCounter: 34c6fd4e-f463-4453-bad1-3a1d762d3caa
+            transform: |-
+              CASE WHEN CHARINDEX('-',surname) > 0 THEN STUFF(STUFF(LOWER(surname),1,1,UPPER(LEFT(surname,1))),CHARINDEX('-',surname)+1,1,UPPER(SUBSTRING(surname,CHARINDEX('-',surname)+1,1)))
+                          WHEN CHARINDEX(' ',surname) > 0 THEN STUFF(STUFF(LOWER(surname),1,1,UPPER(LEFT(surname,1))),CHARINDEX(' ',surname)+1,1,UPPER(SUBSTRING(surname,CHARINDEX(' ',surname)+1,1)))
+                          ELSE STUFF(LOWER(surname),1,1,UPPER(LEFT(surname,1)))
+                           END +', '+ STUFF(LOWER(forename),1,1,UPPER(LEFT(forename,1))) +' '+ CASE WHEN prefrd_forename <> forename THEN STUFF(LOWER(prefrd_forename+')'),1,1,UPPER(LEFT('('+prefrd_forename,2)))
+                          ELSE ''
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d668ca00-c378-4d50-9d17-bec3536c2183
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Patient date of birth
+        name: DATE_OF_BIRTH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c23a99b1-3968-4ed1-8c00-4209f8878eaf
+                stepCounter: 34c6fd4e-f463-4453-bad1-3a1d762d3caa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4cde3587-ad72-4ffc-b0fa-3155345a873a
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date Of Death
+        name: DATE_OF_DEATH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 627b33f3-4ae6-495e-86e0-b5d1c724dfe9
+                stepCounter: 34c6fd4e-f463-4453-bad1-3a1d762d3caa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 98f4aa7d-950f-4a22-9b28-83633fb65846
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Patient National Health Index (NMPI)
+        name: PATIENT_NHI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fd8e25c9-7a3c-446d-b6ba-d91333ebfb6e
+                stepCounter: 34c6fd4e-f463-4453-bad1-3a1d762d3caa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 524faa08-dd36-4d91-bf03-3b46452c786d
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: PIMS Gender_Reference_Number
+        name: GENDER_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d2c4fc1f-57e7-4ff2-af1b-9c12c332457a
+                stepCounter: 34c6fd4e-f463-4453-bad1-3a1d762d3caa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dfd06045-b24a-43a4-b340-4aa70472f22b
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: Patient gender.
+        name: GENDER_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d641bc35-6709-4130-b7af-2c187e3d130f
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: ""
+        name: INTERPRETER_REQUIRED_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e7070814-43de-4b64-81b9-165090448b87
+                stepCounter: 34c6fd4e-f463-4453-bad1-3a1d762d3caa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c09ee3b4-600f-4fee-9981-1773f55782fc
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: DECIMAL(10)
+        defaultValue: ""
+        description: ""
+        name: SPOKL_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4867fc87-3018-45f7-bb3e-7a7b38037ad9
+                stepCounter: 34c6fd4e-f463-4453-bad1-3a1d762d3caa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 97f448fe-d9be-46e1-b6d4-9a5d1d069b46
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: spoken language
+        name: SPOKEN_LANGUAGE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8814d515-ba6a-4ec3-a660-b290bad29a72
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Ethnicity Group Reference Number
+        name: ETHNICITY_GROUP_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f99a52eb-a5ce-4343-9a91-6c7a81df24aa
+                stepCounter: 34c6fd4e-f463-4453-bad1-3a1d762d3caa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e0a2248b-195a-421f-9170-3b735c8459bd
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: Ethnicity Group1 Description
+        name: ETHNICITY_GROUP1_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 86f05933-c0ad-478f-a67d-5f9f8a98c4e6
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(3)
+        defaultValue: ""
+        description: Ethnicity Group1 Priority
+        name: ETHNICITY_GROUP1_PRIORITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e49b8978-b616-474b-b54c-0b59561d2300
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(3)
+        defaultValue: ""
+        description: Ethnicity Code 1
+        name: ETHNICITY_CODE_1
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f754df3d-c613-4caa-8401-536a4cfa203b
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: Ethnicity Group2 Description
+        name: ETHNICITY_GROUP2_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8842e5b1-ff72-47cd-bfa2-5efbe7f3f5e4
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(3)
+        defaultValue: ""
+        description: Ethnicity Group2 Priority
+        name: ETHNICITY_GROUP2_PRIORITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6a8490b5-033e-4cbc-810d-baf8853b215f
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: Ethnicity Code 2
+        name: ETHNICITY_CODE_2
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0054d3d4-e8d0-45c1-9616-b538db527ef8
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: Ethnicity Group3 Description
+        name: ETHNICITY_GROUP3_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a2dba073-3f09-4553-8830-d38810d948cc
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(3)
+        defaultValue: ""
+        description: Ethnicity Group3 Priority
+        name: ETHNICITY_GROUP3_PRIORITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3f62a760-5443-429b-b2e5-f44e4619d740
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(3)
+        defaultValue: ""
+        description: Ethnicity Code 3
+        name: ETHNICITY_CODE_3
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8503540c-4a99-41bc-ad40-abbe16830544
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(3)
+        defaultValue: ""
+        description: Ethnicity Highest Priority
+        name: ETHNICITY_HIGHEST_PRIORITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d6d367b4-0684-485b-9196-7ed19c54c840
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Prioritised Ethnicity Code
+        name: PRIORITISED_ETHNICITY_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 19ea6f05-da0d-4e2f-9520-615260a341cd
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: Prioritised Ethnicity Description
+        name: PRIORITISED_ETHNICITY_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e19de690-ceb6-4a08-a724-ecc031575a87
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: Prioritised Ethnicity Alt1 Level1 Description
+        name: PRIORITISED_ETHNICITY_ALT1_LEVEL1_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: da6a6964-9ed3-4290-b9a5-2edea6cd1ef7
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: Prioritised_Ethnicity Level0 Description
+        name: PRIORITISED_ETHNICITY_LEVEL0_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c5d499f1-9af4-498e-b8b3-80a777619433
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: Prioritised Ethnicity Level1 Description
+        name: PRIORITISED_ETHNICITY_LEVEL1_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fbf5e54c-470e-49fe-91dc-8c3207f7d93e
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: Prioritised Ethnicity Alt2 Level1 Description
+        name: PRIORITISED_ETHNICITY_ALT2_LEVEL1_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5f305bdc-5ce9-4690-916f-3f0f24ac5cc6
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: NVARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: DOMICILE_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3bb9b02c-171a-4a66-83d1-cf1522c3ecce
+                stepCounter: d680dd18-8eae-4523-827d-94095e554fc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 532dfce7-5c9f-4f3c-8109-e7a0e516cdf8
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: NVARCHAR(80)
+        defaultValue: ""
+        description: ""
+        name: DOMICILE_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cca4623f-e539-4ba6-af00-7ca08d360b98
+                stepCounter: d680dd18-8eae-4523-827d-94095e554fc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1d3a3107-4463-4194-96fb-b490438b42e3
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: AREA_UNIT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: db1d4847-d4b6-4f7f-b1d6-1c8c87bd422e
+                stepCounter: d680dd18-8eae-4523-827d-94095e554fc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 07cb4b70-6123-433a-a6f4-16431512e854
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: DHB_AREA
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1328d4a8-c6b8-43cb-9ae9-690c3218f255
+                stepCounter: d680dd18-8eae-4523-827d-94095e554fc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1108e2bf-e78d-47d0-9a2e-64cab18e4910
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: ""
+        name: DHB_DESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f29aec8d-cae0-4130-8999-75a0529ffa1a
+                stepCounter: d680dd18-8eae-4523-827d-94095e554fc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 17d60029-db81-4958-96b0-430bc619d320
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: IDF_CLASS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cd67bf4f-9bda-4461-8700-8e09d7f713cf
+                stepCounter: d680dd18-8eae-4523-827d-94095e554fc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 65da8529-a4c7-4beb-acb4-ce9d9e69edbd
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: REGION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f74be333-c4ff-4570-9dbd-9fd85be6ffc2
+                stepCounter: d680dd18-8eae-4523-827d-94095e554fc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0d2c1ea7-763b-48ae-a1b7-6275caac86c5
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: DECIMAL(10)
+        defaultValue: ""
+        description: residency indicator Y/N or unknown
+        name: RESIDENT_YNUNK_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0208167c-cfee-4c20-96bf-7667572a59fd
+                stepCounter: 34c6fd4e-f463-4453-bad1-3a1d762d3caa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 63b24817-0922-4754-be21-8e40972657b3
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: Resident flag Y/N/U Yes, No or Unknown
+        name: RESIDENT_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fbb01e3b-4612-47c8-9a4a-5d6abddc60ef
+                stepCounter: 06fa4241-360c-43d0-8e4a-8b860f92fc09
+            transform: |-
+              CASE ds_pims_reference_values.main_code
+                          WHEN 'YES'                         THEN 'Y'
+                          WHEN 'NO'                          THEN 'N'
+                          ELSE 'U'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 26bbb9cf-a6cc-48a1-8c77-884367fe7be7
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: NORTHERN_REGION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a75fd825-9452-480d-bce6-52438c13ac91
+                stepCounter: d680dd18-8eae-4523-827d-94095e554fc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eeeb2813-2621-4260-a508-ae10199a9761
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time when patient record last modified in PIMS.
+        name: MODIF_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7b08c635-e525-48fd-b958-be9026e404e4
+                stepCounter: 34c6fd4e-f463-4453-bad1-3a1d762d3caa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f4628a99-76d4-40ac-b98b-df84c3076e9c
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Create Date
+        name: CREATE_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 64e9daea-ad0c-4082-8bbb-d38f9bae225e
+                stepCounter: 34c6fd4e-f463-4453-bad1-3a1d762d3caa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4431a415-29a2-4503-9951-c0b40dd46603
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(2)
+        defaultValue: ""
+        description: ""
+        name: PATIENT_ONLINE_OPTED_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 85204ffe-9cab-48e3-9e3a-99d8b8153526
+                stepCounter: 616f7037-86b8-43fe-8b44-c3b49901eb3c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9989f426-8e21-4c59-8eab-509b9d6a1165
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: SMOKING_STATUS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b22b94e5-c27b-4be2-b2c9-a2552db23986
+          stepCounter: 19c8fa93-6380-4ec9-ada2-d3fd3323d18b
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_PIMS_REFERENCE_VALUES: 06fa4241-360c-43d0-8e4a-8b860f92fc09
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PIMS_PATIENTS
+          - locationName: TGT
+            nodeName: DS_PIMS_REFERENCE_VALUES
+        join:
+          joinCondition: |-
+            FROM s_shared_patient_address_10
+              JOIN ds_pims_patients
+                ON s_shared_patient_address_10.patnt_refno=ds_pims_patients.patnt_refno
+              LEFT OUTER JOIN ds_pims_reference_values ds_pims_reference_values1
+                ON ds_pims_patients.title_refno = ds_pims_reference_values1.rfval_refno
+               AND getdate() BETWEEN ds_pims_reference_values1.start_dttm AND IFNULL(ds_pims_reference_values1.end_dttm,getdate())
+              LEFT OUTER JOIN ds_pims_reference_values ds_pims_reference_values2
+                ON ds_pims_patients.sexxx_refno = ds_pims_reference_values2.rfval_refno
+               AND getdate() BETWEEN ds_pims_reference_values2.start_dttm AND IFNULL(ds_pims_reference_values2.end_dttm,getdate())
+              LEFT OUTER JOIN ds_pims_reference_values ds_pims_reference_values5
+                ON ds_pims_patients.spokl_refno = ds_pims_reference_values5.rfval_refno
+              LEFT OUTER JOIN s_ethnicity s_ethnicity1
+                ON ds_pims_patients.ethgr_refno = s_ethnicity1.ethnicity_group_reference_no
+              LEFT OUTER JOIN s_ethnicity s_ethnicity2
+                ON ds_pims_patients.second_ethgr_refno = s_ethnicity2.ethnicity_group_reference_no
+              LEFT OUTER JOIN s_ethnicity s_ethnicity3
+                ON ds_pims_patients.third_ethgr_refno = s_ethnicity3.ethnicity_group_reference_no
+              LEFT OUTER JOIN ds_shared_patient_address_v ds_shared_patient_address_v
+                ON ds_shared_patient_address_v.patient_reference_no = ds_pims_patients.patnt_refno
+               AND ds_shared_patient_address_v.address_row_num = 1
+              LEFT OUTER JOIN {{ ref('TGT','DS_PIMS_REFERENCE_VALUES') }}
+                ON ds_pims_patients.resident_ynunk_refno = ds_pims_reference_values.rfval_refno
+              LEFT OUTER JOIN {{ ref('TGT','DS_PIMS_REFERENCE_VALUES') }} ds_pims_reference_values3
+                ON ds_pims_patients.multb_refno = ds_pims_reference_values3.rfval_refno
+              LEFT JOIN s_patient_opted_off
+                ON s_patient_opted_off.patnt_refno = ds_pims_patients.patnt_refno
+        name: S_SHARED_PATIENT_1
+        noLinkRefs: []
+  name: S_SHARED_PATIENT_1
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

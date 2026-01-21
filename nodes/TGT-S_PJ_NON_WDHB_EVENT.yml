@@ -1,0 +1,98 @@
+fileVersion: 1
+id: e7e3fe27-6dbc-455a-9407-3392fa586d21
+name: S_PJ_NON_WDHB_EVENT
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Materialise s_PJ_non_WDHB_event_v. One row per journey although the view may contain multiple rows per journey."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 120f2fc2-f985-4bf4-830a-53967b556d36
+          stepCounter: e7e3fe27-6dbc-455a-9407-3392fa586d21
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Unique ID for a patient journey
+        name: JOURNEY_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0b9cd51c-2283-4e31-a730-b1d82bccf168
+                stepCounter: 6ed04ee2-b619-41b0-978e-643c6d4f9dd0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 37d1d702-9a2b-4a74-8a15-965dda51a40c
+          stepCounter: e7e3fe27-6dbc-455a-9407-3392fa586d21
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ID of non WDHB encounter if it ends within a day of the first journey event start.
+        name: PRIOR_NON_WDHB_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ccd83ebd-508f-4d90-bac1-3049982fd97d
+                stepCounter: 6ed04ee2-b619-41b0-978e-643c6d4f9dd0
+            transform: MAX(CASE WHEN prior_row_num = 1 THEN s_PJ_non_WDHB_event_v.non_WDHB_encounter_id ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 73304e1c-af39-4f55-bcb4-c2de54d45ee9
+          stepCounter: e7e3fe27-6dbc-455a-9407-3392fa586d21
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ID of non WDHB encounter if it starts within a day of the final journey event end.
+        name: SUBSEQUENT_NON_WDHB_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ccd83ebd-508f-4d90-bac1-3049982fd97d
+                stepCounter: 6ed04ee2-b619-41b0-978e-643c6d4f9dd0
+            transform: MAX(CASE WHEN subsequent_row_num = 1 THEN s_PJ_non_WDHB_event_v.non_WDHB_encounter_id ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c2e89254-a82e-401a-84d1-4808fa9ec0e9
+          stepCounter: e7e3fe27-6dbc-455a-9407-3392fa586d21
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_PJ_NON_WDHB_EVENT_V
+        join:
+          joinCondition: |-
+            FROM s_PJ_non_WDHB_event_v
+             GROUP BY journey_id
+        name: S_PJ_NON_WDHB_EVENT
+        noLinkRefs: []
+  name: S_PJ_NON_WDHB_EVENT
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

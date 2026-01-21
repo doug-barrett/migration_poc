@@ -1,0 +1,116 @@
+fileVersion: 1
+id: 9aec4d43-6334-4aa7-852c-860b52541e95
+name: S_SHARED_REFERRAL_05
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Get a distinct list of patnt refnos which have had data updated by the last load. Checks  PIMS data stores: ae_attandance, referrals, schedules, waiting_list_entries, patient,provider_spells, dim_referral_source for mapping changes"
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: baf869b7-ae4e-4e86-9220-ee67c2486bec
+          stepCounter: 9aec4d43-6334-4aa7-852c-860b52541e95
+        config: {}
+        dataType: NUMERIC(10)
+        defaultValue: ""
+        description: ""
+        name: PATNT_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9b958777-5cbb-4a87-a4d5-2df92d9f4399
+                stepCounter: ae7c0e60-053e-4fb8-aa4e-d49e3e08e3c2
+            transform: t.patnt_refno
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: afb7fe24-2fa2-49f9-a3b8-4cd8bdcdc108
+          stepCounter: 9aec4d43-6334-4aa7-852c-860b52541e95
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PIMS_REFERRALS
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT patnt_refno
+                      FROM ds_pims_referrals rf
+                     WHERE rf.dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT patnt_refno
+                      FROM ds_pims_patients
+                     WHERE dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT patnt_refno
+                      FROM ds_pims_waiting_list_entries
+                     WHERE refrl_refno IS NOT NULL
+                       AND dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT ds_pims_schedules.patnt_refno
+                      FROM ds_pims_schedules
+                     WHERE ds_pims_schedules.refrl_refno IS NOT NULL
+                       AND dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT patnt_refno
+                      FROM ds_pims_prof_carer_episodes
+                     WHERE dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT patnt_refno
+                      FROM ds_pims_ldd_local_datavalues
+                     WHERE ds_pims_ldd_local_datavalues.sorce_code = 'REFRL'
+                       AND dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT ds_pims_diagnosis_procedures.patnt_refno
+                      FROM ds_pims_diagnosis_procedures
+                     WHERE ds_pims_diagnosis_procedures.sorce_code = 'REFRL'
+                       AND dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT ds_pims_provider_spells.patnt_refno
+                      FROM ds_pims_provider_spells
+                     WHERE dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT patnt_refno
+                      FROM ds_pims_ae_attendances
+                     WHERE dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT DISTINCT p.patient_reference_no
+                      FROM dim.dim_referral_source dim
+                     INNER JOIN fact.fact_referral REF
+                        ON dim.dim_referral_source_key = ref.dim_referral_source_key
+                     INNER JOIN dim.dim_patient p
+                        ON p.dim_patient_key = ref.dim_patient_key
+                     WHERE 1=1
+                       AND dim.dss_update_time > @v_pa_Shared_Incremental
+                     UNION SELECT DISTINCT p.patient_reference_no
+                      FROM dim.dim_referral_completion_reason dim
+                     INNER JOIN fact.fact_referral REF
+                        ON dim.dim_referral_completion_reason_key = ref.dim_referral_completion_reason_key
+                     INNER JOIN dim.dim_patient p
+                        ON p.dim_patient_key = ref.dim_patient_key
+                     WHERE 1=1
+                       AND dim.dss_update_time > @v_pa_Shared_Incremental
+                   ) t
+             WHERE patnt_refno IS NOT NULL
+        name: S_SHARED_REFERRAL_05
+        noLinkRefs: []
+  name: S_SHARED_REFERRAL_05
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

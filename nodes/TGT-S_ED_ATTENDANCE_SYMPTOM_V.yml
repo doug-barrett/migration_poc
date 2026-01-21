@@ -1,0 +1,159 @@
+fileVersion: 1
+id: 5e5fc386-8b56-498a-b263-2bc33d8b422f
+name: S_ED_ATTENDANCE_SYMPTOM_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0123a83e-d294-4adf-83bf-819bff569386
+          stepCounter: 5e5fc386-8b56-498a-b263-2bc33d8b422f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: AEATT_REFNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 20df61f4-b674-4ffd-bd50-cde199588df3
+                stepCounter: 8e6fba6b-6a34-4370-b109-d1c7854000cc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 011f0262-27ae-4df7-b38d-665bcf25d842
+          stepCounter: 5e5fc386-8b56-498a-b263-2bc33d8b422f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ROW_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9e9fe8ef-6adb-4419-b2f1-c73799d25745
+                stepCounter: 1b5b9711-ab0c-474a-a7f0-a18e233b291c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7452c76d-2c6b-4ca5-9957-89301a071ade
+          stepCounter: 5e5fc386-8b56-498a-b263-2bc33d8b422f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: symptom_refno
+        name: SYMPTOM_REFNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b4c372ad-7e3b-459a-89ad-ec53d1b8cb49
+                stepCounter: 1b5b9711-ab0c-474a-a7f0-a18e233b291c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c0a4f3e5-25ca-49d5-b7f1-7cac36849a71
+          stepCounter: 5e5fc386-8b56-498a-b263-2bc33d8b422f
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: symptom_code
+        name: SYMPTOM_CODE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 63478750-61df-4374-8c14-1740783de48f
+          stepCounter: 5e5fc386-8b56-498a-b263-2bc33d8b422f
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: symptom_desc
+        name: SYMPTOM_DESC
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8f2468e8-cad7-461e-930e-9c3afbee58ae
+          stepCounter: 5e5fc386-8b56-498a-b263-2bc33d8b422f
+        config: {}
+        dataType: VARCHAR(4095)
+        defaultValue: ""
+        description: ""
+        name: SYMPTOM_LIST
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT aeatt_refno,
+                   MAX(row_num) ROW_COUNT,
+                   MAX(odpcd_refno) symptom_refno,
+                   MAX(code) symptom_code,
+                   MIN(description) symptom_desc,
+                   MAX(CASE WHEN row_num = 1 THEN description ELSE '' END) + MAX(CASE WHEN row_num = 2 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 3 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 4 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 5 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 6 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 7 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 8 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 9 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 10 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 11 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 12 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 13 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 14 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 15 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 16 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 17 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 18 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 19 THEN ', ' + description ELSE '' END) + MAX(CASE WHEN row_num = 20 THEN ', ' + description ELSE '' END)
+              FROM (
+                    SELECT r.aeatt_refno,
+                           r.atrol_refno,
+                           ROW_NUMBER() OVER(PARTITION BY p.sorce_refno ORDER BY c.diagnosis_procedure_desc DESC) row_num,
+                           p.sorce_code,
+                           p.dptyp_code,
+                           p.odpcd_refno,
+                           c.diagnosis_procedure_code code,
+                           c.diagnosis_procedure_desc description
+                      FROM ds_pims_ae_attendance_roles r --added on 27.10.2023--
+
+                      JOIN s_ed_changes
+                        ON r.aeatt_refno = s_ed_changes.aeatt_refno --
+
+                      JOIN ds_pims_diagnosis_procedures p
+                        ON r.atrol_refno = p.sorce_refno
+                      LEFT OUTER JOIN dim.dim_diagnosis_procedure c
+                        ON p.odpcd_refno = c.diagnosis_procedure_reference_no
+                     WHERE r.curnt_flag = 'Y'
+                       AND c.dss_current_flag = 'Y'
+                       AND p.sorce_code = 'ATROL'
+                       AND p.dptyp_code = 'AEPRW'
+                   ) t
+             GROUP BY aeatt_refno
+        dependencies:
+          - locationName: TGT
+            nodeName: DS_PIMS_AE_ATTENDANCE_ROLES
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','DS_PIMS_AE_ATTENDANCE_ROLES') }}
+        name: S_ED_ATTENDANCE_SYMPTOM_V
+        noLinkRefs: []
+  name: S_ED_ATTENDANCE_SYMPTOM_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

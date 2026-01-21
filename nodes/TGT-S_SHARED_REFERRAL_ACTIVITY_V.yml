@@ -1,0 +1,104 @@
+fileVersion: 1
+id: 0d7f5db5-8d21-4918-a24a-3e35e105356c
+name: S_SHARED_REFERRAL_ACTIVITY_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Calculate the number of appointments and admissions for each referral entry."
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d8e78510-9fb6-42f7-855d-e3a265da822a
+          stepCounter: 0d7f5db5-8d21-4918-a24a-3e35e105356c
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: 'referral reference number '
+        name: REFRL_REFNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9c3fabd8-ab4f-4770-adc7-60700c5c1b0c
+                stepCounter: 9e22a016-7a78-442e-a74f-dd546f65f8fe
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7ace13b4-a812-480a-a365-ba20628de8cb
+          stepCounter: 0d7f5db5-8d21-4918-a24a-3e35e105356c
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: patient_reference_number
+        name: PATNT_REFNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d96d88d8-469a-420d-bf5e-2b6a4df593cb
+                stepCounter: 9e22a016-7a78-442e-a74f-dd546f65f8fe
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4a89aa75-2283-4821-9efb-89b989fbc234
+          stepCounter: 0d7f5db5-8d21-4918-a24a-3e35e105356c
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: 'Count of atteneded appointments '
+        name: PATIENT_REFERRAL_COUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 41d8fd4a-1933-4aa6-ad6a-b78e03540b9e
+          stepCounter: 0d7f5db5-8d21-4918-a24a-3e35e105356c
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Count of sequence
+        name: PATIENT_REFERRAL_SEQ_NUM
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT s_shared_referral_10.refrl_refno,
+                   s_shared_referral_10.patnt_refno ,
+                   COUNT(1) OVER (PARTITION BY s_shared_referral_10.patnt_refno) AS patient_referral_count ,
+                   ROW_NUMBER() OVER (PARTITION BY s_shared_referral_10.patnt_refno ORDER BY s_shared_referral_10.recvd_date)AS patient_referral_seq_num
+              FROM s_shared_referral_10
+        dependencies:
+          - locationName: TGT
+            nodeName: S_SHARED_REFERRAL_10
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','S_SHARED_REFERRAL_10') }}
+        name: S_SHARED_REFERRAL_ACTIVITY_V
+        noLinkRefs: []
+  name: S_SHARED_REFERRAL_ACTIVITY_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

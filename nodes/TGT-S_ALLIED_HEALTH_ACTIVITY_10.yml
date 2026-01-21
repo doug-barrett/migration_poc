@@ -1,0 +1,545 @@
+fileVersion: 1
+id: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+name: S_ALLIED_HEALTH_ACTIVITY_10
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Get details of all activities from TrendCare load tables."
+  isMultisource: false
+  locationName: TGT
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3dbe5e49-8121-4b62-94cb-702e4715183b
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: VARCHAR(9)
+        defaultValue: ""
+        description: Id that uniquely identifies the encounter in Allied Health.
+        name: ALLIED_HEALTH_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f2c236c5-a318-4693-8f9c-1f992938f654
+                stepCounter: 87df5a4f-d5d5-47f9-bd8c-1a1e85133acc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 25164fb2-d7bc-4750-a9c3-e26d72d03cd0
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: Unique business identifier for inpatient event.
+        name: EVENT_ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b62c9526-ac21-4fc3-b102-da150d7fb070
+                stepCounter: 87df5a4f-d5d5-47f9-bd8c-1a1e85133acc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 60fa33f5-9c7e-4e50-9500-cbc7c925c04d
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Numbers rows for each encounter ordered by shift date, discipline code and activity desc.
+        name: ENCOUNTER_SEQ_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ROW_NUMBER() OVER(PARTITION BY s_allied_health_encounter.event_encounter_id ORDER BY ds_tcare_PatientHealthCare_Activity.phcaShiftDate, ds_tcare_PatientHealthCare_Activity.phcaDisciplineCode, l_tcare_HealthActivity.haDescription)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 633e9b06-a832-465b-b9f4-37d6b4901d8e
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Numbers rows for each encounter in descending shift date, discipline code, activity desc order.
+        name: ENCOUNTER_SEQ_NUM_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ROW_NUMBER() OVER(PARTITION BY s_allied_health_encounter.event_encounter_id ORDER BY ds_tcare_PatientHealthCare_Activity.phcaShiftDate DESC, ds_tcare_PatientHealthCare_Activity.phcaDisciplineCode DESC, l_tcare_HealthActivity.haDescription DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d23782fa-56f4-4941-9156-879b262accc4
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Numbers rows for each encounter and discipline ordered by shift date and activity desc.
+        name: DISCIPLINE_SEQ_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ROW_NUMBER() OVER(PARTITION BY s_allied_health_encounter.event_encounter_id, ds_tcare_PatientHealthCare_Activity.phcaDisciplineCode ORDER BY ds_tcare_PatientHealthCare_Activity.phcaShiftDate, l_tcare_HealthActivity.haDescription)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0fcffbbe-9435-4728-91c7-2365e0d594b5
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Numbers rows for each encounter and discipline in descending shift date and activity desc order.
+        name: DISCIPLINE_SEQ_NUM_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ROW_NUMBER() OVER(PARTITION BY s_allied_health_encounter.event_encounter_id, ds_tcare_PatientHealthCare_Activity.phcaDisciplineCode ORDER BY ds_tcare_PatientHealthCare_Activity.phcaShiftDate DESC, l_tcare_HealthActivity.haDescription DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 14ccfa43-add7-4803-9810-c646ccb93655
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Numbers rows for each encounter and discipline ordered by shift date and activity desc.
+        name: ACTIVITY_SEQ_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ROW_NUMBER() OVER(PARTITION BY allied_health_id, phcashiftdate, ds_tcare_PatientHealthCare_Activity.phcaDisciplineCode, ds_tcare_PatientHealthCare_Activity.phcaSignonCode, ds_tcare_PatientHealthCare_Activity.phcaActivityCode, ds_tcare_PatientHealthCare_Activity.phcaActivityRatingCode, phcaActivityNumber ORDER BY ds_tcare_PatientHealthCare_Activity.phcaLastChangeDateTime)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 72728e30-d001-4832-b930-425ad1da9992
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Numbers rows for each encounter and discipline ordered by shift date and activity desc.
+        name: ACTIVITY_WITH_VISITNO_SEQ_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ROW_NUMBER() OVER(PARTITION BY allied_health_id, phcashiftdate, ds_tcare_PatientHealthCare_Activity.phcaDisciplineCode, ds_tcare_PatientHealthCare_Activity.phcaSignonCode, ds_tcare_PatientHealthCare_Activity.phcaActivityCode, ds_tcare_PatientHealthCare_Activity.phcaActivityRatingCode, phcaActivityNumber,phcaVisitNumber ORDER BY ds_tcare_PatientHealthCare_Activity.phcaLastChangeDateTime)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5d0912cd-0134-4428-b53d-c9e70189906d
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Patient NHI number.
+        name: PATIENT_NHI
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9c7ace5d-297d-4714-b0d8-531430ae4ba9
+                stepCounter: 87df5a4f-d5d5-47f9-bd8c-1a1e85133acc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 648fe5ef-a604-4013-93a5-baeb44bc1285
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: 'Internal unique identifier for a patient from the Patient Management System '
+        name: PATIENT_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 57f1e950-8714-470f-b8b6-f0795239650b
+                stepCounter: 87df5a4f-d5d5-47f9-bd8c-1a1e85133acc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dca6b9fa-62df-446b-8c9c-b680fe885c6b
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: PiMS ward code.
+        name: DISCHARGE_WARD_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 68ffec0c-081c-4f7c-8309-ff750880cd45
+                stepCounter: 87df5a4f-d5d5-47f9-bd8c-1a1e85133acc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eb2953d1-7af3-417c-b495-96f74f2d5547
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Service_Point_Reference_Number
+        name: WARD_REFERENCE_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 513e9099-d47c-4528-8b67-705c5b48f0b2
+                stepCounter: 87df5a4f-d5d5-47f9-bd8c-1a1e85133acc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: efca56f3-38f7-408b-8425-eae7bec79f1e
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Unique key that identifies an Activity row.
+        name: ALLIED_HEALTH_ACTIVITY_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 03b53c2c-7b91-4c1c-889d-05ccbb0f9d72
+                stepCounter: f1e4df42-d446-4bf2-91b6-7c6a347e5812
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9c28ebef-af58-4ea9-999f-e502ff9d33f9
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: VISIT_NUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: aa17e895-bc5f-439b-8400-45a64708352f
+                stepCounter: f1e4df42-d446-4bf2-91b6-7c6a347e5812
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5b28888a-fc52-4b48-be5e-5f12421c568b
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: Date when the Allied Health shift occurred.
+        name: SHIFT_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8c795235-d5fb-48d8-926e-12b59cd6e72f
+                stepCounter: f1e4df42-d446-4bf2-91b6-7c6a347e5812
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a812bc1d-873f-4f92-bdf4-2e0c123c6a76
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: Alphanumeric value that uniquely identifies a discipline e.g. DTN (Dietitian)
+        name: DISCIPLINE_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2e6f0624-727c-4229-a0d6-1a31ce11bbeb
+                stepCounter: f1e4df42-d446-4bf2-91b6-7c6a347e5812
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 995c6174-28bd-4121-9e15-0dae93e18598
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: Alphanumeric code that uniquely identifies a user in Allied Health.
+        name: USER_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 39f5ca31-1f92-4917-b53d-1de4cab82ff9
+                stepCounter: f1e4df42-d446-4bf2-91b6-7c6a347e5812
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 48325998-db70-4486-99d1-c0e04dc06df8
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: Alphanumeric code that, together with activity_revision, uniquely identifies an activity in Allied Health.
+        name: ACTIVITY_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 13f16384-624d-4906-bd1b-b9b8f68d8413
+                stepCounter: f1e4df42-d446-4bf2-91b6-7c6a347e5812
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a4c8819e-99a3-49bd-9c0e-f077dbd702b3
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Together with activity_code uniquely identifies an activity in a similar vein to changing dims.
+        name: ACTIVITY_REVISION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 470f8911-466f-431f-9b98-f544563c19ce
+                stepCounter: f1e4df42-d446-4bf2-91b6-7c6a347e5812
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e801f760-0730-4f9b-92f5-53890c2ae1fc
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: VARCHAR(60)
+        defaultValue: ""
+        description: Description of the activity e.g. Family meeting.
+        name: ACTIVITY_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6a412148-fd60-4737-aaf6-9d54c14a7f85
+                stepCounter: c98b72c1-52e3-4687-86cd-f7e1c746488b
+            transform: RTRIM(l_tcare_HealthActivity.haDescription)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e1a1224d-5b00-4208-a469-59bb178b65b2
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Set to 1 if the activity description contains the word 'declined'.
+        name: ACTIVITY_DECLINED_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6a412148-fd60-4737-aaf6-9d54c14a7f85
+                stepCounter: c98b72c1-52e3-4687-86cd-f7e1c746488b
+            transform: |-
+              CASE WHEN l_tcare_HealthActivity.haDescription LIKE '%declined%' OR l_tcare_HealthActivityRating.harDescription LIKE '%declined%' THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2b69a6cb-fc63-4d5c-bf31-fe27dd3d4f02
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: VARCHAR(1)
+        defaultValue: ""
+        description: Value extracted from the activity description when that field contains the word 'Priority'. Range currently used is 1-4.
+        name: ACTIVITY_PRIORITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6a412148-fd60-4737-aaf6-9d54c14a7f85
+                stepCounter: c98b72c1-52e3-4687-86cd-f7e1c746488b
+            transform: |-
+              CASE WHEN l_tcare_HealthActivity.haDescription LIKE '%Priority%' THEN RIGHT(RTRIM(l_tcare_HealthActivity.haDescription), 1)
+                          ELSE NULL
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8051b901-6aad-4177-b30b-f11778c35820
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: Alphanumeric code that uniquely identifies an activity rating.
+        name: ACTIVITY_RATING_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7bf8cd9d-de97-45af-94d4-58db45e9f6c7
+                stepCounter: f1e4df42-d446-4bf2-91b6-7c6a347e5812
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d815a033-918f-45af-9f3b-1a691848ef1d
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Together with activity_rating_code uniquely identifies an activity rating in TrendCare.
+        name: ACTIVITY_RATING_REVISION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a518ef41-29e8-4dbb-98bb-675eeb691d8d
+                stepCounter: f1e4df42-d446-4bf2-91b6-7c6a347e5812
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b7dc0ffa-b820-4e62-bd75-bbcc5048752e
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Description of the activity rating e.g. Routine, Complex.
+        name: ACTIVITY_RATING_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b94ada70-94f0-488f-ad03-063eabce14c0
+                stepCounter: 3960b706-da0f-4d81-8264-b23c01acbd3d
+            transform: RTRIM(l_tcare_HealthActivityRating.harDescription)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f60e2061-ffd4-4cce-9e6c-13a106483991
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Set to 1 for most activities. May be set to a higher number to uniquely identify an activity
+        name: ACTIVITY_NUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: db727994-f8fa-4aee-8b3b-7fba15f7c00b
+                stepCounter: f1e4df42-d446-4bf2-91b6-7c6a347e5812
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7a44bd44-ad88-4031-bb49-f9e1dedbe57d
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: NUMERIC(9,5)
+        defaultValue: ""
+        description: Actual activity time on the shift in hours e.g. 1.25 = 75 minutes.
+        name: ACTUAL_ACTIVITY_HOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 515c7bea-7c5e-4390-a019-93b1dd1d005c
+                stepCounter: f1e4df42-d446-4bf2-91b6-7c6a347e5812
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e482c817-fdcf-481d-88ee-19a56a85f08b
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: SMALLINT
+        defaultValue: ""
+        description: Actual activity time on the shift converted to minutes.
+        name: ACTUAL_ACTIVITY_MINS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 515c7bea-7c5e-4390-a019-93b1dd1d005c
+                stepCounter: f1e4df42-d446-4bf2-91b6-7c6a347e5812
+            transform: ROUND(ds_tcare_PatientHealthCare_Activity.phcaActualActivityTime * 60, 0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 20e160fe-069e-42c7-b114-e85aae36c9cf
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: TINYINT
+        defaultValue: ""
+        description: Set to 1 if the activity is flagged as completed in Allied Health.
+        name: ACTIVITY_COMPLETED_FLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7cf77593-8bbb-452e-9ac1-4c8e54dc6943
+                stepCounter: f1e4df42-d446-4bf2-91b6-7c6a347e5812
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a082a729-f91f-4113-a2ee-d0aab28e9c72
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: Alphanumeric code that uniquely identifies an activity's status.
+        name: ACTIVITY_STATUS_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1530fb66-2544-482d-bceb-01886a2c8574
+                stepCounter: f1e4df42-d446-4bf2-91b6-7c6a347e5812
+            transform: |-
+              CASE WHEN ds_tcare_PatientHealthCare_Activity.phcaActivityCompleted = 1 THEN 'Complete'
+                          ELSE NULLIF(ds_tcare_PatientHealthCare_Activity.phcaReasonActivityNotCompleted, '')
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7bb5ce1a-ed54-489f-9cce-c667358136f3
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Description of the activity status e.g. Pt declined, Activity Completed.
+        name: ACTIVITY_STATUS_DESC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e08cabbe-49d2-4f23-865f-305998b1ad54
+                stepCounter: 653afb4b-ceed-4087-b732-f00119624c91
+            transform: |-
+              CASE WHEN ds_tcare_PatientHealthCare_Activity.phcaActivityCompleted = 1 THEN 'Activity completed'
+                          ELSE NULLIF(RTRIM(l_tcare_HealthActivityReasonNotCompleted.harnDescription), '')
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f74b25f8-d54d-458e-91df-e8d5021fa73b
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date when the activity was last changed in TrendCare.
+        name: ACTIVITY_LAST_CHANGE_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e6651bf7-82ca-43ca-a1b0-f4fe254967bc
+                stepCounter: f1e4df42-d446-4bf2-91b6-7c6a347e5812
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b1489e79-e58a-440f-8827-b0862dd20490
+          stepCounter: db4588de-fb3d-4698-b5c4-abb8fc2424cc
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: TGT
+            nodeName: S_ALLIED_HEALTH_ENCOUNTER
+        join:
+          joinCondition: |-
+            FROM s_allied_health_encounter
+              JOIN ds_tcare_PatientHealthCare_Activity
+                ON s_allied_health_encounter.allied_health_id = ds_tcare_PatientHealthCare_Activity.phcaPatientReference
+              JOIN l_tcare_HealthActivity
+                ON ds_tcare_PatientHealthCare_Activity.phcaDisciplineCode = l_tcare_HealthActivity.haHealthDisciplineCode
+               AND ds_tcare_PatientHealthCare_Activity.phcaActivityCode = l_tcare_HealthActivity.haHealthActivityCode
+               AND ds_tcare_PatientHealthCare_Activity.phcaActivityRevision = l_tcare_HealthActivity.haHealthActivityRevision
+              JOIN l_tcare_HealthActivityRating
+                ON ds_tcare_PatientHealthCare_Activity.phcaDisciplineCode = l_tcare_HealthActivityRating.harHealthDisciplineCode
+               AND ds_tcare_PatientHealthCare_Activity.phcaActivityCode = l_tcare_HealthActivityRating.harHealthActivityCode
+               AND ds_tcare_PatientHealthCare_Activity.phcaActivityRatingCode = l_tcare_HealthActivityRating.harHealthActivityRatingCode
+               AND ds_tcare_PatientHealthCare_Activity.phcaActivityRatingRevision = l_tcare_HealthActivityRating.harRevision
+              LEFT OUTER JOIN l_tcare_HealthActivityReasonNotCompleted
+                ON ds_tcare_PatientHealthCare_Activity.phcaReasonActivityNotCompleted = l_tcare_HealthActivityReasonNotCompleted.harnHealthActivityReasonNotCompletedCode
+        name: S_ALLIED_HEALTH_ACTIVITY_10
+        noLinkRefs: []
+  name: S_ALLIED_HEALTH_ACTIVITY_10
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

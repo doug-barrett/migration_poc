@@ -1,0 +1,129 @@
+fileVersion: 1
+id: 47fc8d5d-6322-47a0-8807-209fdd8bdaa9
+name: S_OPTO_FLATTEN_PROCEDURES_V
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: TGT
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c773a9e7-fe1c-431c-8074-57530c63e83c
+          stepCounter: 47fc8d5d-6322-47a0-8807-209fdd8bdaa9
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: ENCOUNTER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2aa6fa24-e3ff-4431-a540-1fb8db6d79d1
+                stepCounter: aa0b5686-4888-466a-9e29-35394f9c2a84
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aae0f232-8c40-47f1-8708-8e2b49a5a86c
+          stepCounter: 47fc8d5d-6322-47a0-8807-209fdd8bdaa9
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: ""
+        name: ENCOUNTER_PROCEDURE_DESCR
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3942810d-0949-47af-b6ac-b9efbaa1734e
+          stepCounter: 47fc8d5d-6322-47a0-8807-209fdd8bdaa9
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: ENCOUNTER_PROCEDURE_CODES
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 566ff77c-0945-48fa-927b-d0e6791a4330
+          stepCounter: 47fc8d5d-6322-47a0-8807-209fdd8bdaa9
+        config: {}
+        dataType: VARCHAR(1)
+        defaultValue: ""
+        description: ""
+        name: RETINAL_SCREENING_FLAG
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7f86a74a-69c1-40a2-9a1b-587b24e50fd1
+          stepCounter: 47fc8d5d-6322-47a0-8807-209fdd8bdaa9
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: PURCHASE_UNIT_CODE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            SELECT *,
+                   CASE WHEN encounter_procedure_codes like '%7%'THEN 'Y'
+                        ELSE 'N'
+                         END retinal_screening_flag,
+                   'M20007' purchase_unit_code
+              FROM (
+                    SELECT l_opto_encounter.id,
+                           (
+                            SELECT '| '+replace(replace((SELECT l_opto_procedure_kind.description AS x FROM dbo.l_opto_encounter_procedure INNER JOIN dbo.l_opto_procedure_kind ON l_opto_encounter_procedure.kindid = l_opto_procedure_kind.id WHERE l_opto_encounter_procedure.encounterid = l_opto_encounter.id ORDER BY starttime FOR XML path('')), '<x>',''), '</x>',' | ') AS encounter_procedures
+                           ) encounter_procedures_desc ,
+                           (
+                            SELECT '| '+replace(replace((SELECT l_opto_procedure_kind.id AS x FROM dbo.l_opto_encounter_procedure INNER JOIN dbo.l_opto_procedure_kind ON l_opto_encounter_procedure.kindid = l_opto_procedure_kind.id WHERE l_opto_encounter_procedure.encounterid = l_opto_encounter.id ORDER BY starttime FOR XML path('')), '<x>',''), '</x>',' | ') AS encounter_procedures
+                           ) encounter_procedure_codes
+                      FROM l_opto_encounter
+                   ) t
+        dependencies:
+          - locationName: TGT
+            nodeName: L_OPTO_ENCOUNTER
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('TGT','L_OPTO_ENCOUNTER') }}
+        name: S_OPTO_FLATTEN_PROCEDURES_V
+        noLinkRefs: []
+  name: S_OPTO_FLATTEN_PROCEDURES_V
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node
