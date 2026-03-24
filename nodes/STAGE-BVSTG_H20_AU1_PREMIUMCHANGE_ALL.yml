@@ -1,0 +1,131 @@
+fileVersion: 1
+id: 77c31efe-18b9-471f-bbb1-f6d5afb97851
+name: BVSTG_H20_AU1_PREMIUMCHANGE_ALL
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9ad6d7f1-c986-4e65-ae50-62d6b2dd9dc3
+          stepCounter: 77c31efe-18b9-471f-bbb1-f6d5afb97851
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: POLICYID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bf2e37ea-fa82-41c4-ba1e-597009363547
+                stepCounter: 3c7cc527-a1e7-49e6-825c-a2cc35f4bfe8
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a8554db2-5648-45a3-9e21-cc861ef09407
+          stepCounter: 77c31efe-18b9-471f-bbb1-f6d5afb97851
+        config: {}
+        dataType: NUMBER(10,2)
+        defaultValue: ""
+        description: ""
+        name: PREMIUMAMOUNT_7DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN DATE(V_S_AP1_PREMIUMCHANGE_MROC_CURRENT.EFFECTIVEDATE) BETWEEN DATE(ds_policysummary_v2_inner.STARTDATE) AND DATEADD(DAY, 7, DATE(ds_policysummary_v2_inner.STARTDATE)) THEN PREMIUMAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 221f319a-a9cf-471f-88e8-673a037b5e05
+          stepCounter: 77c31efe-18b9-471f-bbb1-f6d5afb97851
+        config: {}
+        dataType: NUMBER(10,2)
+        defaultValue: ""
+        description: ""
+        name: TOTALPREMIUMAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(PREMIUMAMOUNT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ef844fa0-99c6-47e2-afae-67be24f51708
+          stepCounter: 77c31efe-18b9-471f-bbb1-f6d5afb97851
+        config: {}
+        dataType: NUMBER(10,2)
+        defaultValue: ""
+        description: ""
+        name: INITIAL_PREMIUMAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN DATE(V_S_AP1_PREMIUMCHANGE_MROC_CURRENT.EFFECTIVEDATE) = DATE(ds_policysummary_v2_inner.STARTDATE) THEN PREMIUMAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ab8634d7-2943-4057-801d-93006e37f410
+          stepCounter: 77c31efe-18b9-471f-bbb1-f6d5afb97851
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d471247f-78a8-48ef-97eb-14d9aa033e3b
+          stepCounter: 77c31efe-18b9-471f-bbb1-f6d5afb97851
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_S_AP1_PREMIUMCHANGE_MROC_CURRENT: 3c7cc527-a1e7-49e6-825c-a2cc35f4bfe8
+          BVSTG_H20_LAPSE_MODEL_REFRESH: d2daaa44-a718-4c97-9d33-d5b6900008cb
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_PREMIUMCHANGE_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: BVSTG_H20_LAPSE_MODEL_REFRESH
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_S_AP1_PREMIUMCHANGE_MROC_CURRENT') }} V_S_AP1_PREMIUMCHANGE_MROC_CURRENT
+             INNER JOIN {{ ref('STAGE','BVSTG_H20_LAPSE_MODEL_REFRESH') }} ds_policysummary_v2_inner
+                ON V_S_AP1_PREMIUMCHANGE_MROC_CURRENT.POLICYID = ds_policysummary_v2_inner.POLICYID
+             WHERE V_S_AP1_PREMIUMCHANGE_MROC_CURRENT.ISVOID = 0
+               AND V_S_AP1_PREMIUMCHANGE_MROC_CURRENT.ISROWDELETED = 0
+             GROUP BY V_S_AP1_PREMIUMCHANGE_MROC_CURRENT.POLICYID
+        name: BVSTG_H20_AU1_PREMIUMCHANGE_ALL
+        noLinkRefs: []
+  name: BVSTG_H20_AU1_PREMIUMCHANGE_ALL
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

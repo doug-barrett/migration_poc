@@ -1,0 +1,217 @@
+fileVersion: 1
+id: 49b837e2-e712-42af-bed4-3583ba4d2b25
+name: BVSTG_AU13_CSPR
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cd96330e-5fc8-48e2-9aaa-11c74644035f
+          stepCounter: 49b837e2-e712-42af-bed4-3583ba4d2b25
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_AU13_CSPR_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(v_dlbv_osm_relationship_current.childid)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 73c92328-b8fb-4058-9156-41172457d102
+          stepCounter: 49b837e2-e712-42af-bed4-3583ba4d2b25
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: CHILDID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d32e8ce1-674e-436d-b067-2180c19e6c0f
+                stepCounter: d0ff5487-0256-482e-8f8b-eb1718384786
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6a15d0b1-aff5-4123-8763-3a25192921ac
+          stepCounter: 49b837e2-e712-42af-bed4-3583ba4d2b25
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CHILD_DESCR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5986f59d-947e-4e70-9a47-617ed76f63e9
+          stepCounter: 49b837e2-e712-42af-bed4-3583ba4d2b25
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: ACCOUNTS_MAPPED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN lower(v_dlbv_osm_relationship_current.accounts_mapped) like '%bill%commissions' THEN 'commissions'
+                          WHEN lower(v_dlbv_osm_relationship_current.accounts_mapped) like '%compensation%'    THEN 'compensation'
+                          ELSE replace(trim(v_dlbv_osm_relationship_current.accounts_mapped),' ','_')
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 99e1f5c6-62ac-41b3-aeb7-d2b1da806b5d
+          stepCounter: 49b837e2-e712-42af-bed4-3583ba4d2b25
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 789e1fcc-99c4-4837-a15d-1869e75c44df
+          stepCounter: 49b837e2-e712-42af-bed4-3583ba4d2b25
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_0AU13_CSPR: 99c80afe-c071-452f-8459-fbfe556463fe
+          BVSTG_1AU13_CSPR: 56745a80-8ba5-4a13-87d3-36242028652d
+          V_DLBV_OSM_MEMBER_CURRENT: dd70a2ba-0013-4f94-96ba-482a4e6cd1d3
+          V_DLBV_OSM_RELATIONSHIP_CURRENT: d0ff5487-0256-482e-8f8b-eb1718384786
+          BVSTG_AU12_CSPR: dc13c0d3-8c9c-4cec-9438-f94bd0af0a0a
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_0AU13_CSPR
+          - locationName: STAGE
+            nodeName: BVSTG_1AU13_CSPR
+          - locationName: STAGE
+            nodeName: V_DLBV_OSM_MEMBER_CURRENT
+          - locationName: STAGE
+            nodeName: V_DLBV_OSM_RELATIONSHIP_CURRENT
+          - locationName: STAGE
+            nodeName: BVSTG_AU12_CSPR
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT *
+                      FROM (
+                            SELECT DISTINCT CHILDID,
+                                   CHILD_DESCR,
+                                   ACCOUNTS_MAPPED
+                              FROM {{ ref('STAGE','BVSTG_0AU13_CSPR') }}
+                           )
+                     UNION (
+                            SELECT DISTINCT CHILDID,
+                                   CHILD_DESCR,
+                                   ACCOUNTS_MAPPED
+                              FROM {{ ref('STAGE','BVSTG_1AU13_CSPR') }}
+                           )
+                     UNION (
+                            SELECT t1.childid,
+                                   t2.description AS child_descr,
+                                   Accounts_Mapped
+                              FROM (
+                                    SELECT DISTINCT memberid AS childid,
+                                           description AS Accounts_Mapped
+                                      FROM (
+                                            SELECT DISTINCT memberid,
+                                                   description
+                                              FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                                             WHERE name = 'OtherExpensesOp'
+                                             UNION SELECT DISTINCT childid,
+                                                   (
+                                                    SELECT DISTINCT description
+                                                      FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                                                     WHERE name = 'OtherExpensesOp'
+                                                   ) AS description
+                                              FROM (
+                                                    SELECT DISTINCT childid
+                                                      FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                                                     WHERE parentid IN (
+                                                            SELECT DISTINCT memberid
+                                                              FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                                                             WHERE name = 'OtherExpensesOp'
+                                                           )
+                                                     UNION SELECT DISTINCT b.childid childid
+                                                      FROM (
+                                                            SELECT *
+                                                              FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                                                             WHERE parentid IN (
+                                                                    SELECT DISTINCT memberid
+                                                                      FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                                                                     WHERE name = 'OtherExpensesOp'
+                                                                   )
+                                                           ) a
+                                                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} b
+                                                        ON a.childid=b.parentid
+                                                     UNION SELECT DISTINCT c.childid childid
+                                                      FROM (
+                                                            SELECT *
+                                                              FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                                                             WHERE parentid IN (
+                                                                    SELECT DISTINCT memberid
+                                                                      FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                                                                     WHERE name = 'OtherExpensesOp'
+                                                                   )
+                                                           ) a
+                                                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} b
+                                                        ON a.childid=b.parentid
+                                                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} c
+                                                        ON b.childid=c.parentid
+                                                   )
+                                           )
+                                   ) t1
+                              LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }} t2
+                                ON t1.childid = t2.memberid
+                             WHERE childid IN (
+                                    SELECT DISTINCT ID
+                                      FROM {{ ref('STAGE','BVSTG_AU12_CSPR') }}
+                                     WHERE metric = 'ACCOUNTID'
+                                   )
+                           )
+                   ) AS V_DLBV_OSM_RELATIONSHIP_CURRENT
+        name: BVSTG_AU13_CSPR
+        noLinkRefs: []
+  name: BVSTG_AU13_CSPR
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

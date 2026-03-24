@@ -1,0 +1,151 @@
+fileVersion: 1
+id: 25c85b39-41a5-464b-ae8a-5f3b03962773
+name: BVSTG_IO_RWL_ZERO_INFERENCE_OUTPUT
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6c9fd463-0925-40d8-8b3d-90a3bf520954
+          stepCounter: 25c85b39-41a5-464b-ae8a-5f3b03962773
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: DEAL_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 94ff1fd1-28db-4873-9467-cb8f39bfa590
+          stepCounter: 25c85b39-41a5-464b-ae8a-5f3b03962773
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: AMS_POLICY_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1d247c7a-f729-42a6-9440-6103b1302375
+          stepCounter: 25c85b39-41a5-464b-ae8a-5f3b03962773
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: POLICY_NUMBER
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 27159d3e-5c14-4351-9ab2-92cb30acc74f
+          stepCounter: 25c85b39-41a5-464b-ae8a-5f3b03962773
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: LEAD_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 34acdb11-fe99-4e4a-a7d4-ec5bf1f878b1
+          stepCounter: 25c85b39-41a5-464b-ae8a-5f3b03962773
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: CUSTNO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3b5aaf24-a1ad-4719-b7b9-3b525d8abaec
+          stepCounter: 25c85b39-41a5-464b-ae8a-5f3b03962773
+        config: {}
+        dataType: FLOAT
+        defaultValue: ""
+        description: ""
+        name: RENEWAL_PROBABILITY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3b5aaf24-a1ad-4719-b7b9-3b525d8abaec
+                stepCounter: 25c85b39-41a5-464b-ae8a-5f3b03962773
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_IO_LEAD_OPPORTUNITY_AU2C_DEALS: 6f61b911-3355-4e9d-bcc2-52c6431496a8
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_IO_RWL_ZERO_TRAIN_RAW
+          - locationName: STAGE
+            nodeName: BVSTG_IO_LEAD_OPPORTUNITY_AU2C_DEALS
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT a.TIMELINE_ID,
+                           a.DEAL_ID,
+                           a.MOVED_TO_BUCKET_AT,
+                           a.NEXT_MOVED_TO_BUCKET_AT,
+                           b.TIMELINE_ID AS contacts_TIMELINE_ID,
+                           CONVERT_TIMEZONE('America/Los_Angeles', createat)::TIMESTAMP_NTZ contacts_STARTDATETIME,
+                           TIMELINE_TYPE contacts_TIMELINETYPE,
+                           b.TIMELINE_INFO contacts_TIMELINEINFO,
+                           b.AGENT_NAME contacts_TIMELINEAGENT
+                      FROM {{ ref('STAGE','BVSTG_IO_LEAD_OPPORTUNITY_AU2C_DEALS') }} a
+                      JOIN DATA_LAKE.API.dl_api_insuredmine_timelines b
+                        ON a.deal_id = b.deal_id
+                     WHERE TIMELINE_TYPE IN ('sms', 'email', 'notes')
+                       AND b.dss_current_flag = 'Y'
+                   ) bvstg_io_lead_opportunity_au2c_deals
+             WHERE contacts_STARTDATETIME >= MOVED_TO_BUCKET_AT
+               AND contacts_STARTDATETIME <= COALESCE(NEXT_MOVED_TO_BUCKET_AT, current_timestamp())
+             GROUP BY TIMELINE_ID
+        name: BVSTG_IO_RWL_ZERO_INFERENCE_OUTPUT
+        noLinkRefs: []
+  name: BVSTG_IO_RWL_ZERO_INFERENCE_OUTPUT
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

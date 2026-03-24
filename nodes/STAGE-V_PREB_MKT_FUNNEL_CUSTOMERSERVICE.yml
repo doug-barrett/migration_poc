@@ -1,0 +1,90 @@
+fileVersion: 1
+id: 40b3c65a-1c7d-4988-9186-0f2c8f7061e2
+name: V_PREB_MKT_FUNNEL_CUSTOMERSERVICE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 87fcc7d6-f633-48c7-953e-6daeb1b7993a
+          stepCounter: 40b3c65a-1c7d-4988-9186-0f2c8f7061e2
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CALLID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e4d29e78-3f38-46d7-9496-c950f8597e07
+                stepCounter: 0aaa279e-0731-4ba4-882c-75dc6cf7d3c9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 48e7afea-25ba-468e-a8cf-e1bdf39b92e6
+          stepCounter: 40b3c65a-1c7d-4988-9186-0f2c8f7061e2
+        config: {}
+        dataType: NUMERIC(1,0)
+        defaultValue: ""
+        description: ""
+        name: LEADSBEFORECALL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e4d29e78-3f38-46d7-9496-c950f8597e07
+                stepCounter: 0aaa279e-0731-4ba4-882c-75dc6cf7d3c9
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_MKT_FUNNEL_CUSTOMERSERVICE: 40b3c65a-1c7d-4988-9186-0f2c8f7061e2
+          DS_MKT_CALL_CUSTOMER: a1eb4560-c80e-4133-a2d9-f6a82026093c
+          DS_MKT_LEAD_SOURCE: 0aaa279e-0731-4ba4-882c-75dc6cf7d3c9
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PREB_MKT_FUNNEL_CUSTOMERSERVICE') }} AS SELECT ds_mkt_call_customer.interactionidkey,
+                   MAX(ds_mkt_call_customer.startdatetime) AS date,
+                   SUM(CASE WHEN ds_mkt_Lead_source.LeadID IS NOT NULL THEN 1 ELSE 0 END) Leadsbeforecall
+              FROM (
+                    SELECT CustomerID,
+                           startdatetime,
+                           interactionidkey
+                      FROM {{ ref('EDW','DS_MKT_CALL_CUSTOMER') }}
+                     GROUP BY CustomerID,
+                              startdatetime,
+                              interactionidkey
+                   ) ds_mkt_call_customer
+              LEFT JOIN {{ ref('EDW','DS_MKT_LEAD_SOURCE') }} ds_mkt_Lead_source
+                ON (ds_mkt_call_customer.CustomerID = ds_mkt_Lead_source.CustomerID AND ds_mkt_call_customer.startdatetime > ds_mkt_Lead_source.LEADCREATED_SOURCESYSTEMTIME)
+             GROUP BY ds_mkt_call_customer.interactionidkey
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_MKT_LEAD_SOURCE
+          - locationName: EDW
+            nodeName: DS_MKT_CALL_CUSTOMER
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('EDW','DS_MKT_LEAD_SOURCE') }}
+            {{ ref('EDW','DS_MKT_CALL_CUSTOMER') }}
+        name: V_PREB_MKT_FUNNEL_CUSTOMERSERVICE
+        noLinkRefs: []
+  name: V_PREB_MKT_FUNNEL_CUSTOMERSERVICE
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

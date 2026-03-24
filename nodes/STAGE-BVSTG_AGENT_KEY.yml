@@ -1,0 +1,497 @@
+fileVersion: 1
+id: ae08e08f-dafd-426a-8a58-4547c4e07038
+name: BVSTG_AGENT_KEY
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 84c74ea2-74fc-4e2c-97e2-01e783d5b441
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: RANK_EMPLOYEENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7b12991b-3a86-422d-bfc5-52a5f2ea68b0
+                stepCounter: a56e8005-b3a5-4da6-b40b-6228067aa034
+            transform: |-
+              CASE WHEN COALESCE(v_preb_pcce_agent.HR_EMPLOYEENUMBER, v_preb_pcce_agent.AP1_EMPLOYEENUMBER, v_preb_pcce_agent.UPN_EMPLOYEENUMBER, v_preb_pcce_agent.CIGH_EMPLOYEENUMBER) IS NULL THEN 1
+                          ELSE DENSE_RANK() OVER (PARTITION BY CASE WHEN v_preb_pcce_agent.EmployeeType = 'Franchise' THEN COALESCE(v_preb_pcce_agent.HR_EMPLOYEENUMBER, v_preb_pcce_agent.AP1_EMPLOYEENUMBER, v_preb_pcce_agent.UPN_EMPLOYEENUMBER, v_preb_pcce_agent.CIGH_EMPLOYEENUMBER) ELSE RIGHT('000000' || COALESCE(v_preb_pcce_agent.HR_EMPLOYEENUMBER, v_preb_pcce_agent.AP1_EMPLOYEENUMBER, v_preb_pcce_agent.UPN_EMPLOYEENUMBER, v_preb_pcce_agent.CIGH_EMPLOYEENUMBER), 6) END ORDER BY CASE WHEN FRAN.EMPLOYEENUMBER IS NOT NULL THEN 1 ELSE 0 END DESC, CASE WHEN RANK_SKILLTARGET = 1 THEN 0 ELSE 1 END, IFNULL(RANK_PCCE_AGENT,100), CASE WHEN v_preb_pcce_agent.CISCO_SKILLTARGETID = '48056' THEN 0 ELSE v_preb_pcce_agent.CISCO_SKILLTARGETID END, CASE WHEN v_preb_pcce_agent.CISCO_SKILLTARGETID IS NOT NULL THEN v_preb_pcce_agent.CISCO_SKILLTARGETID ELSE 0 END DESC, CASE WHEN RANK_APPONEUSER = 1 THEN 0 ELSE 1 END, CASE WHEN RANK_CIGHUSER = 1 THEN 0 ELSE 1 END, v_preb_pcce_agent.CISCO_SKILLTARGETID, v_preb_pcce_agent.AP1_USERID, v_preb_pcce_agent.CIGH_EMPCODE)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7910747c-a0f6-4b98-b4b1-8dc30889f61e
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: AGENTKEYID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7b12991b-3a86-422d-bfc5-52a5f2ea68b0
+                stepCounter: a56e8005-b3a5-4da6-b40b-6228067aa034
+            transform: |-
+              CASE WHEN CASE WHEN RANK_SKILLTARGET = 1 THEN v_preb_pcce_agent.CISCO_SKILLTARGETID ELSE NULL END IS NOT NULL THEN CASE WHEN RANK_SKILLTARGET = 1 THEN v_preb_pcce_agent.CISCO_SKILLTARGETID ELSE NULL END || '-CI'
+                          WHEN CASE WHEN RANK_APPONEUSER = 1 THEN AP1_USERID ELSE NULL END IS NOT NULL                             THEN CASE WHEN RANK_APPONEUSER = 1 THEN AP1_USERID ELSE NULL END || '-AP'
+                          WHEN CASE WHEN RANK_CIGHUSER = 1 THEN CIGH_EMPCODE ELSE NULL END IS NOT NULL                             THEN CASE WHEN RANK_CIGHUSER = 1 THEN CIGH_EMPCODE ELSE NULL END || '-CG'
+                          ELSE COALESCE(v_preb_pcce_agent.HR_EMPLOYEENUMBER ,v_preb_pcce_agent.AP1_EMPLOYEENUMBER ,v_preb_pcce_agent.UPN_EMPLOYEENUMBER ,v_preb_pcce_agent.CIGH_EMPLOYEENUMBER) || '-UL'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2199e3ac-17d8-4083-9482-c0cc9a9da5cd
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: ISPREMIER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7b12991b-3a86-422d-bfc5-52a5f2ea68b0
+                stepCounter: a56e8005-b3a5-4da6-b40b-6228067aa034
+            transform: |-
+              CASE WHEN v_preb_employee_premier.EmployeeNumber IS NOT NULL THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0a73ab82-b70f-44eb-9508-a61cbb0fc74e
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7b12991b-3a86-422d-bfc5-52a5f2ea68b0
+                stepCounter: a56e8005-b3a5-4da6-b40b-6228067aa034
+            transform: |-
+              CASE WHEN v_preb_pcce_agent.EmployeeType = 'Franchise' OR LEN(COALESCE(HR_EMPLOYEENUMBER,AP1_EMPLOYEENUMBER,UPN_EMPLOYEENUMBER,CIGH_EMPLOYEENUMBER))>6                                            THEN RIGHT('000000' || COALESCE(v_preb_pcce_agent.HR_EMPLOYEENUMBER ,v_preb_pcce_agent.AP1_EMPLOYEENUMBER ,v_preb_pcce_agent.UPN_EMPLOYEENUMBER ,v_preb_pcce_agent.CIGH_EMPLOYEENUMBER) ,10)
+                          WHEN TRY_TO_NUMBER(COALESCE(v_preb_pcce_agent.HR_EMPLOYEENUMBER ,v_preb_pcce_agent.AP1_EMPLOYEENUMBER ,v_preb_pcce_agent.UPN_EMPLOYEENUMBER ,v_preb_pcce_agent.CIGH_EMPLOYEENUMBER)) IS NULL THEN COALESCE(v_preb_pcce_agent.HR_EMPLOYEENUMBER ,v_preb_pcce_agent.AP1_EMPLOYEENUMBER ,v_preb_pcce_agent.UPN_EMPLOYEENUMBER ,v_preb_pcce_agent.CIGH_EMPLOYEENUMBER)
+                          ELSE RIGHT('000000' || COALESCE(v_preb_pcce_agent.HR_EMPLOYEENUMBER ,v_preb_pcce_agent.AP1_EMPLOYEENUMBER ,v_preb_pcce_agent.UPN_EMPLOYEENUMBER ,v_preb_pcce_agent.CIGH_EMPLOYEENUMBER) ,6)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 067416a8-4c6d-47ac-a54b-82df22c1a1b1
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEENAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7b12991b-3a86-422d-bfc5-52a5f2ea68b0
+                stepCounter: a56e8005-b3a5-4da6-b40b-6228067aa034
+            transform: LEFT(COALESCE(ds_hr_employeeunique.EmployeeName ,v_preb_pcce_agent.HR_EMPLOYEENAME ,v_preb_pcce_agent.UPN_EMPLOYEENAME ,v_preb_pcce_agent.AP1_EMPLOYEENAME ,v_preb_pcce_agent.CISCO_EMPLOYEENAME ,v_preb_pcce_agent.CIGH_EMPLOYEENAME),50)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8f38c3c1-d94d-4845-9129-4df9a87363b8
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: OFFICECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7b12991b-3a86-422d-bfc5-52a5f2ea68b0
+                stepCounter: a56e8005-b3a5-4da6-b40b-6228067aa034
+            transform: IFNULL(FRAN.OFFICECODE, CASE WHEN v_preb_sfdc_associated_office.EmployeeNumber IS NOT NULL THEN v_preb_sfdc_associated_office.OfficeCode ELSE CASE WHEN LOWER(v_s_boe_tj_employee_current.DepartmentName) like '%telesales%' THEN IFNULL(AP1_OFFICECODE,IFNULL(SF_OFFICECODE,HR_OFFICECODE)) WHEN v_s_boe_tj_employee_current.OfficeName IS NOT NULL THEN v_s_boe_tj_employee_current.OfficeName ELSE IFNULL(SF_OFFICECODE,HR_OFFICECODE) END END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 56901351-2f7f-41ed-b025-fdeb99d33eca
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CISCO_LOGINNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7b12991b-3a86-422d-bfc5-52a5f2ea68b0
+                stepCounter: a56e8005-b3a5-4da6-b40b-6228067aa034
+            transform: IFNULL(FRAN.CISCO_LOGINNAME, CASE WHEN RANK_SKILLTARGET = 1 THEN v_preb_pcce_agent.CISCO_LOGINNAME ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e1a07132-bdf2-4364-be5e-6f2aa5d644cf
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CISCO_SKILLTARGETID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7b12991b-3a86-422d-bfc5-52a5f2ea68b0
+                stepCounter: a56e8005-b3a5-4da6-b40b-6228067aa034
+            transform: IFNULL(FRAN.CISCO_SKILLTARGETID, CASE WHEN RANK_SKILLTARGET = 1 THEN v_preb_pcce_agent.CISCO_SKILLTARGETID ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bb2f7113-f6b1-44b9-8e19-b3baa28664e9
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: AP1_USERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7b12991b-3a86-422d-bfc5-52a5f2ea68b0
+                stepCounter: a56e8005-b3a5-4da6-b40b-6228067aa034
+            transform: |-
+              CASE WHEN RANK_APPONEUSER = 1 THEN AP1_USERID
+                          ELSE NULL
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9dd85da8-1732-4d1d-b773-71129724afaa
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CIGH_USERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7b12991b-3a86-422d-bfc5-52a5f2ea68b0
+                stepCounter: a56e8005-b3a5-4da6-b40b-6228067aa034
+            transform: |-
+              CASE WHEN RANK_CIGHUSER = 1 THEN CIGH_EMPCODE
+                          ELSE NULL
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4376c209-534d-4b29-9fc3-223b09ab34f1
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: HR_STATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f0654bf2-743e-488c-8d16-41e56db80129
+                stepCounter: 809a5b1b-a931-4cc2-a428-154e221b6a1a
+            transform: COALESCE(v_preb_pcce_agent.sf_Status,ds_hr_employeeunique.PointInTimeStatus,DS_SFDC_CONTACT.Status)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b0d4e12a-1d86-4a85-8d57-d7ebc0f98870
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: COMPANY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1ab1ac51-8bf9-4970-aec6-3e48d41f62be
+                stepCounter: 809a5b1b-a931-4cc2-a428-154e221b6a1a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aafb0b25-cfe8-427f-9519-dae2b4786d08
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: COMPANYCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bedc6a58-ad13-4781-9c04-14b38873c745
+                stepCounter: 809a5b1b-a931-4cc2-a428-154e221b6a1a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6de03264-c402-462b-8b42-daecdb25147f
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: TERMINATIONDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 594b621f-5cf7-4040-a48b-4601161bc596
+                stepCounter: 809a5b1b-a931-4cc2-a428-154e221b6a1a
+            transform: |-
+              CASE WHEN IFNULL(v_preb_pcce_agent.sf_Status,ds_hr_employeeunique.PointInTimeStatus) IN ('Terminated','Error') THEN IFNULL(v_preb_pcce_agent.sf_TerminationDate,ds_hr_employeeunique.terminationdate)
+                          ELSE NULL
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 015bbabf-0ef5-4c6b-9e95-c08f974a8949
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: LASTHIREDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 76226c13-25e9-4023-9c3b-fd2d74ac8636
+                stepCounter: 809a5b1b-a931-4cc2-a428-154e221b6a1a
+            transform: IFNULL(ds_hr_employeeunique.LastHireDate,DS_SFDC_CONTACT.HIREDATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c1118f7c-3a5a-4046-b755-2e80e603d6e5
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: JOBTITLE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0f5c91e0-12ae-47e6-aaea-b869ab7143df
+                stepCounter: 809a5b1b-a931-4cc2-a428-154e221b6a1a
+            transform: IFNULL(v_preb_pcce_agent.sf_title,ds_hr_employeeunique.jobtitle)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5ded5e9d-5303-49fc-9ab0-7f24b58f64fe
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: JOBFAMILY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 59a82efc-f0a5-462b-8cb0-eadbaf204ac1
+                stepCounter: 809a5b1b-a931-4cc2-a428-154e221b6a1a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6ade4fa3-0408-4280-a911-21559b90e9d4
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: TJOFFICENAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1e1b075c-5d21-4cac-ad69-23992d5eab02
+                stepCounter: 589c1ac1-8d66-4cbe-87cd-18c4706a7ea9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d08daff5-92fd-40ae-b357-8611d57efa0d
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: JOBCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5010e251-ad01-4889-bcc6-df91159617ef
+                stepCounter: 809a5b1b-a931-4cc2-a428-154e221b6a1a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 661c9a45-16a0-4aaf-8f02-92bcc1dfbc53
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: AP1_STATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bc111204-c31f-46a1-a802-4ed157a82400
+                stepCounter: a56e8005-b3a5-4da6-b40b-6228067aa034
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8f656f6c-bc84-479a-ba6a-f1ac2922a2b9
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: ORIGINALHIREDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a7396f94-4540-46f0-8a52-f3fff18da63d
+                stepCounter: 809a5b1b-a931-4cc2-a428-154e221b6a1a
+            transform: IFNULL(ds_hr_employeeunique.OriginalHireDate,DS_SFDC_CONTACT.HIREDATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fe1b8879-a178-43ec-a446-7398da6fb65b
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: CIGH_STATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 04ff6b12-5c13-473c-bed4-1ec2e838034e
+                stepCounter: a56e8005-b3a5-4da6-b40b-6228067aa034
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b902fb06-9799-4eec-b66f-972b621207f0
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 33f5e9ac-2c77-4ce0-9976-02c83e8d1e45
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: WFH_OFFICE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN v_preb_sfdc_associated_office.EmployeeNumber IS NOT NULL THEN v_preb_sfdc_associated_office.WFH_OFFICE
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cec2aa5b-319f-4466-91dc-f41862a67f3c
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: DATE_ISSUE_LICENSE_ORIG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ed3ba4ec-e055-48fe-87d9-b36aa516588a
+                stepCounter: 7c907231-0b75-4b54-9e17-d00257c63ce7
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7d68155e-a8f5-4298-8579-b3290ca53ee9
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: LICENSE_STATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 66f89fc5-64c6-4838-848e-b74469164c19
+                stepCounter: 7c907231-0b75-4b54-9e17-d00257c63ce7
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7d589ce1-313a-4f0f-9809-46571cd54cd8
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: LICENSE_STATUS_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ca0c1a86-33f4-4a52-bcdc-9db16506209d
+                stepCounter: 7c907231-0b75-4b54-9e17-d00257c63ce7
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d862ce2b-c95b-478f-aa9a-fa1deb1dff7d
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 69296ffa-8d5d-4719-b13e-d714f6eded4f
+          stepCounter: ae08e08f-dafd-426a-8a58-4547c4e07038
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_PCCE_AGENT: a56e8005-b3a5-4da6-b40b-6228067aa034
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_PREB_PCCE_AGENT
+        join:
+          joinCondition: FROM {{ ref('STAGE','V_PREB_PCCE_AGENT') }}
+        name: BVSTG_AGENT_KEY
+        noLinkRefs: []
+  name: BVSTG_AGENT_KEY
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

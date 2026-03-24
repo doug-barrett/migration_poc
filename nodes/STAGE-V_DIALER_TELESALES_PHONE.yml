@@ -1,0 +1,107 @@
+fileVersion: 1
+id: 4f96a6ed-dbf4-4b0d-8efd-2a8a70128221
+name: V_DIALER_TELESALES_PHONE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 407e9fc5-78b4-4dfe-ae83-0275fe6908f8
+          stepCounter: 4f96a6ed-dbf4-4b0d-8efd-2a8a70128221
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f20b89bc-ab1e-48d3-a9ec-237a73f708b1
+                stepCounter: c5a432da-156b-460f-ba67-985b9517bedb
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 77171a22-6682-41ec-8d68-d08a1343c752
+          stepCounter: 4f96a6ed-dbf4-4b0d-8efd-2a8a70128221
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PHONE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_DIALER_TELESALES_PHONE: 4f96a6ed-dbf4-4b0d-8efd-2a8a70128221
+          DS_CUSTOMERSUMMARY_V2: c5a432da-156b-460f-ba67-985b9517bedb
+          BVSTG_DIALER_AU1_TELESALES: e6fa9922-4b44-4396-bf50-be33fb6c6e96
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_DIALER_TELESALES_PHONE') }} AS SELECT CUSTOMERID,
+                   PHONE,
+                   RANK() OVER (PARTITION BY CUSTOMERID ORDER BY ordering) Rank
+              FROM (
+                    SELECT CUSTOMERID,
+                           HOMEPHONE PHONE,
+                           1 ordering
+                      FROM {{ ref('EDW','DS_CUSTOMERSUMMARY_V2') }} a
+                     INNER JOIN {{ ref('STAGE','BVSTG_DIALER_AU1_TELESALES') }} b
+                        ON b.C_CUSTOMERID = a.CUSTOMERID
+                     WHERE HOMEPHONE IS NOT NULL
+                       AND SourceDB = 'AppOne'
+                     UNION SELECT CUSTOMERID,
+                           CELLPHONE PHONE,
+                           2 ordering
+                      FROM {{ ref('EDW','DS_CUSTOMERSUMMARY_V2') }} a
+                     INNER JOIN {{ ref('STAGE','BVSTG_DIALER_AU1_TELESALES') }} b
+                        ON b.C_CUSTOMERID = a.CUSTOMERID
+                     WHERE CELLPHONE IS NOT NULL
+                       AND IFNULL(HOMEPHONE,'') != IFNULL(CELLPHONE,'')
+                       AND SourceDB = 'AppOne'
+                     UNION SELECT CUSTOMERID,
+                           CONTACTPHONE PHONE,
+                           3 ordering
+                      FROM {{ ref('EDW','DS_CUSTOMERSUMMARY_V2') }} a
+                     INNER JOIN {{ ref('STAGE','BVSTG_DIALER_AU1_TELESALES') }} b
+                        ON b.C_CUSTOMERID = a.CUSTOMERID
+                     WHERE CONTACTPHONE IS NOT NULL
+                       AND IFNULL(HOMEPHONE,'') != IFNULL(CONTACTPHONE,'')
+                       AND IFNULL(CONTACTPHONE,'') != IFNULL(CELLPHONE,'')
+                       AND SourceDB = 'AppOne'
+                   )
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_CUSTOMERSUMMARY_V2
+          - locationName: STAGE
+            nodeName: BVSTG_DIALER_AU1_TELESALES
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('EDW','DS_CUSTOMERSUMMARY_V2') }}
+            {{ ref('STAGE','BVSTG_DIALER_AU1_TELESALES') }}
+        name: V_DIALER_TELESALES_PHONE
+        noLinkRefs: []
+  name: V_DIALER_TELESALES_PHONE
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,256 @@
+fileVersion: 1
+id: dfa354e2-7dbc-413d-81c1-4a53c8d3c01f
+name: BVSTG_ACUMATICA_FEEREVENUE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a3b91a27-06d5-4244-8d11-2b9b510f3236
+          stepCounter: dfa354e2-7dbc-413d-81c1-4a53c8d3c01f
+        config: {}
+        dataType: VARCHAR(144)
+        defaultValue: ""
+        description: ""
+        name: BUSINESSENTITYCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fcd5d562-5da6-4ecc-b76e-fcdf0ea994da
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8e3dba1f-135b-4b15-a043-f53713160e25
+          stepCounter: dfa354e2-7dbc-413d-81c1-4a53c8d3c01f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ACCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 48d60c57-1112-4069-bc8b-5dca0bc02b26
+                stepCounter: 6ac5b54c-b0c0-49bd-9c38-4d11b155a8da
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 27adaf2f-3b2e-4b39-8e67-ad4b89bac0ae
+          stepCounter: dfa354e2-7dbc-413d-81c1-4a53c8d3c01f
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: DESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9ed9ea6b-aec5-4b5c-9114-bd4b4aec9c51
+                stepCounter: e741e1b5-2f92-47f9-a599-48bb5c6597d4
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 126be66a-2426-43df-bd11-d9f0923a9829
+          stepCounter: dfa354e2-7dbc-413d-81c1-4a53c8d3c01f
+        config: {}
+        dataType: VARCHAR(17)
+        defaultValue: ""
+        description: ""
+        name: SUBACCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: IFNULL(v_api_acumatica_account.SUBACCOUNT, CONCAT(CASE WHEN (ds_bvstg_ap1_transactionitem.ORGANIZATIONCODE LIKE 'SSB%' OR ds_bvstg_ap1_transactionitem.ORGANIZATIONCODE LIKE 'APS1%') THEN '06' ELSE v_api_acumatica_statecode.STATECODEID END ,'-000-' ,CASE WHEN (ds_bvstg_ap1_transactionitem.ORGANIZATIONCODE LIKE 'SSB%' OR ds_bvstg_ap1_transactionitem.ORGANIZATIONCODE LIKE 'APS1%') THEN '632' ELSE ds_retail_office.CORPORATEOFFICENUMBER END ,'-00'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fde07b58-2edd-4ce7-aa50-9ef1edc4068d
+          stepCounter: dfa354e2-7dbc-413d-81c1-4a53c8d3c01f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: QTY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: count(1)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 254b61cb-3f2c-47b2-a78c-7168d4cffd20
+          stepCounter: dfa354e2-7dbc-413d-81c1-4a53c8d3c01f
+        config: {}
+        dataType: NUMERIC(18,2)
+        defaultValue: ""
+        description: ""
+        name: DEBIT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN v_api_acumatica_account.CLASS = 'Debit' AND v_api_acumatica_account."Value"='Amount' THEN SUM(ds_bvstg_ap1_transactionitem.Amount)
+                          WHEN v_api_acumatica_account.CLASS = 'Debit' AND v_api_acumatica_account."Value"='Cost'   THEN SUM(ds_ram_retail_repository.AP_PO_CompanyCost)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 77ea3d86-cbf3-4177-b21c-7821496999ac
+          stepCounter: dfa354e2-7dbc-413d-81c1-4a53c8d3c01f
+        config: {}
+        dataType: NUMERIC(18,2)
+        defaultValue: ""
+        description: ""
+        name: CREDIT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN v_api_acumatica_account.CLASS = 'Credit' AND v_api_acumatica_account."Value"='Amount' THEN SUM(ds_bvstg_ap1_transactionitem.Amount)
+                          WHEN v_api_acumatica_account.CLASS = 'Credit' AND v_api_acumatica_account."Value"='Cost'   THEN SUM(ds_ram_retail_repository.AP_PO_CompanyCost)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4b57b5b7-54b7-4fd6-9df1-d81544042be6
+          stepCounter: dfa354e2-7dbc-413d-81c1-4a53c8d3c01f
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONDESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CONCAT(ds_bvstg_ap1_transactionitem.ORGANIZATIONCODE,' ' ,v_api_acumatica_revenuedescription.NAME,' ' ,v_api_acumatica_account.TYPE,' ' ,CONCAT(MonthName(ds_bvstg_ap1_transactionitem.CREATED),' ',Year(ds_bvstg_ap1_transactionitem.CREATED)))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eb39d83f-0d7c-4468-90ee-e254df2e30ae
+          stepCounter: dfa354e2-7dbc-413d-81c1-4a53c8d3c01f
+        config: {}
+        dataType: BOOLEAN
+        defaultValue: ""
+        description: ""
+        name: ISVOID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN IFNULL(ds_bvstg_ap1_transactionitem.TRANSACTIONVOIDEDON,'1900-01-01')>=IFNULL(ds_bvstg_ap1_transactionitem.VOIDEDON,'1900-01-01') AND TO_DATE(ds_bvstg_ap1_transactionitem.TRANSACTIONVOIDEDON) BETWEEN DATE_TRUNC('month',ds_bvstg_ap1_transactionitem.CREATED) AND LAST_DAY(ds_bvstg_ap1_transactionitem.CREATED) THEN 1
+                          WHEN IFNULL(ds_bvstg_ap1_transactionitem.TRANSACTIONVOIDEDON,'1900-01-01')<=IFNULL(ds_bvstg_ap1_transactionitem.VOIDEDON,'1900-01-01') AND TO_DATE(ds_bvstg_ap1_transactionitem.VOIDEDON) BETWEEN DATE_TRUNC('month',ds_bvstg_ap1_transactionitem.CREATED) AND LAST_DAY(ds_bvstg_ap1_transactionitem.CREATED)            THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 629b55eb-0cd0-492a-9372-99a1253a5b38
+          stepCounter: dfa354e2-7dbc-413d-81c1-4a53c8d3c01f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: MONTH
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MONTH(ds_bvstg_ap1_transactionitem.CREATED)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ee5ac8db-0316-4831-b47b-b29d6fd17639
+          stepCounter: dfa354e2-7dbc-413d-81c1-4a53c8d3c01f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: YEAR
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: YEAR(ds_bvstg_ap1_transactionitem.CREATED)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_BVSTG_AP1_TRANSACTIONITEM: 80f81938-7e6e-4863-9ea5-4321d79434f8
+          DS_RAM_RETAIL_REPOSITORY: d29a0c5c-e296-46c4-bc55-861d60fe906d
+          DS_RETAIL_OFFICE: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+          BVSTG_ACUMATICA_TRANSACTION_MAPPING: 4e373a92-9973-4ec5-a83c-41e29e927e85
+          V_API_ACUMATICA_BRANCH: e40c59f0-9a24-4928-ad18-209ca7f5c537
+          V_API_ACUMATICA_REVENUEDESCRIPTION: e741e1b5-2f92-47f9-a599-48bb5c6597d4
+          V_API_ACUMATICA_ACCOUNT: 6ac5b54c-b0c0-49bd-9c38-4d11b155a8da
+          V_API_ACUMATICA_STATECODE: 1f9c25ff-6b0c-4d48-a743-ce2f981adbdc
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_RETAIL_OFFICE
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_TRANSACTIONITEM
+          - locationName: EDW
+            nodeName: DS_RAM_RETAIL_REPOSITORY
+          - locationName: STAGE
+            nodeName: BVSTG_ACUMATICA_TRANSACTION_MAPPING
+          - locationName: STAGE
+            nodeName: V_API_ACUMATICA_BRANCH
+          - locationName: STAGE
+            nodeName: V_API_ACUMATICA_REVENUEDESCRIPTION
+          - locationName: STAGE
+            nodeName: V_API_ACUMATICA_ACCOUNT
+          - locationName: STAGE
+            nodeName: V_API_ACUMATICA_STATECODE
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM {{ ref('STAGE','DS_BVSTG_AP1_TRANSACTIONITEM') }} ds_bvstg_ap1_transactionitem
+             INNER JOIN {{ ref('EDW','DS_RAM_RETAIL_REPOSITORY') }} ds_ram_retail_repository
+                ON ds_ram_retail_repository.TRANSACTIONITEMID = ds_bvstg_ap1_transactionitem.TRANSACTIONITEMID
+             INNER JOIN {{ ref('EDW','DS_RETAIL_OFFICE') }} ds_retail_office
+                ON ds_retail_office.OFFICECODE = ds_bvstg_ap1_transactionitem.BIATRANSACTIONOFFICE
+             INNER JOIN {{ ref('STAGE','BVSTG_ACUMATICA_TRANSACTION_MAPPING') }} bvstg_acumatica_transaction_mapping
+                ON IFNULL(bvstg_acumatica_transaction_mapping.TRANSACTIONTYPE,'') = IFNULL(ds_bvstg_ap1_transactionitem.TRANSACTIONTYPE,'')
+               AND IFNULL(bvstg_acumatica_transaction_mapping.FEETYPE,'') = IFNULL(ds_bvstg_ap1_transactionitem.FEETYPE,'')
+               AND IFNULL(bvstg_acumatica_transaction_mapping.FEENAME,'') = IFNULL(ds_bvstg_ap1_transactionitem.FEENAME,'')
+               AND IFNULL(bvstg_acumatica_transaction_mapping.AP_ADDITIONALPRODUCTNAME,'') = IFNULL(ds_ram_retail_repository.AP_ADDITIONALPRODUCTNAME,'')
+              LEFT JOIN {{ ref('STAGE','V_API_ACUMATICA_BRANCH') }} v_api_acumatica_branch
+                ON v_api_acumatica_branch.Number = ds_retail_office.BUSINESSENTITYCODE
+              LEFT JOIN {{ ref('STAGE','V_API_ACUMATICA_REVENUEDESCRIPTION') }} v_api_acumatica_revenuedescription
+                ON v_api_acumatica_revenuedescription.REVENUEDESCRIPTIONID = bvstg_acumatica_transaction_mapping.REVENUETYPE
+              LEFT JOIN {{ ref('STAGE','V_API_ACUMATICA_ACCOUNT') }} v_api_acumatica_account
+                ON v_api_acumatica_account.REVENUEDESCRIPTIONID = v_api_acumatica_revenuedescription.REVENUEDESCRIPTIONID
+               AND v_api_acumatica_account.ISVOID = CASE WHEN IFNULL(ds_bvstg_ap1_transactionitem.TRANSACTIONVOIDEDON,'1900-01-01')>=IFNULL(ds_bvstg_ap1_transactionitem.VOIDEDON,'1900-01-01') AND TO_DATE(ds_bvstg_ap1_transactionitem.TRANSACTIONVOIDEDON) BETWEEN DATE_TRUNC('month',ds_bvstg_ap1_transactionitem.CREATED) AND LAST_DAY(ds_bvstg_ap1_transactionitem.CREATED) THEN 1
+                        WHEN IFNULL(ds_bvstg_ap1_transactionitem.TRANSACTIONVOIDEDON,'1900-01-01')<=IFNULL(ds_bvstg_ap1_transactionitem.VOIDEDON,'1900-01-01') AND TO_DATE(ds_bvstg_ap1_transactionitem.VOIDEDON) BETWEEN DATE_TRUNC('month',ds_bvstg_ap1_transactionitem.CREATED) AND LAST_DAY(ds_bvstg_ap1_transactionitem.CREATED)            THEN 1
+                        ELSE 0
+                         END
+               AND v_api_acumatica_account.IsActive=TRUE
+              LEFT JOIN {{ ref('STAGE','V_API_ACUMATICA_STATECODE') }} v_api_acumatica_statecode
+                ON LOWER(v_api_acumatica_statecode.STATENAME) = LOWER(CASE WHEN (ds_bvstg_ap1_transactionitem.ORGANIZATIONCODE LIKE 'SSB%' OR ds_bvstg_ap1_transactionitem.ORGANIZATIONCODE LIKE 'APS1%') THEN 'California' ELSE ds_retail_office.STATE END)
+             WHERE YEAR(ds_bvstg_ap1_transactionitem.CREATED)>=2021
+               AND IFNULL(ds_bvstg_ap1_transactionitem.TRANSACTIONITEMID,0)>0
+             GROUP BY ds_retail_office.BUSINESSENTITYCODE ,
+                      v_api_acumatica_account.Number ,
+                      v_api_acumatica_revenuedescription.NAME ,
+                      IFNULL(v_api_acumatica_account.SUBACCOUNT ,
+                   CONCAT(CASE WHEN (ds_bvstg_ap1_transactionitem.ORGANIZATIONCODE LIKE 'SSB%' OR ds_bvstg_ap1_transactionitem.ORGANIZATIONCODE LIKE 'APS1%') THEN '06'
+                        ELSE v_api_acumatica_statecode.STATECODEID
+                         END ,
+                   '-000-' ,
+                   CASE WHEN (ds_bvstg_ap1_transactionitem.ORGANIZATIONCODE LIKE 'SSB%' OR ds_bvstg_ap1_transactionitem.ORGANIZATIONCODE LIKE 'APS1%') THEN '632'
+        name: BVSTG_ACUMATICA_FEEREVENUE
+        noLinkRefs: []
+  name: BVSTG_ACUMATICA_FEEREVENUE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

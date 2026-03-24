@@ -1,0 +1,151 @@
+fileVersion: 1
+id: b98a63db-7cb5-40b9-a274-ffc004d71702
+name: BVSTG_HCI_TRANSACTION
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 58aece30-7461-4947-b76c-76c81232507e
+          stepCounter: b98a63db-7cb5-40b9-a274-ffc004d71702
+        config: {}
+        dataType: VARCHAR(252)
+        defaultValue: ""
+        description: ""
+        name: PRIMARYAGENTFULLNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 962d1e9c-79df-4ad1-8f7c-b8844f4775db
+                stepCounter: 95296926-a461-45bf-919b-1e93cca0d1ad
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5c1281b0-8f56-4256-8a5e-f1175e21964c
+          stepCounter: b98a63db-7cb5-40b9-a274-ffc004d71702
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: PRIMARYAGENTNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a1ce0817-b70b-46fd-9110-fd27147b95f5
+                stepCounter: 95296926-a461-45bf-919b-1e93cca0d1ad
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 686f98e6-9594-43ef-a95a-8e8462baf7ba
+          stepCounter: b98a63db-7cb5-40b9-a274-ffc004d71702
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 478b45e9-1d7f-45ec-b69c-bd32a38c890a
+                stepCounter: 95296926-a461-45bf-919b-1e93cca0d1ad
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eae474eb-a56c-4871-a98e-b33c8dbe4631
+          stepCounter: b98a63db-7cb5-40b9-a274-ffc004d71702
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: LEADID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f09c21d3-5dd8-40c1-979a-f58ac3a02f16
+                stepCounter: 44e18710-0e1e-45ca-98f0-65ef8e735c2e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bc4edcee-07fb-4c42-8f2e-2d96e7c7a201
+          stepCounter: b98a63db-7cb5-40b9-a274-ffc004d71702
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: CREATEDDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 66ee9cec-cc4d-4cd6-a439-7e2860cbb044
+                stepCounter: 95296926-a461-45bf-919b-1e93cca0d1ad
+            transform: TO_DATE(ds_bvstg_ap1_transaction.created)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c568a1dc-271c-45b7-9ba0-20e05d208e78
+          stepCounter: b98a63db-7cb5-40b9-a274-ffc004d71702
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f4637a31-981e-4327-8a62-12bf0d7e0e09
+          stepCounter: b98a63db-7cb5-40b9-a274-ffc004d71702
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_BVSTG_AP1_TRANSACTION: 95296926-a461-45bf-919b-1e93cca0d1ad
+          DS_BVSTG_AP1_LEADHISTORY: 44e18710-0e1e-45ca-98f0-65ef8e735c2e
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_TRANSACTION
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_LEADHISTORY
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','DS_BVSTG_AP1_TRANSACTION') }} ds_bvstg_ap1_transaction
+             INNER JOIN {{ ref('STAGE','DS_BVSTG_AP1_LEADHISTORY') }} ds_bvstg_ap1_leadhistory
+                ON ds_bvstg_ap1_leadhistory.TRANSACTIONID = ds_bvstg_ap1_transaction.TRANSACTIONID
+             WHERE ds_bvstg_ap1_transaction.PRIMARYAGENTOFFICE = 'HCIBP'
+               AND (('{{ parameters.HWM_BVSTG_Mapping_Refresh_Flag }}' = 0) OR ('{{ parameters.HWM_BVSTG_Mapping_Refresh_Flag }}' = 1 AND TO_DATE(ds_bvstg_ap1_transaction.created) >= DATEADD(MONTH,-'{{ parameters.HWM_BVSTG_Month_refresh }}',DATEADD(DAY,1,last_day(DATEADD(DAY,-5,DATE(CURRENT_DATE())))))))
+        name: BVSTG_HCI_TRANSACTION
+        noLinkRefs: []
+  name: BVSTG_HCI_TRANSACTION
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

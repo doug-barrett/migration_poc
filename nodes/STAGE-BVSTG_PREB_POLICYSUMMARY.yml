@@ -1,0 +1,167 @@
+fileVersion: 1
+id: 9261b2a3-68ea-4d55-a398-a1c2c1f2ecdd
+name: BVSTG_PREB_POLICYSUMMARY
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f10d7f56-29a8-4096-9e4b-02d48d00f087
+          stepCounter: 9261b2a3-68ea-4d55-a398-a1c2c1f2ecdd
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b4c39c6f-6db9-4962-ada5-ff36b731abd7
+                stepCounter: 33e94ccc-5ea4-4185-b3e4-eba6664875bf
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 812d3eb0-0fd4-4d96-911c-c7e5c877266c
+          stepCounter: 9261b2a3-68ea-4d55-a398-a1c2c1f2ecdd
+        config: {}
+        dataType: TIMESTAMP_TZ
+        defaultValue: ""
+        description: ""
+        name: CREATED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cc7594ec-b1eb-47ee-bc01-7031bad08dbc
+                stepCounter: 33e94ccc-5ea4-4185-b3e4-eba6664875bf
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 085e15df-7d66-4e2a-9afd-54b5f1c92c40
+          stepCounter: 9261b2a3-68ea-4d55-a398-a1c2c1f2ecdd
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: NBTRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 43cac3ae-64c3-44a4-a7a7-3e729c5d9c1b
+                stepCounter: 33e94ccc-5ea4-4185-b3e4-eba6664875bf
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: be4fe5d4-bd7d-4fd8-a7bf-e8cc2ff388df
+          stepCounter: 9261b2a3-68ea-4d55-a398-a1c2c1f2ecdd
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMER_TYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0d7dc5b5-8731-4f7b-82c0-b7b359d1b699
+          stepCounter: 9261b2a3-68ea-4d55-a398-a1c2c1f2ecdd
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0375225a-8540-430d-a4bf-6a0a814a8de7
+          stepCounter: 9261b2a3-68ea-4d55-a398-a1c2c1f2ecdd
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_AU2_POLICYSUMMARY: 33e94ccc-5ea4-4185-b3e4-eba6664875bf
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_AU2_POLICYSUMMARY
+        join:
+          joinCondition: |-
+            FROM(
+                    SELECT DISTINCT bvstg_au2_policysummary.transactionid AS transactionid ,
+                           bvstg_au2_policysummary.created AS created ,
+                           bvstg_au2_policysummary.NBTransactionID AS NBTransactionID ,
+                           CASE WHEN bvstg_au2_policysummary_prev.TransactionID IS NULL                                                                                                                                      THEN 'NEW/NEW'
+                                WHEN bvstg_au2_policysummary_prev.Status_Standard ='Active'                                                                                                                                  THEN 'REPLACEMENT'
+                                WHEN DATEADD(DAY,30,bvstg_au2_policysummary_prev.EndDate) >=bvstg_au2_policysummary.StartDate                                                                                                THEN 'REPLACEMENT'
+                                WHEN DATEADD(DAY,30,bvstg_au2_policysummary_prev.EndDate) < bvstg_au2_policysummary.StartDate AND DATEADD(DAY,365,bvstg_au2_policysummary_prev.EndDate) >= bvstg_au2_policysummary.StartDate THEN 'WINBACK'
+                                ELSE 'OLD/NEW'
+                                 END AS customer_type
+                      FROM {{ ref('STAGE','BVSTG_AU2_POLICYSUMMARY') }} bvstg_au2_policysummary
+                      LEFT JOIN {{ ref('STAGE','BVSTG_AU2_POLICYSUMMARY') }} bvstg_au2_policysummary_prev
+                        ON (bvstg_au2_policysummary.CustomerID = bvstg_au2_policysummary_prev.CustomerID AND bvstg_au2_policysummary_prev.Startdate < bvstg_au2_policysummary.StartDate AND bvstg_au2_policysummary_prev.TransactionType='New Business')
+                     WHERE bvstg_au2_policysummary.SourceDB NOT IN('SPLC') QUALIFY ROW_NUMBER() OVER (PARTITION BY bvstg_au2_policysummary.transactionid ORDER BY CASE WHEN bvstg_au2_policysummary.status_standard='Active' THEN 1 ELSE 2 END, CASE WHEN bvstg_au2_policysummary_prev.status_standard='Active' THEN 1 ELSE 2 END, CASE WHEN bvstg_au2_policysummary_prev.status_standard='Active' OR bvstg_au2_policysummary_prev.EndDate > bvstg_au2_policysummary.StartDate THEN bvstg_au2_policysummary.StartDate ELSE bvstg_au2_policysummary_prev.EndDate END DESC, bvstg_au2_policysummary_prev.StartDate DESC, bvstg_au2_policysummary.policyid, bvstg_au2_policysummary.PolicyNumber, bvstg_au2_policysummary.Customerno, bvstg_au2_policysummary.EndDate, bvstg_au2_policysummary.PolicyStatus) = 1
+                     UNION SELECT DISTINCT bvstg_au2_policysummary.transactionid AS transactionid ,
+                           bvstg_au2_policysummary.created AS created ,
+                           bvstg_au2_policysummary.NBTransactionID AS NBTransactionID ,
+                           CASE WHEN NEW_NEW = 1                            THEN 'NEW/NEW'
+                                WHEN NEW_OLD = 1 OR CROSS_SELL_EXISTING = 1 THEN 'OLD/NEW'
+                                WHEN REPLACEMENT_FLAG = 1                   THEN 'REPLACEMENT'
+                                WHEN WINBACK_FLAG = 1                       THEN 'WINBACK'
+                                WHEN RENEWAL_ALL_CUSTOMERS = 1              THEN 'RENEWAL'
+                                WHEN ANCILLARY_ALL_CUSTOMERS = 1            THEN 'ANCILLARY'
+                                 END customer_type
+                      FROM RETAIL_PROD.SCH_BVSTAGE.BVSTG_AU2_POLICYSUMMARY bvstg_au2_policysummary
+                     INNER JOIN (
+                            SELECT PolicyID,
+                                   REPLACEMENT_FLAG,
+                                   WINBACK_FLAG,
+                                   NEW_OLD,
+                                   NEW_NEW,
+                                   CROSS_SELL_EXISTING,
+                                   RENEWAL_ALL_CUSTOMERS,
+                                   ANCILLARY_ALL_CUSTOMERS
+                              FROM RETAIL_PROD.SCH_EDW.DS_SPLC_COMISSION_RATE QUALIFY ROW_NUMBER() OVER (PARTITION BY PolicyID ORDER BY NEW_NEW DESC,NEW_OLD DESC,REPLACEMENT_FLAG DESC,REPLACEMENT_FLAG DESC,CROSS_SELL_EXISTING DESC,RENEWAL_ALL_CUSTOMERS DESC,ANCILLARY_ALL_CUSTOMERS DESC) = 1
+                           ) DS_SPLC_COMISSION_RATE
+                        ON bvstg_au2_policysummary.policyid = DS_SPLC_COMISSION_RATE.policyid
+                     WHERE bvstg_au2_policysummary.SourceDB IN('SPLC')
+                   )bvstg_au2_policysummary
+        name: BVSTG_PREB_POLICYSUMMARY
+        noLinkRefs: []
+  name: BVSTG_PREB_POLICYSUMMARY
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

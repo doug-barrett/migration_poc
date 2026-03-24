@@ -1,0 +1,163 @@
+fileVersion: 1
+id: 9bdce402-ae1d-45d4-af36-242e2986cf46
+name: BVSTG_NSA_RWL_AU3_VINCOUNT
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 911e48d2-d0c3-486b-9208-74f35abcb5a6
+          stepCounter: 9bdce402-ae1d-45d4-af36-242e2986cf46
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: POLICYID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 911e48d2-d0c3-486b-9208-74f35abcb5a6
+                stepCounter: 9bdce402-ae1d-45d4-af36-242e2986cf46
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8955f561-5c8f-49f6-861a-5cb9f4a81023
+          stepCounter: 9bdce402-ae1d-45d4-af36-242e2986cf46
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8955f561-5c8f-49f6-861a-5cb9f4a81023
+                stepCounter: 9bdce402-ae1d-45d4-af36-242e2986cf46
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ede0e7e3-1ad9-4dee-9bb4-9782c6a68292
+          stepCounter: 9bdce402-ae1d-45d4-af36-242e2986cf46
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: VINCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ede0e7e3-1ad9-4dee-9bb4-9782c6a68292
+                stepCounter: 9bdce402-ae1d-45d4-af36-242e2986cf46
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0b15bd03-8d01-4e97-bae8-c2af58e540e9
+          stepCounter: 9bdce402-ae1d-45d4-af36-242e2986cf46
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: AGE_VEHICLE_AVG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0b15bd03-8d01-4e97-bae8-c2af58e540e9
+                stepCounter: 9bdce402-ae1d-45d4-af36-242e2986cf46
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_NSA_RWL_AU0_BSL: 0ba656cb-34d5-4986-b255-6055716b0770
+          V_S_AP1_POLICYVERSION_MROC_CURRENT: 2116f500-76bb-43c1-a269-a89379c9e9c6
+          V_S_AP1_POLICYVEHICLE_MROC_CURRENT: 35b9a1d7-3392-4409-9115-61a258435c93
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_NSA_RWL_AU3_VINCOUNT
+          - locationName: STAGE
+            nodeName: BVSTG_NSA_RWL_AU0_BSL
+          - locationName: STAGE
+            nodeName: V_S_AP1_POLICYVERSION_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AP1_POLICYVEHICLE_MROC_CURRENT
+        join:
+          joinCondition: |-
+            FROM(
+                    WITH TABLE_UNION AS (
+                            SELECT A.POLICYID,
+                                   A.TRANSACTIONID,
+                                   A.STARTDATE,
+                                   A.ESTIMATE_END_DATE,
+                                   DATEADD(MONTH, -1, A.ESTIMATE_END_DATE) AS EED_30D_B,
+                                   B.POLICYVERSIONID,
+                                   DATE(C.LASTUPDATED) AS LASTUPDATED,
+                                   C.VIN,
+                                   C.VEHICLEYEAR,
+                                   CASE WHEN LENGTH(TO_VARCHAR(C.VEHICLEYEAR)) > 4 THEN TO_NUMBER(LEFT(TO_VARCHAR(C.VEHICLEYEAR), 4))
+                                        ELSE C.VEHICLEYEAR
+                                         END AS VEHICLEYEAR_F,
+                                   CASE WHEN C.VEHICLEYEAR IS NULL                                                                                           THEN NULL
+                                        WHEN LENGTH(TO_VARCHAR(C.VEHICLEYEAR)) > 4 AND TO_NUMBER(LEFT(TO_VARCHAR(C.VEHICLEYEAR), 4)) - YEAR(A.STARTDATE) > 1 THEN NULL
+                                        WHEN LENGTH(TO_VARCHAR(C.VEHICLEYEAR)) <= 4 AND C.VEHICLEYEAR - YEAR(A.STARTDATE) > 1                                THEN NULL
+                                        WHEN LENGTH(TO_VARCHAR(C.VEHICLEYEAR)) > 4 AND TO_NUMBER(LEFT(TO_VARCHAR(C.VEHICLEYEAR), 4)) >= YEAR(A.STARTDATE)    THEN 0
+                                        WHEN LENGTH(TO_VARCHAR(C.VEHICLEYEAR)) > 4 AND TO_NUMBER(LEFT(TO_VARCHAR(C.VEHICLEYEAR), 4)) < YEAR(A.STARTDATE)     THEN YEAR(A.STARTDATE) - TO_NUMBER(LEFT(TO_VARCHAR(C.VEHICLEYEAR), 4))
+                                        WHEN LENGTH(TO_VARCHAR(C.VEHICLEYEAR)) <= 4 AND C.VEHICLEYEAR >= YEAR(A.STARTDATE)                                   THEN 0
+                                        ELSE YEAR(A.STARTDATE) - C.VEHICLEYEAR
+                                         END AS VEHICLE_AGE
+                              FROM (
+                                    SELECT *
+                                      FROM {{ ref('STAGE','BVSTG_NSA_RWL_AU0_BSL') }}
+                                   ) A
+                             INNER JOIN (
+                                    SELECT *
+                                      FROM {{ ref('STAGE','V_S_AP1_POLICYVERSION_MROC_CURRENT') }}
+                                   ) B
+                                ON (A.POLICYID = B.POLICYID)
+                             INNER JOIN (
+                                    SELECT *
+                                      FROM {{ ref('STAGE','V_S_AP1_POLICYVEHICLE_MROC_CURRENT') }}
+                                   ) C
+                                ON (B.POLICYVERSIONID = C.POLICYVERSIONID AND DATE(C.LASTUPDATED) >= A.STARTDATE AND DATE(C.LASTUPDATED) < DATEADD(MONTH, -1, A.ESTIMATE_END_DATE))
+                           ) ,
+                           REMOVE_DUPLICATES AS (
+                            SELECT DISTINCT POLICYID,
+                                   TRANSACTIONID,
+                                   VEHICLE_AGE,
+                                   VIN,
+                                   YEAR(STARTDATE) AS YEAR_START
+                              FROM TABLE_UNION
+                           ) ,
+                           SUMMARY_TABLE AS (
+                            SELECT POLICYID,
+                                   TRANSACTIONID ,
+                                   COUNT(*) AS VINCOUNT ,
+                                   TRUNC(AVG(VEHICLE_AGE)) AS AGE_VEHICLE_AVG
+                              FROM REMOVE_DUPLICATES
+                             GROUP BY POLICYID,
+                                      TRANSACTIONID
+                           ) SELECT *
+                      FROM SUMMARY_TABLE
+                   ) bvstg_nsa_rwl_au3_vincount
+        name: BVSTG_NSA_RWL_AU3_VINCOUNT
+        noLinkRefs: []
+  name: BVSTG_NSA_RWL_AU3_VINCOUNT
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

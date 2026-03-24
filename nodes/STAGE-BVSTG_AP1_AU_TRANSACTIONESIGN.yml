@@ -1,0 +1,81 @@
+fileVersion: 1
+id: 8c92538b-b866-4cbb-abed-a24b7d3963a0
+name: BVSTG_AP1_AU_TRANSACTIONESIGN
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "identify ESign transaction"
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 42a8abf5-06db-4092-aef1-1d98aa19841f
+          stepCounter: 8c92538b-b866-4cbb-abed-a24b7d3963a0
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 63f0d985-4e5f-47d1-a573-fdad1c3e99fd
+                stepCounter: 0207b829-a16f-444c-b278-51ea9135a346
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 25511ddf-ff86-4351-b83f-d018757962ac
+          stepCounter: 8c92538b-b866-4cbb-abed-a24b7d3963a0
+        config: {}
+        dataType: CHAR(32)
+        defaultValue: ""
+        description: ""
+        name: HK_H_TRANSACTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 430f34ff-e761-4a83-91a4-800c04318034
+                stepCounter: 0207b829-a16f-444c-b278-51ea9135a346
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_AP1_TRANSACTION_REFRESH: eccb40c9-8d41-4044-b9ea-23d04db3e7bc
+          H_TRANSACTION: 0207b829-a16f-444c-b278-51ea9135a346
+          V_POSB_AP1_ESIGNACTIVITY: 494c8cde-6c3f-46a4-a553-798474b3ac5d
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DATA_VAULT
+            nodeName: H_TRANSACTION
+          - locationName: STAGE
+            nodeName: BVSTG_AP1_TRANSACTION_REFRESH
+          - locationName: STAGE
+            nodeName: V_POSB_AP1_ESIGNACTIVITY
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','BVSTG_AP1_TRANSACTION_REFRESH') }} bvstg_ap1_transaction_refresh
+              JOIN {{ ref('DATA_VAULT','H_TRANSACTION') }} h_transaction
+                ON h_transaction.transactionid = TO_CHAR(bvstg_ap1_transaction_refresh.transactionid)
+              JOIN {{ ref('STAGE','V_POSB_AP1_ESIGNACTIVITY') }} v_posb_ap1_esignactivity
+                ON h_transaction.transactionid = v_posb_ap1_esignactivity.transactionid
+        name: BVSTG_AP1_AU_TRANSACTIONESIGN
+        noLinkRefs: []
+  name: BVSTG_AP1_AU_TRANSACTIONESIGN
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

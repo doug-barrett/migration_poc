@@ -1,0 +1,104 @@
+fileVersion: 1
+id: 9a073190-8b0e-4cf1-a17f-22d5b50d844a
+name: V_POSB_SPLC_CP_NEW_OLD_ACTIVE_POS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 54b0d4b1-3bf2-49e0-807e-619dbce26ea6
+          stepCounter: 9a073190-8b0e-4cf1-a17f-22d5b50d844a
+        config: {}
+        dataType: VARCHAR(36)
+        defaultValue: ""
+        description: ""
+        name: POLID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9d2b8406-fa64-428e-8a64-a7c3435356f3
+                stepCounter: 5dc2e08e-2546-436c-b786-415675045f41
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 36267829-75a7-451a-8939-62b56ab584b8
+          stepCounter: 9a073190-8b0e-4cf1-a17f-22d5b50d844a
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: PREMIUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 37e5c0f0-f2ed-4357-a63a-170de0dc7692
+                stepCounter: b83c4ada-d518-41a9-9963-26ed01abeb9e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 29476542-6609-47a0-8018-7d77a6a58a58
+          stepCounter: 9a073190-8b0e-4cf1-a17f-22d5b50d844a
+        config: {}
+        dataType: VARCHAR(52)
+        defaultValue: ""
+        description: ""
+        name: POLTYPELOB
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: aeb78baa-b663-41a7-bfa1-9e2f9c83deea
+                stepCounter: 53be11e0-3474-41bb-9671-54424f4a8c0e
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_POSB_SPLC_CP_NEW_OLD_ACTIVE_POS: 9a073190-8b0e-4cf1-a17f-22d5b50d844a
+          DS_SPLC_POLICYTRANSACTION: 5d141078-d046-41e2-9718-10bf4a289f11
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_POSB_SPLC_CP_NEW_OLD_ACTIVE_POS') }} AS SELECT DISTINCT DS_SPLC_POLICYTRANSACTION.ID
+              FROM {{ ref('EDW','DS_SPLC_POLICYTRANSACTION') }} DS_SPLC_POLICYTRANSACTION
+             INNER JOIN (
+                    SELECT DISTINCT DS_SPLC_POLICYTRANSACTION.POLICYID
+                      FROM {{ ref('EDW','DS_SPLC_POLICYTRANSACTION') }} DS_SPLC_POLICYTRANSACTION
+                     INNER JOIN {{ ref('EDW','DS_SPLC_POLICYTRANSACTION') }} DS_SPLC_POLICYTRANSACTION_NEW_OLD_ACT
+                        ON DS_SPLC_POLICYTRANSACTION.CustomerID = DS_SPLC_POLICYTRANSACTION_NEW_OLD_ACT.CustomerID
+                       AND DS_SPLC_POLICYTRANSACTION_NEW_OLD_ACT.TranType IN('NBS','RWL','REW')
+                       AND (DS_SPLC_POLICYTRANSACTION_NEW_OLD_ACT.Status IN('Active','Reinstated') OR (DS_SPLC_POLICYTRANSACTION_NEW_OLD_ACT.Status IN('Expired','Cancelled') AND DS_SPLC_POLICYTRANSACTION_NEW_OLD_ACT.StatusDate = DS_SPLC_POLICYTRANSACTION.EFFECTIVEDATE))
+                       AND DATE(DS_SPLC_POLICYTRANSACTION_NEW_OLD_ACT.ReportDate) <= DATE(DS_SPLC_POLICYTRANSACTION.ReportDate)
+                       AND DS_SPLC_POLICYTRANSACTION.ID != DS_SPLC_POLICYTRANSACTION_NEW_OLD_ACT.ID
+                       AND DS_SPLC_POLICYTRANSACTION.PolicyID != DS_SPLC_POLICYTRANSACTION_NEW_OLD_ACT.PolicyID
+                     WHERE DS_SPLC_POLICYTRANSACTION.TranType IN('NBS','RWL','REW')
+                   )DS_SPLC_POLICYTRANSACTION_POL
+                ON DS_SPLC_POLICYTRANSACTION.POLICYID = DS_SPLC_POLICYTRANSACTION_POL.POLICYID
+        dependencies:
+          - locationName: DATA_VAULT
+            nodeName: H_SPLC_POLICYTRANPREMIUM
+          - locationName: EDW
+            nodeName: DS_SPLC_POLICYTRANSACTION
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('DATA_VAULT','H_SPLC_POLICYTRANPREMIUM') }}
+            {{ ref('EDW','DS_SPLC_POLICYTRANSACTION') }}
+        name: V_POSB_SPLC_CP_NEW_OLD_ACTIVE_POS
+        noLinkRefs: []
+  name: V_POSB_SPLC_CP_NEW_OLD_ACTIVE_POS
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

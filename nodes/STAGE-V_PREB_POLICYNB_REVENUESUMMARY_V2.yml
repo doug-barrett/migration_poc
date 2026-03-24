@@ -1,0 +1,158 @@
+fileVersion: 1
+id: 9dc27396-e4e5-4a35-8b55-08fe2352dc91
+name: V_PREB_POLICYNB_REVENUESUMMARY_V2
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: false
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d8ce5c98-efdb-4c59-9395-0bde2d82ac99
+          stepCounter: 9dc27396-e4e5-4a35-8b55-08fe2352dc91
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: NBTRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3b19f331-49ea-4e47-80c0-01cb1e00d9bf
+          stepCounter: 9dc27396-e4e5-4a35-8b55-08fe2352dc91
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: ANCILLARY_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cff8257b-6e7f-41db-add3-aa58ca9bd785
+          stepCounter: 9dc27396-e4e5-4a35-8b55-08fe2352dc91
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: FEE_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4b88d484-4253-411b-88e3-34e5cb566efc
+          stepCounter: 9dc27396-e4e5-4a35-8b55-08fe2352dc91
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: SERVICETRANSACTIONSFEE_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4aeebc88-11ad-4ff7-bbee-bf4e17b8a8bc
+          stepCounter: 9dc27396-e4e5-4a35-8b55-08fe2352dc91
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: FEE_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ee709367-f5da-45b9-886a-c97c4aa26932
+          stepCounter: 9dc27396-e4e5-4a35-8b55-08fe2352dc91
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ANCILLARY_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aaa061fd-7421-455d-9cbc-80ade5ee78fd
+          stepCounter: 9dc27396-e4e5-4a35-8b55-08fe2352dc91
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: SERVICETRANSACTIONSFEE_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_POLICYNB_REVENUESUMMARY_V2: 9dc27396-e4e5-4a35-8b55-08fe2352dc91
+          BVSTG_AU1_POLICYSUMMARY: 2dd9eb59-4b0f-4146-861f-149bab1050bd
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PREB_POLICYNB_REVENUESUMMARY_V2') }} AS SELECT bvstg_au1_policysummary.NBTransactionID ,
+                   SUM(bvstg_au1_policysummary.Ancillary_Amount) AS Ancillary_Amount ,
+                   SUM(bvstg_au1_policysummary.Fee_Amount) AS Fee_Amount ,
+                   SUM(bvstg_au1_policysummary.ServiceTransactionsFee_Amount) AS ServiceTransactionsFee_Amount ,
+                   SUM(bvstg_au1_policysummary.Ancillary_Count) AS Ancillary_Count ,
+                   SUM(bvstg_au1_policysummary.Fee_Count) AS Fee_Count ,
+                   SUM(bvstg_au1_policysummary.ServiceTransactionsFee_Count) AS ServiceTransactionsFee_Count
+              FROM {{ ref('STAGE','BVSTG_AU1_POLICYSUMMARY') }} bvstg_au1_policysummary
+             GROUP BY bvstg_au1_policysummary.NBTransactionID
+        dependencies:
+          - locationName: UNKNOWN
+            nodeName: BVSTG_AP1_AU1_POLICYSUMMARY
+          - locationName: STAGE
+            nodeName: BVSTG_AU1_POLICYSUMMARY
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('UNKNOWN','BVSTG_AP1_AU1_POLICYSUMMARY') }}
+            {{ ref('STAGE','BVSTG_AU1_POLICYSUMMARY') }}
+        name: V_PREB_POLICYNB_REVENUESUMMARY_V2
+        noLinkRefs: []
+  name: V_PREB_POLICYNB_REVENUESUMMARY_V2
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

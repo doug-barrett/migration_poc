@@ -1,0 +1,137 @@
+fileVersion: 1
+id: eac50f17-0fc9-4075-9693-b8f192555a00
+name: BVSTG_H20_AU1_CARRIERPREMIUM_7DAYS
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b5d2eff1-b70a-4111-8335-3360e66a6ded
+          stepCounter: eac50f17-0fc9-4075-9693-b8f192555a00
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9f134eea-c508-4fcd-ab2f-c65ca77fa343
+                stepCounter: d2daaa44-a718-4c97-9d33-d5b6900008cb
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2a90fb4a-aad1-486b-a1b1-baa975cd0607
+          stepCounter: eac50f17-0fc9-4075-9693-b8f192555a00
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: CARRIERPREMIUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(ds_ram_retail_repository.Amount)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 10cd4711-c307-4eef-a51a-102eaee34559
+          stepCounter: eac50f17-0fc9-4075-9693-b8f192555a00
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: SOURCEDB
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 98116c1a-4021-47dd-b87d-08aaca84c6f9
+                stepCounter: d29a0c5c-e296-46c4-bc55-861d60fe906d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8e05c062-5c29-4bf5-80fc-735a61c64e2c
+          stepCounter: eac50f17-0fc9-4075-9693-b8f192555a00
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: CARRIERPREMIUMON7DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN DATE(ds_ram_retail_repository.CREATEDDATE) BETWEEN DATE(bvstg_h20_lapse_model_refresh.STARTDATE) AND DATEADD(DAY,7, DATE(bvstg_h20_lapse_model_refresh.STARTDATE)) THEN ds_ram_retail_repository.Amount ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b4c9ceaf-b608-489d-affe-113ceda1383f
+          stepCounter: eac50f17-0fc9-4075-9693-b8f192555a00
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5abf1989-5a2e-4b6c-8e36-1bea0d621900
+          stepCounter: eac50f17-0fc9-4075-9693-b8f192555a00
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_H20_LAPSE_MODEL_REFRESH: d2daaa44-a718-4c97-9d33-d5b6900008cb
+          DS_RAM_RETAIL_REPOSITORY: d29a0c5c-e296-46c4-bc55-861d60fe906d
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_H20_LAPSE_MODEL_REFRESH
+          - locationName: EDW
+            nodeName: DS_RAM_RETAIL_REPOSITORY
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','BVSTG_H20_LAPSE_MODEL_REFRESH') }} bvstg_h20_lapse_model_refresh
+             INNER JOIN {{ ref('EDW','DS_RAM_RETAIL_REPOSITORY') }} ds_ram_retail_repository
+                ON ds_ram_retail_repository.transactionid = bvstg_h20_lapse_model_refresh.transactionid
+             WHERE ds_ram_retail_repository.TransactionType IN ('New Business')
+               AND ds_ram_retail_repository.CLASSIFICATION = 'Carrier Premium'
+               AND ds_ram_retail_repository.ISCORPORATEVOID = 0
+               AND ds_ram_retail_repository.ISVOID = 0
+               AND ds_ram_retail_repository.sourcedb IN ('AppOne','CIGH')
+             GROUP BY bvstg_h20_lapse_model_refresh.transactionid,
+                      ds_ram_retail_repository.sourcedb
+        name: BVSTG_H20_AU1_CARRIERPREMIUM_7DAYS
+        noLinkRefs: []
+  name: BVSTG_H20_AU1_CARRIERPREMIUM_7DAYS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

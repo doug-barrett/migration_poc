@@ -1,0 +1,121 @@
+fileVersion: 1
+id: 8e12763d-2f92-4e89-9f71-db930545af4c
+name: BVSTG_AP1_CUST_CHANGE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: true
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 905e5f4e-ebe5-4636-b66e-37b5f16edaaf
+          stepCounter: 8e12763d-2f92-4e89-9f71-db930545af4c
+        config: {}
+        dataType: DECIMAL(38,0)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 673e4d3a-00b5-48ff-b03b-cd5460a6638c
+                stepCounter: c4641ae7-18fc-472b-a970-38215f4341e0
+            transform: ""
+          - columnReferences:
+              - columnCounter: 1c994152-7818-4314-a851-19dd6b09bf63
+                stepCounter: 3e824951-53d3-46d6-9a8e-cb3146b6454d
+            transform: ""
+          - columnReferences:
+              - columnCounter: 11026a4c-823b-4a9e-936e-fe213cece9a5
+                stepCounter: 63156c33-19d6-4ef6-8ed6-da067f7ce8f9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8642577b-1bed-4535-9731-a779938b16d9
+          stepCounter: 8e12763d-2f92-4e89-9f71-db930545af4c
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 11045341-26a4-4196-a36b-69ab850b29f0
+          stepCounter: 8e12763d-2f92-4e89-9f71-db930545af4c
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_S_AP1_CUSTOMER_MROC_CURRENT: c4641ae7-18fc-472b-a970-38215f4341e0
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_CUSTOMER_MROC_CURRENT
+        join:
+          joinCondition: FROM {{ ref('STAGE','V_S_AP1_CUSTOMER_MROC_CURRENT') }} v_s_ap1_customer_mroc_current /*    WHERE  (          ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 0)          OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1               AND HOUR(current_timestamp()) <= '{{ parameters.HWM_BVSTG_Hour }}'            AND DATEDIFF(DAY,v_s_ap1_customer_mroc_current.dss_create_time,CURRENT_DATE()) <= '{{ parameters.HWM_BVSTG_AppOne_Refresh_Days }}' )          OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1               AND HOUR(current_timestamp()) > '{{ parameters.HWM_BVSTG_Hour }}'            AND TO_DATE(v_s_ap1_customer_mroc_current.dss_create_time) = TO_DATE(CURRENT_DATE())          )         )  */
+        name: SRC_bvstg_ap1_cust_change_1_cust
+        noLinkRefs: []
+      - aliases:
+          V_S_AP1_CUSTOMERADDRESS_MROC_CURRENT: 3e824951-53d3-46d6-9a8e-cb3146b6454d
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_CUSTOMERADDRESS_MROC_CURRENT
+        join:
+          joinCondition: FROM {{ ref('STAGE','V_S_AP1_CUSTOMERADDRESS_MROC_CURRENT') }} v_s_ap1_customeraddress_mroc_current /*  WHERE  (     ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 0)     OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1       AND HOUR(current_timestamp()) <= '{{ parameters.HWM_BVSTG_Hour }}'       AND DATEDIFF(DAY,v_s_ap1_customeraddress_mroc_current.dss_create_time,CURRENT_DATE()) <= '{{ parameters.HWM_BVSTG_AppOne_Refresh_Days }}' )     OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1       AND HOUR(current_timestamp()) > '{{ parameters.HWM_BVSTG_Hour }}'       AND TO_DATE(v_s_ap1_customeraddress_mroc_current.dss_create_time) = TO_DATE(CURRENT_DATE())       )    )  */
+        name: SRC_bvstg_ap1_cust_change_2_addr
+        noLinkRefs: []
+      - aliases:
+          S_AP1_HISTORY_MROC: 63156c33-19d6-4ef6-8ed6-da067f7ce8f9
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DATA_VAULT
+            nodeName: S_AP1_HISTORY_MROC
+        join:
+          joinCondition: |-
+            FROM {{ ref('DATA_VAULT','S_AP1_HISTORY_MROC') }} S_AP1_HISTORY_MROC
+             WHERE S_AP1_HISTORY_MROC.ENTITYTYPEID = 2 /* AND (     ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 0)     OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1       AND HOUR(current_timestamp()) <= '{{ parameters.HWM_BVSTG_Hour }}'       AND DATEDIFF(DAY,S_AP1_HISTORY_MROC.DSS_CREATE_TIME,CURRENT_DATE()) <= '{{ parameters.HWM_BVSTG_AppOne_Refresh_Days }}' )     OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1       AND HOUR(current_timestamp()) > '{{ parameters.HWM_BVSTG_Hour }}'       AND TO_DATE(S_AP1_HISTORY_MROC.DSS_CREATE_TIME) = TO_DATE(CURRENT_DATE())       )    )*/
+        name: SRC_bvstg_ap1_cust_change_3_phone
+        noLinkRefs: []
+  name: BVSTG_AP1_CUST_CHANGE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

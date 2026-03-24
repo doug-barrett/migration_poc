@@ -1,0 +1,144 @@
+fileVersion: 1
+id: 64f668cc-5100-41d8-9ee5-87f625b91573
+name: BVSTG_NSA_RWL_AU1_TGT
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 25a52a06-211e-4891-a0bb-0a2235b6901c
+          stepCounter: 64f668cc-5100-41d8-9ee5-87f625b91573
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 25a52a06-211e-4891-a0bb-0a2235b6901c
+                stepCounter: 64f668cc-5100-41d8-9ee5-87f625b91573
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7d9ba89e-b0b0-4e18-b61f-53ec5075da84
+          stepCounter: 64f668cc-5100-41d8-9ee5-87f625b91573
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7d9ba89e-b0b0-4e18-b61f-53ec5075da84
+                stepCounter: 64f668cc-5100-41d8-9ee5-87f625b91573
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9b546e64-5739-455b-9a1e-3ce39e26fa2c
+          stepCounter: 64f668cc-5100-41d8-9ee5-87f625b91573
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: STATUS_TARGET_INSERTED_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9b546e64-5739-455b-9a1e-3ce39e26fa2c
+                stepCounter: 64f668cc-5100-41d8-9ee5-87f625b91573
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 99cf2376-7485-494f-adcd-672bb52f7546
+          stepCounter: 64f668cc-5100-41d8-9ee5-87f625b91573
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: NEXT_TRANSACTION_INSERTED_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 99cf2376-7485-494f-adcd-672bb52f7546
+                stepCounter: 64f668cc-5100-41d8-9ee5-87f625b91573
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_RAM_RETAIL_REPOSITORY: d29a0c5c-e296-46c4-bc55-861d60fe906d
+          BVSTG_NSA_RWL_AU0_BSL: 0ba656cb-34d5-4986-b255-6055716b0770
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_NSA_RWL_AU1_TGT
+          - locationName: EDW
+            nodeName: DS_RAM_RETAIL_REPOSITORY
+          - locationName: STAGE
+            nodeName: BVSTG_NSA_RWL_AU0_BSL
+        join:
+          joinCondition: |-
+            FROM(
+                    WITH NEXT_TRANSACTION AS (
+                            SELECT B.TRANSACTIONID,
+                                   B.CUSTOMERID,
+                                   A.CLASSIFICATIONGROUP,
+                                   1 AS COUNTER,
+                                   ROW_NUMBER() OVER(PARTITION BY A.CUSTOMERID ORDER BY A.CREATEDDATE ASC) AS NEXT_TRANSACTION
+                              FROM (
+                                    SELECT DISTINCT TRANSACTIONID,
+                                           NBTRANSACTIONID,
+                                           CUSTOMERID,
+                                           DATE(CREATEDDATE) AS CREATEDDATE,
+                                           CLASSIFICATIONGROUP,
+                                           1 AS COUNTER
+                                      FROM {{ ref('EDW','DS_RAM_RETAIL_REPOSITORY') }}
+                                     WHERE 1=1
+                                       AND CLASSIFICATION = 'Carrier Premium'
+                                       AND LINEOFBUSINESSTYPE = 'Auto'
+                                       AND SOURCEDB = 'AppOne'
+                                       AND CLASSIFICATIONGROUP IN ('New Business','Renewal')
+                                   ) A
+                             INNER JOIN (
+                                    SELECT *
+                                      FROM {{ ref('STAGE','BVSTG_NSA_RWL_AU0_BSL') }}
+                                   ) B
+                                ON (A.CUSTOMERID = B.CUSTOMERID AND DATE(A.CREATEDDATE) > B.STARTDATE)
+                           ) ,
+                           GROUPING_DATE AS (
+                            SELECT TRANSACTIONID,
+                                   CUSTOMERID ,
+                                   CASE WHEN SUM(COUNTER) >= 1 THEN 1
+                                        ELSE 0
+                                         END AS STATUS_TARGET_INSERTED_DATE ,
+                                   MAX(CASE WHEN NEXT_TRANSACTION = 1 THEN CLASSIFICATIONGROUP ELSE NULL END) AS NEXT_TRANSACTION_INSERTED_DATE
+                              FROM NEXT_TRANSACTION
+                             GROUP BY TRANSACTIONID,
+                                      CUSTOMERID
+                           ) SELECT *
+                      FROM GROUPING_DATE
+                   ) bvstg_nsa_rwl_au1_tgt
+        name: BVSTG_NSA_RWL_AU1_TGT
+        noLinkRefs: []
+  name: BVSTG_NSA_RWL_AU1_TGT
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

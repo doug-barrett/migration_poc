@@ -1,0 +1,207 @@
+fileVersion: 1
+id: b1b3702f-c2d9-4836-abbe-a55000b325ce
+name: BVSTG_AP1_AU_CUSTOMERGENDER
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "customer gender from policy"
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e2dcce01-bbb3-4a0f-9f9f-d740d86b8e52
+          stepCounter: b1b3702f-c2d9-4836-abbe-a55000b325ce
+        config: {}
+        dataType: CHAR(32)
+        defaultValue: ""
+        description: ""
+        name: HK_H_CUSTOMER
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 313bc2fe-ab71-4e52-88f5-4df4a3a5cbc1
+                stepCounter: 899dfac0-643f-4e1f-86b8-25934b536504
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0b305024-fdfc-47c9-a5e4-8a7564d3af22
+          stepCounter: b1b3702f-c2d9-4836-abbe-a55000b325ce
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 01ad29e3-1c36-409a-930d-59cc454cc437
+                stepCounter: 899dfac0-643f-4e1f-86b8-25934b536504
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ed2b2de3-d581-4514-a805-8b79e74eff41
+          stepCounter: b1b3702f-c2d9-4836-abbe-a55000b325ce
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: GENDER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d334474e-9175-4240-8ae7-5166ebc31a4a
+          stepCounter: b1b3702f-c2d9-4836-abbe-a55000b325ce
+        config: {}
+        dataType: BOOLEAN
+        defaultValue: ""
+        description: ""
+        name: ISEXCLUDED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ae2ddb02-afad-496a-a415-09f11ead66a2
+          stepCounter: b1b3702f-c2d9-4836-abbe-a55000b325ce
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b9c01ec1-22cf-478b-82a4-f1b17597e665
+          stepCounter: b1b3702f-c2d9-4836-abbe-a55000b325ce
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_AP1_CUSTOMER_REFRESH: e1a00289-44b3-474b-85e0-78530ef8c867
+          S_AP1_CUSTOMER_MROC: 899dfac0-643f-4e1f-86b8-25934b536504
+          S_AP1_LEAD_MROC: 6ae689cf-56bd-4d64-b1e8-1a7ae400301e
+          S_AP1_LEADDRIVER: 00d5ad25-c6ce-4f25-aab0-63f463cd89db
+          REF_AP1_CODEVALUE: 3e151b27-0aac-487a-9684-1e06159f8b6e
+          S_AP1_TRANSACTION_MROC: 5d3550d9-160f-468d-b908-863dfba6fe09
+          S_AP1_POLICYVERSION_MROC: a3d4ed5c-3f30-4527-b1bf-5d9909568361
+          S_AP1_POLICYDRIVER_MROC: d3569488-041f-460a-a069-4cb73e9c28be
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DATA_VAULT
+            nodeName: S_AP1_CUSTOMER_MROC
+          - locationName: STAGE
+            nodeName: BVSTG_AP1_CUSTOMER_REFRESH
+          - locationName: DATA_VAULT
+            nodeName: S_AP1_LEAD_MROC
+          - locationName: DATA_VAULT
+            nodeName: S_AP1_LEADDRIVER
+          - locationName: EDW
+            nodeName: REF_AP1_CODEVALUE
+          - locationName: DATA_VAULT
+            nodeName: S_AP1_TRANSACTION_MROC
+          - locationName: DATA_VAULT
+            nodeName: S_AP1_POLICYVERSION_MROC
+          - locationName: DATA_VAULT
+            nodeName: S_AP1_POLICYDRIVER_MROC
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM ( SELECT DISTINCT S_AP1_CUSTOMER_MROC.HK_h_customer AS HK_h_customer ,
+                   S_AP1_CUSTOMER_MROC.customerid AS customerid ,
+                   REF_AP1_CODEVALUE.codevalue AS Gender ,
+                   IFNULL(S_AP1_LEADDRIVER.isexcluded,'False') isexcluded ,
+                   CASE WHEN LOWER(S_AP1_CUSTOMER_MROC.CUSTOMERFORMATTEDNAME) like '%' || LOWER(S_AP1_LEADDRIVER.FIRSTNAME) || '%' AND LOWER(S_AP1_CUSTOMER_MROC.CUSTOMERFORMATTEDNAME) like '%' || LOWER(S_AP1_LEADDRIVER.LASTNAME) || '%' THEN 1
+                        ELSE 2
+                         END is_Match
+              FROM {{ ref('STAGE','BVSTG_AP1_CUSTOMER_REFRESH') }} BVSTG_AP1_CUSTOMER_REFRESH
+              LEFT JOIN (
+                    SELECT *
+                      FROM {{ ref('DATA_VAULT','S_AP1_CUSTOMER_MROC') }} QUALIFY ROW_NUMBER() OVER (PARTITION BY HK_H_CUSTOMER ORDER BY dss_start_date DESC) = 1
+                   ) S_AP1_CUSTOMER_MROC
+                ON S_AP1_CUSTOMER_MROC.CUSTOMERID = BVSTG_AP1_CUSTOMER_REFRESH.CUSTOMERID
+              LEFT JOIN (
+                    SELECT *
+                      FROM {{ ref('DATA_VAULT','S_AP1_LEAD_MROC') }} QUALIFY ROW_NUMBER() OVER (PARTITION BY hk_h_lead ORDER BY dss_start_date DESC) = 1
+                   ) S_AP1_LEAD_MROC
+                ON S_AP1_CUSTOMER_MROC.CUSTOMERID = S_AP1_LEAD_MROC.CUSTOMERID
+              LEFT JOIN (
+                    SELECT *
+                      FROM {{ ref('DATA_VAULT','S_AP1_LEADDRIVER') }} QUALIFY ROW_NUMBER() OVER (PARTITION BY hk_h_leaddriver ORDER BY dss_start_date DESC) = 1
+                   ) S_AP1_LEADDRIVER
+                ON S_AP1_LEAD_MROC.LeadID = S_AP1_LEADDRIVER.LeadID
+               AND S_AP1_LEADDRIVER.isrowdeleted='False'
+               AND IFNULL(S_AP1_LEADDRIVER.isexcluded,'False')= 'False'
+              LEFT JOIN {{ ref('EDW','REF_AP1_CODEVALUE') }} REF_AP1_CODEVALUE
+                ON REF_AP1_CODEVALUE.codevalueid = S_AP1_LEADDRIVER.gender QUALIFY ROW_NUMBER() OVER (PARTITION BY BVSTG_AP1_CUSTOMER_REFRESH.CustomerID ORDER BY CASE WHEN IFNULL(REF_AP1_CODEVALUE.CODEVALUE,'') IN('M','F') THEN 1 ELSE 2 END, CASE WHEN LOWER(S_AP1_CUSTOMER_MROC.CUSTOMERFORMATTEDNAME) like '%' || LOWER(S_AP1_LEADDRIVER.FIRSTNAME) || '%' THEN 1 ELSE 2 END, CASE WHEN LOWER(S_AP1_CUSTOMER_MROC.CUSTOMERFORMATTEDNAME) like '%' || LOWER(S_AP1_LEADDRIVER.LASTNAME) || '%' THEN 1 ELSE 2 END) = 1
+             UNION SELECT DISTINCT S_AP1_CUSTOMER_MROC.HK_h_customer AS HK_h_customer ,
+                   S_AP1_CUSTOMER_MROC.customerid AS customerid ,
+                   REF_AP1_CODEVALUE.codevalue AS Gender ,
+                   S_AP1_POLICYDRIVER_MROC.isexcluded AS isexcluded ,
+                   CASE WHEN LOWER(S_AP1_CUSTOMER_MROC.CUSTOMERFORMATTEDNAME) like '%' || LOWER(S_AP1_POLICYDRIVER_MROC.FIRSTNAME) || '%' AND LOWER(S_AP1_CUSTOMER_MROC.CUSTOMERFORMATTEDNAME) like '%' || LOWER(S_AP1_POLICYDRIVER_MROC.LASTNAME) || '%' THEN 1
+                        ELSE 2
+                         END is_Match
+              FROM {{ ref('STAGE','BVSTG_AP1_CUSTOMER_REFRESH') }} BVSTG_AP1_CUSTOMER_REFRESH
+              LEFT JOIN (
+                    SELECT *
+                      FROM {{ ref('DATA_VAULT','S_AP1_CUSTOMER_MROC') }} QUALIFY ROW_NUMBER() OVER (PARTITION BY HK_H_CUSTOMER ORDER BY dss_start_date DESC) = 1
+                   ) S_AP1_CUSTOMER_MROC
+                ON S_AP1_CUSTOMER_MROC.CUSTOMERID = BVSTG_AP1_CUSTOMER_REFRESH.CUSTOMERID
+              LEFT JOIN (
+                    SELECT *
+                      FROM {{ ref('DATA_VAULT','S_AP1_TRANSACTION_MROC') }} QUALIFY ROW_NUMBER() OVER (PARTITION BY hk_h_transaction ORDER BY dss_start_date DESC) = 1
+                   ) S_AP1_TRANSACTION_MROC
+                ON S_AP1_CUSTOMER_MROC.CUSTOMERID = S_AP1_TRANSACTION_MROC.CUSTOMERID
+              LEFT JOIN (
+                    SELECT *
+                      FROM {{ ref('DATA_VAULT','S_AP1_POLICYVERSION_MROC') }} QUALIFY ROW_NUMBER() OVER (PARTITION BY hk_h_POLICYVERSION ORDER BY dss_start_date DESC) = 1
+                   ) S_AP1_POLICYVERSION_MROC
+                ON S_AP1_POLICYVERSION_MROC.TRANSACTIONID = S_AP1_TRANSACTION_MROC.TRANSACTIONID
+              LEFT JOIN (
+                    SELECT *
+                      FROM {{ ref('DATA_VAULT','S_AP1_POLICYDRIVER_MROC') }} QUALIFY ROW_NUMBER() OVER (PARTITION BY hk_h_POLICYDRIVER ORDER BY dss_start_date DESC) = 1
+                   ) S_AP1_POLICYDRIVER_MROC
+                ON S_AP1_POLICYVERSION_MROC.POLICYVERSIONID = S_AP1_POLICYDRIVER_MROC.POLICYVERSIONID
+               AND S_AP1_POLICYDRIVER_MROC.isrowdeleted=0
+        name: BVSTG_AP1_AU_CUSTOMERGENDER
+        noLinkRefs: []
+  name: BVSTG_AP1_AU_CUSTOMERGENDER
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

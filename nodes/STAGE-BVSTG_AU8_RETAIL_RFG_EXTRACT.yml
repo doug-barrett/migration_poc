@@ -1,0 +1,170 @@
+fileVersion: 1
+id: 064fa521-b6f4-4bc1-8343-faeece2ef197
+name: BVSTG_AU8_RETAIL_RFG_EXTRACT
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aff25db3-b54c-44be-9e08-ce24a0b585e3
+          stepCounter: 064fa521-b6f4-4bc1-8343-faeece2ef197
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_AU8_RETAIL_RFG_EXTRACTID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(InteractionIdKey)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6c5d19fd-8023-4eb8-ab20-234a0375c816
+          stepCounter: 064fa521-b6f4-4bc1-8343-faeece2ef197
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: PRODUCERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2517b5f2-e0a4-4492-8a78-edf9b7bf0689
+                stepCounter: e03830da-869e-4c69-8cc5-0b677f38927e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1619dd15-eaab-4fdb-aa7d-19540018b54e
+          stepCounter: 064fa521-b6f4-4bc1-8343-faeece2ef197
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: to_date(ds_pcce_outboundcalls.CallStart)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 36f3e79d-059c-4d5c-bae1-5e9211f43cf0
+          stepCounter: 064fa521-b6f4-4bc1-8343-faeece2ef197
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: OFFICECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c162aa0e-2b5d-4cfc-8169-756dcb548c47
+                stepCounter: 6a6133fd-d7d3-496d-9605-0c0a46bc772a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b90a3668-c7ed-4698-ae4a-6ecae1ebfafb
+          stepCounter: 064fa521-b6f4-4bc1-8343-faeece2ef197
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: TOTAL_PRODUCERS_WITH_CALLS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: INITCAP(split_part(split_part(split_part(Lower(ds_pcce_outboundcalls.UserID), '@', 0),'-',0),'.',0)) || ' ' || INITCAP(split_part(split_part(split_part(Lower(ds_pcce_outboundcalls.UserID), '@', 0),'-',0),'.',2))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 320e0f9e-b63c-4fcd-951a-d55c8975623c
+          stepCounter: 064fa521-b6f4-4bc1-8343-faeece2ef197
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: INTERACTIONIDKEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 46de0489-7d4f-4d5d-8094-e17ba52d70ee
+                stepCounter: 6a6133fd-d7d3-496d-9605-0c0a46bc772a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 42b2d200-bc87-4fd8-bf1c-d2371d7fd672
+          stepCounter: 064fa521-b6f4-4bc1-8343-faeece2ef197
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a94c2812-03c9-435a-ad1d-a3eb8c068d3b
+          stepCounter: 064fa521-b6f4-4bc1-8343-faeece2ef197
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_PCCE_OUTBOUNDCALLS: 6a6133fd-d7d3-496d-9605-0c0a46bc772a
+          DS_AGENT_KEY: e03830da-869e-4c69-8cc5-0b677f38927e
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_PCCE_OUTBOUNDCALLS
+          - locationName: EDW
+            nodeName: DS_AGENT_KEY
+        join:
+          joinCondition: |-
+            FROM {{ ref('EDW','DS_PCCE_OUTBOUNDCALLS') }} ds_pcce_outboundcalls
+              LEFT JOIN (
+                    SELECT DISTINCT cisco_loginname,
+                           EmployeeNumber
+                      FROM {{ ref('EDW','DS_AGENT_KEY') }}
+                     WHERE Rank_EmployeeNumber=1 QUALIFY row_number() OVER (PARTITION BY employeenumber ORDER BY dss_create_time) = 1
+                   ) ds_agent_key
+                ON ds_pcce_outboundcalls.UserID = ds_agent_key.cisco_loginname
+             WHERE ds_pcce_outboundcalls.CallDirection = 'Outbound'
+               AND YEAR(ds_pcce_outboundcalls.CallStart) >= 2019
+               AND isconnected = 1
+               AND ds_pcce_outboundcalls.OfficeCode IS NOT NULL
+               AND UserId IS NOT NULL
+               AND officecode NOT IN ('ZTESTOF', 'ZTEST')
+               AND (('{{ parameters.HWM_BVSTG_Cognitio_RFG_Refresh_Flag }}' = 0) OR ('{{ parameters.HWM_BVSTG_Cognitio_RFG_Refresh_Flag }}' = 1 AND DATEDIFF(DAY,DATE(dss_update_time),DATE(CURRENT_DATE())) <= '{{ parameters.HWM_BVSTG_cognitio_RFG_Refresh_Days }}'))
+        name: BVSTG_AU8_RETAIL_RFG_EXTRACT
+        noLinkRefs: []
+  name: BVSTG_AU8_RETAIL_RFG_EXTRACT
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

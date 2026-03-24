@@ -1,0 +1,132 @@
+fileVersion: 1
+id: 0f110817-c6ae-4f84-8cc0-d2f8ed0fc73b
+name: BVSTG_AP1_AU_TRANSACTIONSTATUS
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "assign organizational transaction status "
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e4cf6752-5eef-473e-acee-7e4a5aa8985b
+          stepCounter: 0f110817-c6ae-4f84-8cc0-d2f8ed0fc73b
+        config: {}
+        dataType: CHAR(32)
+        defaultValue: ""
+        description: ""
+        name: HK_H_TRANSACTION
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 430f34ff-e761-4a83-91a4-800c04318034
+                stepCounter: 0207b829-a16f-444c-b278-51ea9135a346
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 83f68925-c521-4056-a7ce-eb2ea10ca7e0
+          stepCounter: 0f110817-c6ae-4f84-8cc0-d2f8ed0fc73b
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 63f0d985-4e5f-47d1-a573-fdad1c3e99fd
+                stepCounter: 0207b829-a16f-444c-b278-51ea9135a346
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4cf92c06-9b15-44bc-9690-b0bbae512183
+          stepCounter: 0f110817-c6ae-4f84-8cc0-d2f8ed0fc73b
+        config: {}
+        dataType: TIMESTAMP_TZ
+        defaultValue: ""
+        description: ""
+        name: CREATED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fd69d9ea-0b44-4730-86f5-bc657c8b90cb
+                stepCounter: ca04db32-039a-4b56-95c0-394b7b641187
+            transform: MAX(v_s_ap1_transactionstatus_mroc_current.created)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9ba9f8f3-6c44-4dfb-8201-7dd7345a466a
+          stepCounter: 0f110817-c6ae-4f84-8cc0-d2f8ed0fc73b
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3c5f1d18-dbdb-4aad-aba4-e2e9ba3f3aa0
+                stepCounter: bc29b51d-5629-4981-b1ed-213826f5bb7e
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          H_TRANSACTION: 0207b829-a16f-444c-b278-51ea9135a346
+          L_TRANSACTION_TRANSACTIONSTATUS: d4e89935-72a3-46ad-ba47-5da7f5275900
+          L_ORGANIZATIONTRANSACTIONSTATUSTYPE_TRANSACTIONSTATUS: e0ae39b5-fa2e-49d9-9df3-90c2939f4ec3
+          V_S_AP1_TRANSACTIONSTATUS_MROC_CURRENT: ca04db32-039a-4b56-95c0-394b7b641187
+          V_S_AP1_ORGANIZATIONTRANSACTIONSTATUSTYPE_MROC_CURRENT: bc29b51d-5629-4981-b1ed-213826f5bb7e
+          BVSTG_AP1_TRANSACTION_REFRESH: eccb40c9-8d41-4044-b9ea-23d04db3e7bc
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DATA_VAULT
+            nodeName: H_TRANSACTION
+          - locationName: DATA_VAULT
+            nodeName: L_TRANSACTION_TRANSACTIONSTATUS
+          - locationName: DATA_VAULT
+            nodeName: L_ORGANIZATIONTRANSACTIONSTATUSTYPE_TRANSACTIONSTATUS
+          - locationName: STAGE
+            nodeName: V_S_AP1_TRANSACTIONSTATUS_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AP1_ORGANIZATIONTRANSACTIONSTATUSTYPE_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: BVSTG_AP1_TRANSACTION_REFRESH
+        join:
+          joinCondition: |-
+            FROM {{ ref('DATA_VAULT','H_TRANSACTION') }} AS h_transaction
+              JOIN {{ ref('DATA_VAULT','L_TRANSACTION_TRANSACTIONSTATUS') }} AS l_transaction_transactionstatus
+                ON h_transaction.HK_h_transaction = l_transaction_transactionstatus.HK_h_transaction
+              JOIN {{ ref('DATA_VAULT','L_ORGANIZATIONTRANSACTIONSTATUSTYPE_TRANSACTIONSTATUS') }} AS l_organizationtransactionstatustype_transactionstatus
+                ON l_transaction_transactionstatus.HK_h_transactionstatus = l_organizationtransactionstatustype_transactionstatus.HK_h_transactionstatus
+              JOIN {{ ref('STAGE','V_S_AP1_TRANSACTIONSTATUS_MROC_CURRENT') }} v_s_ap1_transactionstatus_mroc_current
+                ON l_transaction_transactionstatus.HK_h_transactionstatus = v_s_ap1_transactionstatus_mroc_current.HK_h_transactionstatus
+               AND v_s_ap1_transactionstatus_mroc_current.isrowdeleted=0
+              JOIN {{ ref('STAGE','V_S_AP1_ORGANIZATIONTRANSACTIONSTATUSTYPE_MROC_CURRENT') }} v_s_ap1_organizationtransactionstatustype_mroc_current
+                ON l_organizationtransactionstatustype_transactionstatus.HK_h_organizationtransactionstatustype = v_s_ap1_organizationtransactionstatustype_mroc_current.HK_h_organizationtransactionstatustype
+               AND v_s_ap1_organizationtransactionstatustype_mroc_current.isrowdeleted=0
+              JOIN {{ ref('STAGE','BVSTG_AP1_TRANSACTION_REFRESH') }} bvstg_ap1_transaction_refresh
+                ON h_transaction.transactionid = TO_CHAR(bvstg_ap1_transaction_refresh.transactionid)
+             GROUP BY h_transaction.HK_h_transaction ,
+                      h_transaction.transactionID ,
+                      v_s_ap1_organizationtransactionstatustype_mroc_current.Key
+        name: BVSTG_AP1_AU_TRANSACTIONSTATUS
+        noLinkRefs: []
+  name: BVSTG_AP1_AU_TRANSACTIONSTATUS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

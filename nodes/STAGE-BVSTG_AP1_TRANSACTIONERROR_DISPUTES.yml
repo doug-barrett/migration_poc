@@ -1,0 +1,391 @@
+fileVersion: 1
+id: 7adfe7ca-cb1d-48d2-9211-48938c650988
+name: BVSTG_AP1_TRANSACTIONERROR_DISPUTES
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "latest customer address"
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 60e8f1bd-ad43-4740-9abd-5a7a45d31df0
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MD5(YEAR(s_ap1_activity_mroc.CREATED) || Month(s_ap1_activity_mroc.CREATED) || TO_CHAR(s_ap1_activity_mroc.CREATED, 'MMMM') || ds_ap1_transactionsummary.TRANSACTIONTYPE || ds_ap1_transactionsummary.PRIMARYAGENTFULLNAME || ds_ap1_transactionsummary.BIAPRIMARYAGENTOFFICE || ds_ap1_transactionsummary.transactionID)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d40ccc2e-45d5-4c12-ae77-6a09b633d2e8
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: YEAR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5297053b-71be-48d9-8264-d4e92e43f673
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: YEAR(s_ap1_activity_mroc.CREATED)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0ac11c68-65b5-4b70-b39e-085eb47cb43a
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: MONTH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3840c992-14f2-4d81-b841-2607c039fad6
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: TO_CHAR(s_ap1_activity_mroc.CREATED, 'MMMM')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a40a4f57-fca4-42b1-ae85-ab48eae052d5
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: MONTHNUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3840c992-14f2-4d81-b841-2607c039fad6
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: Month(s_ap1_activity_mroc.CREATED)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0320bfde-2af0-426f-999a-9474438a25b7
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1d4bbf6d-3444-4dc1-aa0e-a27bd1329f97
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e22eddc0-4a06-47a8-a849-4959ee8b79cd
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ISDISPUTE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: sum(CASE WHEN s_ap1_activitytype.activitytypename IN ('QC - Dispute Request', 'QC - Dispute QC Error (First Dispute)') THEN 1 ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5dfac77d-2240-4456-8152-94ca5b415bca
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: TIMESTAMP_TZ
+        defaultValue: ""
+        description: ""
+        name: DISPUTEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MAX(CASE WHEN s_ap1_activitytype.activitytypename IN ('QC - Dispute Request', 'QC - Dispute QC Error (First Dispute)') THEN s_ap1_activity_mroc.Created ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6789f93d-af06-4de8-a837-d8956a4837bf
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: CHARGEABLE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: sum(CASE WHEN s_ap1_activitytype.activitytypename IN ('QC - Dispute Request Approved') THEN 0 ELSE 1 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d25bb08a-ecb8-4f38-aea4-c90108684b15
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: REVERSAL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: sum(CASE WHEN s_ap1_activitytype.activitytypename = 'QC - Dispute Request Approved' THEN 1 ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e1e92dd2-19a3-4b67-9e59-8500edf0277d
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: TIMESTAMP_TZ
+        defaultValue: ""
+        description: ""
+        name: REVERSALDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MAX(CASE WHEN s_ap1_activitytype.activitytypename = 'QC - Dispute Request Approved' THEN s_ap1_activity_mroc.Created ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3d8c84e4-27ff-4615-b6fc-95b3ab00e607
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: REVERSALBY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: max(CASE WHEN s_ap1_activitytype.activitytypename = 'QC - Dispute Request Approved' THEN s_ap1_activitytype.CreatedBy ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 636965fa-3393-46ab-bb1f-ffc3923f1157
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: OFFICECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8d0d6d07-44df-48e7-bb4a-3623eb3c2a16
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 84b5f0d7-fe5e-4d33-9b4b-52fcc4e12de9
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: ISMISTAKE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: sum(CASE WHEN s_ap1_activitytype.activitytypename IN ('QC - Mistake','QC - QC Mistake') THEN 1 ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8f049fbf-5dfc-4c01-961d-e310feea49e0
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: TIMESTAMP_TZ
+        defaultValue: ""
+        description: ""
+        name: MISTAKEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MAX(CASE WHEN s_ap1_activitytype.activitytypename IN ('QC - Mistake','QC - QC Mistake') THEN s_ap1_activity_mroc.Created ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: df9d3168-4ff9-4ad3-ad34-7f0e29be8eb7
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: MISTAKE_TYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MAX(CASE WHEN s_ap1_activitytype.activitytypename IN ('QC - Mistake','QC - QC Mistake') THEN 'QC Mistake' ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 998f23e3-8284-445f-bb1c-cc5aa7aaff70
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: AGENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e00c1865-2c9b-44ba-97b0-77e7485c6dae
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8cb1f28f-cb7d-483d-8c57-0be96d8395f2
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: ISNONMISTAKE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: sum(CASE WHEN s_ap1_activitytype.activitytypename IN ('QC - System Issues', 'QC - Exception', 'QC - Sales Exception (VP Approval)', 'QC - Second Review (Sup Only)','QC - System Issues (All) Exception') THEN 1 ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a9a52cbc-5edf-4a64-bf63-57b941580846
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: NONMISTAKE_TYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MAX(CASE WHEN s_ap1_activitytype.activitytypename IN ('QC - System Issues', 'QC - Exception', 'QC - Sales Exception (VP Approval)' , 'QC - Second Review (Sup Only)','QC - System Issues (All) Exception') THEN 'QC Mistake' ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f4397108-65cd-4f6d-a777-572241615010
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: TIMESTAMP_TZ
+        defaultValue: ""
+        description: ""
+        name: NONMISTAKEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MAX(CASE WHEN s_ap1_activitytype.activitytypename IN ('QC - System Issues', 'QC - Exception', 'QC - Sales Exception (VP Approval)' , 'QC - Second Review (Sup Only)','QC - System Issues (All) Exception') THEN s_ap1_activity_mroc.Created ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9953729b-8c11-458b-912a-d5f97b0b3c2a
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 86edc52a-c46a-4b9d-8651-4d7b13a3cf59
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f78d6fb0-0efc-4065-8e0f-4ffaa8d0158e
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: LINEOFBUSINESSTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 08f4bbc3-f9b8-4f70-a925-207abbfe952d
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9984eca5-3ff0-4880-b120-6589661ce9da
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 81fcdc93-fa91-400e-a9ff-88464ce16660
+          stepCounter: 7adfe7ca-cb1d-48d2-9211-48938c650988
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: ""
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_AP1_TRANSACTIONSUMMARY: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+          S_AP1_ACTIVITY_MROC: f75f903c-33e9-4d3b-9201-e920921ecbf2
+          H_ACTIVITYTYPE: b33265bf-7da1-413b-ad59-bc76a1636500
+          S_AP1_ACTIVITYTYPE: e3598a9e-aa16-448a-9501-0ae88c7ece0c
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_AP1_TRANSACTIONSUMMARY
+          - locationName: DATA_VAULT
+            nodeName: S_AP1_ACTIVITY_MROC
+          - locationName: DATA_VAULT
+            nodeName: H_ACTIVITYTYPE
+          - locationName: DATA_VAULT
+            nodeName: S_AP1_ACTIVITYTYPE
+        join:
+          joinCondition: |-
+            FROM {{ ref('EDW','DS_AP1_TRANSACTIONSUMMARY') }} ds_ap1_transactionsummary
+             INNER JOIN (
+                    SELECT *
+                      FROM {{ ref('DATA_VAULT','S_AP1_ACTIVITY_MROC') }}
+                     WHERE 1=1 QUALIFY ROW_NUMBER() OVER (PARTITION BY HK_H_ACTIVITY ORDER BY DSS_VERSION DESC)=1
+                   ) s_ap1_activity_mroc
+                ON (ds_ap1_transactionsummary.TransactionID = s_ap1_activity_mroc.TransactionID)
+             INNER JOIN {{ ref('DATA_VAULT','H_ACTIVITYTYPE') }} h_activitytype
+                ON s_ap1_activity_mroc.activitytypeid = h_activitytype.activitytypeid
+             INNER JOIN {{ ref('DATA_VAULT','S_AP1_ACTIVITYTYPE') }} s_ap1_activitytype
+                ON h_activitytype.HK_H_ACTIVITYTYPE = s_ap1_activitytype.HK_H_ACTIVITYTYPE
+             WHERE ds_ap1_transactionsummary.isVoid=0
+               AND s_ap1_activitytype.activitytypename IN ('QC - QC Mistake', 'QC - Mistake', 'QC - Dispute Request', 'QC - Dispute Request Approved', 'QC - Dispute Request Denied', 'QC - Dispute QC Error (First Dispute)', 'QC - Dispute QC Error (Second/Final Dispute)', 'QC - System Issues', 'QC - Exception', 'QC - Sales Exception (VP Approval)', 'QC - Second Review (Sup Only)', 'QC - System Issues (All) Exception')
+               AND DATE(s_ap1_activity_mroc.CREATED)>='2020-01-01'
+               AND ds_ap1_transactionsummary.ISCORPORATEVOID=0
+             GROUP BY ds_ap1_transactionsummary.transactionID ,
+                      ds_ap1_transactionsummary.BIAPRIMARYAGENTOFFICE ,
+                      YEAR(s_ap1_activity_mroc.CREATED) ,
+                      Month(s_ap1_activity_mroc.CREATED) ,
+                      TO_CHAR(s_ap1_activity_mroc.CREATED, 'MMMM') ,
+                      ds_ap1_transactionsummary.TransactionType ,
+                      ds_ap1_transactionsummary.PRIMARYAGENTFULLNAME ,
+                      ds_ap1_transactionsummary.lineofbusinesstype
+        name: BVSTG_AP1_TRANSACTIONERROR_DISPUTES
+        noLinkRefs: []
+  name: BVSTG_AP1_TRANSACTIONERROR_DISPUTES
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

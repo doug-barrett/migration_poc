@@ -1,0 +1,2231 @@
+fileVersion: 1
+id: 9e03dab9-09e4-4e29-a3be-48dde177019e
+name: BVSTG_COMM_AU1_EMPLOYEE_RETENTION
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: false
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5bbd95d9-f4dc-4c75-ac60-56d5aa45a2ed
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_COMM_AU1_EMPLOYEE_RETENTION_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(ifnull(au10_rfg_extract.employeenumber,'-') || ifnull(to_varchar(au10_rfg_extract.date),'-'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0dcf6b3b-6088-42d6-8846-6c2f06e65124
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 14b13236-ed07-489a-9f42-056ff3cf9411
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8d49a794-b579-4085-87c6-0be75d0f2979
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: SOURCEDB
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d83cfb4d-14db-48f3-bf23-81094a01a6a6
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: PRODUCER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6d2a3acc-2c22-4b4f-8c62-e3d7bea39dcd
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: NEW_POLICY_SALES_EMP_MONTH_CY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: round(sum(New_Policy_Sales_CY) OVER (PARTITION BY au10_rfg_extract.employeenumber,au10_rfg_extract.date),0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ede85142-e934-4f3e-803f-5cf8e56fd56a
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_LEVEL_3_TIER_3_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 268a6e03-1e2b-44c0-843b-cb87cdc253b8
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: M3_TIER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              iff((m3_retention_py IS NULL AND m3_retention_cy IS NULL) OR (m3_retention_denominator_cy < 5)--or (m3_retention_denominator_cy >=5 and m3_retention_denominator_py<5)
+              , 'Not Qualified', iff(round(M3_Retention_CY*100,1) IS NOT NULL, CASE WHEN round(M3_Retention_CY*100,1) < min_m3 THEN 'M3_Min Expectation' WHEN round(M3_Retention_CY*100,1) > max_m3 THEN 'M3_Tier 3' ELSE iff(m3_retention_py IS NULL OR m3_retention_denominator_py<5, CASE WHEN coalesce(M3_Tier_1_CY_Retention_basis, M3_Tier_2_CY_Retention_basis, M3_Tier_3_CY_Retention_basis) IS NULL THEN 'M3 CY Retention Threshold not available' WHEN round(m3_retention_cy*100,1) < M3_Tier_1_CY_Retention_basis THEN 'Min CY not Met' WHEN round(m3_retention_cy*100,1) >= M3_Tier_1_CY_Retention_basis AND round(m3_retention_cy*100,1) < M3_Tier_2_CY_Retention_basis THEN 'M3_Tier 1' WHEN round(m3_retention_cy*100,1) >= M3_Tier_2_CY_Retention_basis AND round(m3_retention_cy*100,1) < M3_Tier_3_CY_Retention_basis THEN 'M3_Tier 2' WHEN round(m3_retention_cy*100,1) >= M3_Tier_3_CY_Retention_basis THEN 'M3_Tier 3' ELSE 'Check M3 Retention PY absent' END, CASE WHEN coalesce(YOY_RETENTION.M3_level_2_py_retention_basis, YOY_RETENTION.M3_level_3_py_retention_basis, YOY_RETENTION.M3_level_4_py_retention_basis) IS NULL THEN 'M3 PY Retention Threshold not available' WHEN round(M3_Retention_pY*100,1) < YOY_RETENTION.M3_level_2_py_retention_basis THEN CASE WHEN m3_yoy_improvement<M3_level_1_TIER_1_yoy_improv THEN 'Min YOY not met' WHEN m3_yoy_improvement>=M3_level_1_TIER_1_yoy_improv AND m3_yoy_improvement<M3_level_1_TIER_2_yoy_improv THEN 'M3_Tier 1' WHEN m3_yoy_improvement>=M3_level_1_TIER_2_yoy_improv AND m3_yoy_improvement<M3_level_1_TIER_3_yoy_improv THEN 'M3_Tier 2' WHEN m3_yoy_improvement>=M3_level_1_TIER_3_yoy_improv THEN 'M3_Tier 3' END WHEN round(M3_Retention_pY*100,1) < YOY_RETENTION.M3_level_3_py_retention_basis THEN CASE WHEN m3_yoy_improvement<M3_level_2_TIER_1_yoy_improv THEN 'Min YOY not met' WHEN m3_yoy_improvement>=M3_level_2_TIER_1_yoy_improv AND m3_yoy_improvement<M3_level_2_TIER_2_yoy_improv THEN 'M3_Tier 1' WHEN m3_yoy_improvement>=M3_level_2_TIER_2_yoy_improv AND m3_yoy_improvement<M3_level_2_TIER_3_yoy_improv THEN 'M3_Tier 2' WHEN m3_yoy_improvement>=M3_level_2_TIER_3_yoy_improv THEN 'M3_Tier 3' END WHEN round(M3_Retention_pY*100,1) < YOY_RETENTION.M3_level_4_py_retention_basis THEN CASE WHEN m3_yoy_improvement<M3_level_3_TIER_1_yoy_improv THEN 'Min YOY not met' WHEN m3_yoy_improvement>=M3_level_3_TIER_1_yoy_improv AND m3_yoy_improvement<M3_level_3_TIER_2_yoy_improv THEN 'M3_Tier 1' WHEN m3_yoy_improvement>=M3_level_3_TIER_2_yoy_improv AND m3_yoy_improvement<M3_level_3_TIER_3_yoy_improv THEN 'M3_Tier 2' WHEN m3_yoy_improvement>=M3_level_3_TIER_3_yoy_improv THEN 'M3_Tier 3' END WHEN round(M3_Retention_pY*100,1) >= YOY_RETENTION.M3_level_4_py_retention_basis AND m3_yoy_improvement>0 THEN 'M3_Tier 3' WHEN round(M3_Retention_pY*100,1) >= YOY_RETENTION.M3_level_4_py_retention_basis AND m3_yoy_improvement<=0 THEN 'Min YOY not met' ELSE 'Check M3 Retention PY present' END) END, iff(m3_retention_py IS NOT NULL, 'PY Not Null; CY Null', 'Check')))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 46a44630-4a15-4558-ae93-a5d926a5c83f
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: M7_TIER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              iff((m7_retention_py IS NULL AND m7_retention_cy IS NULL) OR (m7_retention_denominator_cy < 5)--or (m7_retention_denominator_cy >=5 and m7_retention_denominator_py<5)
+              , 'Not Qualified', iff(round(M7_Retention_CY*100,1) IS NOT NULL, CASE WHEN round(M7_Retention_CY*100,1) < min_m7 THEN 'M7_Min Expectation' WHEN round(M7_Retention_CY*100,1) > max_m7 THEN 'M7_Tier 3' ELSE iff(m7_retention_py IS NULL OR m7_retention_denominator_py<5, CASE WHEN coalesce(M7_Tier_1_CY_Retention_basis, M7_Tier_2_CY_Retention_basis, M7_Tier_3_CY_Retention_basis) IS NULL THEN 'M7 CY Retention Threshold not available' WHEN round(m7_retention_cy*100,1) < M7_Tier_1_CY_Retention_basis THEN 'Min CY not Met' WHEN round(m7_retention_cy*100,1) >= M7_Tier_1_CY_Retention_basis AND round(m7_retention_cy*100,1) < M7_Tier_2_CY_Retention_basis THEN 'M7_Tier 1' WHEN round(m7_retention_cy*100,1) >= M7_Tier_2_CY_Retention_basis AND round(m7_retention_cy*100,1) < M7_Tier_3_CY_Retention_basis THEN 'M7_Tier 2' WHEN round(m7_retention_cy*100,1) >= M7_Tier_3_CY_Retention_basis THEN 'M7_Tier 3' ELSE 'Check M7 Retention PY absent' END, CASE WHEN coalesce(YOY_RETENTION.M7_level_2_py_retention_basis, YOY_RETENTION.M7_level_3_py_retention_basis, YOY_RETENTION.M7_level_4_py_retention_basis) IS NULL THEN 'M7 PY Retention Threshold not available' WHEN round(M7_Retention_pY*100,1) < YOY_RETENTION.M7_level_2_py_retention_basis THEN CASE WHEN m7_yoy_improvement < M7_level_1_TIER_1_yoy_improv THEN 'Min YOY not met' WHEN m7_yoy_improvement >= M7_level_1_TIER_1_yoy_improv AND m7_yoy_improvement < M7_level_1_TIER_2_yoy_improv THEN 'M7_Tier 1' WHEN m7_yoy_improvement >= M7_level_1_TIER_2_yoy_improv AND m7_yoy_improvement < M7_level_1_TIER_3_yoy_improv THEN 'M7_Tier 2' WHEN m7_yoy_improvement >= M7_level_1_TIER_3_yoy_improv THEN 'M7_Tier 3' END WHEN round(M7_Retention_pY*100,1) < YOY_RETENTION.M7_level_3_py_retention_basis THEN CASE WHEN m7_yoy_improvement<M7_level_2_TIER_1_yoy_improv THEN 'Min YOY not met' WHEN m7_yoy_improvement>=M7_level_2_TIER_1_yoy_improv AND m7_yoy_improvement<M7_level_2_TIER_2_yoy_improv THEN 'M7_Tier 1' WHEN m7_yoy_improvement>=M7_level_2_TIER_2_yoy_improv AND m7_yoy_improvement<M7_level_2_TIER_3_yoy_improv THEN 'M7_Tier 2' WHEN m7_yoy_improvement>=M7_level_2_TIER_3_yoy_improv THEN 'M7_Tier 3' END WHEN round(M7_Retention_pY*100,1) < YOY_RETENTION.M7_level_4_py_retention_basis THEN CASE WHEN m7_yoy_improvement<M7_level_3_TIER_1_yoy_improv THEN 'Min YOY not met' WHEN m7_yoy_improvement>=M7_level_3_TIER_1_yoy_improv AND m7_yoy_improvement<M7_level_3_TIER_2_yoy_improv THEN 'M7_Tier 1' WHEN m7_yoy_improvement>=M7_level_3_TIER_2_yoy_improv AND m7_yoy_improvement<M7_level_3_TIER_3_yoy_improv THEN 'M7_Tier 2' WHEN m7_yoy_improvement>=M7_level_3_TIER_3_yoy_improv THEN 'M7_Tier 3' END WHEN round(M7_Retention_pY*100,1) >= YOY_RETENTION.M7_level_4_py_retention_basis AND m7_yoy_improvement>0 THEN 'M7_Tier 3' WHEN round(M7_Retention_pY*100,1) >= YOY_RETENTION.M7_level_4_py_retention_basis AND m7_yoy_improvement<=0 THEN 'Min YOY not met' ELSE 'Check M7 Retention PY present' END) END, iff(m7_retention_py IS NOT NULL, 'PY Not Null; CY Null', 'Check')))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 29943011-a082-4634-9a31-6e1fc3914747
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,5)
+        defaultValue: ""
+        description: ""
+        name: M3_RETENTION_CY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 055ee2b6-d02e-4183-a9f1-1574d261125d
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,5)
+        defaultValue: ""
+        description: ""
+        name: M7_RETENTION_CY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 02e3eb1b-bf74-4f3b-afc9-fb4440494dcc
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,5)
+        defaultValue: ""
+        description: ""
+        name: M7_RETENTION_PY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4225778a-e4af-455f-8f45-1a255898b586
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,5)
+        defaultValue: ""
+        description: ""
+        name: M13_RETENTION_PY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0343420a-7c26-4ba6-abb0-32c9d5e9baa2
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,1)
+        defaultValue: ""
+        description: ""
+        name: M13_YOY_IMPROVEMENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b1286a87-18ac-4167-994d-c367057c03db
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: M3_RETENTION_DENOMINATOR_CY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6feb8d2c-eb2d-4eee-b0b7-7158ef318a26
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: M7_RETENTION_NUMERATOR_CY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ca0415c4-7f17-4702-a037-55031e5f76d8
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: M13_RETENTION_NUMERATOR_CY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b7d93e0a-28e3-4cd3-9021-66e22500db0f
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: M3_RETENTION_DENOMINATOR_PY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6dbea345-6509-4d55-9bd8-7d3a5b7c179e
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: M7_RETENTION_DENOMINATOR_PY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7528f75c-0231-4da4-a9dc-729dcffb3a57
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: M13_RETENTION_NUMERATOR_PY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b95a0fef-f190-43ee-bb50-aafc87c0b984
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: MIN_M3
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cdd7e19b-c6ec-40d9-8266-361f0bddc90e
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: MAX_M7
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dafda096-9c15-40c8-8a59-482708c6d046
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: MAX_M13
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 04900dde-7fb1-4cb8-8dd6-de50f2756673
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_TIER_1_CY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bb0a49db-f443-4f7f-9e28-0c87d8b84eb6
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_TIER_3_CY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c8d8913d-232a-4da9-a291-bbf71196ab01
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_TIER_2_CY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b61d8c83-8a1d-4857-9ce5-8992b6c93be8
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_TIER_3_CY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aed33db6-4e10-4c40-9fe6-b7ca2e2d3fa0
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_TIER_2_CY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d446620b-a563-4768-974b-58ca3b4afa3e
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_LEVEL_2_PY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1d5f2643-919b-4bec-96cd-35b1c83fc8de
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_LEVEL_4_PY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3e4982fc-0b6e-4ed0-bb8c-b2f7303f0758
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_LEVEL_1_PY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2902759e-9ccf-4bd1-a60c-a64d54d81a4d
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_LEVEL_3_PY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7c37045c-f814-4f99-8993-eb5fbb21048c
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_LEVEL_2_PY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2200cbea-df7c-4030-809c-3f1b543a6faa
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_LEVEL_4_PY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4b555dc3-77fe-4f81-add3-6a5a04359b32
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_LEVEL_1_TIER_1_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b24706f1-0c8c-4faf-ade1-cb90bfa39dad
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_LEVEL_3_TIER_1_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b73b936d-5b05-44c7-9a82-1b8e8d47786e
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_LEVEL_2_TIER_2_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 839b9cb7-f55a-4e56-906a-aa48a7f92646
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_LEVEL_4_TIER_2_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f22e1ac3-9064-433a-9cf4-52e7f3056ab0
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_LEVEL_1_TIER_3_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e3fa9c7a-a0fd-4a3a-805a-78e2d6a18693
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_LEVEL_3_TIER_3_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 75d3e0fe-59d9-4bdc-9392-be1f8df1c15d
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_LEVEL_2_TIER_1_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d7ce2bab-33c0-4a2c-8fda-f807fabe2e06
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_LEVEL_4_TIER_1_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3ac0ba0b-a51c-40b7-ae42-3c85c80ab5b1
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_LEVEL_1_TIER_2_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d5d29684-9f2c-4791-921d-9d331f0be0f2
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_LEVEL_3_TIER_2_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 57f3a5f5-9dc6-436a-969c-a04b86cd975f
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_LEVEL_2_TIER_3_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 72e1cf23-4114-4f65-80c7-672c5e073a5e
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_LEVEL_4_TIER_3_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0fb1216e-5089-4b38-9e47-cb8877f47d92
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_LEVEL_1_TIER_1_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 111ea7d1-5b8b-4596-986c-c50720e6afaf
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_LEVEL_3_TIER_1_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6b0a230d-a6b7-4b1f-8972-8dc8098277d7
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_LEVEL_2_TIER_2_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d7862702-89a3-47d9-9b2d-4b909a0a4a7c
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_LEVEL_4_TIER_2_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b85a2099-ddb2-4864-9536-bb96d25032c5
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_LEVEL_4_TIER_3_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6d0b193a-a634-40fc-b6fd-fde64d3c1cc8
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: NEW_POLICY_SALES_CY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e4cd9f9a-a103-4369-aeff-f8a4fb8801a7
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: NEW_POLICY_SALES_PY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fb279f93-9d7f-4731-b5cf-256e66fcaff8
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,5)
+        defaultValue: ""
+        description: ""
+        name: M3_RETENTION_PY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d3f444e8-6245-4db4-aefc-f3eb81accb2b
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,5)
+        defaultValue: ""
+        description: ""
+        name: M13_RETENTION_CY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ca63e472-304d-4611-b8ba-a6631535cd44
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,1)
+        defaultValue: ""
+        description: ""
+        name: M3_YOY_IMPROVEMENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3556a877-820f-4fa0-a374-4f04af41c6b5
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,1)
+        defaultValue: ""
+        description: ""
+        name: M7_YOY_IMPROVEMENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 071540e6-2e08-48a3-8595-b34c63890ba2
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: M3_RETENTION_NUMERATOR_CY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4a9f2463-4886-49fc-ad07-728b63eb3942
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: M7_RETENTION_DENOMINATOR_CY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b50c738c-d060-44e2-9a74-acc497a78379
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: M13_RETENTION_DENOMINATOR_CY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d9984b2d-819e-4b05-9671-c6d8f8940eaa
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: M3_RETENTION_NUMERATOR_PY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 539ab672-730e-431f-82f4-b56153157ce3
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: M7_RETENTION_NUMERATOR_PY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5e593728-8ae4-44fa-a9c0-498f975453ef
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: M13_RETENTION_DENOMINATOR_PY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f953bc2a-2559-4276-8525-b664eef5c432
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: MAX_M3
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7197bcd9-90cc-4350-8f97-9cb6ac8a14b7
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: MIN_M7
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1b58fb9a-0973-46cc-9b7d-4a7b42a57f9a
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: MIN_M13
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ba951de2-7272-4cab-b586-6166ec37db2b
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_TIER_2_CY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a94c40fc-bfd3-4620-9e0b-3ccbb91174fb
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_TIER_1_CY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3aefd05b-ad8b-4789-b7a7-d91cf0a02973
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_TIER_1_CY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9333eb96-d297-45b7-bbea-4cab243378fc
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_TIER_3_CY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 380d6ccc-4ff9-4925-8138-c167199e367b
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_LEVEL_1_PY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3bf3419e-9d67-44a3-8bc4-e922c8e643b9
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_LEVEL_3_PY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bf810b60-2c9d-43c6-a2f1-04993340658d
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_LEVEL_2_PY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 122fadf2-daaf-4065-a12f-a47537df6290
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_LEVEL_4_PY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0a1e0ad5-7f0e-494f-a628-18580c03966b
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_LEVEL_1_PY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dafb223c-53cd-4424-b363-913dc3a93200
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_LEVEL_3_PY_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d6566c33-b5c1-4967-8645-d7d4bf13a4f2
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_LEVEL_2_TIER_1_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 69f3dc58-65a0-43ea-b4d1-d1ccbac863a3
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_LEVEL_4_TIER_1_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 275f43fe-fd96-4cf9-9ec0-3a1ce11b0644
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_LEVEL_1_TIER_2_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b6af96a9-fa41-40f3-9b52-4350e2518681
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_LEVEL_3_TIER_2_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1aed68d4-0e4c-4c90-933c-a2967dc4b600
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_LEVEL_2_TIER_3_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fb3ed67a-0526-445c-87df-7dd03e7f0362
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_LEVEL_4_TIER_3_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 736b7197-3558-4193-8a58-703538b5c5ba
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_LEVEL_1_TIER_1_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9a9c3626-4a1f-444b-9aa8-969747f11725
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_LEVEL_3_TIER_1_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 83ef121a-2daf-415e-9296-6c20c4308d4c
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_LEVEL_2_TIER_2_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a4810df5-6670-4228-9674-ce07f5d1f666
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_LEVEL_4_TIER_2_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fb9558b7-253b-4b37-ace0-019ff583daf8
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_LEVEL_1_TIER_3_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d435c816-5d5c-43a2-896a-dad98ece536b
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_LEVEL_3_TIER_3_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5ceaceec-170f-4e43-89c2-4d282a009a58
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_LEVEL_2_TIER_1_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e66f2ce5-421e-4380-916e-d4fd202c93b1
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_LEVEL_4_TIER_1_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b1c23201-85a0-41e6-8bd1-78d2acc4fd0b
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_LEVEL_1_TIER_2_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6aa30d80-b383-4be6-9fbd-66be4abaed57
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_LEVEL_3_TIER_2_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4b7dbfa3-3bef-42c8-86d6-6db12e60bf4c
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_LEVEL_1_TIER_3_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f2c76cb4-a638-4462-bb81-df4932c0f91a
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_LEVEL_2_TIER_3_YOY_IMPROV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 67fa1633-70c6-46c4-8aec-62694bcaf9b9
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: M13_TIER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              iff((m13_retention_py IS NULL AND m13_retention_cy IS NULL) OR (m13_retention_denominator_cy < 5 )--or (m13_retention_denominator_cy >=5 and m13_retention_denominator_py<5)
+              , 'Not Qualified', iff(round(M13_Retention_CY*100,1) IS NOT NULL, CASE WHEN round(M13_Retention_CY*100,1) < min_m13 THEN 'M13_Min Expectation' WHEN round(M13_Retention_CY*100,1) > max_m13 THEN 'M13_Tier 3' ELSE iff(m13_retention_py IS NULL OR m13_retention_denominator_py<5, CASE WHEN coalesce(M13_Tier_1_CY_Retention_basis, M13_Tier_2_CY_Retention_basis, M13_Tier_3_CY_Retention_basis) IS NULL THEN 'M13 CY Retention Threshold not available' WHEN round(m13_retention_cy*100,1) < M13_Tier_1_CY_Retention_basis THEN 'Min CY not Met' WHEN round(m13_retention_cy*100,1) >= M13_Tier_1_CY_Retention_basis AND round(m13_retention_cy*100,1) < M13_Tier_2_CY_Retention_basis THEN 'M13_Tier 1' WHEN round(m13_retention_cy*100,1) >= M13_Tier_2_CY_Retention_basis AND round(m13_retention_cy*100,1) < M13_Tier_3_CY_Retention_basis THEN 'M13_Tier 2' WHEN round(m13_retention_cy*100,1) >= M13_Tier_3_CY_Retention_basis THEN 'M13_Tier 3' ELSE 'Check M13 Retention PY absent' END, CASE WHEN coalesce(YOY_RETENTION.M13_level_2_py_retention_basis, YOY_RETENTION.M13_level_3_py_retention_basis, YOY_RETENTION.M13_level_4_py_retention_basis) IS NULL THEN 'M13 PY Retention Threshold not available' WHEN round(M13_Retention_pY*100,1) < YOY_RETENTION.M13_level_2_py_retention_basis THEN CASE WHEN m13_yoy_improvement<M13_level_1_TIER_1_yoy_improv THEN 'Min YOY not met' WHEN m13_yoy_improvement>=M13_level_1_TIER_1_yoy_improv AND m13_yoy_improvement<M13_level_1_TIER_2_yoy_improv THEN 'M13_Tier 1' WHEN m13_yoy_improvement>=M13_level_1_TIER_2_yoy_improv AND m13_yoy_improvement<M13_level_1_TIER_3_yoy_improv THEN 'M13_Tier 2' WHEN m13_yoy_improvement>=M13_level_1_TIER_3_yoy_improv THEN 'M13_Tier 3' END WHEN round(M13_Retention_pY*100,1) < YOY_RETENTION.M13_level_3_py_retention_basis THEN CASE WHEN m13_yoy_improvement<M13_level_2_TIER_1_yoy_improv THEN 'Min YOY not met' WHEN m13_yoy_improvement>=M13_level_2_TIER_1_yoy_improv AND m13_yoy_improvement<M13_level_2_TIER_2_yoy_improv THEN 'M13_Tier 1' WHEN m13_yoy_improvement>=M13_level_2_TIER_2_yoy_improv AND m13_yoy_improvement<M13_level_2_TIER_3_yoy_improv THEN 'M13_Tier 2' WHEN m13_yoy_improvement>=M13_level_2_TIER_3_yoy_improv THEN 'M13_Tier 3' END WHEN round(M13_Retention_pY*100,1) < YOY_RETENTION.M13_level_4_py_retention_basis THEN CASE WHEN m13_yoy_improvement<M13_level_3_TIER_1_yoy_improv THEN 'Min YOY not met' WHEN m13_yoy_improvement>=M13_level_3_TIER_1_yoy_improv AND m13_yoy_improvement<M13_level_3_TIER_2_yoy_improv THEN 'M13_Tier 1' WHEN m13_yoy_improvement>=M13_level_3_TIER_2_yoy_improv AND m13_yoy_improvement<M13_level_3_TIER_3_yoy_improv THEN 'M13_Tier 2' WHEN m13_yoy_improvement>=M13_level_3_TIER_3_yoy_improv THEN 'M13_Tier 3' END WHEN round(M13_Retention_pY*100,1) >= YOY_RETENTION.M13_level_4_py_retention_basis AND m13_yoy_improvement>0 THEN 'M13_Tier 3' WHEN round(M13_Retention_pY*100,1) >= YOY_RETENTION.M13_level_4_py_retention_basis AND m13_yoy_improvement<=0 THEN 'Min YOY not met' ELSE 'Check M13 Retention PY present' END) END, iff(m13_retention_py IS NOT NULL, 'PY Not Null; CY Null', 'Check')))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c4bb7162-90d1-4187-9c2d-7f92cf89ffd4
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: OFFICESTATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 50431727-d88e-4b96-a0fd-b9cd2e3eca24
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: OFFICECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d1e5122e-cd23-4ea1-9333-f07cf16d2ee3
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: SALESVP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f8eebca3-a872-4fdd-a6e2-6ae6e8114058
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: AREACODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 20ee0819-51f3-463c-bd3b-1af8957b9511
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: DISTRICTCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 23f279bd-5d5c-4d15-b375-138415c7cc4d
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: DISTRICTMANAGERNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2581df14-3d85-4e4f-986d-a0f3105ad0ce
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: OFFICENAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aeeb2cc7-d934-4529-8b4b-9f50041c81b6
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: TERRITORYMANAGERNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2a51e269-d768-4119-9652-00d986b48f6a
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: OFFICETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c7639976-216c-40a0-8eaa-32c2b8363db5
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: ""
+        name: COUNTRY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 09a56004-15bd-4658-8efa-24d3a39b5e79
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: SALESTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ee45e0b5-8a34-4e04-9acc-0681f2dd22ee
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: ""
+        name: CHANNEL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 701ac73d-b5f5-409d-91e3-800b7e0b75f7
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: ""
+        name: AGENCYNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6c6ffdda-16d2-4df9-bde7-48255aa22c32
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: AGENCYBRAND
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b2463830-1be4-4d44-9b9f-74a604b7a23e
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: STOREOPENDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 65d51bfd-98e0-4d84-8660-074da70b506c
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: STORECLOSEDDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d675d3ea-fdc8-49a8-b04e-c8359106d2ab
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEENUMBER_DM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8a526ea5-c123-4415-be70-9df2ba085b99
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEENAME_DM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c86ad629-243c-4832-9a78-2e76a23fd132
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEENUMBER_SVP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5f1bf14c-3421-4df3-a8e2-2e4d91d3ef0c
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEENAME_SVP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 99812eb7-ac80-4151-ad84-6132818a0eea
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEENUMBER_TM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1e40e008-de9b-4a2f-910d-7ed87a4eadb0
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEENAME_TM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6a1f5887-32c0-45f7-9824-bd3b538b0e2b
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEENUMBER_SM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 74d8c116-6cfe-42e3-bee1-44844432fd0f
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEENAME_SM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9b0ea781-c46d-498e-9437-f85968c18c59
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: ""
+        name: LOCATIONSTATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 02d84919-650d-4453-b04d-ffbaeab02b5b
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ISSTOREOPEN_PY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cb743522-4564-426e-916a-803df111f00f
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ISSTOREOPEN_CY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 53219b75-fa20-4db6-8b76-cb9ae75230a9
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ISSTOREOPEN_PM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f76d5d36-8128-48a1-b4c2-35e790099024
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(20,2)
+        defaultValue: ""
+        description: ""
+        name: SALESDAYWEIGHT_CREATED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7fe76d9d-b060-4762-81e7-8474c79f0323
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: PYSALESDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c2ee8e12-8c7f-4af5-b7db-0de9a078a8ea
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: YOYPYREPORTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 710ce582-95b6-4461-99ed-1302fa102a1b
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: YOYPYREPORTDAY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 44b965e5-1c43-495e-8a79-8e8b86a658e8
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_TIER_1_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e6a251f8-361f-4c57-8653-c5d2eb5f7560
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_TIER_2_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 35fb211a-a412-4c87-9b76-8b78d5b1291f
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_TIER_1_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 86b0ab90-de9b-41d6-9625-f3d10694b7bf
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_TIER_2_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4bfe75fb-f072-452d-9119-7cdc9de60bf9
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_TIER_1_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 90eb4420-8ff0-42cb-9354-30c05285b4ff
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_TIER_2_RETENTION_BASIS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 445d31ec-28cf-4bd8-babf-3fa0532bf22d
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_TIER_SCORE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN (m3_retention_py IS NULL AND m3_retention_cy IS NULL) OR m3_retention_denominator_cy < 5                                     THEN 0
+                          WHEN round(m3_retention_cy * 100, 2) >= M3_Tier_2_Retention_basis                                                                 THEN 3
+                          WHEN round(m3_retention_cy * 100, 2) >= M3_Tier_1_Retention_basis AND round(m3_retention_cy * 100, 2) < M3_Tier_2_Retention_basis THEN 2
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dc484a5a-7ec3-44d1-9f67-d8ab77de0771
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M3_YOY_SCORE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN au10_rfg_extract.date < '2026-02-01' THEN CASE WHEN (m3_retention_cy IS NOT NULL AND m7_retention_cy IS NULL AND m13_retention_cy IS NULL) AND m3_yoy_improvement < 10 THEN 1 WHEN m3_yoy_improvement < 10 OR m3_yoy_improvement IS NULL THEN 0 WHEN m3_yoy_improvement >= 10 AND m3_retention_py IS NULL THEN 0 ELSE 1 END
+                          ELSE CASE WHEN (m3_retention_cy IS NOT NULL AND m7_retention_cy IS NULL AND m13_retention_cy IS NULL) AND m3_yoy_improvement < 10 THEN 1 WHEN m3_yoy_improvement < 10 OR m3_yoy_improvement IS NULL THEN 0 WHEN m3_yoy_improvement >= 10 AND m3_retention_py IS NULL THEN 0 WHEN m3_yoy_improvement >= 10 AND round(m3_retention_cy * 100, 2) < M3_Tier_1_Retention_basis THEN 0 ELSE 1 END
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 647e20a3-482d-4ede-abb9-2bee8f63f5b9
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_TIER_SCORE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN (m7_retention_py IS NULL AND m7_retention_cy IS NULL) OR m7_retention_denominator_cy < 5                                     THEN 0
+                          WHEN round(m7_retention_cy * 100, 2) >= M7_Tier_2_Retention_basis                                                                 THEN 2
+                          WHEN round(m7_retention_cy * 100, 2) >= M7_Tier_1_Retention_basis AND round(m7_retention_cy * 100, 2) < M7_Tier_2_Retention_basis THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7d5b0566-f14d-4e14-8086-b9442d454ba8
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M7_YOY_SCORE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN au10_rfg_extract.date < '2026-02-01' THEN CASE WHEN m7_yoy_improvement < 10 OR m7_yoy_improvement IS NULL THEN 0 WHEN m7_yoy_improvement >=10 AND m7_retention_py IS NULL THEN 0 ELSE 1 END
+                          ELSE CASE WHEN m7_yoy_improvement < 10 OR m7_yoy_improvement IS NULL THEN 0 WHEN m7_yoy_improvement >=10 AND m7_retention_py IS NULL THEN 0 WHEN m7_yoy_improvement >=10 AND round(m7_retention_cy * 100, 2) < M7_Tier_1_Retention_basis THEN 0 ELSE 1 END
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 48b23e2a-cbc9-44c3-825f-331d0204f674
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_TIER_SCORE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN (m13_retention_py IS NULL AND m13_retention_cy IS NULL) OR m13_retention_denominator_cy < 5                                      THEN 0
+                          WHEN round(m13_retention_cy * 100, 2) >= M13_Tier_2_Retention_basis                                                                   THEN 2
+                          WHEN round(m13_retention_cy * 100, 2) >= M13_Tier_1_Retention_basis AND round(m13_retention_cy * 100, 2) < M13_Tier_2_Retention_basis THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dd206fcf-73f9-40b4-b6c5-f752abd08a3f
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: NUMBER(38,2)
+        defaultValue: ""
+        description: ""
+        name: M13_YOY_SCORE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN au10_rfg_extract.date < '2026-02-01' THEN CASE WHEN m13_yoy_improvement < 10 OR m13_yoy_improvement IS NULL THEN 0 WHEN m13_yoy_improvement >=10 AND m13_retention_py IS NULL THEN 0 ELSE 1 END
+                          ELSE CASE WHEN m13_yoy_improvement < 10 OR m13_yoy_improvement IS NULL THEN 0 WHEN m13_yoy_improvement >=10 AND m13_retention_py IS NULL THEN 0 WHEN m13_yoy_improvement >=10 AND round(m13_retention_cy * 100, 2) < M13_Tier_1_Retention_basis THEN 0 ELSE 1 END
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1b43ede6-a1e0-42e5-a711-0e49889e8a13
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: CALENDARDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a4919712-6a4d-4f68-8601-eed928a2013b
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d74da8ca-e2f2-4de7-887f-975b2212b89c
+          stepCounter: 9e03dab9-09e4-4e29-a3be-48dde177019e
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_COMM_AU0_EMPLOYEE_RETENTION: e1392d3c-7dd9-488f-9d5c-68c230e01948
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_COMM_AU0_EMPLOYEE_RETENTION
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM ( SELECT DISTINCT coalesce(cy.producernumber,py.producernumber) employeenumber,
+                   coalesce(cy.date,dateadd('year',1,py.date)) date,coalesce(cy.policysource,py.policysource) SOURCEDB,
+                   coalesce(cy.officestate,py.officestate) officestate,
+                   coalesce(cy.officecode,py.officecode) officecode,
+                   round(New_Policy_Sales_CY,0) New_Policy_Sales_CY,
+                   round(New_Policy_Sales_PY,0) New_Policy_Sales_PY,
+                   round(M3_Retention_Numerator_CY/M3_Retention_Denominator_CY,3) M3_Retention_CY,
+                   round(M3_Retention_Numerator_PY/M3_Retention_Denominator_PY,3) M3_Retention_PY,
+                   round(M7_Retention_Numerator_CY/M7_Retention_Denominator_CY,3) M7_Retention_CY,
+                   round(M7_Retention_Numerator_PY/M7_Retention_Denominator_PY,3) M7_Retention_PY,
+                   round(M13_Retention_Numerator_CY/M13_Retention_Denominator_CY,3) M13_Retention_CY,
+                   round(M13_Retention_Numerator_PY/M13_Retention_Denominator_PY,3) M13_Retention_PY,
+                   round((ifnull(round(M3_Retention_Numerator_CY/M3_Retention_Denominator_CY*100,1),0)-ifnull(round(M3_Retention_Numerator_PY/M3_Retention_Denominator_PY*100,1),0))/ ifnull(round(M3_Retention_Numerator_PY/M3_Retention_Denominator_PY*100,1),round(M3_Retention_Numerator_CY/M3_Retention_Denominator_CY*100,1))*100,1) m3_yoy_improvement,
+                   round((ifnull(round(M7_Retention_Numerator_CY/M7_Retention_Denominator_CY*100,1),0)-ifnull(round(M7_Retention_Numerator_PY/M7_Retention_Denominator_PY*100,1),0))/ ifnull(round(M7_Retention_Numerator_PY/M7_Retention_Denominator_PY*100,1),round(M7_Retention_Numerator_CY/M7_Retention_Denominator_CY*100,1))*100,1) m7_yoy_improvement,
+                   round((ifnull(round(M13_Retention_Numerator_CY/M13_Retention_Denominator_CY*100,1),0)-ifnull(round(M13_Retention_Numerator_PY/M13_Retention_Denominator_PY*100,1),0))/ ifnull(round(M13_Retention_Numerator_PY/M13_Retention_Denominator_PY*100,1),round(M13_Retention_Numerator_CY/M13_Retention_Denominator_CY*100,1))*100,1) m13_yoy_improvement,
+                   M3_Retention_Numerator_CY,
+                   M3_Retention_Denominator_CY,
+                   M7_Retention_Numerator_CY,
+                   M7_Retention_Denominator_CY,
+                   M13_Retention_Numerator_CY,
+                   M13_Retention_Denominator_CY,
+                   M3_Retention_Numerator_PY,
+                   M3_Retention_Denominator_PY,
+                   M7_Retention_Numerator_PY,
+                   M7_Retention_Denominator_PY,
+                   M13_Retention_Numerator_PY,
+                   M13_Retention_Denominator_PY
+              FROM(
+                    SELECT DISTINCT producernumber,date,metric,
+                           metricvalue,
+                           officestate,
+                           policysource,
+                           officecode,
+                           sum(CASE WHEN metric='Employee_M3_Retention_CY' THEN numerator_cy END) OVER (PARTITION BY producernumber,date) M3_Retention_Numerator_CY,
+                           sum(CASE WHEN metric='Employee_M3_Retention_CY' THEN denominator_cy END) OVER (PARTITION BY producernumber,date) M3_Retention_Denominator_CY,
+                           sum(CASE WHEN metric='Employee_M7_Retention_CY' THEN numerator_cy END) OVER (PARTITION BY producernumber,date) M7_Retention_Numerator_CY,
+                           sum(CASE WHEN metric='Employee_M7_Retention_CY' THEN denominator_cy END) OVER (PARTITION BY producernumber,date) M7_Retention_Denominator_CY,
+                           sum(CASE WHEN metric='Employee_M13_Retention_CY' THEN numerator_cy END) OVER (PARTITION BY producernumber,date) M13_Retention_Numerator_CY,
+                           sum(CASE WHEN metric='Employee_M13_Retention_CY' THEN denominator_cy END) OVER (PARTITION BY producernumber,date) M13_Retention_Denominator_CY,
+                           sum(CASE WHEN metric='Employee_New_Policy_Sales_NSA' THEN metricvalue END) OVER (PARTITION BY producernumber,date) New_Policy_Sales_CY
+                      FROM {{ ref('STAGE','BVSTG_COMM_AU0_EMPLOYEE_RETENTION') }}
+                   )cy
+              FULL OUTER JOIN ( SELECT DISTINCT producernumber,date,metric,
+                   metricvalue,
+                   officestate,
+                   policysource,
+                   officecode,
+                   sum(CASE WHEN metric='Employee_M3_Retention_CY' THEN numerator_cy END) OVER (PARTITION BY producernumber,date) M3_Retention_Numerator_PY,
+                   sum(CASE WHEN metric='Employee_M3_Retention_CY' THEN denominator_cy END) OVER (PARTITION BY producernumber,date) M3_Retention_Denominator_PY,
+                   sum(CASE WHEN metric='Employee_M7_Retention_CY' THEN numerator_cy END) OVER (PARTITION BY producernumber,date) M7_Retention_Numerator_PY,
+                   sum(CASE WHEN metric='Employee_M7_Retention_CY' THEN denominator_cy END) OVER (
+            PARTITION BY pr
+        name: BVSTG_COMM_AU1_EMPLOYEE_RETENTION
+        noLinkRefs: []
+  name: BVSTG_COMM_AU1_EMPLOYEE_RETENTION
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

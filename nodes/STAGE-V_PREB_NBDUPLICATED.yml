@@ -1,0 +1,151 @@
+fileVersion: 1
+id: 9616b28f-6f56-4fc4-98d2-ab07364dab22
+name: V_PREB_NBDUPLICATED
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1c71f8c5-404c-4085-b043-5ae9049a1585
+          stepCounter: 9616b28f-6f56-4fc4-98d2-ab07364dab22
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1d4bbf6d-3444-4dc1-aa0e-a27bd1329f97
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f16da500-6c2f-4640-956f-4c9b6a4fe46b
+          stepCounter: 9616b28f-6f56-4fc4-98d2-ab07364dab22
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: RANKING
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8dd3f0cf-da8c-4aac-8e01-367c81906df6
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e58cdf58-2e3a-471f-83e6-f3405125e6da
+          stepCounter: 9616b28f-6f56-4fc4-98d2-ab07364dab22
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8dd3f0cf-da8c-4aac-8e01-367c81906df6
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 57d518a5-f655-459c-b70c-47e43811b5db
+          stepCounter: 9616b28f-6f56-4fc4-98d2-ab07364dab22
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: POLICYNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8689301a-2e5c-4289-ac18-da877caa7e23
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cc92148b-1275-49bc-8958-386f562207bd
+          stepCounter: 9616b28f-6f56-4fc4-98d2-ab07364dab22
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: EFFECTIVEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c9bbe00a-2b6d-43d9-8a1f-7839ac449619
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_NBDUPLICATED: 9616b28f-6f56-4fc4-98d2-ab07364dab22
+          DS_AP1_TRANSACTIONSUMMARY: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+          BVSTG_CUSTOMER_TO_REFRESH: 7cbd0921-faef-4eb6-bdf6-f95f09598096
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PREB_NBDUPLICATED') }} AS SELECT a.TransactionID ,
+                   b.CustomerID ,
+                   a.policyNumber ,
+                   a.effectivedate ,
+                   RANK() OVER (PARTITION BY b.CustomerID,a.policyNumber ORDER BY a.effectivedate,a.TransactionID) Ranking
+              FROM {{ ref('EDW','DS_AP1_TRANSACTIONSUMMARY') }} a
+             INNER JOIN (
+                    SELECT DISTINCT customerid
+                      FROM {{ ref('STAGE','BVSTG_CUSTOMER_TO_REFRESH') }}
+                     WHERE bvstg_customer_to_refresh.SourceDb = 'AppOne'
+                   ) bvstg_customer_to_refresh
+                ON bvstg_customer_to_refresh.customerid = a.customerid
+             INNER JOIN (
+                    SELECT a1.CustomerID,
+                           a1.PolicyNumber
+                      FROM {{ ref('EDW','DS_AP1_TRANSACTIONSUMMARY') }} a1
+                     INNER JOIN (
+                            SELECT DISTINCT customerid
+                              FROM {{ ref('STAGE','BVSTG_CUSTOMER_TO_REFRESH') }}
+                             WHERE bvstg_customer_to_refresh.SourceDb = 'AppOne'
+                           ) a2
+                        ON a1.customerid = a2.customerid
+                     WHERE a1.TransactionType IN ('New Business')
+                       AND a1.isvoid = 0
+                       AND a1.isLegacyTransaction = 'Migrated'
+                     GROUP BY a1.CustomerID,
+                              a1.PolicyNumber
+                    HAVING count(1)>1
+                   )b
+                ON b.CustomerID = a.CustomerID
+               AND a.PolicyNumber = b.PolicyNumber
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_AP1_TRANSACTIONSUMMARY
+          - locationName: STAGE
+            nodeName: BVSTG_CUSTOMER_TO_REFRESH
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('EDW','DS_AP1_TRANSACTIONSUMMARY') }}
+            {{ ref('STAGE','BVSTG_CUSTOMER_TO_REFRESH') }}
+        name: V_PREB_NBDUPLICATED
+        noLinkRefs: []
+  name: V_PREB_NBDUPLICATED
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

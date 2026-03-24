@@ -1,0 +1,194 @@
+fileVersion: 1
+id: b0f260f6-92b3-4176-a0b3-1b39da5ca36d
+name: V_PREB_POLICY_REVENUESUMMARY_V2
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1566fbe7-e15d-4f7c-b074-abe5bc344446
+          stepCounter: b0f260f6-92b3-4176-a0b3-1b39da5ca36d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: NBTRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 27f8e65b-b0ba-4500-8927-3c833c48897d
+                stepCounter: d29a0c5c-e296-46c4-bc55-861d60fe906d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 35b11cde-188f-4d84-ae02-fba910d985de
+          stepCounter: b0f260f6-92b3-4176-a0b3-1b39da5ca36d
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: ANCILLARY_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 21d0e5db-99d7-4236-a17d-4ac6ec37917d
+          stepCounter: b0f260f6-92b3-4176-a0b3-1b39da5ca36d
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: FEE_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 277fa68c-6917-4a25-90b4-e47397b8504e
+          stepCounter: b0f260f6-92b3-4176-a0b3-1b39da5ca36d
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: SERVICETRANSACTIONSFEE_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 97400012-a513-45ab-aa52-f97932b67bba
+          stepCounter: b0f260f6-92b3-4176-a0b3-1b39da5ca36d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: FEE_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: abd9db1e-6eb3-46e7-bb58-2282e57e481b
+          stepCounter: b0f260f6-92b3-4176-a0b3-1b39da5ca36d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: SERVICETRANSACTIONSFEE_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 252e3eef-b85b-4815-8973-bf3da4cfd807
+          stepCounter: b0f260f6-92b3-4176-a0b3-1b39da5ca36d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ANCILLARY_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_POLICY_REVENUESUMMARY_V2: b0f260f6-92b3-4176-a0b3-1b39da5ca36d
+          DS_RAM_RETAIL_REPOSITORY: d29a0c5c-e296-46c4-bc55-861d60fe906d
+          BVSTG_CUSTOMER_TO_REFRESH: 7cbd0921-faef-4eb6-bdf6-f95f09598096
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PREB_POLICY_REVENUESUMMARY_V2') }} AS SELECT v_preb_ap1_cigh_policysummary.policyID ,
+                   SUM(Ancillary_Amount) Ancillary_Amount ,
+                   SUM(Fee_Amount) Fee_Amount ,
+                   SUM(ServiceTransactionsFee_Amount) ServiceTransactionsFee_Amount ,
+                   SUM(Ancillary_Count) Ancillary_Count ,
+                   SUM(Fee_Count) Fee_Count ,
+                   SUM(ServiceTransactionsFee_Count) ServiceTransactionsFee_Count
+              FROM (
+                    SELECT IFNULL(ds_ram_retail_repository.policyID,'0') AS policyID,
+                           SUM(CASE WHEN ds_ram_retail_repository.classification='Ancillary' THEN ds_ram_retail_repository.Amount ELSE 0 END) AS Ancillary_Amount,
+                           SUM(CASE WHEN ds_ram_retail_repository.classification='Fee' THEN ds_ram_retail_repository.Amount ELSE 0 END) AS Fee_Amount,
+                           SUM(CASE WHEN ds_ram_retail_repository.classification='Service Transactions Fee' THEN ds_ram_retail_repository.Amount ELSE 0 END) AS ServiceTransactionsFee_Amount,
+                           SUM(CASE WHEN ds_ram_retail_repository.classification='Ancillary' THEN ds_ram_retail_repository.Counter ELSE 0 END) AS Ancillary_Count,
+                           SUM(CASE WHEN ds_ram_retail_repository.classification='Fee' THEN ds_ram_retail_repository.Counter ELSE 0 END) AS Fee_Count,
+                           SUM(CASE WHEN ds_ram_retail_repository.classification='Service Transactions Fee' THEN ds_ram_retail_repository.Counter ELSE 0 END) AS ServiceTransactionsFee_Count
+                      FROM {{ ref('EDW','DS_RAM_RETAIL_REPOSITORY') }} ds_ram_retail_repository
+                     INNER JOIN (
+                            SELECT DISTINCT customerid,
+                                   sourcedb
+                              FROM {{ ref('STAGE','BVSTG_CUSTOMER_TO_REFRESH') }}
+                           ) bvstg_customer_to_refresh
+                        ON IFNULL(bvstg_customer_to_refresh.customerid,'') = IFNULL(ds_ram_retail_repository.customerid,'')
+                       AND bvstg_customer_to_refresh.sourcedb = ds_ram_retail_repository.sourcedb
+                     WHERE (ds_ram_retail_repository.RefreshType IN('AppOne Revenue','CIGH Ancillary','CIGH Fee','SPLC Fee','SPLC Ancillary') OR (ds_ram_retail_repository.RefreshType ='CIGHTransaction' AND ds_ram_retail_repository.classification IN ('Fee Count','Ancillary')))
+                       AND ds_ram_retail_repository.isVoid = 0
+                     GROUP BY IFNULL(ds_ram_retail_repository.policyID,'0')
+                     UNION SELECT IFNULL(v_preb_ap1_cigh_policysummary.cigh_policyid,'0') AS policyID,
+                           SUM(CASE WHEN ds_ram_retail_repository.classification='Ancillary' THEN ds_ram_retail_repository.Amount ELSE 0 END) AS Ancillary_Amount,
+                           SUM(CASE WHEN ds_ram_retail_repository.classification='Fee' THEN ds_ram_retail_repository.Amount ELSE 0 END) AS Fee_Amount,
+                           SUM(CASE WHEN ds_ram_retail_repository.classification='Service Transactions Fee' THEN ds_ram_retail_repository.Amount ELSE 0 END) AS ServiceTransactionsFee_Amount,
+                           SUM(CASE WHEN ds_ram_retail_repository.classification='Ancillary' THEN ds_ram_retail_repository.Counter ELSE 0 END) AS Ancillary_Count,
+                           SUM(CASE WHEN ds_ram_retail_repository.classification='Fee' THEN ds_ram_retail_repository.Counter ELSE 0 END) AS Fee_Count,
+                           SUM(CASE WHEN ds_ram_retail_repository.classification='Service Transactions Fee' THEN ds_ram_retail_repository.Counter ELSE 0 END) AS ServiceTransactionsFee_Count
+                      FROM {{ ref('UNKNOWN','V_PREB_AP1_CIGH_POLICYSUMMARY') }} v_preb_ap1_cigh_policysummary
+                     INNER JOIN {{ ref('EDW','DS_RAM_RETAIL_REPOSITORY') }} ds_ram_retail_repository
+                        ON ds_ram_retail_repository.transactionid = TO_VARCHAR(v_preb_ap1_cigh_policysummary.ap1_transactionid)
+                     WHERE (ds_ram_retail_repository.RefreshType IN('AppOne Revenue','CIGH Ancillary','CIGH Fee','SPLC Fee','SPLC Ancillary') OR (ds_ram_retail_repository.RefreshType ='CIGHTransaction' AND ds_ram_retail_repository.classification IN ('Fee Count','Ancillary')))
+                       AND ds_ram_retail_repository.isVoid = 0
+                     GROUP BY IFNULL(v_preb_ap1_cigh_policysummary.cigh_policyid,'0')
+                   ) v_preb_ap1_cigh_policysummary
+             GROUP BY v_preb_ap1_cigh_policysummary.policyID
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_RAM_RETAIL_REPOSITORY
+          - locationName: STAGE
+            nodeName: BVSTG_CUSTOMER_TO_REFRESH
+          - locationName: UNKNOWN
+            nodeName: V_PREB_AP1_CIGH_POLICYSUMMARY
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('EDW','DS_RAM_RETAIL_REPOSITORY') }}
+            {{ ref('STAGE','BVSTG_CUSTOMER_TO_REFRESH') }}
+            {{ ref('UNKNOWN','V_PREB_AP1_CIGH_POLICYSUMMARY') }}
+        name: V_PREB_POLICY_REVENUESUMMARY_V2
+        noLinkRefs: []
+  name: V_PREB_POLICY_REVENUESUMMARY_V2
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

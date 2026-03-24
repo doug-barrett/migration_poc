@@ -1,0 +1,132 @@
+fileVersion: 1
+id: 3694c750-4c24-4083-bf49-17bac03cf949
+name: V_DAY_RANGE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ae10533b-3583-4934-807e-6177bee08382
+          stepCounter: 3694c750-4c24-4083-bf49-17bac03cf949
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: The calendar month number 1-12.
+        name: CAL_MONTH_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 52ba3b85-8ca4-480a-a5d6-57c090625a2b
+          stepCounter: 3694c750-4c24-4083-bf49-17bac03cf949
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: The calendar year. Format YYYY
+        name: CAL_YEAR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9ae41288-510b-483a-8f73-9067b5234996
+          stepCounter: 3694c750-4c24-4083-bf49-17bac03cf949
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: 'The calendar month representation. Format YYYYMM. Example: 200206.'
+        name: CAL_MONTH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 414d5074-09d2-4acf-a5b6-b8faaab1c4da
+          stepCounter: 3694c750-4c24-4083-bf49-17bac03cf949
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: The calendar date for this row.
+        name: MIN_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4b962c1c-c2f5-483f-9320-a4a4f0b69c03
+          stepCounter: 3694c750-4c24-4083-bf49-17bac03cf949
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: The calendar date for this row.
+        name: MAX_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_DAY_RANGE: 3694c750-4c24-4083-bf49-17bac03cf949
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_DAY_RANGE') }} AS SELECT CAL_MONTH_NO ,
+                   CAL_YEAR ,
+                   CAL_MONTH ,
+                   MIN(CALENDAR_DATE) AS Min_Date ,
+                   MAX(CALENDAR_DATE) AS Max_Date
+              FROM {{ ref('UNKNOWN','STAGE_DATE_SF') }}
+             WHERE TO_DATE(CALENDAR_DATE) BETWEEN '2019-01-01' /*   CASE WHEN DATE_PART(day,CURRENT_DATE())<4 THEN   DATEADD(Day,1,last_day(DATEADD(MONTH,-2,CURRENT_DATE())))
+                                ELSE  DATEADD(DAY,1,last_day(DATEADD(MONTH,-1,CURRENT_DATE())))
+                           END
+            */ AND DATEADD(DAY,-1,CURRENT_DATE())
+             GROUP BY CAL_MONTH_NO ,
+                      CAL_YEAR ,
+                      CAL_MONTH ,
+                      TO_DATE(CALENDAR_DATE)
+        dependencies:
+          - locationName: STAGE
+            nodeName: STAGE_DATE_SF
+          - locationName: UNKNOWN
+            nodeName: STAGE_DATE_SF
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','STAGE_DATE_SF') }}
+            {{ ref('UNKNOWN','STAGE_DATE_SF') }}
+        name: V_DAY_RANGE
+        noLinkRefs: []
+  name: V_DAY_RANGE
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

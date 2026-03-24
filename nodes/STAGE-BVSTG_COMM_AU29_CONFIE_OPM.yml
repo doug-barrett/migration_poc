@@ -1,0 +1,169 @@
+fileVersion: 1
+id: cb5179b7-d3b5-4831-9989-41d472307509
+name: BVSTG_COMM_AU29_CONFIE_OPM
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 58ba2c3d-992d-4ddc-b199-cca13f8dcbcd
+          stepCounter: cb5179b7-d3b5-4831-9989-41d472307509
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_COMM_AU29_CONFIE_OPM_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(ifnull(to_varchar(ds_comm_store_evaluation.asofmonth), '-') || ifnull(ds_comm_store_evaluation.PolicySource_Dimension, '-'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7a8d4e48-77c3-4d14-8e05-bbe4f64c1016
+          stepCounter: cb5179b7-d3b5-4831-9989-41d472307509
+        config: {}
+        dataType: NUMBER(20,4)
+        defaultValue: ""
+        description: ""
+        name: REVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: to_number(sum(ds_comm_store_evaluation.TOTAL_REVENUE), 20, 4)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dc86bc5f-0809-409b-8336-54b150b76f1e
+          stepCounter: cb5179b7-d3b5-4831-9989-41d472307509
+        config: {}
+        dataType: NUMBER(20,2)
+        defaultValue: ""
+        description: ""
+        name: ANCILLARY_REVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: to_number(sum(ds_comm_store_evaluation.ANCILLARY_PRODUCT_REVENUE),20, 2)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c06a0999-4f28-47ec-b6ef-0da01c4b5d31
+          stepCounter: cb5179b7-d3b5-4831-9989-41d472307509
+        config: {}
+        dataType: NUMBER(20,2)
+        defaultValue: ""
+        description: ""
+        name: MARKETING_EXPENSES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: to_number(sum(ds_comm_store_evaluation.ADVERTISING), 20, 2)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 45eef35f-1316-45cd-85f2-77a9e667a543
+          stepCounter: cb5179b7-d3b5-4831-9989-41d472307509
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: ASOFMONTH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d931981f-2878-497f-a237-b5832535d821
+                stepCounter: 284c3039-4fa6-4cd3-a553-67de9f3914d0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1b386a0d-2068-4033-b2dc-4920a9bca497
+          stepCounter: cb5179b7-d3b5-4831-9989-41d472307509
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: POLICYSOURCE_DIMENSION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 547e6813-7dc5-40a1-a7f8-84669aad4fbe
+          stepCounter: cb5179b7-d3b5-4831-9989-41d472307509
+        config: {}
+        dataType: NUMBER(20,2)
+        defaultValue: ""
+        description: ""
+        name: RETAIL_COMPENSATION_EXPENSE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: to_number(sum(ds_comm_store_evaluation.COMPENSATION),20, 2)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cb26eff1-7b7b-41d9-aad8-a1526436381a
+          stepCounter: cb5179b7-d3b5-4831-9989-41d472307509
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dbc5841c-7f70-4d9b-95a6-2abfba7a8371
+          stepCounter: cb5179b7-d3b5-4831-9989-41d472307509
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_COMM_STORE_EVALUATION: 284c3039-4fa6-4cd3-a553-67de9f3914d0
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_COMM_STORE_EVALUATION
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT *,
+                           (CASE WHEN lower(channel)='splc' THEN 'SPLC' WHEN lower(channel) IN ('cigh','appone','nsa','dnsa') THEN 'NSA' ELSE 'Missing/Total' END) PolicySource_Dimension
+                      FROM {{ ref('EDW','DS_COMM_STORE_EVALUATION') }}
+                   ) ds_comm_store_evaluation
+             GROUP BY ds_comm_store_evaluation.asofmonth,
+                      ds_comm_store_evaluation.PolicySource_Dimension
+        name: BVSTG_COMM_AU29_CONFIE_OPM
+        noLinkRefs: []
+  name: BVSTG_COMM_AU29_CONFIE_OPM
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

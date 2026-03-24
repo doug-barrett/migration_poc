@@ -1,0 +1,223 @@
+fileVersion: 1
+id: d6d2c46f-4b78-4ed5-958f-dad23ed8a7b6
+name: BVSTG_COMM_RT_TIER_BY_RETENTION_BENCHMARKS
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 21e8c0b9-8547-48d4-b542-09702fd4062e
+          stepCounter: d6d2c46f-4b78-4ed5-958f-dad23ed8a7b6
+        config: {}
+        dataType: NUMBER(4,0)
+        defaultValue: ""
+        description: ""
+        name: YEAR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: year(bvstg_comm_au0_employee_retention.month_)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d92f90db-b20d-43ec-9545-17c5722a36cc
+          stepCounter: d6d2c46f-4b78-4ed5-958f-dad23ed8a7b6
+        config: {}
+        dataType: FLOAT
+        defaultValue: ""
+        description: ""
+        name: TIER_2
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ROUND(bvstg_comm_au0_employee_retention_b2.tier2 * 100, 2)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8688f58f-e649-46c0-b77c-ba79f33349f0
+          stepCounter: d6d2c46f-4b78-4ed5-958f-dad23ed8a7b6
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: START_MONTH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ebbfc5d0-71dd-4c76-8145-369930a9e74a
+          stepCounter: d6d2c46f-4b78-4ed5-958f-dad23ed8a7b6
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: STATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 59257741-8dde-42c8-98c5-fb711b33959d
+          stepCounter: d6d2c46f-4b78-4ed5-958f-dad23ed8a7b6
+        config: {}
+        dataType: FLOAT
+        defaultValue: ""
+        description: ""
+        name: TIER_1
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ROUND(bvstg_comm_au0_employee_retention_b2.tier1 * 100, 2)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9c552e61-38bb-4eb5-839f-93afe27b18a4
+          stepCounter: d6d2c46f-4b78-4ed5-958f-dad23ed8a7b6
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: RETENTION_TYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 833313dc-e642-43ac-bda8-5dd1ce9c4a00
+          stepCounter: d6d2c46f-4b78-4ed5-958f-dad23ed8a7b6
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: END_MONTH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: last_day(bvstg_comm_au0_employee_retention.month_)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies: []
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM (
+                    SELECT date_trunc('month', DATE) month_,
+                           date_trunc('quarter', DATE) quarter_,
+                           date_trunc('quarter', DATE) - interval '3 month' pq,
+                           STATE,
+                           metric_value
+                      FROM (
+                            SELECT DATE, officestate STATE,
+                                   split_part(metric, '_', 2) metric_value
+                              FROM RETAIL_PROD.SCH_BVSTAGE.bvstg_comm_au0_employee_retention
+                             WHERE split_part(metric, '_', 2) IN ('M3', 'M7', 'M13')
+                               AND officestate NOT IN ('MS', 'OH', 'PA', 'MA', 'NC')
+                         UNION ALL SELECT DATE, 'MA',
+                                   split_part(metric, '_', 2)
+                              FROM RETAIL_PROD.SCH_BVSTAGE.bvstg_comm_au0_employee_retention
+                             WHERE split_part(metric, '_', 2) IN ('M3', 'M7', 'M13')
+                               AND officestate = 'NY'
+                         UNION ALL SELECT DATE, officestate,
+                                   split_part(metric, '_', 2)
+                              FROM RETAIL_PROD.SCH_BVSTAGE.bvstg_comm_au0_employee_retention
+                             WHERE split_part(metric, '_', 2) = 'M3'
+                               AND officestate IN ('MS', 'OH', 'PA', 'NC')
+                         UNION ALL SELECT DATE, officestate,
+                                   split_part(metric, '_', 2)
+                              FROM RETAIL_PROD.SCH_BVSTAGE.bvstg_comm_au0_employee_retention
+                             WHERE split_part(metric, '_', 2)= 'M7'
+                               AND officestate = 'NC'
+                         UNION ALL SELECT DATE, CASE WHEN officestate = 'AL' THEN 'MS'
+                                        WHEN officestate = 'IN' THEN 'OH'
+                                        WHEN officestate = 'NY' THEN 'PA'
+                                         END,
+                                   split_part(metric, '_', 2)
+                              FROM RETAIL_PROD.SCH_BVSTAGE.bvstg_comm_au0_employee_retention
+                             WHERE split_part(metric, '_', 2) IN ('M7', 'M13')
+                               AND officestate IN ('AL', 'IN', 'NY')
+                         UNION ALL SELECT DATE, 'NC',
+                                   split_part(metric, '_', 2)
+                              FROM RETAIL_DEV.SCH_BVSTAGE.bvstg_comm_au0_employee_retention
+                             WHERE split_part(metric, '_', 2) = 'M13'
+                               AND officestate = 'SC'
+                           )
+                     GROUP BY 1,
+                              2,
+                              3,
+                              4,
+                              5
+                   ) bvstg_comm_au0_employee_retention
+              LEFT JOIN ( SELECT date_trunc('quarter', DATE) quarter_,
+                   STATE,
+                   metric_value,
+                   iff(date_trunc('quarter', DATE) < '2025-10-01', percentile_cont(0.50) within GROUP (ORDER BY metricvalue), percentile_cont(0.60) within GROUP (ORDER BY metricvalue)) AS tier1,
+                   iff(date_trunc('quarter', DATE) < '2025-10-01', percentile_cont(0.80) within GROUP (ORDER BY metricvalue), percentile_cont(0.90) within GROUP (ORDER BY metricvalue)) AS tier2
+              FROM ( SELECT DATE, officestate STATE,
+                   split_part(metric, '_', 2) metric_value,
+                   metricvalue,
+                   metric,
+                   denominator_cy
+              FROM RETAIL_PROD.SCH_BVSTAGE.bvstg_comm_au0_employee_retention
+             WHERE split_part(metric, '_', 2) IN ('M3', 'M7', 'M13')
+               AND officestate NOT IN ('MS', 'OH', 'PA', 'MA','NC')
+            UNION ALL SELECT DATE, 'MA',
+                   split_part(metric, '_', 2),
+                   metricvalue,
+                   metric,
+                   denominator_cy
+              FROM RETAIL_PROD.SCH_BVSTAGE.bvstg_comm_au0_employee_retention
+             WHERE officestate = 'NY'
+            UNION ALL SELECT DATE, officestate,
+                   split_part(metric, '_', 2),
+                   metricvalue,
+                   metric,
+                   denominator_cy
+              FROM RETAIL_PROD.SCH_BVSTAGE.bvstg_comm_au0_employee_retention
+             WHERE split_part(metric, '_', 2) = 'M3'
+               AND officestate IN ('MS', 'OH', 'PA', 'NC')
+            UNION ALL SELECT DATE, officestate,
+                   split_part(metric, '_', 2),
+                   metricvalue,
+                   metric,
+                   denominator_cy
+              FROM RETAIL_PROD.SCH_BVSTAGE.bvstg_comm_au0_employee_retention
+             WHERE split_part(metric, '_', 2) = 'M7'
+               AND officestate = 'NC'
+            UNION ALL SELECT DATE, 'NC',
+                   split_part(metric, '_', 2),
+                   metricvalue,
+                   metric,
+                   denominator_cy
+              FROM RETAIL_PROD.SCH_BVSTAGE.bvstg_comm_au0_employee_retention WHE
+        name: BVSTG_COMM_RT_TIER_BY_RETENTION_BENCHMARKS
+        noLinkRefs: []
+  name: BVSTG_COMM_RT_TIER_BY_RETENTION_BENCHMARKS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

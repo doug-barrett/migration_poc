@@ -1,0 +1,109 @@
+fileVersion: 1
+id: 365039c1-7585-4cf1-8239-8b666a804e61
+name: BVSTG_AP1_SU_ANCILLARY
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "summarize ancillary product count and cost by transactionid"
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 873568de-33e6-43aa-a5c3-ff01c6c03f37
+          stepCounter: 365039c1-7585-4cf1-8239-8b666a804e61
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ANCILLARYCOUNT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: COUNT(1)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bad81541-26f3-4e18-bb43-e40db5ad6fc5
+          stepCounter: 365039c1-7585-4cf1-8239-8b666a804e61
+        config: {}
+        dataType: CHAR(32)
+        defaultValue: ""
+        description: ""
+        name: HK_H_TRANSACTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f0c218b5-b001-4c31-a696-ac2c245acd92
+                stepCounter: 7cc93e3c-b00d-4b64-bc70-8cb95ccbfebe
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 379b2b87-29c4-47cc-abba-8dd06b1eac90
+          stepCounter: 365039c1-7585-4cf1-8239-8b666a804e61
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: ENTEREDAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1f6b17b8-f7c4-4e5c-b109-d517ffac46b0
+                stepCounter: 7cc93e3c-b00d-4b64-bc70-8cb95ccbfebe
+            transform: SUM(ds_bvstg_ap1_ancillaryproduct.enteredamount)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2016733f-d059-4d04-95a4-10c06d976464
+          stepCounter: 365039c1-7585-4cf1-8239-8b666a804e61
+        config: {}
+        dataType: NUMBER(18,4)
+        defaultValue: ""
+        description: ""
+        name: COMPANYCOST
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cd5b6eb0-d778-438a-8c7f-329b1fb7d84a
+                stepCounter: 7cc93e3c-b00d-4b64-bc70-8cb95ccbfebe
+            transform: SUM(ds_bvstg_ap1_ancillaryproduct.companycost)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_BVSTG_AP1_ANCILLARYPRODUCT: 7cc93e3c-b00d-4b64-bc70-8cb95ccbfebe
+          BVSTG_AP1_DS_TRSUMM_REFRESH: 70117bfd-6a2b-417d-a7c2-4211755e8d67
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_ANCILLARYPRODUCT
+          - locationName: STAGE
+            nodeName: BVSTG_AP1_DS_TRSUMM_REFRESH
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','DS_BVSTG_AP1_ANCILLARYPRODUCT') }} ds_bvstg_ap1_ancillaryproduct
+             INNER JOIN (
+                    SELECT DISTINCT TransactionID
+                      FROM {{ ref('STAGE','BVSTG_AP1_DS_TRSUMM_REFRESH') }}
+                   ) bvstg_ap1_ds_trsumm_refresh
+                ON ds_bvstg_ap1_ancillaryproduct.transactionid = bvstg_ap1_ds_trsumm_refresh.transactionid
+             WHERE ds_bvstg_ap1_ancillaryproduct.isrowdeleted = 0
+             GROUP BY ds_bvstg_ap1_ancillaryproduct.HK_h_transaction
+        name: BVSTG_AP1_SU_ANCILLARY
+        noLinkRefs: []
+  name: BVSTG_AP1_SU_ANCILLARY
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

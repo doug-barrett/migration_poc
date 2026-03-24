@@ -1,0 +1,255 @@
+fileVersion: 1
+id: 4f2d0f88-633d-454d-b88f-a0014d3d3d3a
+name: BVSTG_MKT_AU2_1_CAMPAIGN2SALE
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: true
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d170d0c9-a64b-4d7c-b3cf-232a366ec8ad
+          stepCounter: 4f2d0f88-633d-454d-b88f-a0014d3d3d3a
+        config: {}
+        dataType: VARCHAR(1000)
+        defaultValue: ""
+        description: ""
+        name: ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8cef1581-b4f7-434d-9864-dd7b52803ad9
+                stepCounter: e1751fec-5c3b-4a31-a764-d3b471a0944b
+            transform: |-
+              CASE WHEN ds_mkt_lead_source.LeadID IS NOT NULL THEN ds_mkt_lead_source.LeadID
+                          ELSE ds_interactionsummary.interactionidkey
+                           END
+          - columnReferences:
+              - columnCounter: 8cef1581-b4f7-434d-9864-dd7b52803ad9
+                stepCounter: e1751fec-5c3b-4a31-a764-d3b471a0944b
+            transform: ""
+          - columnReferences:
+              - columnCounter: 8cef1581-b4f7-434d-9864-dd7b52803ad9
+                stepCounter: e1751fec-5c3b-4a31-a764-d3b471a0944b
+            transform: ""
+          - columnReferences:
+              - columnCounter: 8cef1581-b4f7-434d-9864-dd7b52803ad9
+                stepCounter: e1751fec-5c3b-4a31-a764-d3b471a0944b
+            transform: ""
+          - columnReferences:
+              - columnCounter: 8cef1581-b4f7-434d-9864-dd7b52803ad9
+                stepCounter: e1751fec-5c3b-4a31-a764-d3b471a0944b
+            transform: ""
+          - columnReferences:
+              - columnCounter: 8cef1581-b4f7-434d-9864-dd7b52803ad9
+                stepCounter: e1751fec-5c3b-4a31-a764-d3b471a0944b
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f7743dc7-e9d2-4afb-81be-5185bf2aab8d
+          stepCounter: 4f2d0f88-633d-454d-b88f-a0014d3d3d3a
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: IDTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8cef1581-b4f7-434d-9864-dd7b52803ad9
+                stepCounter: e1751fec-5c3b-4a31-a764-d3b471a0944b
+            transform: |-
+              CASE WHEN ds_mkt_lead_source.LeadID IS NOT NULL THEN CONCAT('LeadID',IFNULL(IFNULL(ds_mkt_lead_source.SourceDB,ds_interactionsummary.sourcedb),''))
+                          ELSE 'interactionidkey'
+                           END
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9b91ce79-3c8f-4a24-9995-95a3b3315857
+          stepCounter: 4f2d0f88-633d-454d-b88f-a0014d3d3d3a
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0845dbe9-e9b3-47ed-9b6b-e5a5e54dd03e
+          stepCounter: 4f2d0f88-633d-454d-b88f-a0014d3d3d3a
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_INTERACTIONSUMMARY
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM RETAIL_PROD.SCH_EDW.DS_INTERACTIONSUMMARY ds_interactionsummary
+              LEFT JOIN RETAIL_PROD.SCH_EDW.DS_MKT_CALLSOURCE ds_mkt_callsource
+                ON ds_interactionsummary.interactionidkey = ds_mkt_callsource.interactionidkey
+              LEFT JOIN RETAIL_PROD.SCH_EDW.DS_MKT_LEAD_SOURCE ds_mkt_lead_source
+                ON ds_interactionsummary.interactionidkey = SPLIT_PART(ds_mkt_lead_source.CallID, '-', 1) || '-' || SPLIT_PART(ds_mkt_lead_source.CallID, '-', 2)
+              LEFT JOIN RETAIL_PROD.SCH_BVSTAGE.V_DLBV_API_LMS_MASTERLEAD_CURRENT v_dlbv_api_lms_masterlead_current
+                ON v_dlbv_api_lms_masterlead_current.lms_lead_id = ds_mkt_lead_source.LMS_ID
+              LEFT JOIN (
+                    SELECT S_AP1_LEAD_MROC.LEADID ,
+                           S_AP1_LEAD_MROC.LEADSTATUSTYPEID
+                      FROM RETAIL_PROD.SCH_DATA_VAULT.S_AP1_LEAD_MROC s_ap1_lead_mroc QUALIFY ROW_NUMBER() OVER (PARTITION BY S_AP1_LEAD_MROC.leadid ORDER BY dss_version DESC) = 1
+                   ) s_ap1_lead_mroc
+                ON s_ap1_lead_mroc.leadid = ds_mkt_lead_source.leadid
+              LEFT JOIN RETAIL_PROD.SCH_DATA_VAULT.S_AP1_LEADSTATUSTYPE_MROC s_ap1_leadstatustype_mroc
+                ON s_ap1_leadstatustype_mroc.leadstatustypeid = s_ap1_lead_mroc.leadstatustypeid
+              LEFT JOIN RETAIL_PROD.SCH_EDW.DS_PCCE_TERMINATION_CALL_SUMMARY_SESSION ds_pcce_termination_call_summary_session
+                ON ds_pcce_termination_call_summary_session.id = ds_interactionsummary.interactionidkey
+              LEFT JOIN RETAIL_PROD.SCH_DATA_VAULT.S_AP1_PHONECALL_MROC s_ap1_phonecall_mroc
+                ON (CASE WHEN s_ap1_phonecall_mroc.callid LIKE '%-%' THEN split_part(s_ap1_phonecall_mroc.callid, '-', 1) || '-' || SPLIT_PART(s_ap1_phonecall_mroc.callid, '-', 2) ELSE s_ap1_phonecall_mroc.callid END) = ds_interactionsummary.interactionidkey
+              LEFT JOIN RETAIL_PROD.SCH_DATA_VAULT.S_AP1_PHONECALL_MROC s_ap1_phonecall_mroc_1
+                ON SPLIT_PART(s_ap1_phonecall_mroc_1.CallID, '-', 1) || '-' || SPLIT_PART(s_ap1_phonecall_mroc_1.CallID, '-', 2) = ds_interactionsummary.interactionidkey
+              LEFT JOIN RETAIL_PROD.SCH_DATA_VAULT.S_AP1_PHONECALLDISPOSITION s_ap1_phonecalldisposition
+                ON (IFNULL(s_ap1_phonecall_mroc.phonecallid, s_ap1_phonecall_mroc_1.phonecallid) = s_ap1_phonecalldisposition.phonecallid AND IFNULL(DATE (s_ap1_phonecall_mroc.created), DATE (s_ap1_phonecall_mroc_1.created)) = DATE (s_ap1_phonecalldisposition.created))
+              LEFT JOIN RETAIL_PROD.SCH_DATA_VAULT.H_PHONECALLTYPE h_phonecalltype
+                ON (h_phonecalltype.phonecalltypeid = s_ap1_phonecalldisposition.phonecalltypeid)
+              LEFT JOIN RETAIL_PROD.SCH_BVSTAGE.V_S_AP1_PHONECALLTYPE_CURRENT v_s_ap1_phonecalltype_current
+                ON (v_s_ap1_phonecalltype_current.HK_H_PHONECALLTYPE = h_phonecalltype.HK_H_PHONECALLTYPE)
+              LEFT JOIN (
+                    SELECT interactionidkey ,
+                           CustomerID ,
+                           EMAIL ,
+                           SOURCEDB_CUSTOMER
+                      FROM RETAIL_PROD.SCH_EDW.DS_MKT_CALL_CUSTOMER QUALIFY ROW_NUMBER() OVER (PARTITION BY interactionidkey ORDER BY created DESC) = 1
+                   ) ds_mkt_call_customer
+                ON (ds_mkt_call_customer.interactionidkey = ds_interactionsummary.interactionidkey AND ds_mkt_lead_source.SourceDB = ds_mkt_call_customer.SOURCEDB_CUSTOMER)
+             WHERE (('{{ parameters.HWM_BVSTG_Mkt_Refresh_flag }}' = 0) OR ('{{ parameters.HWM_BVSTG_Mkt_Refresh_flag }}' = 1 AND DATEDIFF(DAY,ds_interactionsummary.DSS_CREATE_TIME,CURRENT_DATE()) <= '{{ parameters.HWM_BVSTG_Mkt_Refresh_Days }}'+15) OR ('{{ parameters.HWM_BVSTG_Mkt_Refresh_flag }}' = 1 AND DATEDIFF(DAY,ds_mkt_lead_source.DSS_UPDATE_TIME,CURRENT_DATE()) <= '{{ parameters.HWM_BVSTG_Mkt_Refresh_Days }}'+15)) QUALIFY ROW_NUMBER() OVER (
+            PARTITION BY CASE WHEN ds_mkt_lead_source.LeadID IS NOT NULL THEN ds_mkt_lead_source.LeadID
+                        ELSE ds_interactionsummary.interactionidkey
+                         END
+             ORDER BY CASE WHEN ds_mkt_lead_source.LeadID IS NOT NULL THEN 1
+                           ELSE 2
+                            END,
+                      CASE WHEN ds_mkt_lead_source.isSale=1     THEN 1
+                           WHEN ds_mkt_lead_source.isTransfer=1 THEN 2
+                           WHEN ds_mkt_lead_source.isQuote=1    THEN 3
+                           ELSE 4
+                            END,
+                      v_
+        name: SRC_bvstg_mkt_au2_1_campaign2sale_step1
+        noLinkRefs: []
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_INTERACTIONSUMMARY
+        join:
+          joinCondition: ""
+        name: SRC_bvstg_mkt_au2_1_campaign2sale_step2
+        noLinkRefs: []
+      - aliases:
+          DS_INTERACTIONSUMMARY: e1751fec-5c3b-4a31-a764-d3b471a0944b
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_INTERACTIONSUMMARY
+        join:
+          joinCondition: FROM {{ ref('EDW','DS_INTERACTIONSUMMARY') }} ds_interactionsummary
+        name: SRC_bvstg_mkt_au2_1_campaign2sale_step3
+        noLinkRefs: []
+      - aliases:
+          DS_INTERACTIONSUMMARY: e1751fec-5c3b-4a31-a764-d3b471a0944b
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_INTERACTIONSUMMARY
+        join:
+          joinCondition: FROM {{ ref('EDW','DS_INTERACTIONSUMMARY') }} ds_interactionsummary
+        name: SRC_bvstg_mkt_au2_1_campaign2sale_step4
+        noLinkRefs: []
+      - aliases:
+          DS_INTERACTIONSUMMARY: e1751fec-5c3b-4a31-a764-d3b471a0944b
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_INTERACTIONSUMMARY
+        join:
+          joinCondition: FROM {{ ref('EDW','DS_INTERACTIONSUMMARY') }} ds_interactionsummary
+        name: SRC_bvstg_mkt_au2_2_campaign2sale_step4
+        noLinkRefs: []
+      - aliases:
+          DS_INTERACTIONSUMMARY: e1751fec-5c3b-4a31-a764-d3b471a0944b
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_INTERACTIONSUMMARY
+        join:
+          joinCondition: FROM {{ ref('EDW','DS_INTERACTIONSUMMARY') }} ds_interactionsummary
+        name: SRC_bvstg_mkt_au2_2_campaign2sale_step1
+        noLinkRefs: []
+  name: BVSTG_MKT_AU2_1_CAMPAIGN2SALE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

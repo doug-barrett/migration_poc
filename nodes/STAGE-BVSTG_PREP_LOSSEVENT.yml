@@ -1,0 +1,102 @@
+fileVersion: 1
+id: b0918ee0-e92b-4d7c-9d1d-ee2005981eac
+name: BVSTG_PREP_LOSSEVENT
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: false
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4bc8a004-001d-49f2-b2bf-1d53e72bf413
+          stepCounter: b0918ee0-e92b-4d7c-9d1d-ee2005981eac
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: L_LEADID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bfb6d296-0410-48a2-8c2d-bbd78b833d4f
+          stepCounter: b0918ee0-e92b-4d7c-9d1d-ee2005981eac
+        config: {}
+        dataType: NUMBER(18,10)
+        defaultValue: ""
+        description: ""
+        name: PROBABILITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: DATA_ANALYTICS.DS_FEATURE_REPO.UDF_LOSSEVENT_RF_MODEL_VEC_CACHED(PREP."SECUENCE", PREP."AGE_OF_LEAD_FROM_ORIG", PREP."AGE_OF_LEAD_FROM_PRIOR", PREP."DAYS_DIFF_LEAD_AGE", PREP."LEADTYPE", PREP."DOCUMENT_LANGUAGE_TYPE", PREP."VERBAL_LANGUAGE_TYPE", PREP."CUSTOMER_GENDER", PREP."MAILINGSTATE", PREP."ALLCUSTOMERAGE", PREP."CATEGORY", PREP."SUBCATEGORY", PREP."VENDOR", PREP."PRODUCTTYPE", PREP."PLACEMENTLEVEL", PREP."NO_OF_SOUCE_SYSTEM_2STEP", PREP."INBOUND_CALLS", PREP."TOTAL_INBOUND_CALLS", PREP."INBOUND_CONVERSATION", PREP."TOTAL_INBOUND_CONVERSATION", PREP."INBOUND_CALLS_7DAYS")
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 866b8024-87ac-4126-939b-8041274252b7
+          stepCounter: b0918ee0-e92b-4d7c-9d1d-ee2005981eac
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b3e9839b-6ea9-431f-bdb2-6262744bccd6
+          stepCounter: b0918ee0-e92b-4d7c-9d1d-ee2005981eac
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: UNKNOWN
+            nodeName: BVSTG_PREP_LEAD_FEATURES_GNL
+        join:
+          joinCondition: |-
+            FROM {{ ref('UNKNOWN','BVSTG_PREP_LEAD_FEATURES_GNL') }} PREP
+             INNER JOIN (
+                    SELECT L_LEADID,
+                           ROW_NUMBER() OVER (ORDER BY L_LEADID) ROW_No
+                      FROM RETAIL_DEV.SCH_BVSTAGE.BVSTG_PREP_LEAD_FEATURES_GNL
+                   )BVSTG_PREP_LEAD_FEATURES_GNL
+                ON BVSTG_PREP_LEAD_FEATURES_GNL.L_LEADID = PREP.L_LEADID
+        name: BVSTG_PREP_LOSSEVENT
+        noLinkRefs: []
+  name: BVSTG_PREP_LOSSEVENT
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

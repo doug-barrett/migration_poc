@@ -1,0 +1,158 @@
+fileVersion: 1
+id: 90eba795-150a-41dd-8865-a911072d4954
+name: V_PREB_PCCE_FCR_REPORT_V2
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0c827650-6463-4f69-930c-4e2deb22d6af
+          stepCounter: 90eba795-150a-41dd-8865-a911072d4954
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: WEEKNUMBER
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: abc96d33-99fe-484f-89fd-3d4223291cf7
+          stepCounter: 90eba795-150a-41dd-8865-a911072d4954
+        config: {}
+        dataType: NUMBER(10)
+        defaultValue: ""
+        description: ""
+        name: TOTALCALLS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cf21e534-3938-4246-af9c-5e8d9cfe78eb
+          stepCounter: 90eba795-150a-41dd-8865-a911072d4954
+        config: {}
+        dataType: NUMBER(10)
+        defaultValue: ""
+        description: ""
+        name: TOTALCALLEDAGAIN
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0be5b0b4-8d5d-4ca3-90c8-6bb7ec5854a8
+          stepCounter: 90eba795-150a-41dd-8865-a911072d4954
+        config: {}
+        dataType: NUMBER(10)
+        defaultValue: ""
+        description: ""
+        name: FCR_CALLED_AGAIN
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3c3958b5-7133-455d-a321-04cd4051b3d9
+          stepCounter: 90eba795-150a-41dd-8865-a911072d4954
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: SKILLTARGETID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 27314df5-e0b7-4951-8867-f2c2201cc4a5
+          stepCounter: 90eba795-150a-41dd-8865-a911072d4954
+        config: {}
+        dataType: NUMBER(10)
+        defaultValue: ""
+        description: ""
+        name: FCR_CALLS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d63fa629-6cb1-4e8e-9918-90552aec6c11
+          stepCounter: 90eba795-150a-41dd-8865-a911072d4954
+        config: {}
+        dataType: NUMBER(10,2)
+        defaultValue: ""
+        description: ""
+        name: FCR_CALL_PERCENT
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_PCCE_FCR_REPORT_V2: 90eba795-150a-41dd-8865-a911072d4954
+          BVSTG_PCCE_FCR_DATA_V2: dcd2828e-1d9e-4862-a7a1-a057d103c3a5
+          V_PREB_PCCE_FCR_MAPPINGS: 4801aee5-86ec-463e-8541-79c4b7df574e
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PREB_PCCE_FCR_REPORT_V2') }} AS SELECT BVSTG_PCCE_FCR_DATA.*,
+                   IFNULL(MAPPINGS_STATES.MAPVALUE, 'N/A') AS StateAreaCodeBased,
+                   IFNULL(MAPPINGS_PERIPH.MAPVALUE, '0') AS FCR_Calls,
+                   IFNULL(MAPPINGS_NUMBER.MAPVALUE, '0') AS IsInternalCall,
+                   CASE WHEN BVSTG_PCCE_FCR_DATA.HOURSDIFF < (168) THEN 1
+                        ELSE 0
+                         END AS CALLED_AGAIN,
+                   CASE WHEN IFNULL(MAPPINGS_PERIPH.MAPVALUE, '0') = 1 AND BVSTG_PCCE_FCR_DATA.HOURSDIFF < (168) THEN 1
+                        ELSE 0
+                         END AS FCR_CALLED_AGAIN
+              FROM {{ ref('STAGE','BVSTG_PCCE_FCR_DATA_V2') }} BVSTG_PCCE_FCR_DATA
+              LEFT JOIN {{ ref('STAGE','V_PREB_PCCE_FCR_MAPPINGS') }} MAPPINGS_STATES
+                ON MAPPINGS_STATES.TYPE = 'Areacodes'
+               AND MAPPINGS_STATES.MAPCODE = BVSTG_PCCE_FCR_DATA.AREACODE
+              LEFT JOIN {{ ref('STAGE','V_PREB_PCCE_FCR_MAPPINGS') }} MAPPINGS_NUMBER
+                ON MAPPINGS_NUMBER.TYPE = 'InternalNumbers'
+               AND MAPPINGS_NUMBER.MAPCODE = BVSTG_PCCE_FCR_DATA.DIALNUMBER
+              LEFT JOIN {{ ref('STAGE','V_PREB_PCCE_FCR_MAPPINGS') }} MAPPINGS_PERIPH
+                ON MAPPINGS_PERIPH.TYPE = 'Peripherals'
+               AND MAPPINGS_PERIPH.MAPCODE = BVSTG_PCCE_FCR_DATA.ENTERPRISENAME
+             WHERE IFNULL(MAPPINGS_NUMBER.MAPVALUE, '0') = '0'
+               AND IFNULL(MAPPINGS_STATES.MAPVALUE, 'N/A') NOT IN ('Toll Free','N/A')
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_PCCE_FCR_DATA_V2
+          - locationName: STAGE
+            nodeName: V_PREB_PCCE_FCR_MAPPINGS
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','BVSTG_PCCE_FCR_DATA_V2') }}
+            {{ ref('STAGE','V_PREB_PCCE_FCR_MAPPINGS') }}
+        name: V_PREB_PCCE_FCR_REPORT_V2
+        noLinkRefs: []
+  name: V_PREB_PCCE_FCR_REPORT_V2
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

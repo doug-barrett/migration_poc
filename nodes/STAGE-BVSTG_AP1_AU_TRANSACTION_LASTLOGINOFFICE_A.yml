@@ -1,0 +1,84 @@
+fileVersion: 1
+id: 02fe4637-05fd-4d3d-b132-4be7faffdfc4
+name: BVSTG_AP1_AU_TRANSACTION_LASTLOGINOFFICE_A
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "last login office of the primary producer - QUALIFY ROW_NUMBER() v_s_ap1_transaction_mroc_current JOIN bvstg_ap1_au0_loginstatus_mroc_dedup"
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 54f077aa-8763-4c02-8dcd-a5324886683a
+          stepCounter: 02fe4637-05fd-4d3d-b132-4be7faffdfc4
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 93c0a3f7-b566-45e5-a995-79fc67886b9c
+                stepCounter: ecb637b0-4c24-401b-85f9-8dac28702efa
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 620b77a4-b60a-42fd-bda9-adeaef9d10b8
+          stepCounter: 02fe4637-05fd-4d3d-b132-4be7faffdfc4
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: OFFICECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8ea8aad8-e9db-40a4-9d8b-317e8fa8882a
+                stepCounter: f5810d1f-78db-4bc6-8e94-af00acb802c9
+            transform: |-
+              CASE WHEN ds_bvstg_ap1_loginstatus.officecode like 'SSB %' THEN 'SSBLA'
+                          ELSE ds_bvstg_ap1_loginstatus.officecode
+                           END
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_AP1_TRANSACTION_REFRESH: eccb40c9-8d41-4044-b9ea-23d04db3e7bc
+          V_S_AP1_TRANSACTION_MROC_CURRENT: ecb637b0-4c24-401b-85f9-8dac28702efa
+          DS_BVSTG_AP1_LOGINSTATUS: f5810d1f-78db-4bc6-8e94-af00acb802c9
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_TRANSACTION_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: BVSTG_AP1_TRANSACTION_REFRESH
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_LOGINSTATUS
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','BVSTG_AP1_TRANSACTION_REFRESH') }} bvstg_ap1_transaction_refresh
+              JOIN {{ ref('STAGE','V_S_AP1_TRANSACTION_MROC_CURRENT') }} v_s_ap1_transaction_mroc_current
+                ON bvstg_ap1_transaction_refresh.TransactionID = v_s_ap1_transaction_mroc_current.TransactionID
+              JOIN {{ ref('STAGE','DS_BVSTG_AP1_LOGINSTATUS') }} ds_bvstg_ap1_loginstatus
+                ON (ds_bvstg_ap1_loginstatus.UserID = v_s_ap1_transaction_mroc_current.primaryproducerid AND ds_bvstg_ap1_loginstatus.created >= dateadd(DAY, -60,v_s_ap1_transaction_mroc_current.created) AND ds_bvstg_ap1_loginstatus.created <= v_s_ap1_transaction_mroc_current.created)
+               AND v_s_ap1_transaction_mroc_current.isrowdeleted=0 QUALIFY ROW_NUMBER() OVER (PARTITION BY v_s_ap1_transaction_mroc_current.transactionid ORDER BY ds_bvstg_ap1_loginstatus.CREATED DESC)=1
+        name: BVSTG_AP1_AU_TRANSACTION_LASTLOGINOFFICE_A
+        noLinkRefs: []
+  name: BVSTG_AP1_AU_TRANSACTION_LASTLOGINOFFICE_A
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

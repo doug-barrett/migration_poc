@@ -1,0 +1,115 @@
+fileVersion: 1
+id: c33641e7-219a-4739-b532-c7685cbe4d2a
+name: V_PREB_PCCE_EMPLOYEE_UPN_APPONE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4952c67f-c0af-4e75-9fb8-47b20d033210
+          stepCounter: c33641e7-219a-4739-b532-c7685cbe4d2a
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: UPN
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8138be61-3d3f-402a-8d32-b7790ea6b94d
+          stepCounter: c33641e7-219a-4739-b532-c7685cbe4d2a
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 95c7ef3c-4a10-4a82-8d02-79d4fade366e
+                stepCounter: 14a4261f-e5fe-4808-952a-74163c678002
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_PCCE_EMPLOYEE_UPN_APPONE: c33641e7-219a-4739-b532-c7685cbe4d2a
+          V_DLBV_CPS_EMPLOYEESUPN_CURRENT: 27767256-a119-4d82-86db-5ff8472507fa
+          V_DLBV_PCCE_PERSON_CURRENT: 07b38603-aacb-48ad-8f5f-d06c22b232b0
+          V_S_BOE_TJ_EMPLOYEE_CURRENT: 589c1ac1-8d66-4cbe-87cd-18c4706a7ea9
+          DS_BVSTG_PCCE_AGENT: f2301a5f-4e60-472d-a4a9-9e183e7e5764
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PREB_PCCE_EMPLOYEE_UPN_APPONE') }} AS SELECT DISTINCT UPN,
+                   EMPLOYEENUMBER
+              FROM(
+                    SELECT DISTINCT lower(UPN)upn,
+                           CASE WHEN LEN(EMPLOYEENUMBER) >6 THEN EMPLOYEENUMBER
+                                WHEN LEN(EMPLOYEENUMBER) >2 THEN RIGHT('0000' || try_to_numeric(EMPLOYEENUMBER),6)
+                                ELSE RIGHT('000' || try_to_numeric(EMPLOYEENUMBER),6)
+                                 END EMPLOYEENUMBER,
+                           1 AS Number,
+                           b.loginname
+                      FROM {{ ref('STAGE','V_DLBV_CPS_EMPLOYEESUPN_CURRENT') }} a
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_PCCE_PERSON_CURRENT') }} b
+                        ON (lower(a.UPN) = lower(b.loginname))
+                     WHERE a.DELETEDBY IS NULL QUALIFY ROW_NUMBER() OVER (PARTITION BY loginname ORDER BY isactive DESC, employeenumber)=1
+                     UNION SELECT DISTINCT lower(b.LoginName),
+                           RIGHT('000' || try_to_numeric(a.UltiproNumber),6) EMPLOYEENUMBER,
+                           3 AS Number,
+                           c.loginname
+                      FROM {{ ref('STAGE','V_S_BOE_TJ_EMPLOYEE_CURRENT') }} a
+                     INNER JOIN {{ ref('STAGE','DS_BVSTG_PCCE_AGENT') }} b
+                        ON (b.SKILLTARGETID = a.AgentSKILLTARGETID)
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_PCCE_PERSON_CURRENT') }} c
+                        ON (lower(b.LoginName) = lower(c.loginname))
+                   )UPN /*
+            QUALIFY ROW_NUMBER() OVER (
+                PARTITION BY EMPLOYEENUMBER
+                ORDER BY Number,CASE WHEN loginname IS NOT NULL THEN 0 ELSE 1 END
+            )=1
+            */
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_EMPLOYEE_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_DLBV_CPS_EMPLOYEESUPN_CURRENT
+          - locationName: STAGE
+            nodeName: V_DLBV_PCCE_PERSON_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_BOE_TJ_EMPLOYEE_CURRENT
+          - locationName: STAGE
+            nodeName: DS_BVSTG_PCCE_AGENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_S_AP1_EMPLOYEE_MROC_CURRENT') }}
+            {{ ref('STAGE','V_DLBV_CPS_EMPLOYEESUPN_CURRENT') }}
+            {{ ref('STAGE','V_DLBV_PCCE_PERSON_CURRENT') }}
+            {{ ref('STAGE','V_S_BOE_TJ_EMPLOYEE_CURRENT') }}
+            {{ ref('STAGE','DS_BVSTG_PCCE_AGENT') }}
+        name: V_PREB_PCCE_EMPLOYEE_UPN_APPONE
+        noLinkRefs: []
+  name: V_PREB_PCCE_EMPLOYEE_UPN_APPONE
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

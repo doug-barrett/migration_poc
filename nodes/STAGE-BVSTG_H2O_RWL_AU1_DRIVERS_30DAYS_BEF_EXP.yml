@@ -1,0 +1,123 @@
+fileVersion: 1
+id: 6a297894-754a-4252-a10b-251ec22abe44
+name: BVSTG_H2O_RWL_AU1_DRIVERS_30DAYS_BEF_EXP
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 712db2e7-89de-468f-90bb-7285fc6a6cf9
+          stepCounter: 6a297894-754a-4252-a10b-251ec22abe44
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: PR_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a14a3169-be89-46f2-8a66-a0ecb7a2dc33
+                stepCounter: 2a2051cb-983b-412d-95c5-c709a18b3b5e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4048271a-abe8-4fb4-824d-89ff77e6bdf9
+          stepCounter: 6a297894-754a-4252-a10b-251ec22abe44
+        config: {}
+        dataType: NUMBER(10,2)
+        defaultValue: ""
+        description: ""
+        name: NO_OF_DRIVERS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: COUNt(V_S_AP1_POLICYDRIVER_MROC_CURRENT.POLICYDRIVERID)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a8ceaf95-285d-499b-90e3-b69870fc28b5
+          stepCounter: 6a297894-754a-4252-a10b-251ec22abe44
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 71dfe98d-bd4e-43d2-a6c3-488d85cf01d7
+          stepCounter: 6a297894-754a-4252-a10b-251ec22abe44
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_S_AP1_POLICYDRIVER_MROC_CURRENT: 878e60bd-856e-4433-973b-2e75172532cd
+          V_S_AP1_POLICYVERSION_MROC_CURRENT: 2116f500-76bb-43c1-a269-a89379c9e9c6
+          DS_POLICYSUMMARY_RENEWALS: 2a2051cb-983b-412d-95c5-c709a18b3b5e
+          BVSTG_CUSTOMER_TO_REFRESH: 7cbd0921-faef-4eb6-bdf6-f95f09598096
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_POLICYSUMMARY_RENEWALS
+          - locationName: STAGE
+            nodeName: V_S_AP1_POLICYDRIVER_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AP1_POLICYVERSION_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: BVSTG_CUSTOMER_TO_REFRESH
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_S_AP1_POLICYDRIVER_MROC_CURRENT') }} V_S_AP1_POLICYDRIVER_MROC_CURRENT
+             INNER JOIN {{ ref('STAGE','V_S_AP1_POLICYVERSION_MROC_CURRENT') }} V_S_AP1_POLICYVERSION_MROC_CURRENT
+                ON V_S_AP1_POLICYDRIVER_MROC_CURRENT.PolicyVersionID = V_S_AP1_POLICYVERSION_MROC_CURRENT.PolicyVersionID
+               AND V_S_AP1_POLICYVERSION_MROC_CURRENT.PolicyVersionStatusID = 1
+             INNER JOIN {{ ref('EDW','DS_POLICYSUMMARY_RENEWALS') }} ds_policysummary_renewals
+                ON TO_VARCHAR(V_S_AP1_POLICYVERSION_MROC_CURRENT.PolicyID) = TO_VARCHAR(ds_policysummary_renewals.Source_PolicyID)
+               AND V_S_AP1_POLICYDRIVER_MROC_CURRENT.CREATED <= ds_policysummary_renewals.renewal_start_period
+             INNER JOIN (
+                    SELECT DISTINCT customerid,
+                           SourceDB
+                      FROM {{ ref('STAGE','BVSTG_CUSTOMER_TO_REFRESH') }}
+                   ) bvstg_customer_to_refresh
+                ON TO_CHAR(bvstg_customer_to_refresh.customerid) = TO_CHAR(ds_policysummary_renewals.customerid)
+               AND bvstg_customer_to_refresh.SourceDB = 'AppOne'
+             WHERE V_S_AP1_POLICYDRIVER_MROC_CURRENT.IsRowDeleted = 0
+               AND V_S_AP1_POLICYDRIVER_MROC_CURRENT.IsExcluded = 0
+               AND V_S_AP1_POLICYVERSION_MROC_CURRENT.IsRowDeleted = 0
+             GROUP BY ds_policysummary_renewals.ID
+        name: BVSTG_H2O_RWL_AU1_DRIVERS_30DAYS_BEF_EXP
+        noLinkRefs: []
+  name: BVSTG_H2O_RWL_AU1_DRIVERS_30DAYS_BEF_EXP
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

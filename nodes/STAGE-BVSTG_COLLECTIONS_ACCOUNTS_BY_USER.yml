@@ -1,0 +1,139 @@
+fileVersion: 1
+id: 0996f4c5-b03a-425a-a3c3-ada06b2314f3
+name: BVSTG_COLLECTIONS_ACCOUNTS_BY_USER
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e119d651-65b3-403d-a396-fa8b0992cd80
+          stepCounter: 0996f4c5-b03a-425a-a3c3-ada06b2314f3
+        config: {}
+        dataType: NUMBER(10,0)
+        defaultValue: ""
+        description: ""
+        name: BATCHID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8da5a1a4-3f6d-4b03-97ae-1aefaeb6b525
+                stepCounter: 82607064-86dd-4de8-81a7-f57ff88668fe
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 53486f45-d8c1-4c0b-a579-abc19767e8a9
+          stepCounter: 0996f4c5-b03a-425a-a3c3-ada06b2314f3
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: LOGBY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN V_DLBV_CFA_DEBTMSTR_BATCHLOG_CURRENT.LOGBY = 'jroman' THEN 'jonathan.roman'
+                          ELSE lower(V_DLBV_CFA_DEBTMSTR_BATCHLOG_CURRENT.LOGBY)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e773593a-29a5-47a0-ad4b-ce7b1f206f77
+          stepCounter: 0996f4c5-b03a-425a-a3c3-ada06b2314f3
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: LOGDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: DATE(V_DLBV_CFA_DEBTMSTR_BATCHLOG_CURRENT.LOGDATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 09fb7e66-b310-4592-b6a2-4ffea8dc76ae
+          stepCounter: 0996f4c5-b03a-425a-a3c3-ada06b2314f3
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d0701077-f59a-4fa8-892f-835ab6bd0d53
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dd0ab3bc-5298-4bab-b713-7f9fb14ffa8e
+          stepCounter: 0996f4c5-b03a-425a-a3c3-ada06b2314f3
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1da8291e-1aa3-47f1-99c8-16a8ab82a5f7
+          stepCounter: 0996f4c5-b03a-425a-a3c3-ada06b2314f3
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: ASSIGNMENT_STATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MAX_BY(V_DLBV_CFA_DEBTMSTR_NSFSTATUS_CURRENT.NAME, V_DLBV_CFA_DEBTMSTR_BATCHLOG_CURRENT.LOGDATE)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_DLBV_CFA_DEBTMSTR_BATCHLOG_CURRENT
+        join:
+          joinCondition: |-
+            FROM RETAIL_PROD.SCH_BVSTAGE.V_DLBV_CFA_DEBTMSTR_BATCHLOG_CURRENT V_DLBV_CFA_DEBTMSTR_BATCHLOG_CURRENT
+              JOIN DATA_LAKE.BIA_ANALYTICS.V_BVSTG_ASSIGNED_TO_COLLECTIONS_V2 V_BVSTG_ASSIGNED_TO_COLLECTIONS_V2
+                ON V_DLBV_CFA_DEBTMSTR_BATCHLOG_CURRENT.BATCHID = V_BVSTG_ASSIGNED_TO_COLLECTIONS_V2.BATCHID
+              LEFT JOIN (
+                    SELECT DISTINCT *
+                      FROM DATA_LAKE.BIA_ANALYTICS.V_BVSTG_COLLECTED_BY_ROLES
+                   ) V_BVSTG_COLLECTED_BY_ROLES
+                ON V_BVSTG_COLLECTED_BY_ROLES.ID = V_BVSTG_ASSIGNED_TO_COLLECTIONS_V2.ID
+              JOIN RETAIL_PROD.SCH_EDW.DS_AP1_TRANSACTIONSUMMARY DS_AP1_TRANSACTIONSUMMARY
+                ON V_BVSTG_ASSIGNED_TO_COLLECTIONS_V2.TransactionID = DS_AP1_TRANSACTIONSUMMARY.transactionid
+              LEFT JOIN RETAIL_PROD.SCH_BVSTAGE.V_DLBV_CFA_DEBTMSTR_NSFSTATUS_CURRENT V_DLBV_CFA_DEBTMSTR_NSFSTATUS_CURRENT
+                ON V_DLBV_CFA_DEBTMSTR_NSFSTATUS_CURRENT.statusid = V_DLBV_CFA_DEBTMSTR_BATCHLOG_CURRENT.statusid
+             WHERE LOGDATE >= '2023-01-01'
+               AND logby <> 'BIAUser' --AND V_BVSTG_COLLECTED_BY_ROLES.ID IS NULL  group by 1,2,3,4,5
+        name: BVSTG_COLLECTIONS_ACCOUNTS_BY_USER
+        noLinkRefs: []
+  name: BVSTG_COLLECTIONS_ACCOUNTS_BY_USER
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

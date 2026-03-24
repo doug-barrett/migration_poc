@@ -1,0 +1,154 @@
+fileVersion: 1
+id: e9e59c7a-4c3e-4b39-a528-9d1db4d307b9
+name: BVSTG_H20_AU1_CDT_ALL
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e23f2cf1-857f-4ddf-8bb1-8a9827ce7c5c
+          stepCounter: e9e59c7a-4c3e-4b39-a528-9d1db4d307b9
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: POLICYID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fc8a38cb-b5e8-4676-bb6e-9ebb574970fc
+                stepCounter: a1883797-2976-4a37-aa6b-7da573d5aed7
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 27053535-daf9-4f56-a3c5-fdafa5d54bf1
+          stepCounter: e9e59c7a-4c3e-4b39-a528-9d1db4d307b9
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: ""
+        name: CDT_STATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MAX(CASE WHEN v_preb_cdt_policy.SeqNo_Status_asc = 1 THEN v_preb_cdt_policy.Status ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 901e581a-3e21-423a-be1f-9cdf0b6f6610
+          stepCounter: e9e59c7a-4c3e-4b39-a528-9d1db4d307b9
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: ""
+        name: CDT_CREATED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MAX(CASE WHEN v_preb_cdt_policy.SeqNo_Status_asc = 1 THEN v_preb_cdt_policy.created ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2c5e57ba-152e-4bd7-9d04-37e636fb9cd9
+          stepCounter: e9e59c7a-4c3e-4b39-a528-9d1db4d307b9
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: ""
+        name: CDT_STATUSDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MAX(CASE WHEN v_preb_cdt_policy.SeqNo_Status_asc = 1 THEN v_preb_cdt_policy.StatusDate ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 58958dc1-b3c7-42c8-a893-035585ac546b
+          stepCounter: e9e59c7a-4c3e-4b39-a528-9d1db4d307b9
+        config: {}
+        dataType: NUMBER(10)
+        defaultValue: ""
+        description: ""
+        name: CDT_NUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: COUNT(1)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9764dd91-4988-4af8-a51c-baeb7780ec1e
+          stepCounter: e9e59c7a-4c3e-4b39-a528-9d1db4d307b9
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ef6d4246-9f98-4f77-9f21-7d4774108e71
+          stepCounter: e9e59c7a-4c3e-4b39-a528-9d1db4d307b9
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_CDT_POLICY: a1883797-2976-4a37-aa6b-7da573d5aed7
+          BVSTG_H20_LAPSE_MODEL_REFRESH_ALL: 0bbcef3b-24cf-484c-935d-a6832bd57db3
+          DS_AP1_TRANSACTIONSUMMARY: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_PREB_CDT_POLICY
+          - locationName: STAGE
+            nodeName: BVSTG_H20_LAPSE_MODEL_REFRESH_ALL
+          - locationName: EDW
+            nodeName: DS_AP1_TRANSACTIONSUMMARY
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_PREB_CDT_POLICY') }} v_preb_cdt_policy
+             INNER JOIN {{ ref('STAGE','BVSTG_H20_LAPSE_MODEL_REFRESH_ALL') }} bvstg_h20_lapse_model_refresh_all
+                ON v_preb_cdt_policy.policyid = bvstg_h20_lapse_model_refresh_all.policyid
+               AND DATE(v_preb_cdt_policy.created) BETWEEN DATE(bvstg_h20_lapse_model_refresh_all.STARTDATE) AND CURRENT_DATE()
+             INNER JOIN {{ ref('EDW','DS_AP1_TRANSACTIONSUMMARY') }} ds_ap1_transactionsummary
+                ON v_preb_cdt_policy.policyid = ds_ap1_transactionsummary.policyid
+               AND DATE(v_preb_cdt_policy.created) BETWEEN DATE(ds_ap1_transactionsummary.created) AND CURRENT_DATE()
+             WHERE ds_ap1_transactionsummary.TransactionType IN ('New Business')
+               AND ds_ap1_transactionsummary.isvoid = 0
+               AND ds_ap1_transactionsummary.ISCORPORATEVOID = 0
+               AND ds_ap1_transactionsummary.ISROWDELETED = 0
+               AND v_preb_cdt_policy.SeqNo_Status_asc != 1000
+             GROUP BY v_preb_cdt_policy.PolicyID
+        name: BVSTG_H20_AU1_CDT_ALL
+        noLinkRefs: []
+  name: BVSTG_H20_AU1_CDT_ALL
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

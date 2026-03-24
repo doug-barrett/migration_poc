@@ -1,0 +1,191 @@
+fileVersion: 1
+id: f7f29a2c-0d93-4681-ba2c-d4ea409d4bb8
+name: BVSTG_AU4_CSPR
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e401c8ec-8ab2-4c3d-bc3e-bcd5376c2d9f
+          stepCounter: f7f29a2c-0d93-4681-ba2c-d4ea409d4bb8
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_AU4_CSPR_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(ifnull(to_varchar(DS_RAM_RETAIL_REPOSITORY.DATE), '-') || ifnull(DS_RAM_RETAIL_REPOSITORY.EMPLOYEE, '-') || ifnull(DS_RAM_RETAIL_REPOSITORY.OFFICECODE, '-'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 83b8055c-c5fd-44bb-b3ed-ed493d2c3129
+          stepCounter: f7f29a2c-0d93-4681-ba2c-d4ea409d4bb8
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d53bfab3-1639-4dd3-9afa-5b028da9f9ac
+          stepCounter: f7f29a2c-0d93-4681-ba2c-d4ea409d4bb8
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2e419d49-057e-43dd-a526-c0ea9a0335e8
+          stepCounter: f7f29a2c-0d93-4681-ba2c-d4ea409d4bb8
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: OFFICECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b827a0e1-1bf5-4aab-88d0-ba79c3b95433
+                stepCounter: d29a0c5c-e296-46c4-bc55-861d60fe906d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dcdb1f35-005f-4535-a068-9a83537aa135
+          stepCounter: f7f29a2c-0d93-4681-ba2c-d4ea409d4bb8
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: WORKED_DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: sum(ds_ram_retail_repository.worked_days)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4328c282-6931-46d1-ab78-aaab30369f3a
+          stepCounter: f7f29a2c-0d93-4681-ba2c-d4ea409d4bb8
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ba24880b-68e1-4f5f-acd5-a8f9731c1662
+          stepCounter: f7f29a2c-0d93-4681-ba2c-d4ea409d4bb8
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_RAM_RETAIL_REPOSITORY: d29a0c5c-e296-46c4-bc55-861d60fe906d
+          DS_RETAIL_OFFICE: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_RAM_RETAIL_REPOSITORY
+          - locationName: EDW
+            nodeName: DS_RETAIL_OFFICE
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT a.DATE,
+                           a.EMPLOYEE,
+                           b.ACTIVE_OFFICERELATEDTOOFFICESTATUSDETAILS AS OFFICECODE,
+                           a.WORKED_DAYS
+                      FROM (
+                            SELECT DATE, EMPLOYEE,
+                                   OFFICECODE,
+                                   WORKED_DAYS
+                              FROM (
+                                    SELECT date_trunc('month', DATE) AS DATE,
+                                           EMPLOYEE,
+                                           OFFICECODE,
+                                           sum(Transactions) AS Transactions,
+                                           count(*) AS Worked_days
+                                      FROM (
+                                            SELECT DATE, EMPLOYEE,
+                                                   OFFICECODE,
+                                                   count(*) AS Transactions
+                                              FROM (
+                                                    SELECT to_date(CREATEDDATE) AS DATE,
+                                                           ifnull(PRIMARYAGENTULTIPRO_BROKER, '-') AS EMPLOYEE,
+                                                           OFFICECODE
+                                                      FROM {{ ref('EDW','DS_RAM_RETAIL_REPOSITORY') }}
+                                                     WHERE YEAR(CreatedDate) >= 2021
+                                                       AND Label NOT LIKE '%Void%'
+                                                       AND SourceDB <> 'ConfieHub'
+                                                       AND CLASSIFICATIONGROUP NOT IN ('SR-22 Fee', 'Agency Fee', 'Documentation Fee', 'Monthly Payments Fee', 'Renewal', 'New Transfer', 'Fee Counts', 'Cancellation', 'Reinstatement', 'Endorsement', 'Endorsements (NonPrem)', 'ADD')
+                                                       AND NOT (CLASSIFICATIONGROUP = 'New Quotes Auto' AND SourceDB <> 'AppOne')
+                                                       AND (PRIMARYAGENTULTIPRO_BROKER NOT IN ('ODT TEST', 'CDT', 'HSACCT', 'STURBO'))
+                                                   )
+                                             GROUP BY DATE, EMPLOYEE,
+                                                   OFFICECODE QUALIFY rank() OVER (PARTITION BY DATE, EMPLOYEE ORDER BY officecode IS NULL, Transactions DESC) = 1
+                                           )
+                                     GROUP BY 1,
+                                              2,
+                                              3
+                                   )
+                             WHERE officecode IS NOT NULL
+                           ) a
+                      LEFT JOIN (
+                            SELECT DISTINCT OFFICECODE,
+                                   ACTIVE_OFFICERELATEDTOOFFICESTATUSDETAILS
+                              FROM {{ ref('EDW','DS_RETAIL_OFFICE') }}
+                           ) AS b
+                        ON a.OFFICECODE = b.OFFICECODE
+                   ) DS_RAM_RETAIL_REPOSITORY
+             GROUP BY DS_RAM_RETAIL_REPOSITORY.DATE,
+                      DS_RAM_RETAIL_REPOSITORY.EMPLOYEE,
+                      DS_RAM_RETAIL_REPOSITORY.OFFICECODE
+        name: BVSTG_AU4_CSPR
+        noLinkRefs: []
+  name: BVSTG_AU4_CSPR
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

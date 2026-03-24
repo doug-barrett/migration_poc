@@ -1,0 +1,262 @@
+fileVersion: 1
+id: 9e916206-12f8-49c5-b4bb-aaaf9abf1fb5
+name: BVSTG_AU7_CSPR
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e3c78783-ff08-4d61-9712-f77eef0d5704
+          stepCounter: 9e916206-12f8-49c5-b4bb-aaaf9abf1fb5
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_AU7_CSPR_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(to_varchar(bvstg_au5_cspr.enddate) || ifnull(bvstg_au5_cspr.location, '-'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1e2c1550-5eb7-4863-af98-ada79cef41e2
+          stepCounter: 9e916206-12f8-49c5-b4bb-aaaf9abf1fb5
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: ENDDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 88d8da2d-35fe-4106-b6dd-1b72dcae8e22
+                stepCounter: e067b4a2-c3c1-425f-b701-1ca1a72036a9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2ea4e07c-feae-4531-b1ed-92aed796eb25
+          stepCounter: 9e916206-12f8-49c5-b4bb-aaaf9abf1fb5
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: LOCATION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 51068013-8da9-4ad0-92c5-92d902955aac
+          stepCounter: 9e916206-12f8-49c5-b4bb-aaaf9abf1fb5
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: FTE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 88f29473-488a-46a7-bd12-a2b8c81be58f
+          stepCounter: 9e916206-12f8-49c5-b4bb-aaaf9abf1fb5
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3aa83cf5-2bef-448b-8037-84655cae86d8
+          stepCounter: 9e916206-12f8-49c5-b4bb-aaaf9abf1fb5
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_AU5_CSPR: e067b4a2-c3c1-425f-b701-1ca1a72036a9
+          BVSTG_AU4_CSPR: f7f29a2c-0d93-4681-ba2c-d4ea409d4bb8
+          V_DLBV_API_UKG_EMPLOYEEPAYSTATEMENTS_CURRENT: 4d242277-1b1f-4720-bcbd-c97c35724d3f
+          V_DLBV_API_UKG_JOBS_CURRENT: 1468a415-34c3-4432-8846-8cb1f8654165
+          V_DLBV_API_UKG_WORKSUMMARIES_CURRENT: 247df2c9-8d82-4f3b-8712-00f15277ef66
+          V_DLBV_BOE_SALESCALENDAR_CURRENT: 7b43243c-99cb-4fd8-be93-b03d0143084f
+          DS_RETAIL_OFFICE: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_AU5_CSPR
+          - locationName: STAGE
+            nodeName: BVSTG_AU4_CSPR
+          - locationName: STAGE
+            nodeName: V_DLBV_API_UKG_EMPLOYEEPAYSTATEMENTS_CURRENT
+          - locationName: STAGE
+            nodeName: V_DLBV_API_UKG_JOBS_CURRENT
+          - locationName: STAGE
+            nodeName: V_DLBV_API_UKG_WORKSUMMARIES_CURRENT
+          - locationName: STAGE
+            nodeName: V_DLBV_BOE_SALESCALENDAR_CURRENT
+          - locationName: EDW
+            nodeName: DS_RETAIL_OFFICE
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM ( SELECT ENDDATE,
+                   OFFICECODE AS
+            LOCATION,
+                   sum(FTE) AS FTE
+              FROM (SELECT bvstg_au5_cspr.ENDDATE,
+                   ACTIVE_OFFICERELATEDTOOFFICESTATUSDETAILS AS OFFICECODE,
+                   round(WRKHRS/(WORKING_DAYS*Working_hour_day),1) AS FTE
+              FROM (
+                    SELECT bvstg_au5_cspr.*,
+                           Working_days
+                      FROM (
+                            SELECT bvstg_au5_cspr.EMPLOYEENUMBER,
+                                   bvstg_au5_cspr.ENDDATE,
+                                   OFFICECODE,
+                                   WRKMINS,
+                                   round((WRKMINS/60),1) AS WRKHRS,
+                                   '8' AS Working_hour_day
+                              FROM (
+                                    SELECT DISTINCT ENDDATE,
+                                           EMPLOYEENUMBER
+                                      FROM (
+                                            SELECT enddate,
+                                                   EMPLOYEENUMBER,
+                                                   CASE WHEN bvstg_au4_cspr.EMPLOYEE IS NOT NULL THEN 1
+                                                        ELSE 0
+                                                         END AS Flag
+                                              FROM (
+                                                    SELECT DISTINCT enddate,
+                                                           EMPLOYEENUMBER
+                                                      FROM {{ ref('STAGE','BVSTG_AU5_CSPR') }}
+                                                     WHERE metric = 'fte'
+                                                   ) bvstg_au5_cspr
+                                              LEFT JOIN (
+                                                    SELECT DISTINCT date, employee
+                                                      FROM {{ ref('STAGE','BVSTG_AU4_CSPR') }}
+                                                   ) bvstg_au4_cspr
+                                                ON bvstg_au5_cspr.enddate = bvstg_au4_cspr.date
+                                               AND bvstg_au5_cspr.EMPLOYEENUMBER = bvstg_au4_cspr.employee
+                                           )
+                                     WHERE ENDDATE BETWEEN '2023-01-01' AND (CASE WHEN DAY(CURRENT_DATE()) <= 14 THEN DATEADD(MONTH, -2, CURRENT_DATE()) ELSE DATEADD(MONTH, -1, CURRENT_DATE()) END)
+                                       AND flag = 0
+                                   ) bvstg_au5_cspr
+                              LEFT JOIN (
+                                    SELECT EMPLOYEENUMBER,
+                                           ENDDATE,
+                                           OFFICECODE,
+                                           round(WRKMINS/num_offices,1) AS WRKMINS
+                                      FROM (
+                                            SELECT DISTINCT EMPLOYEENUMBER,
+                                                   ENDDATE,
+
+                                          LOCATION AS officecode,
+                                                   WRKMINS,
+                                                   count(*) OVER (PARTITION BY EMPLOYEENUMBER,ENDDATE) AS num_offices
+                                              FROM (
+                                                    SELECT DISTINCT EMPLOYEENUMBER,
+                                                           EMPNAME,
+                                                           ENDDATE,
+
+                                                  LOCATION
+                                                      FROM (
+                                                            SELECT DISTINCT EMPLOYEENUMBER,
+                                                                   concat(EMPLOYEENUMBER,'-',COMPANYIDENTIFIER) AS EMPNAME,
+                                                                   date_trunc(MONTH,to_date(PERIODENDDATE)) AS ENDDATE,
+
+                                                          LOCATION,
+                                                                   JOB
+                                                              FROM {{ ref('STAGE','V_DLBV_API_UKG_EMPLOYEEPAYSTATEMENTS_CURRENT') }}
+                                                           ) v_dlbv_api_ukg_employeepaystatements_current
+                                                      LEFT JOIN (
+                                                            SELECT DISTINCT JOBCODE,
+                                                                   JOBFAMILY
+                                                              FROM {{ ref('STAGE','V_DLBV_API_UKG_JOBS_CURRENT') }}
+                                                           ) v_dlbv_api_ukg_jobs_current
+                                                        ON v_dlbv_api_ukg_employeepaystatements_current.JOB = v_dlbv_api_ukg_jobs_current.JOBCODE
+                                                     WHERE lower(JOBFAMILY) = 'sales'
+                                                   ) v_dlbv_api_ukg_employeepaystatements_current
+                                              LEFT JOIN (
+                                                    SELECT DISTINCT EMPNAME,
+                                                           date_trunc('month',to_date(WORKDATE)) AS WORKDATE,
+                                                           sum(WRKMINS) AS WRKMINS
+                                                      FROM {{ ref('STAGE','V_DLBV_API_UKG_WORKSUMMARIES_CURRENT') }}
+                                                     GROUP BY 1,
+                                                              2
+                                                   ) v_dlbv_api_ukg_worksummaries_current
+                                                ON v_dlbv_api_ukg_employeepaystatements_current.EMPNAME= v_dlbv_api_ukg_worksummaries_current.EMPNAME
+                                               AND v_dlbv_api_ukg_employeepaystatements_current.ENDDATE= v_dlbv_api_ukg_worksummaries_current.WORKDATE
+                                           )
+                                   ) v_dlbv_api_ukg_employeepaystatements_current
+                                ON bvstg_au5_cspr.EMPLOYEENUMBER = v_dlbv_api_ukg_employeepaystatements_current.EMPLOYEENUMBER
+                               AND bvstg_au5_cspr.ENDDATE = v_dlbv_api_ukg_employeepaystatements_current.ENDDATE
+                             WHERE officecode IS NOT NULL
+                           ) bvstg_au5_cspr
+                      LEFT JOIN (
+                            SELECT DISTINCT date_trunc('month',SALESDATE) asofmonth,
+                                   sum(SALESDAYWEIGHT) Working_days
+                              FROM {{ ref('STAGE','V_DLBV_BOE_SALESCALENDAR_CURRENT') }}
+                             WHERE year(SALESDATE)>=2021
+                               AND DAYOFWEEK(SALESDATE) NOT IN (6,0)
+                               AND SALESDATE <= dateadd('day',-1,date_trunc('month',CURRENT_DATE))
+                             GROUP BY 1
+                           ) v_dlbv_boe_salescalendar_current
+                        ON bvstg_au5_cspr.ENDDATE = v_dlbv_boe_salescalendar_current.asofmonth
+                   ) bvstg_au5_cspr
+              LEFT JOIN (
+                    SELECT DISTINCT officecode,
+                           CASE WHEN lower(agencyname) like '%acceptance%' THEN 'Acceptance'
+                                ELSE channel
+                                 END AS channel_1,
+                           statecode,
+                           SALESTYPE,
+                           agencyname,
+                           ACTIVE_OFFICERELATEDTOOFFICESTATUSDETAILS
+                      FROM {{ ref('EDW','DS_RETAIL_OFFICE') }}
+                   ) ds_retail_office
+                ON bvstg_au5_cspr.officecode = ds_retail_office.officecode
+             WHERE CHANNEL_1 = 'NSA'
+               AND SALESTYPE
+        name: BVSTG_AU7_CSPR
+        noLinkRefs: []
+  name: BVSTG_AU7_CSPR
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

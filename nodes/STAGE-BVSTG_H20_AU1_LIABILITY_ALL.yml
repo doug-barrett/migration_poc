@@ -1,0 +1,153 @@
+fileVersion: 1
+id: 42d18bba-2916-4439-a00a-eb56be326fe7
+name: BVSTG_H20_AU1_LIABILITY_ALL
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a38096d0-2204-4118-8612-d6a1d849b580
+          stepCounter: 42d18bba-2916-4439-a00a-eb56be326fe7
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: POLICYID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 86dd4610-a6d1-49c4-ab99-c130498e6314
+                stepCounter: a3d4ed5c-3f30-4527-b1bf-5d9909568361
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 49c3978c-01c9-4af6-86b4-a92e75341069
+          stepCounter: 42d18bba-2916-4439-a00a-eb56be326fe7
+        config: {}
+        dataType: NUMBER(1)
+        defaultValue: ""
+        description: ""
+        name: HASLIAB
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN s_ap1_mastercoveragetype_mroc.CoverageTypeCode IN ('PD', 'BI', 'PIP') THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9878720d-7ae5-4ea1-8ddf-f9eb06f7564c
+          stepCounter: 42d18bba-2916-4439-a00a-eb56be326fe7
+        config: {}
+        dataType: NUMBER(1)
+        defaultValue: ""
+        description: ""
+        name: HASCOMPREHENSIVE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN s_ap1_mastercoveragetype_mroc.CoverageTypeCode IN ('COMP') THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a831ff10-2177-41bf-8b2a-ff4e372ac465
+          stepCounter: 42d18bba-2916-4439-a00a-eb56be326fe7
+        config: {}
+        dataType: NUMBER(1)
+        defaultValue: ""
+        description: ""
+        name: HASCOLLISION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN s_ap1_mastercoveragetype_mroc.CoverageTypeCode IN ('COLL') THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2a54838f-a49d-499b-8fd6-08a8fd1556d3
+          stepCounter: 42d18bba-2916-4439-a00a-eb56be326fe7
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ff8814a4-8c1e-4a0c-a899-0a3dd0107f6f
+          stepCounter: 42d18bba-2916-4439-a00a-eb56be326fe7
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_H20_LAPSE_MODEL_REFRESH: d2daaa44-a718-4c97-9d33-d5b6900008cb
+          S_AP1_POLICYVERSION_MROC: a3d4ed5c-3f30-4527-b1bf-5d9909568361
+          S_AP1_POLICYVEHICLE_MROC: 22ba3a91-7de7-4895-8cc7-b27a26571c38
+          S_AP1_POLICYVEHICLECOVERAGE_MROC: 5fb9953f-d31b-4594-8a07-a92afd27f08c
+          S_AP1_MASTERCOVERAGETYPE_MROC: e22ce43a-dcb2-401e-8466-384c80787c39
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DATA_VAULT
+            nodeName: S_AP1_POLICYVERSION_MROC
+          - locationName: STAGE
+            nodeName: BVSTG_H20_LAPSE_MODEL_REFRESH
+          - locationName: DATA_VAULT
+            nodeName: S_AP1_POLICYVEHICLE_MROC
+          - locationName: DATA_VAULT
+            nodeName: S_AP1_POLICYVEHICLECOVERAGE_MROC
+          - locationName: DATA_VAULT
+            nodeName: S_AP1_MASTERCOVERAGETYPE_MROC
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','BVSTG_H20_LAPSE_MODEL_REFRESH') }} bvstg_h20_lapse_model_refresh
+             INNER JOIN {{ ref('DATA_VAULT','S_AP1_POLICYVERSION_MROC') }} s_ap1_policyversion_mroc
+                ON s_ap1_policyversion_mroc.policyid = bvstg_h20_lapse_model_refresh.policyid
+             INNER JOIN {{ ref('DATA_VAULT','S_AP1_POLICYVEHICLE_MROC') }} s_ap1_policyvehicle_mroc
+                ON s_ap1_policyvehicle_mroc.PolicyVersionID = s_ap1_policyversion_mroc.PolicyVersionID
+             INNER JOIN {{ ref('DATA_VAULT','S_AP1_POLICYVEHICLECOVERAGE_MROC') }} s_ap1_policyvehiclecoverage_mroc
+                ON s_ap1_policyvehiclecoverage_mroc.PolicyVehicleID = s_ap1_policyvehicle_mroc.PolicyVehicleID
+             INNER JOIN {{ ref('DATA_VAULT','S_AP1_MASTERCOVERAGETYPE_MROC') }} s_ap1_mastercoveragetype_mroc
+                ON s_ap1_policyvehiclecoverage_mroc.MasterCoverageTypeID = s_ap1_mastercoveragetype_mroc.MasterCoverageTypeID
+             WHERE 1=1 QUALIFY ROW_NUMBER() OVER (PARTITION BY s_ap1_policyversion_mroc.PolicyID ORDER BY s_ap1_policyvehiclecoverage_mroc.DSS_VERSION DESC, s_ap1_policyvehicle_mroc.DSS_VERSION DESC, s_ap1_policyversion_mroc.DSS_VERSION DESC) = 1
+        name: BVSTG_H20_AU1_LIABILITY_ALL
+        noLinkRefs: []
+  name: BVSTG_H20_AU1_LIABILITY_ALL
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

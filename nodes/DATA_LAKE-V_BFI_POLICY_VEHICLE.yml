@@ -1,0 +1,161 @@
+fileVersion: 1
+id: df591370-c8a0-454a-aefa-ee37ba280a32
+name: V_BFI_POLICY_VEHICLE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: DATA_LAKE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 42834f16-eee4-4933-946f-f75969cc5cfd
+          stepCounter: df591370-c8a0-454a-aefa-ee37ba280a32
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: POLICY_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: XMLGET(policy.value,'policy_id'):"$" ::integer
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4b3447c8-289b-416c-906f-34d5f8bea6fe
+          stepCounter: df591370-c8a0-454a-aefa-ee37ba280a32
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: VEHICLE_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: XMLGET(vehicle.VALUE,'vehicle_num'):"$" ::integer
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1ce7bcd5-e441-4913-8a9d-7088a840e134
+          stepCounter: df591370-c8a0-454a-aefa-ee37ba280a32
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: YEAR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: XMLGET(vehicle.VALUE,'year'):"$" ::integer
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 07b84434-ece6-4823-9ee8-8cd5ad4bc5c0
+          stepCounter: df591370-c8a0-454a-aefa-ee37ba280a32
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: VIN
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: XMLGET(vehicle.VALUE,'vin'):"$" ::varchar(32)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9de430b9-8914-4b0c-bb29-934167f7dd0e
+          stepCounter: df591370-c8a0-454a-aefa-ee37ba280a32
+        config: {}
+        dataType: VARCHAR(16)
+        defaultValue: ""
+        description: ""
+        name: MAKE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: XMLGET(vehicle.VALUE,'make'):"$" ::varchar(16)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7e513f61-a3a7-46e7-af2b-9996476fb82f
+          stepCounter: df591370-c8a0-454a-aefa-ee37ba280a32
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: MODEL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: XMLGET(vehicle.VALUE,'model'):"$" ::varchar(32)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 65c685d8-b3a8-4fc8-b458-6935f86b75dd
+          stepCounter: df591370-c8a0-454a-aefa-ee37ba280a32
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: Record source.
+        name: DSS_RECORD_SOURCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6c2078c6-7fb9-40bf-8637-565ada0a62b8
+                stepCounter: 5042222a-566a-46ec-8a10-51937378b7ba
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 66771d58-698a-40e2-a991-e04d9042e65a
+          stepCounter: df591370-c8a0-454a-aefa-ee37ba280a32
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Load date.
+        name: DSS_LOAD_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 03933b2f-65a9-432e-a883-328399ec3fd3
+                stepCounter: 5042222a-566a-46ec-8a10-51937378b7ba
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          LD_BFI_POLICY_TRANSACTION: 5042222a-566a-46ec-8a10-51937378b7ba
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DATA_LAKE
+            nodeName: LD_BFI_POLICY_TRANSACTION
+        join:
+          joinCondition: |-
+            FROM {{ ref('DATA_LAKE','LD_BFI_POLICY_TRANSACTION') }} ld_bfi_policy_transaction ,
+                   LATERAL FLATTEN(ld_bfi_policy_transaction .policyxml:"$") policy ,
+                   LATERAL FLATTEN(policy.value:"$") vehicle
+             WHERE GET(vehicle.value,'@') = 'Vehicle'
+        name: V_BFI_POLICY_VEHICLE
+        noLinkRefs: []
+  name: V_BFI_POLICY_VEHICLE
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

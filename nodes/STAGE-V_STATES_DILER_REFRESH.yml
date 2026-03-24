@@ -1,0 +1,171 @@
+fileVersion: 1
+id: c593ff23-e371-42aa-b520-22adc2df35d1
+name: V_STATES_DILER_REFRESH
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2954739d-b4da-4d9b-9ea5-9e6cc8542d59
+          stepCounter: c593ff23-e371-42aa-b520-22adc2df35d1
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 158b356f-7dcd-474a-9c84-8dbcf5d1d883
+          stepCounter: c593ff23-e371-42aa-b520-22adc2df35d1
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: LASTNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 44e1b232-9a79-4772-baa3-af1b4aada457
+                stepCounter: ff19c568-55e9-4232-a90f-d25dc96f4e5c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 264c16c8-5841-4ed8-bc3a-ddc8095481f5
+          stepCounter: c593ff23-e371-42aa-b520-22adc2df35d1
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: PHONE1
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4529a443-4c77-4a2c-9683-73d6136ad949
+                stepCounter: ff19c568-55e9-4232-a90f-d25dc96f4e5c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9893b4e8-cd73-48bb-b677-35634e731468
+          stepCounter: c593ff23-e371-42aa-b520-22adc2df35d1
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: HOUR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0aa8e279-805c-42ac-85c9-38efb99f65d0
+                stepCounter: ff19c568-55e9-4232-a90f-d25dc96f4e5c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b3371d1e-38fa-40a0-99dd-dbda43b00275
+          stepCounter: c593ff23-e371-42aa-b520-22adc2df35d1
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: FIRSTNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9a3879c2-4104-4c5e-bab2-378020ca3975
+                stepCounter: ff19c568-55e9-4232-a90f-d25dc96f4e5c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8844116c-40b6-4448-a7e2-2d438c88a876
+          stepCounter: c593ff23-e371-42aa-b520-22adc2df35d1
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: PHONE2
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0aa8e279-805c-42ac-85c9-38efb99f65d0
+                stepCounter: ff19c568-55e9-4232-a90f-d25dc96f4e5c
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_STATES_DILER_REFRESH: c593ff23-e371-42aa-b520-22adc2df35d1
+          DS_DIALER_TELESALES_STATES: 7c4e8a01-b002-4131-9e0a-222cfa18e8ec
+          V_DLBV_PCCE_DL_5048_5048_CURRENT: e88d9c10-4a6a-46b7-a521-d4c0b1d12694
+          V_DLBV_PCCE_DL_5051_5051_CURRENT: 3355ef43-2d06-49f4-9299-54c0a79ac159
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_STATES_DILER_REFRESH') }} AS SELECT DISTINCT ds_dialer_telesales_states.C_CUSTOMERID || ' - ' || CASE WHEN ds_dialer_telesales_states.ACTIVITYTRANSFER = 1 THEN 'Transfer not Sold'
+                        ELSE 'Lead not Transfer'
+                         END || ' - ' || ds_dialer_telesales_states.Language CustomerID ,
+                   ds_dialer_telesales_states.FIRSTNAME ,
+                   ds_dialer_telesales_states.LASTNAME ,
+                   ds_dialer_telesales_states.PHONE1 ,
+                   ds_dialer_telesales_states.PHONE2 ,
+                   ds_dialer_telesales_states.HOUR ,
+                   ds_dialer_telesales_states.TIMEZONEHOURS ,
+                   ds_dialer_telesales_states.TIMEZONE ,
+                   ds_dialer_telesales_states.STATECODE
+              FROM {{ ref('EDW','DS_DIALER_TELESALES_STATES') }} ds_dialer_telesales_states
+              LEFT JOIN {{ ref('STAGE','V_DLBV_PCCE_DL_5048_5048_CURRENT') }} V_DLBV_PCCE_DL_5048_5048_CURRENT
+                ON ds_dialer_telesales_states.C_CUSTOMERID = RTRIM(split_part(V_DLBV_PCCE_DL_5048_5048_CURRENT.AccountNumber, '-', 0))
+               AND DATE(V_DLBV_PCCE_DL_5048_5048_CURRENT.ImportRuleDate) =CURRENT_DATE()
+              LEFT JOIN {{ ref('STAGE','V_DLBV_PCCE_DL_5051_5051_CURRENT') }} V_DLBV_PCCE_DL_5051_5051_CURRENT
+                ON ds_dialer_telesales_states.C_CUSTOMERID = RTRIM(split_part(V_DLBV_PCCE_DL_5051_5051_CURRENT.AccountNumber, '-', 0))
+               AND DATE(V_DLBV_PCCE_DL_5051_5051_CURRENT.ImportRuleDate) =CURRENT_DATE()
+              LEFT JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_DLBV_CPS_IDNC_CURRENT" DNC
+                ON ds_dialer_telesales_states.PHONE1 = DNC.PhoneNumber
+              LEFT JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_DLBV_CPS_IDNC_CURRENT" DNC1
+                ON ds_dialer_telesales_states.PHONE2 = DNC1.PhoneNumber
+             WHERE ds_dialer_telesales_states.INSERTEDDATE = CURRENT_DATE()
+               AND ((HOUR(CURRENT_TIMESTAMP()) <= 8 AND ds_dialer_telesales_states.Hour <= 9) OR (HOUR(CURRENT_TIMESTAMP()) BETWEEN 10 AND 16 AND ds_dialer_telesales_states.Hour <= HOUR(CURRENT_TIMESTAMP())+1) OR HOUR(CURRENT_TIMESTAMP()) >= 17)
+               AND V_DLBV_PCCE_DL_5048_5048_CURRENT.AccountNumber IS NULL
+               AND V_DLBV_PCCE_DL_5051_5051_CURRENT.AccountNumber IS NULL
+               AND DNC.PhoneNumber IS NULL
+               AND DNC1.PhoneNumber IS NULL
+             ORDER BY ds_dialer_telesales_states.HOUR
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_DIALER_TELESALES
+          - locationName: EDW
+            nodeName: DS_DIALER_TELESALES_STATES
+          - locationName: STAGE
+            nodeName: V_DLBV_PCCE_DL_5048_5048_CURRENT
+          - locationName: STAGE
+            nodeName: V_DLBV_PCCE_DL_5051_5051_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','BVSTG_DIALER_TELESALES') }}
+            {{ ref('EDW','DS_DIALER_TELESALES_STATES') }}
+            {{ ref('STAGE','V_DLBV_PCCE_DL_5048_5048_CURRENT') }}
+            {{ ref('STAGE','V_DLBV_PCCE_DL_5051_5051_CURRENT') }}
+        name: V_STATES_DILER_REFRESH
+        noLinkRefs: []
+  name: V_STATES_DILER_REFRESH
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

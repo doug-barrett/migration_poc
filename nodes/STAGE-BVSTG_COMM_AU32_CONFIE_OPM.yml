@@ -1,0 +1,159 @@
+fileVersion: 1
+id: fba2c0a6-527f-4806-8346-3141feb3824a
+name: BVSTG_COMM_AU32_CONFIE_OPM
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5f87780c-9312-492b-af3f-6b63c723dd66
+          stepCounter: fba2c0a6-527f-4806-8346-3141feb3824a
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_COMM_AU32_CONFIE_OPM_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(ifnull(to_varchar(ds_hr_salesemployeesummary.month), '-'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c1bab70a-ef7d-4935-b044-051de3f983c7
+          stepCounter: fba2c0a6-527f-4806-8346-3141feb3824a
+        config: {}
+        dataType: NUMBER(18,0)
+        defaultValue: ""
+        description: ""
+        name: ACTIVE_EOM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e99282d2-3858-4019-88dd-d15b7a312335
+          stepCounter: fba2c0a6-527f-4806-8346-3141feb3824a
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: MONTH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 368ed832-f7d9-4ece-81c2-8e4ecbfa8d93
+          stepCounter: fba2c0a6-527f-4806-8346-3141feb3824a
+        config: {}
+        dataType: NUMBER(18,0)
+        defaultValue: ""
+        description: ""
+        name: TERMINATED_EMP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a1cbe2de-4304-4d9a-b251-e1acde4ec518
+          stepCounter: fba2c0a6-527f-4806-8346-3141feb3824a
+        config: {}
+        dataType: NUMBER(18,0)
+        defaultValue: ""
+        description: ""
+        name: ACTIVE_BOM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9485b14e-9251-420b-9dc5-0a61067daed9
+          stepCounter: fba2c0a6-527f-4806-8346-3141feb3824a
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0a795bbb-1f87-41dc-a222-636216ba0a09
+          stepCounter: fba2c0a6-527f-4806-8346-3141feb3824a
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_HR_SALESEMPLOYEESUMMARY: 44cceda3-268b-4d9c-b0a9-6d6f74e5a214
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_HR_SALESEMPLOYEESUMMARY
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT date_trunc('month', effectivedate)
+                     MONTH,
+                           count(DISTINCT CASE WHEN date_trunc('month', effectivedate) = date_trunc('month', terminationdate) AND status_eom = 'Terminated' THEN uniqueid END) Terminated_emp,
+                           count(DISTINCT CASE WHEN status_eom = 'Active' THEN uniqueid END) Active_EOM,
+                           count(DISTINCT CASE WHEN status_bom = 'Active' THEN uniqueid END) Active_BOM
+                      FROM (
+                            SELECT uniqueid,
+                                   date_trunc('month',to_date(EffectiveDate)) EffectiveDate,
+                                   date_trunc('month',to_date(TerminationDate)) TerminationDate,
+                                   pointintimestatus Status_EOM,
+                                   CASE WHEN ISNEWHIRE = 'NewHire' THEN 'Inactive'
+                                        ELSE lag(pointintimestatus, 1) OVER (PARTITION BY uniqueid ORDER BY effectivedate)
+                                         END AS Status_BOM
+                              FROM {{ ref('EDW','DS_HR_SALESEMPLOYEESUMMARY') }}
+                             WHERE lower(jobfamily) ='sales' QUALIFY row_number() OVER (PARTITION BY uniqueid, effectivedate ORDER BY EMPLOYEESTATUSSTARTDATE DESC) = 1
+                           )
+                     GROUP BY date_trunc('month', effectivedate)
+                   )ds_hr_salesemployeesummary
+        name: BVSTG_COMM_AU32_CONFIE_OPM
+        noLinkRefs: []
+  name: BVSTG_COMM_AU32_CONFIE_OPM
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,99 @@
+fileVersion: 1
+id: 6db89a15-dfa1-4ea8-b6f7-5442f4d71501
+name: BVSTG_AP1_AU_SECONDARYTRANSACTION_LASTLOGINOFFICE_A
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "pre last login office of the secondary producer  "
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 78c4cb72-8143-4a5e-b213-23edf376f928
+          stepCounter: 6db89a15-dfa1-4ea8-b6f7-5442f4d71501
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 19daa289-5dfe-4d97-b3d5-51e2af29fe56
+                stepCounter: 1e4fc6ff-9498-4ca7-9462-1e56f5443bc1
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 02225198-718e-42d2-8780-b8b52fef4269
+          stepCounter: 6db89a15-dfa1-4ea8-b6f7-5442f4d71501
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: USERID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a73aa777-233f-411c-8aec-8a5057fa1083
+                stepCounter: f5810d1f-78db-4bc6-8e94-af00acb802c9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: de91dff9-2254-433d-b46f-5bcc7eec7c4d
+          stepCounter: 6db89a15-dfa1-4ea8-b6f7-5442f4d71501
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: OFFICECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8ea8aad8-e9db-40a4-9d8b-317e8fa8882a
+                stepCounter: f5810d1f-78db-4bc6-8e94-af00acb802c9
+            transform: |-
+              CASE WHEN ds_bvstg_ap1_loginstatus.officecode like 'SSB %' THEN 'SSBLA'
+                          ELSE ds_bvstg_ap1_loginstatus.officecode
+                           END
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_AP1_TRANSACTION_REFRESH: eccb40c9-8d41-4044-b9ea-23d04db3e7bc
+          V_S_AP1_TRANSACTIONPRODUCER_MROC_CURRENT: 1e4fc6ff-9498-4ca7-9462-1e56f5443bc1
+          DS_BVSTG_AP1_LOGINSTATUS: f5810d1f-78db-4bc6-8e94-af00acb802c9
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_TRANSACTIONPRODUCER_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: BVSTG_AP1_TRANSACTION_REFRESH
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_LOGINSTATUS
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','BVSTG_AP1_TRANSACTION_REFRESH') }} bvstg_ap1_transaction_refresh
+              JOIN {{ ref('STAGE','V_S_AP1_TRANSACTIONPRODUCER_MROC_CURRENT') }} v_s_ap1_transactionproducer_mroc_current
+                ON (bvstg_ap1_transaction_refresh.transactionID = v_s_ap1_transactionproducer_mroc_current.transactionID)
+              JOIN {{ ref('STAGE','DS_BVSTG_AP1_LOGINSTATUS') }} ds_bvstg_ap1_loginstatus
+                ON (ds_bvstg_ap1_loginstatus.UserID = v_s_ap1_transactionproducer_mroc_current.userid AND ds_bvstg_ap1_loginstatus.created >= dateadd(DAY, -60,v_s_ap1_transactionproducer_mroc_current.created) AND ds_bvstg_ap1_loginstatus.created <= v_s_ap1_transactionproducer_mroc_current.created)
+               AND v_s_ap1_transactionproducer_mroc_current.isrowdeleted=0 QUALIFY ROW_NUMBER() OVER (PARTITION BY v_s_ap1_transactionproducer_mroc_current.transactionid ORDER BY ds_bvstg_ap1_loginstatus.CREATED DESC)=1
+        name: BVSTG_AP1_AU_SECONDARYTRANSACTION_LASTLOGINOFFICE_A
+        noLinkRefs: []
+  name: BVSTG_AP1_AU_SECONDARYTRANSACTION_LASTLOGINOFFICE_A
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

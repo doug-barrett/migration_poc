@@ -1,0 +1,177 @@
+fileVersion: 1
+id: 65109a36-83a2-481b-a157-2574996b7a4d
+name: BVSTG_IO_GNL_AU2_INBOUND_CALLS
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 29dfe996-651e-4d5c-a4f1-103517b860f4
+          stepCounter: 65109a36-83a2-481b-a157-2574996b7a4d
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: DEAL_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8ac326e4-1fd4-4497-ab68-68a537dadb1a
+                stepCounter: ff1b99e5-5405-45b2-8c80-1acb6360b670
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 838698c7-73ec-4f7e-9b05-0d9aefbd7424
+          stepCounter: 65109a36-83a2-481b-a157-2574996b7a4d
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGNID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MIN_BY(CAMPAIGNID, STARTDATETIME)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 58e2e496-e6d3-45b9-8217-359d4bd9275b
+          stepCounter: 65109a36-83a2-481b-a157-2574996b7a4d
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: INBOUND_CALL_ATTEMPT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(ISINBOUND)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5519be89-1167-4271-adb9-bda3a3fc7d6d
+          stepCounter: 65109a36-83a2-481b-a157-2574996b7a4d
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: INBOUND_CONVERSATION_90SEC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN TALKTIME >= 90 THEN ISINBOUND ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9f8bc4cf-a0e8-4eb1-bd7d-659b8ba7ba4a
+          stepCounter: 65109a36-83a2-481b-a157-2574996b7a4d
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: INBOUND_CALL_ATTEMPT_7DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN DATEDIFF('day', STARTDATETIME, COALESCE(SOLD_DATE,WON_LOST_DATE,current_Date())) <= 7 THEN ISINBOUND ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aa4f8ccd-cefe-4b50-9967-75af8a33b53e
+          stepCounter: 65109a36-83a2-481b-a157-2574996b7a4d
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: INBOUND_CONVERSATION_7DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN TALKTIME >= 90 AND DATEDIFF('day', STARTDATETIME, COALESCE(SOLD_DATE,WON_LOST_DATE,current_Date())) <= 7 THEN ISINBOUND ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b3b9c741-f2c4-4086-afd7-ed127ed7235a
+          stepCounter: 65109a36-83a2-481b-a157-2574996b7a4d
+        config: {}
+        dataType: TIMESTAMP(9)
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7aa70cf7-f029-4100-9f12-dfb3d4fb0909
+          stepCounter: 65109a36-83a2-481b-a157-2574996b7a4d
+        config: {}
+        dataType: TIMESTAMP_NTZ(9)
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_IO_GNL_AU1_DEALS: ff1b99e5-5405-45b2-8c80-1acb6360b670
+          DS_PCCE_TERMINATION_CALL_SUMMARY_SESSION: b0e80be4-9751-4d96-a11d-f935debb1375
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_IO_GNL_AU1_DEALS
+          - locationName: EDW
+            nodeName: DS_PCCE_TERMINATION_CALL_SUMMARY_SESSION
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT AU1_DEALS.DEAL_ID,
+                           CONVERT_TIMEZONE('UTC', 'America/Los_Angeles', AU1_DEALS.CREATION_DATE) DEAL_CREATION_DATE,
+                           WON_LOST_DATE,
+                           iswon,
+                           issold,
+                           sold_Date,
+                           tcss.id,
+                           tcss.STARTDATETIME,
+                           tcss.talktime,
+                           tcss.ISINBOUND,
+                           tcss.iscampaign,
+                           tcss.campaignid,
+                           digitsdialed,
+                           AU1_DEALS.Phone,
+                           tcss.DNIS,
+                           tcss.ANI
+                      FROM {{ ref('STAGE','BVSTG_IO_GNL_AU1_DEALS') }} AU1_DEALS
+                      JOIN {{ ref('EDW','DS_PCCE_TERMINATION_CALL_SUMMARY_SESSION') }} tcss
+                        ON RIGHT(tcss.ANI, 10) = AU1_DEALS.Phone
+                     WHERE IFNULL(Phone, '') != ''
+                       AND isinternalcall = 0
+                       AND tcss.ISINBOUND = 1
+                   ) BVSTG_IO_GNL_AU1_DEALS
+             WHERE STARTDATETIME >= DATEADD('day', -1, DEAL_CREATION_DATE)
+               AND STARTDATETIME <= COALESCE(SOLD_DATE, DATEADD('day', 1, WON_LOST_DATE), current_timestamp())
+             GROUP BY BVSTG_IO_GNL_AU1_DEALS.DEAL_ID
+        name: BVSTG_IO_GNL_AU2_INBOUND_CALLS
+        noLinkRefs: []
+  name: BVSTG_IO_GNL_AU2_INBOUND_CALLS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

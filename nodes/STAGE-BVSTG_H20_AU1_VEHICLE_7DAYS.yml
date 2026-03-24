@@ -1,0 +1,125 @@
+fileVersion: 1
+id: 5c9a57b9-5ae7-4d9a-a5c2-82ee282fcc9c
+name: BVSTG_H20_AU1_VEHICLE_7DAYS
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 063b9bf0-cb85-488f-8899-17c2d32bc352
+          stepCounter: 5c9a57b9-5ae7-4d9a-a5c2-82ee282fcc9c
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: POLICYID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f7676d34-b1e6-4143-90db-208f6082d86d
+                stepCounter: 2116f500-76bb-43c1-a269-a89379c9e9c6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4b8ca95a-2a11-4516-8cb1-ad848582f4b7
+          stepCounter: 5c9a57b9-5ae7-4d9a-a5c2-82ee282fcc9c
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: SOURCEDB
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'AppOne'"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e49dee4e-b0d6-4abf-92d8-8ac12e18c921
+          stepCounter: 5c9a57b9-5ae7-4d9a-a5c2-82ee282fcc9c
+        config: {}
+        dataType: NUMBER(10,2)
+        defaultValue: ""
+        description: ""
+        name: VINCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: COUNT(V_S_AP1_POLICYVEHICLE_MROC_CURRENT.VIN)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 94262f0c-bccc-4e82-b8ab-168faadd7e2c
+          stepCounter: 5c9a57b9-5ae7-4d9a-a5c2-82ee282fcc9c
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 97ebdcb5-4543-4e3f-ad8f-82459bdf02d6
+          stepCounter: 5c9a57b9-5ae7-4d9a-a5c2-82ee282fcc9c
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_S_AP1_POLICYVEHICLE_MROC_CURRENT: 35b9a1d7-3392-4409-9115-61a258435c93
+          V_S_AP1_POLICYVERSION_MROC_CURRENT: 2116f500-76bb-43c1-a269-a89379c9e9c6
+          BVSTG_H20_LAPSE_MODEL_REFRESH: d2daaa44-a718-4c97-9d33-d5b6900008cb
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_POLICYVERSION_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AP1_POLICYVEHICLE_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: BVSTG_H20_LAPSE_MODEL_REFRESH
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_S_AP1_POLICYVEHICLE_MROC_CURRENT') }} V_S_AP1_POLICYVEHICLE_MROC_CURRENT
+             INNER JOIN {{ ref('STAGE','V_S_AP1_POLICYVERSION_MROC_CURRENT') }} V_S_AP1_POLICYVERSION_MROC_CURRENT
+                ON V_S_AP1_POLICYVEHICLE_MROC_CURRENT.PolicyVersionID = V_S_AP1_POLICYVERSION_MROC_CURRENT.PolicyVersionID
+               AND V_S_AP1_POLICYVERSION_MROC_CURRENT.PolicyVersionStatusID = 1
+             INNER JOIN {{ ref('STAGE','BVSTG_H20_LAPSE_MODEL_REFRESH') }} bvstg_h20_lapse_model_refresh
+                ON V_S_AP1_POLICYVERSION_MROC_CURRENT.policyid = bvstg_h20_lapse_model_refresh.policyid
+               AND bvstg_h20_lapse_model_refresh.sourcedb = 'AppOne'
+             WHERE V_S_AP1_POLICYVEHICLE_MROC_CURRENT.IsRowDeleted = 0
+               AND V_S_AP1_POLICYVERSION_MROC_CURRENT.IsRowDeleted = 0
+             GROUP BY V_S_AP1_POLICYVERSION_MROC_CURRENT.PolicyID
+        name: BVSTG_H20_AU1_VEHICLE_7DAYS
+        noLinkRefs: []
+  name: BVSTG_H20_AU1_VEHICLE_7DAYS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,164 @@
+fileVersion: 1
+id: 93ec28d9-e5f3-45a6-ad1a-691643a3c788
+name: BVSTG_IO_LEAD_OPPORTUNITY_AU1_GNL_DEALS
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 987df430-6dae-4e4b-91f3-bfb0f5932aac
+          stepCounter: 93ec28d9-e5f3-45a6-ad1a-691643a3c788
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: TIMELINE_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: DS_IM_DEALS_TIMELINES.timeline_id
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ecb337b6-4b1f-4082-aff7-4675e697bdbf
+          stepCounter: 93ec28d9-e5f3-45a6-ad1a-691643a3c788
+        config: {}
+        dataType: TIMESTAMP_TZ(9)
+        defaultValue: ""
+        description: ""
+        name: MOVED_TO_BUCKET_AT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: DS_IM_DEALS_TIMELINES.moved_to_bucket_at
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 118e7554-fbb0-4980-b257-b0c889c78fac
+          stepCounter: 93ec28d9-e5f3-45a6-ad1a-691643a3c788
+        config: {}
+        dataType: TIMESTAMP_TZ(9)
+        defaultValue: ""
+        description: ""
+        name: NEXT_MOVED_TO_BUCKET_AT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: DS_IM_DEALS_TIMELINES.Next_moved_to_bucket_at
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 18df1846-9983-432b-8b9b-bc541aae67ab
+          stepCounter: 93ec28d9-e5f3-45a6-ad1a-691643a3c788
+        config: {}
+        dataType: TIMESTAMP_TZ(9)
+        defaultValue: ""
+        description: ""
+        name: PREVIOUS_MOVED_TO_BUCKET_AT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: DS_IM_DEALS_TIMELINES.previous_moved_to_bucket_at
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 56b67ad8-f703-4bd1-989e-432c3b593871
+          stepCounter: 93ec28d9-e5f3-45a6-ad1a-691643a3c788
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: GNL_LEAD_TYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: DS_IM_DEALS_TIMELINES.gnl_lead_type
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cf0d58cf-7832-4467-b8e6-66df8ec53edb
+          stepCounter: 93ec28d9-e5f3-45a6-ad1a-691643a3c788
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: DEAL_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: DS_IM_DEALS_TIMELINES.deal_id
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8a7f8b25-7207-4ffb-8bea-d74f9e042b8d
+          stepCounter: 93ec28d9-e5f3-45a6-ad1a-691643a3c788
+        config: {}
+        dataType: TIMESTAMP(9)
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 464d98b4-2879-4bf6-ba08-4caa09a44da4
+          stepCounter: 93ec28d9-e5f3-45a6-ad1a-691643a3c788
+        config: {}
+        dataType: TIMESTAMP_NTZ(9)
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_IM_DEALS_TIMELINES
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT TIMELINE_ID,
+                           CONVERT_TIMEZONE('America/Los_Angeles', createat)::TIMESTAMP_NTZ AS moved_to_bucket_at,
+                           LAG(CONVERT_TIMEZONE('America/Los_Angeles', createat)::TIMESTAMP_NTZ) OVER(PARTITION BY DEAL_ID ORDER BY createat) AS previous_moved_to_bucket_at,
+                           LEAD(CONVERT_TIMEZONE('America/Los_Angeles', createat)::TIMESTAMP_NTZ) OVER(PARTITION BY DEAL_ID ORDER BY createat) AS Next_moved_to_bucket_at,
+                           'IM Automation Lead' GNL_Lead_type,
+                           DEAL_ID
+                      FROM RETAIL_PROD.SCH_EDW.DS_IM_DEALS_TIMELINES DS_IM_DEALS_TIMELINES
+                     WHERE DATE(CREATEAT) >= '2025-09-04'
+                       AND TIMELINEINFO = 'Card Moved Back To Bucket'
+                 UNION ALL SELECT IM_LEADID TIMELINE_ID,
+                           PROCESSED_DATETIME AS moved_to_bucket_at,
+                           LAG(PROCESSED_DATETIME) OVER(PARTITION BY IM_LEADID ORDER BY PROCESSED_DATETIME) AS previous_moved_to_bucket_at,
+                           LEAD(PROCESSED_DATETIME) OVER(PARTITION BY IM_LEADID ORDER BY PROCESSED_DATETIME)AS Next_moved_to_bucket_at,
+                           'ML Scored Lead' GNL_Lead_type,
+                           LEAD_ID DEAL_ID
+                      FROM DATA_LAKE.BIA_ANALYTICS.INSUREDMINE_RESPONSES_GNLAPI
+                     WHERE MESSAGE = 'Lead successfully submitted to Insuredmine!'
+                   ) DS_IM_DEALS_TIMELINES
+        name: BVSTG_IO_LEAD_OPPORTUNITY_AU1_GNL_DEALS
+        noLinkRefs: []
+  name: BVSTG_IO_LEAD_OPPORTUNITY_AU1_GNL_DEALS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

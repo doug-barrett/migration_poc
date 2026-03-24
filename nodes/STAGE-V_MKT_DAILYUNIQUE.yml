@@ -1,0 +1,88 @@
+fileVersion: 1
+id: 3467a604-b51d-4271-bfce-1d78a59494d5
+name: V_MKT_DAILYUNIQUE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4039cc02-b798-4cff-8c97-d5e849f0c17d
+          stepCounter: 3467a604-b51d-4271-bfce-1d78a59494d5
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: call_id
+        name: CALL_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3e828383-0063-480c-907f-7e4e8390848a
+          stepCounter: 3467a604-b51d-4271-bfce-1d78a59494d5
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: isDailyUnique
+        name: ISDAILYUNIQUE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_MKT_DAILYUNIQUE: 3467a604-b51d-4271-bfce-1d78a59494d5
+          BVSTG_MKT_AU1B_CALL_LOG_CARS: 16ab5c9c-9738-4fbc-82eb-d4fbf9f48c80
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_MKT_DAILYUNIQUE') }} AS SELECT DISTINCT a.call_id,
+                   1 isDailyUnique
+              FROM (
+                    SELECT call_id,
+                           (RANK() OVER (PARTITION BY caller_number,TO_DATE(Call_Start) ORDER BY Call_Start)) isDailyUnique
+                      FROM {{ ref('STAGE','BVSTG_MKT_AU1B_CALL_LOG_CARS') }}
+                     WHERE isNonUnique = 1
+                       AND ifnull(caller_number,'')<>''
+                   )a
+             WHERE a.isDailyUnique = 1
+               AND a.call_id NOT IN (
+                    SELECT b.call_id
+                      FROM (
+                            SELECT call_id,
+                                   RANK() OVER(PARTITION BY TO_DATE(Call_Start),caller_Number ORDER BY CASE WHEN Call_Status IN('ANSWER','SYSTEM CONNECT') THEN 1 ELSE 2 END, Call_Start, call_id) Ranking
+                              FROM {{ ref('STAGE','BVSTG_MKT_AU1B_CALL_LOG_CARS') }}
+                           ) b
+                     WHERE b.Ranking>1
+                   )
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_MKT_AU1B_CALL_LOG_CARS
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','BVSTG_MKT_AU1B_CALL_LOG_CARS') }}
+        name: V_MKT_DAILYUNIQUE
+        noLinkRefs: []
+  name: V_MKT_DAILYUNIQUE
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

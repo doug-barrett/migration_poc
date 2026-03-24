@@ -1,0 +1,105 @@
+fileVersion: 1
+id: 7b9fecb3-f760-4c90-aa51-312d6b5710e3
+name: V_POSB_SPLC_PREMIUM
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0a7c09cc-af09-454c-9f77-7e8001a2e906
+          stepCounter: 7b9fecb3-f760-4c90-aa51-312d6b5710e3
+        config: {}
+        dataType: VARCHAR(36)
+        defaultValue: ""
+        description: ""
+        name: POLID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9d2b8406-fa64-428e-8a64-a7c3435356f3
+                stepCounter: 5dc2e08e-2546-436c-b786-415675045f41
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 227c9c77-5619-4605-9f30-7eb202da62d3
+          stepCounter: 7b9fecb3-f760-4c90-aa51-312d6b5710e3
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: PREMIUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 37e5c0f0-f2ed-4357-a63a-170de0dc7692
+                stepCounter: b83c4ada-d518-41a9-9963-26ed01abeb9e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eec0e0eb-f817-46e9-8627-8fddbd12e13b
+          stepCounter: 7b9fecb3-f760-4c90-aa51-312d6b5710e3
+        config: {}
+        dataType: VARCHAR(52)
+        defaultValue: ""
+        description: ""
+        name: POLTYPELOB
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: aeb78baa-b663-41a7-bfa1-9e2f9c83deea
+                stepCounter: 53be11e0-3474-41bb-9671-54424f4a8c0e
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_POSB_SPLC_PREMIUM: 7b9fecb3-f760-4c90-aa51-312d6b5710e3
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_POSB_SPLC_PREMIUM') }} AS SELECT h_splc_policytranpremium.polID,
+                   h_splc_policytranpremium.EffDate,
+                   CASE WHEN sum(v_s_splc_policytranpremium_current.Premium) > 0 AND sum(v_s_splc_policytranpremium_current.Premium) IS NOT NULL               THEN sum(v_s_splc_policytranpremium_current.Premium)
+                        WHEN sum(v_s_splc_policytranpremium_current.BILLEDPREMIUM) > 0 AND sum(v_s_splc_policytranpremium_current.BILLEDPREMIUM) IS NOT NULL   THEN sum(v_s_splc_policytranpremium_current.BILLEDPREMIUM)
+                        WHEN sum(v_s_splc_policytranpremium_current.WRITTENPREMIUM) > 0 AND sum(v_s_splc_policytranpremium_current.WRITTENPREMIUM) IS NOT NULL THEN sum(v_s_splc_policytranpremium_current.WRITTENPREMIUM)
+                        ELSE sum(v_s_splc_basicpolinfo_current.FULLTERMPREMIUM)
+                         END AS Premium,
+                   MAX(v_s_splc_policytranpremium_current.FULLTERMPREMIUM) FULLTERMPREMIUM,
+                   SUM(CASE WHEN CHARGECATPOLTP=1 THEN v_s_splc_policytranpremium_current.Premium END) TransactionPremium,
+                   SUM(CASE WHEN CHARGECATPOLTP=2 THEN v_s_splc_policytranpremium_current.Premium END) TransactionFees
+              FROM "RETAIL_PROD"."SCH_DATA_VAULT"."H_SPLC_POLICYTRANPREMIUM" h_splc_policytranpremium
+             INNER JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_S_SPLC_POLICYTRANPREMIUM_CURRENT" v_s_splc_policytranpremium_current
+                ON (h_splc_policytranpremium.HK_H_POLICYTRANPREMIUM = v_s_splc_policytranpremium_current.HK_H_POLICYTRANPREMIUM)
+              LEFT JOIN "RETAIL_PROD"."SCH_DATA_VAULT"."H_SPLC_BASICPOLINFO" h_splc_basicpolinfo
+                ON h_splc_basicpolinfo.polid = h_splc_policytranpremium.polID
+              LEFT JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_S_SPLC_BASICPOLINFO_CURRENT" v_s_splc_basicpolinfo_current
+                ON v_s_splc_basicpolinfo_current.HK_H_BASICPOLINFO = h_splc_basicpolinfo.HK_H_BASICPOLINFO
+             WHERE v_s_splc_policytranpremium_current.IncludePremium = 'Y'
+             GROUP BY h_splc_policytranpremium.polID,
+                      h_splc_policytranpremium.EffDate
+        dependencies:
+          - locationName: DATA_VAULT
+            nodeName: H_SPLC_POLICYTRANPREMIUM
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('DATA_VAULT','H_SPLC_POLICYTRANPREMIUM') }}
+        name: V_POSB_SPLC_PREMIUM
+        noLinkRefs: []
+  name: V_POSB_SPLC_PREMIUM
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

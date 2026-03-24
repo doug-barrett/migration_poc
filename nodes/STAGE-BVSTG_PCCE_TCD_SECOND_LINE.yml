@@ -1,0 +1,102 @@
+fileVersion: 1
+id: c343fc2d-18a1-4bba-bd83-d2217f1fd070
+name: BVSTG_PCCE_TCD_SECOND_LINE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e710e8d6-caf7-4a7b-b3e7-310ed7ee4372
+          stepCounter: c343fc2d-18a1-4bba-bd83-d2217f1fd070
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: RECOVERYKEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 876bff15-011b-45b5-b6b7-b2ecf1104485
+                stepCounter: c3a8d1ad-3636-4206-b6e7-c584a66ada90
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b8204f94-584f-48de-97fd-0c43e537a7ea
+          stepCounter: c343fc2d-18a1-4bba-bd83-d2217f1fd070
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: SESSIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 162a84ce-4d27-4ed4-80fb-75674eff0736
+                stepCounter: c3a8d1ad-3636-4206-b6e7-c584a66ada90
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ddcc1599-036f-4162-90e8-866a624dc5f0
+          stepCounter: c343fc2d-18a1-4bba-bd83-d2217f1fd070
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3039b210-79d5-4df3-800b-670b5e6bf0b9
+          stepCounter: c343fc2d-18a1-4bba-bd83-d2217f1fd070
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_PCCE_TCD_SECOND_LINE: c3a8d1ad-3636-4206-b6e7-c584a66ada90
+          DS_PCCE_TERMINATION_CALL_DETAIL: 236fbe30-f2c4-425b-9931-9f18dfea551e
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_PREB_PCCE_TCD_SECOND_LINE
+          - locationName: EDW
+            nodeName: DS_PCCE_TERMINATION_CALL_DETAIL
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_PREB_PCCE_TCD_SECOND_LINE') }} v_preb_pcce_tcd_second_line
+             WHERE (('{{ parameters.HWM_BVSTG_Cisco_Refresh_Flag }}' = 0) OR ('{{ parameters.HWM_BVSTG_Cisco_Refresh_Flag }}' = 1 AND HOUR(current_timestamp()) <= '{{ parameters.HWM_BVSTG_Hour }}' AND DATEDIFF(DAY,v_preb_pcce_tcd_second_line.DSS_CREATE_TIME,CURRENT_DATE()) <= '{{ parameters.HWM_BVSTG_Cisco_Refresh_Days }}') OR ('{{ parameters.HWM_BVSTG_Cisco_Refresh_Flag }}' = 1 AND HOUR(current_timestamp()) > '{{ parameters.HWM_BVSTG_Hour }}' AND v_preb_pcce_tcd_second_line.DSS_CREATE_TIME > (SELECT DATEADD(HOUR,-2,MAX(DSS_UPDATE_TIME)) FROM {{ ref('EDW','DS_PCCE_TERMINATION_CALL_DETAIL') }})))
+        name: BVSTG_PCCE_TCD_SECOND_LINE
+        noLinkRefs: []
+  name: BVSTG_PCCE_TCD_SECOND_LINE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,181 @@
+fileVersion: 1
+id: 565bd96f-fa66-47f9-8def-550bb53de016
+name: BVSTG_CUSTOMER_METHOD_SUMMARY
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c121bd1d-9e51-4da9-98e4-76d0025c8f15
+          stepCounter: 565bd96f-fa66-47f9-8def-550bb53de016
+        config: {}
+        dataType: VARCHAR(70)
+        defaultValue: ""
+        description: ""
+        name: SOURCEDB
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ee051673-01a7-4573-aa6c-05535be4292f
+                stepCounter: 47008e5d-6b9a-4524-b5f1-e5540cc28d77
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f51d1790-a622-424e-af0e-4505b5d5b0e3
+          stepCounter: 565bd96f-fa66-47f9-8def-550bb53de016
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f2bf1847-7d5b-4b25-9d00-d68e41513abc
+          stepCounter: 565bd96f-fa66-47f9-8def-550bb53de016
+        config: {}
+        dataType: VARCHAR(70)
+        defaultValue: ""
+        description: ""
+        name: INTERACTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d1841dba-f2af-44d1-a9d2-480f73a6bf78
+          stepCounter: 565bd96f-fa66-47f9-8def-550bb53de016
+        config: {}
+        dataType: VARCHAR(70)
+        defaultValue: ""
+        description: ""
+        name: SOURCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5281f323-41a5-437b-876a-0797b32cce4b
+          stepCounter: 565bd96f-fa66-47f9-8def-550bb53de016
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: COUNT_CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 87fb01df-8b26-44d5-a4e8-73fdf2f18965
+          stepCounter: 565bd96f-fa66-47f9-8def-550bb53de016
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bf6e3292-bad3-41f9-95da-ee0f71060843
+          stepCounter: 565bd96f-fa66-47f9-8def-550bb53de016
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_CUSTOMER_METHOD: 47008e5d-6b9a-4524-b5f1-e5540cc28d77
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_CUSTOMER_METHOD
+        join:
+          joinCondition: |-
+            FROM(
+                    SELECT DATE(CUSTOMER_CREATED) Date , 'Prospect' Interaction ,
+                           PROSPECTMETHOD SOURCE ,
+                           COUNT(1) Count_CustomerID ,
+                           SourceDB
+                      FROM {{ ref('EDW','DS_CUSTOMER_METHOD') }}
+                     WHERE ISPROSPECT = 1
+                     GROUP BY PROSPECTMETHOD ,
+                              DATE(CUSTOMER_CREATED) ,
+                              SourceDB
+                     UNION SELECT DATE(CUSTOMER_CREATED) Date ,'Quoted' Interaction ,
+                           QUOTEDMETHOD SOURCE ,
+                           COUNT(1) Count_CustomerID ,
+                           SourceDB
+                      FROM {{ ref('EDW','DS_CUSTOMER_METHOD') }}
+                     WHERE ISQUOTED = 1
+                     GROUP BY QUOTEDMETHOD ,
+                              DATE(CUSTOMER_CREATED) ,
+                              SourceDB
+                     UNION SELECT DATE(CUSTOMER_CREATED) Date ,'Completed' Interaction ,
+                           COMPLETEDMETHOD SOURCE ,
+                           COUNT(1) Count_CustomerID ,
+                           SourceDB
+                      FROM {{ ref('EDW','DS_CUSTOMER_METHOD') }}
+                     WHERE ISCOMPLETED = 1
+                     GROUP BY COMPLETEDMETHOD ,
+                              DATE(CUSTOMER_CREATED) ,
+                              SourceDB
+                     UNION SELECT DATE(CUSTOMER_CREATED) Date ,'Converted' Interaction ,
+                           CONVERTEDMETHOD SOURCE ,
+                           COUNT(1) Count_CustomerID ,
+                           SourceDB
+                      FROM {{ ref('EDW','DS_CUSTOMER_METHOD') }}
+                     WHERE ISCONVERTED = 1
+                     GROUP BY CONVERTEDMETHOD ,
+                              DATE(CUSTOMER_CREATED) ,
+                              SourceDB
+                   ) ds_customer_method
+        name: BVSTG_CUSTOMER_METHOD_SUMMARY
+        noLinkRefs: []
+  name: BVSTG_CUSTOMER_METHOD_SUMMARY
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,127 @@
+fileVersion: 1
+id: f75771f7-373f-4be8-b656-34afe2cb6c38
+name: BVSTG_PRED_EMPLOYEE
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "temp table for DIM Employee - apply DISTINCTto multi-source"
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e1fc7fe0-2aa9-40d8-bfaa-1b3b660ee5f8
+          stepCounter: f75771f7-373f-4be8-b656-34afe2cb6c38
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 36a610e2-dfc2-4822-8434-472e852f4859
+                stepCounter: aa702dc6-4fda-4392-9e21-d75690ab1ddb
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 24e3f41e-51e7-4eb0-8adc-eb5d41b0d7ff
+          stepCounter: f75771f7-373f-4be8-b656-34afe2cb6c38
+        config: {}
+        dataType: VARCHAR(70)
+        defaultValue: ""
+        description: ""
+        name: COMPANYCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3c2a07c7-41c9-4227-ba74-0988b88df008
+                stepCounter: 9bbace40-8a41-4037-876d-b1f17ac55d91
+            transform: MAX(IFNULL(v_s_boe_hr_employeenumber_mroc_current.companycode,'Unknown'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bb3e6ef7-3bd6-489a-8baa-a3713f62cdb9
+          stepCounter: f75771f7-373f-4be8-b656-34afe2cb6c38
+        config: {}
+        dataType: VARCHAR(252)
+        defaultValue: ""
+        description: ""
+        name: FULLNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: MAX(IFNULL(v_s_boe_hr_employeenumber_mroc_current.employeename,bvstg_pred_employee_a.fullname))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e2eb0b42-f405-4715-b3f5-a4836bc60758
+          stepCounter: f75771f7-373f-4be8-b656-34afe2cb6c38
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: ""
+        name: JOBTITLE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ac4d32b1-77d6-4b2d-8451-51759eb92a29
+                stepCounter: 9bbace40-8a41-4037-876d-b1f17ac55d91
+            transform: MAX(IFNULL(v_s_boe_hr_employeenumber_mroc_current.jobtitle,'Unknown'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 91ef0007-af9a-4f78-aae3-2c016abf942b
+          stepCounter: f75771f7-373f-4be8-b656-34afe2cb6c38
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: ""
+        name: JOBGROUP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: aa74a7fe-6096-452e-8d5c-6a0fe2ff80ab
+                stepCounter: 9bbace40-8a41-4037-876d-b1f17ac55d91
+            transform: MAX(IFNULL(v_s_boe_hr_employeenumber_mroc_current.jobgroup,'Unknown'))
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_PRED_EMPLOYEE_A: aa702dc6-4fda-4392-9e21-d75690ab1ddb
+          H_EMPLOYEENUMBER: 1bf02b77-df36-4b19-bcfe-654fffefcdcf
+          V_S_BOE_HR_EMPLOYEENUMBER_MROC_CURRENT: 9bbace40-8a41-4037-876d-b1f17ac55d91
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_PRED_EMPLOYEE_A
+          - locationName: DATA_VAULT
+            nodeName: H_EMPLOYEENUMBER
+          - locationName: STAGE
+            nodeName: V_S_BOE_HR_EMPLOYEENUMBER_MROC_CURRENT
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','BVSTG_PRED_EMPLOYEE_A') }} bvstg_pred_employee_a
+              LEFT JOIN {{ ref('DATA_VAULT','H_EMPLOYEENUMBER') }} AS h_employeenumber
+                ON (bvstg_pred_employee_a.EmployeeNumber = h_employeenumber.employeenumber)
+              LEFT JOIN {{ ref('STAGE','V_S_BOE_HR_EMPLOYEENUMBER_MROC_CURRENT') }} v_s_boe_hr_employeenumber_mroc_current
+                ON h_employeenumber.HK_h_employeenumber = v_s_boe_hr_employeenumber_mroc_current.HK_h_employeenumber
+             GROUP BY bvstg_pred_employee_a.employeenumber
+        name: BVSTG_PRED_EMPLOYEE
+        noLinkRefs: []
+  name: BVSTG_PRED_EMPLOYEE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

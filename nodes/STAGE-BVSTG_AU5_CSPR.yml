@@ -1,0 +1,246 @@
+fileVersion: 1
+id: e067b4a2-c3c1-425f-b701-1ca1a72036a9
+name: BVSTG_AU5_CSPR
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b3dcab1a-6389-49b0-9d90-7b4ab6cc2047
+          stepCounter: e067b4a2-c3c1-425f-b701-1ca1a72036a9
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_AU5_CSPR_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(ifnull(V_DLBV_API_UKG_EMPLOYEEPAYSTATEMENTS_CURRENT.EMPLOYEENUMBER,'-') || to_varchar(V_DLBV_API_UKG_EMPLOYEEPAYSTATEMENTS_CURRENT.ENDDATE) || ifnull(V_DLBV_API_UKG_EMPLOYEEPAYSTATEMENTS_CURRENT.METRIC, '-'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bdd12d14-88cd-4417-b293-c2e001f0621d
+          stepCounter: e067b4a2-c3c1-425f-b701-1ca1a72036a9
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1c17bf0f-c74b-43fb-a145-08b15e360e63
+                stepCounter: 4d242277-1b1f-4720-bcbd-c97c35724d3f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 88d8da2d-35fe-4106-b6dd-1b72dcae8e22
+          stepCounter: e067b4a2-c3c1-425f-b701-1ca1a72036a9
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: ENDDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 088f68b4-7c8f-4eb2-bda7-7e6addf17e5c
+          stepCounter: e067b4a2-c3c1-425f-b701-1ca1a72036a9
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: METRIC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d34f1bc2-8dad-45de-9065-aba84125d52e
+          stepCounter: e067b4a2-c3c1-425f-b701-1ca1a72036a9
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: METRICVALUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3630ca16-e278-4311-b372-4f5324f1e782
+          stepCounter: e067b4a2-c3c1-425f-b701-1ca1a72036a9
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a6979be1-175e-40b7-a91c-08ac64fdbe80
+          stepCounter: e067b4a2-c3c1-425f-b701-1ca1a72036a9
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_DLBV_API_UKG_EMPLOYEEPAYSTATEMENTS_CURRENT: 4d242277-1b1f-4720-bcbd-c97c35724d3f
+          V_DLBV_API_UKG_WORKSUMMARIES_CURRENT: 247df2c9-8d82-4f3b-8712-00f15277ef66
+          V_DLBV_API_UKG_JOBS_CURRENT: 1468a415-34c3-4432-8846-8cb1f8654165
+          V_DLBV_UHR_JOBGROUPMAP_CURRENT: 0f8105ba-77a9-4762-9294-0263db260332
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_DLBV_API_UKG_EMPLOYEEPAYSTATEMENTS_CURRENT
+          - locationName: STAGE
+            nodeName: V_DLBV_API_UKG_WORKSUMMARIES_CURRENT
+          - locationName: STAGE
+            nodeName: V_DLBV_API_UKG_JOBS_CURRENT
+          - locationName: STAGE
+            nodeName: V_DLBV_UHR_JOBGROUPMAP_CURRENT
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT DISTINCT T1.EMPLOYEENUMBER,
+                           T1.ENDDATE,
+                           'fte' AS metric,
+                           WRKHRS AS metricvalue
+                      FROM (
+                            SELECT EMPLOYEENUMBER,
+                                   ENDDATE,
+                                   sum(ROUND(WRKMINS / 60, 1)) AS WRKHRS
+                              FROM (
+                                    SELECT DISTINCT EMPLOYEENUMBER,
+
+                                    CONCAT (EMPLOYEENUMBER, '-', COMPANYIDENTIFIER) AS EMPNAME,
+                                           date_trunc(MONTH, to_date(PERIODENDDATE)) AS ENDDATE
+                                      FROM {{ ref('STAGE','V_DLBV_API_UKG_EMPLOYEEPAYSTATEMENTS_CURRENT') }}
+                                   ) AS a
+                              LEFT JOIN (
+                                    SELECT EMPNAME,
+                                           date_trunc('month', to_date(WORKDATE)) AS WORKDATE,
+                                           sum(WRKMINS) AS WRKMINS
+                                      FROM {{ ref('STAGE','V_DLBV_API_UKG_WORKSUMMARIES_CURRENT') }}
+                                     GROUP BY 1,
+                                              2
+                                   ) AS b
+                                ON a.EMPNAME = b.EMPNAME
+                               AND a.ENDDATE = b.WORKDATE
+                             GROUP BY 1,
+                                      2
+                           ) AS T1
+                     RIGHT JOIN (
+                            SELECT *
+                              FROM (
+                                    SELECT *
+                                      FROM (
+                                            SELECT DISTINCT EMPLOYEENUMBER,
+                                                   date_trunc(MONTH, to_date(PERIODENDDATE)) AS ENDDATE,
+                                                   JOB
+                                              FROM {{ ref('STAGE','V_DLBV_API_UKG_EMPLOYEEPAYSTATEMENTS_CURRENT') }}
+                                           ) AS a
+                                      LEFT JOIN (
+                                            SELECT DISTINCT JOBCODE,
+                                                   TITLE
+                                              FROM {{ ref('STAGE','V_DLBV_API_UKG_JOBS_CURRENT') }}
+                                           ) AS b
+                                        ON a.JOB = b.JOBCODE
+                                     WHERE TITLE NOT IN ('VP, Sales', 'VP, Finance', 'Claims Staff Counsel', 'Sr Mgr, Franchise Sales', 'Sr Gen Mgr Natl Telesale', 'Sr Dir, Sales', 'Sr Dir, Nat Tele (SPLC)', 'SVP, Head of Operations', 'Managing Insurance Agent', 'Managing Ins Agent II', 'Gen Mgr, Natl Telesales', 'District Sales Mgr', 'Dir, Regional Sales', 'Dir, Marketing', 'Dir, Healthcare Sales')
+                                       AND TITLE NOT LIKE 'Dir,%'
+                                   ) AS a
+                              LEFT JOIN (
+                                    SELECT DISTINCT JOBCODE,
+                                           trim(JOBGROUP) AS JOBGROUP
+                                      FROM {{ ref('STAGE','V_DLBV_UHR_JOBGROUPMAP_CURRENT') }}
+                                   ) AS b
+                                ON a.JOB = b.JOBCODE
+                             WHERE JOBGROUP IN ('Producer', 'Trainee', 'Store Manager')
+                           ) AS T2
+                        ON T1.EMPLOYEENUMBER = T2.EMPLOYEENUMBER
+                       AND T1.ENDDATE = T2.ENDDATE
+                     WHERE WRKHRS IS NOT NULL
+                     UNION SELECT EMPLOYEENUMBER,
+                           ENDDATE,
+                           'compensation' AS metric,
+                           sum(GROSSWAGESCURRENT) AS metricvalue
+                      FROM (
+                            SELECT EMPLOYEENUMBER,
+                                   date_trunc(MONTH, ENDDATE) AS ENDDATE,
+                                   JOB,
+                                   GROSSWAGESCURRENT
+                              FROM (
+                                    SELECT EMPLOYEENUMBER,
+                                           to_date(PERIODENDDATE) AS ENDDATE,
+                                           JOB,
+                                           sum(GROSSWAGESCURRENT) AS GROSSWAGESCURRENT
+                                      FROM {{ ref('STAGE','V_DLBV_API_UKG_EMPLOYEEPAYSTATEMENTS_CURRENT') }}
+                                     GROUP BY 1,
+                                              2,
+                                              3
+                                   ) v_dlbv_api_ukg_employeepaystatements_current
+                              LEFT JOIN (
+                                    SELECT DISTINCT JOBCODE,
+                                           TITLE
+                                      FROM {{ ref('STAGE','V_DLBV_API_UKG_JOBS_CURRENT') }}
+                                   ) v_dlbv_api_ukg_jobs_current
+                                ON v_dlbv_api_ukg_employeepaystatements_current.JOB = v_dlbv_api_ukg_jobs_current.JOBCODE
+                             WHERE TITLE NOT IN ('VP, Sales', 'VP, Finance', 'Claims Staff Counsel', 'SVP, Head of Operations', 'Managing Insurance Agent', 'District Sales Mgr', 'Sr Mgr, Franchise Sales', 'Sr Gen Mgr Natl Telesale', 'Sr Dir, Sales', 'Sr Dir, Nat Tele (SPLC)', 'Managing Ins Agent II', 'Gen Mgr, Natl Telesales', 'Dir, Regional Sales', 'Dir, Marketing', 'Dir, Healthcare Sales')
+                               AND TITLE NOT LIKE 'Dir,%'
+                           ) v_dlbv_api_ukg_employeepaystatements_current
+                      LEFT JOIN (
+                            SELECT DISTINCT JOBCODE,
+                                   trim(JOBGROUP) AS JOBGROUP
+                              FROM {{ ref('STAGE','V_DLBV_UHR_JOBGROUPMAP_CURRENT') }}
+                           ) v_dlbv_uhr_jobgroupmap_current
+                        ON v_dlbv_api_ukg_employeepaystatements_current.JOB = v_dlbv_uhr_jobgroupmap_current.JOBCODE
+                     WHERE JOBGROUP IN ('Producer', 'Trainee', 'Store Manager')
+                     GROUP BY 1,
+                              2
+                   ) AS V_DLBV_API_UKG_EMPLOYEEPAYSTATEMENTS_CURRENT
+        name: BVSTG_AU5_CSPR
+        noLinkRefs: []
+  name: BVSTG_AU5_CSPR
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

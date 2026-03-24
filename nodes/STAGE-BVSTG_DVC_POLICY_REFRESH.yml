@@ -1,0 +1,170 @@
+fileVersion: 1
+id: e821b4cb-2d11-48fd-8019-ffa3562a1e06
+name: BVSTG_DVC_POLICY_REFRESH
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 89574a11-2b12-4c95-8e6d-e44218ebcd14
+          stepCounter: e821b4cb-2d11-48fd-8019-ffa3562a1e06
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: POLICYID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 244ceec7-2543-49c0-9b8a-622643424897
+                stepCounter: 6632e283-e907-4c8b-aca6-9817a55ac33c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 067cb85d-c283-4d9e-8f3d-15f2beeb4387
+          stepCounter: e821b4cb-2d11-48fd-8019-ffa3562a1e06
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: SOURCEDB
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b27bca99-7e73-424d-baee-2c9012699e4a
+          stepCounter: e821b4cb-2d11-48fd-8019-ffa3562a1e06
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bdc9b48e-5266-4803-89af-b5e38036976a
+          stepCounter: e821b4cb-2d11-48fd-8019-ffa3562a1e06
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          S_AP1_CDTPOLICY: 6632e283-e907-4c8b-aca6-9817a55ac33c
+          V_S_AMS_DRIVER_MROC_CURRENT: bad48746-9a5c-45be-adb8-93bdf85be59a
+          V_S_AMS_VEHICLE_MROC_CURRENT: 52e50954-7bee-45db-87cc-98d1e945624a
+          V_S_AMS_COVERAGE_MROC_CURRENT: 9acd8c24-20e9-42b2-8e35-53a600dcfe04
+          V_S_SPLC_DRIVER_CURRENT: 98a1c182-7e59-4e09-9eee-4982d8ec38c3
+          V_S_SPLC_VEHICLE_CURRENT: f3bbb905-0d50-49cd-8616-7d96471e6df7
+          V_S_SPLC_COVERAGE_CURRENT: 6efe9259-7d82-4507-a64f-d00e23f42f44
+          V_S_COW_DRIVER_CURRENT: 20a81997-86d6-4f38-9171-49c11d2dc40a
+          V_S_COW_VEHICLE_CURRENT: 31f58b9a-3a87-4486-bac8-30af8148c154
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DATA_VAULT
+            nodeName: S_AP1_CDTPOLICY
+          - locationName: STAGE
+            nodeName: V_S_AMS_DRIVER_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AMS_VEHICLE_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AMS_COVERAGE_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_SPLC_DRIVER_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_SPLC_VEHICLE_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_SPLC_COVERAGE_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_COW_DRIVER_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_COW_VEHICLE_CURRENT
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM ( SELECT TO_VARCHAR(PolicyID) PolicyID,
+                   'CDT' SourceDB
+              FROM {{ ref('DATA_VAULT','S_AP1_CDTPOLICY') }}
+             WHERE (('{{ parameters.HWM_BVSTG_DVC_Refresh_flag }}' = 0 AND DATE (LASTUPDATED) >= '2016-01-01') OR ('{{ parameters.HWM_BVSTG_DVC_Refresh_flag }}' = 1 AND DATEDIFF(DAY, DATE (LASTUPDATED), CURRENT_DATE ()) <= '{{ parameters.HWM_BVSTG_DVC_Refresh_Days }}'))
+             UNION SELECT PolID,
+                   'CIGH' SourceDB
+              FROM {{ ref('STAGE','V_S_AMS_DRIVER_MROC_CURRENT') }}
+             WHERE (('{{ parameters.HWM_BVSTG_DVC_Refresh_flag }}' = 0 AND DATE (CHANGEDDATE) >= '2016-01-01') OR ('{{ parameters.HWM_BVSTG_DVC_Refresh_flag }}' = 1 AND DATEDIFF(DAY, DATE (CHANGEDDATE), CURRENT_DATE ()) <= '{{ parameters.HWM_BVSTG_DVC_Refresh_Days }}'))
+             UNION SELECT PolID,
+                   'CIGH' SourceDB
+              FROM {{ ref('STAGE','V_S_AMS_VEHICLE_MROC_CURRENT') }}
+             WHERE (('{{ parameters.HWM_BVSTG_DVC_Refresh_flag }}' = 0 AND DATE (CHANGEDDATE) >= '2016-01-01') OR ('{{ parameters.HWM_BVSTG_DVC_Refresh_flag }}' = 1 AND DATEDIFF(DAY, DATE (CHANGEDDATE), CURRENT_DATE ()) <= '{{ parameters.HWM_BVSTG_DVC_Refresh_Days }}'))
+             UNION SELECT PolID,
+                   'CIGH' SourceDB
+              FROM {{ ref('STAGE','V_S_AMS_COVERAGE_MROC_CURRENT') }}
+             WHERE (('{{ parameters.HWM_BVSTG_DVC_Refresh_flag }}' = 0 AND DATE (CHANGEDDATE) >= '2016-01-01') OR ('{{ parameters.HWM_BVSTG_DVC_Refresh_flag }}' = 1 AND DATEDIFF(DAY, DATE (CHANGEDDATE), CURRENT_DATE ()) <= '{{ parameters.HWM_BVSTG_DVC_Refresh_Days }}'))
+             UNION SELECT PolID,
+                   'SPLC' SourceDB
+              FROM {{ ref('STAGE','V_S_SPLC_DRIVER_CURRENT') }} v_s_splc_driver_current
+              LEFT JOIN RETAIL_PROD.SCH_DATA_VAULT.H_SPLC_DRIVER h_splc_driver
+                ON v_s_splc_driver_current.hk_h_driver = h_splc_driver.hk_h_driver
+             WHERE (('{{ parameters.HWM_BVSTG_DVC_Refresh_flag }}' = 0 AND DATE (CHANGEDDATE) >= '2016-01-01') OR ('{{ parameters.HWM_BVSTG_DVC_Refresh_flag }}' = 1 AND DATEDIFF(DAY, DATE (CHANGEDDATE), CURRENT_DATE ()) <= '{{ parameters.HWM_BVSTG_DVC_Refresh_Days }}'))
+             UNION SELECT PolID,
+                   'SPLC' SourceDB
+              FROM {{ ref('STAGE','V_S_SPLC_VEHICLE_CURRENT') }} v_s_splc_vehicle_current
+              LEFT JOIN RETAIL_PROD.SCH_DATA_VAULT.H_SPLC_VEHICLE h_splc_vehicle
+                ON v_s_splc_vehicle_current.hk_h_vehicle = h_splc_vehicle.hk_h_vehicle
+             WHERE (('{{ parameters.HWM_BVSTG_DVC_Refresh_flag }}' = 0 AND DATE (CHANGEDDATE) >= '2016-01-01') OR ('{{ parameters.HWM_BVSTG_DVC_Refresh_flag }}' = 1 AND DATEDIFF(DAY, DATE (CHANGEDDATE), CURRENT_DATE ()) <= '{{ parameters.HWM_BVSTG_DVC_Refresh_Days }}'))
+             UNION SELECT PolID,
+                   'SPLC' SourceDB
+              FROM {{ ref('STAGE','V_S_SPLC_COVERAGE_CURRENT') }} v_s_splc_coverage_current
+              LEFT JOIN RETAIL_PROD.SCH_DATA_VAULT.H_SPLC_COVERAGE h_splc_coverage
+                ON v_s_splc_coverage_current.hk_h_coverage = h_splc_coverage.hk_h_coverage
+             WHERE (('{{ parameters.HWM_BVSTG_DVC_Refresh_flag }}' = 0 AND DATE (CHANGEDDATE) >= '2016-01-01') OR ('{{ parameters.HWM_BVSTG_DVC_Refresh_flag }}' = 1 AND DATEDIFF(DAY, DATE (CHANGEDDATE), CURRENT_DATE ()) <= '{{ parameters.HWM_BVSTG_DVC_Refresh_Days }}') )/* CoWest start here */
+             UNION SELECT PolID,
+                   'CoWest' SourceDB
+              FROM {{ ref('STAGE','V_S_COW_DRIVER_CURRENT') }} v_s_cow_driver_current
+              LEFT JOIN RETAIL_PROD.SCH_DATA_VAULT.H_COW_DRIVER h_cow_driver
+                ON v_s_cow_driver_current.hk_h_afw_driver = h_cow_driver.hk_h_afw_driver
+             WHERE (('{{ parameters.HWM_BVSTG_DVC_Refresh_flag }}' = 0 AND DATE (CHANGEDDATE) >= '2016-01-01') OR ('{{ parameters.HWM_BVSTG_DVC_Refresh_flag }}' = 1 AND DATEDIFF(DAY, DATE (CHANGEDDATE), CURRENT_DATE ()) <= '{{ parameters.HWM_BVSTG_DVC_Refresh_Days }}'))
+             UNION SELECT PolID,
+                   'CoWest' SourceDB
+              FROM {{ ref('STAGE','V_S_COW_VEHICLE_CURRENT') }} v_s_cow_vehicle_current
+              LEFT JOIN RETAIL_PROD.SCH_DATA_VAULT.H_COW_VEHICLE h_cow_vehicle
+                ON v_s_cow_vehicle_current.hk_h_afw_vehicle = h_cow_vehicle.hk_h_afw_vehicle
+             WHERE ( ('{{ parameters.HWM_BVSTG_DVC_Refresh_flag }}' = 0 AND DATE (CHANGEDDATE) >= '2016-01-01')
+                OR
+        name: BVSTG_DVC_POLICY_REFRESH
+        noLinkRefs: []
+  name: BVSTG_DVC_POLICY_REFRESH
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

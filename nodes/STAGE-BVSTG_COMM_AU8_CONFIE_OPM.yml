@@ -1,0 +1,131 @@
+fileVersion: 1
+id: bc5196f6-9389-4e55-849a-14b555d310ba
+name: BVSTG_COMM_AU8_CONFIE_OPM
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c5ce41b9-d479-4cfb-b8ee-0446f689fe83
+          stepCounter: bc5196f6-9389-4e55-849a-14b555d310ba
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_COMM_AU8_CONFIE_OPM_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(ifnull(to_varchar(bvstg_comm_au6_store_evaluation.ud2id), '-') || ifnull(to_varchar(bvstg_comm_au6_store_evaluation.ud1id), '-') || ifnull(bvstg_comm_au6_store_evaluation.sg_description, '-'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 71fc0efd-9d01-4d51-bacf-3423d29a5471
+          stepCounter: bc5196f6-9389-4e55-849a-14b555d310ba
+        config: {}
+        dataType: VARCHAR(17)
+        defaultValue: ""
+        description: ""
+        name: SG_DESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 95f08a22-80ad-4efe-a653-635620ac167e
+          stepCounter: bc5196f6-9389-4e55-849a-14b555d310ba
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: UD2ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9e94f9ad-9c7e-4b00-aa92-1fd2d3cb84bf
+                stepCounter: a5996bd8-56d0-4828-b4b5-d4100341a294
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9baa114d-af18-4c9d-b3ea-08e706e43fc2
+          stepCounter: bc5196f6-9389-4e55-849a-14b555d310ba
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: UD1ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ccae571c-067d-4da6-b3af-b4905da91513
+                stepCounter: a5996bd8-56d0-4828-b4b5-d4100341a294
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2cf0d520-836c-43f3-b15a-48d7eaa1103f
+          stepCounter: bc5196f6-9389-4e55-849a-14b555d310ba
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e0ea3ed3-c8c6-4cd3-95f3-0bf566fe5fac
+          stepCounter: bc5196f6-9389-4e55-849a-14b555d310ba
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_COMM_AU6_STORE_EVALUATION: a5996bd8-56d0-4828-b4b5-d4100341a294
+          BVSTG_COMM_AU4_CONFIE_OPM: a6ecf0ea-76cc-4934-a445-4879d346c6e2
+          BVSTG_COMM_AU7_CONFIE_OPM: babf9113-876e-4f4f-8ace-38e9f2031f9a
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_COMM_AU6_STORE_EVALUATION
+          - locationName: STAGE
+            nodeName: BVSTG_COMM_AU4_CONFIE_OPM
+          - locationName: STAGE
+            nodeName: BVSTG_COMM_AU7_CONFIE_OPM
+        join:
+          joinCondition: FROM ((SELECT ud2id,ud1id,'SGA&IT_Revenue' AS sg_description FROM {{ ref('STAGE','BVSTG_COMM_AU6_STORE_EVALUATION') }} WHERE ud1id IN (SELECT DISTINCT childid FROM {{ ref('STAGE','BVSTG_COMM_AU4_CONFIE_OPM') }}) AND ud2id IN (SELECT DISTINCT childid FROM {{ ref('STAGE','BVSTG_COMM_AU7_CONFIE_OPM') }})) UNION (SELECT ud2id,ud1id, 'HR_Cost_Numerator' sg_description FROM {{ ref('STAGE','BVSTG_COMM_AU6_STORE_EVALUATION') }} WHERE ud1id IN (SELECT DISTINCT ud1id FROM {{ ref('STAGE','BVSTG_COMM_AU6_STORE_EVALUATION') }} INTERSECT ((SELECT DISTINCT childid FROM "DATA_LAKE"."ONESTREAM"."V_DL_OSM_RELATIONSHIP_CURRENT" WHERE parentid IN ('3145827')) UNION (SELECT DISTINCT parentid FROM "DATA_LAKE"."ONESTREAM"."V_DL_OSM_RELATIONSHIP_CURRENT" WHERE parentid IN ('3145827')) UNION SELECT DISTINCT childid FROM ((SELECT DISTINCT v_dl_osm_relationship_current_2.childid childid FROM (SELECT * FROM "DATA_LAKE"."ONESTREAM"."V_DL_OSM_RELATIONSHIP_CURRENT" WHERE parentid IN ('3145827')) a LEFT JOIN "DATA_LAKE"."ONESTREAM"."V_DL_OSM_RELATIONSHIP_CURRENT" v_dl_osm_relationship_current_2 ON a.childid=v_dl_osm_relationship_current_2.parentid)))) AND ud2id IN (SELECT DISTINCT ud2id FROM {{ ref('STAGE','BVSTG_COMM_AU6_STORE_EVALUATION') }} INTERSECT ((SELECT DISTINCT childid FROM "DATA_LAKE"."ONESTREAM"."V_DL_OSM_RELATIONSHIP_CURRENT" WHERE parentid IN ('4195913')) UNION (SELECT DISTINCT parentid FROM "DATA_LAKE"."ONESTREAM"."V_DL_OSM_RELATIONSHIP_CURRENT" WHERE parentid IN ('4195913')) UNION SELECT DISTINCT childid FROM ((SELECT DISTINCT v_dl_osm_relationship_current_2.childid childid FROM (SELECT * FROM "DATA_LAKE"."ONESTREAM"."V_DL_OSM_RELATIONSHIP_CURRENT" WHERE parentid IN ('4195913')) a LEFT JOIN "DATA_LAKE"."ONESTREAM"."V_DL_OSM_RELATIONSHIP_CURRENT" v_dl_osm_relationship_current_2 ON a.childid=v_dl_osm_relationship_current_2.parentid) UNION ALL (SELECT DISTINCT v_dl_osm_relationship_current_3.childid childid FROM (SELECT * FROM "DATA_LAKE"."ONESTREAM"."V_DL_OSM_RELATIONSHIP_CURRENT" WHERE parentid IN ('4195913')) a LEFT JOIN "DATA_LAKE"."ONESTREAM"."V_DL_OSM_RELATIONSHIP_CURRENT" v_dl_osm_relationship_current_2 ON a.childid=v_dl_osm_relationship_current_2.parentid LEFT JOIN "DATA_LAKE"."ONESTREAM"."V_DL_OSM_RELATIONSHIP_CURRENT" v_dl_osm_relationship_current_3 ON v_dl_osm_relationship_current_2.childid=v_dl_osm_relationship_current_3.parentid))))))bvstg_comm_au6_store_evaluation
+        name: BVSTG_COMM_AU8_CONFIE_OPM
+        noLinkRefs: []
+  name: BVSTG_COMM_AU8_CONFIE_OPM
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

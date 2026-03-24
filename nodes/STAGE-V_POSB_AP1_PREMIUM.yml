@@ -1,0 +1,92 @@
+fileVersion: 1
+id: 36804f72-d980-4bec-b089-102db0815d52
+name: V_POSB_AP1_PREMIUM
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 69b43bf2-2e3d-412f-80b6-0bc130075edd
+          stepCounter: 36804f72-d980-4bec-b089-102db0815d52
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: POLICYID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9c66cf85-db31-4663-99e2-10b3dafac2ec
+                stepCounter: 240baaf3-d74d-4c97-af57-7a68e2a257c1
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3670dd78-f385-417f-80af-eefd28bd4098
+          stepCounter: 36804f72-d980-4bec-b089-102db0815d52
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: WRITTENPREMIUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1a3f3fdd-db53-4efd-adbe-4965e36eaefd
+                stepCounter: 240baaf3-d74d-4c97-af57-7a68e2a257c1
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 150f9552-eea4-4b62-a875-f83a95da6a75
+          stepCounter: 36804f72-d980-4bec-b089-102db0815d52
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: CURRENTPREMIUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1a3f3fdd-db53-4efd-adbe-4965e36eaefd
+                stepCounter: 240baaf3-d74d-4c97-af57-7a68e2a257c1
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_POSB_AP1_PREMIUM: 36804f72-d980-4bec-b089-102db0815d52
+          BVSTG_AP1_AU_PREMIUMCHANGE: 240baaf3-d74d-4c97-af57-7a68e2a257c1
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_POSB_AP1_PREMIUM') }} AS SELECT bvstg_ap1_au_premiumchange.PolicyID,
+                   SUM(bvstg_ap1_au_premiumchange.PremiumAmount) AS CurrentPremium,
+                   SUM(CASE WHEN bvstg_ap1_au_premiumchange.isWrittenPremium = 1 THEN bvstg_ap1_au_premiumchange.PremiumAmount ELSE 0 END) AS WrittenPremium
+              FROM {{ ref('STAGE','BVSTG_AP1_AU_PREMIUMCHANGE') }} bvstg_ap1_au_premiumchange
+             WHERE bvstg_ap1_au_premiumchange.isVoid = 0
+             GROUP BY bvstg_ap1_au_premiumchange.PolicyID
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_AP1_AU_PREMIUMCHANGE
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','BVSTG_AP1_AU_PREMIUMCHANGE') }}
+        name: V_POSB_AP1_PREMIUM
+        noLinkRefs: []
+  name: V_POSB_AP1_PREMIUM
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

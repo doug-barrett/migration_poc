@@ -1,0 +1,70 @@
+fileVersion: 1
+id: a6387569-fd0b-4076-8936-b295c090182a
+name: V_PRED_VEH_MAKE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6e767453-7090-4f64-94cf-767ec749a164
+          stepCounter: a6387569-fd0b-4076-8936-b295c090182a
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: make
+        name: MAKE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PRED_VEH_MAKE: a6387569-fd0b-4076-8936-b295c090182a
+          V_S_AMS_VEHICLE_MROC_CURRENT: 52e50954-7bee-45db-87cc-98d1e945624a
+          V_S_AP1_POLICYVEHICLE_MROC_CURRENT: 35b9a1d7-3392-4409-9115-61a258435c93
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PRED_VEH_MAKE') }} AS SELECT upper(make) AS make
+              FROM {{ ref('STAGE','V_S_AMS_VEHICLE_MROC_CURRENT') }}
+             WHERE make IS NOT NULL
+               AND make <>''
+             UNION SELECT upper(make) AS make
+              FROM {{ ref('STAGE','V_S_AP1_POLICYVEHICLE_MROC_CURRENT') }}
+             WHERE make IS NOT NULL
+               AND make <>''
+               AND isrowdeleted=0
+             ORDER BY 1;
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AMS_VEHICLE_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AP1_POLICYVEHICLE_MROC_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_S_AMS_VEHICLE_MROC_CURRENT') }}
+            {{ ref('STAGE','V_S_AP1_POLICYVEHICLE_MROC_CURRENT') }}
+        name: V_PRED_VEH_MAKE
+        noLinkRefs: []
+  name: V_PRED_VEH_MAKE
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

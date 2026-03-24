@@ -1,0 +1,165 @@
+fileVersion: 1
+id: 91cd2222-a36e-4ebb-a437-f4ba18424c61
+name: V_TELESALES_DILER_REFRESH_SPECIALTY
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a496b3de-9246-4c4c-9611-20c037e8ff58
+          stepCounter: 91cd2222-a36e-4ebb-a437-f4ba18424c61
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f4ddec4d-031b-4ab0-8957-66925a410ca0
+          stepCounter: 91cd2222-a36e-4ebb-a437-f4ba18424c61
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: LASTNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 44e1b232-9a79-4772-baa3-af1b4aada457
+                stepCounter: ff19c568-55e9-4232-a90f-d25dc96f4e5c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5ab1ae24-ebac-43ce-8d6a-411018443447
+          stepCounter: 91cd2222-a36e-4ebb-a437-f4ba18424c61
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: HOUR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0aa8e279-805c-42ac-85c9-38efb99f65d0
+                stepCounter: ff19c568-55e9-4232-a90f-d25dc96f4e5c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 19e00a83-62b6-4b16-8d6c-12000d3aec99
+          stepCounter: 91cd2222-a36e-4ebb-a437-f4ba18424c61
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: FIRSTNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9a3879c2-4104-4c5e-bab2-378020ca3975
+                stepCounter: ff19c568-55e9-4232-a90f-d25dc96f4e5c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b5a5ea14-5b42-4c78-94d7-8e7af32b475b
+          stepCounter: 91cd2222-a36e-4ebb-a437-f4ba18424c61
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: PHONE1
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4529a443-4c77-4a2c-9683-73d6136ad949
+                stepCounter: ff19c568-55e9-4232-a90f-d25dc96f4e5c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e7be619e-3789-4f4d-827f-fc7df8efc391
+          stepCounter: 91cd2222-a36e-4ebb-a437-f4ba18424c61
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: PHONE2
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0aa8e279-805c-42ac-85c9-38efb99f65d0
+                stepCounter: ff19c568-55e9-4232-a90f-d25dc96f4e5c
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_TELESALES_DILER_REFRESH_SPECIALTY: 91cd2222-a36e-4ebb-a437-f4ba18424c61
+          DS_DIALER_TELESALES_SPECIALTY: 32557878-d7a5-4024-9247-3412d5d50575
+          V_DLBV_PCCE_DL_5026_5026_CURRENT: adcc851d-494a-4264-9586-fc726d6034cb
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_TELESALES_DILER_REFRESH_SPECIALTY') }} AS SELECT DISTINCT ds_dialer_telesales_specialty.C_CUSTOMERID || ' - ' || CASE WHEN ds_dialer_telesales_specialty.ACTIVITYTRANSFER = 1 THEN 'Transfer not Sold'
+                        ELSE 'Lead not Transfer'
+                         END CustomerID ,
+                   ds_dialer_telesales_specialty.FIRSTNAME ,
+                   ds_dialer_telesales_specialty.LASTNAME ,
+                   ds_dialer_telesales_specialty.PHONE1 ,
+                   ds_dialer_telesales_specialty.PHONE2 ,
+                   ds_dialer_telesales_specialty.HOUR ,
+                   ds_dialer_telesales_specialty.TIMEZONEHOURS ,
+                   ds_dialer_telesales_specialty.TIMEZONE
+              FROM {{ ref('EDW','DS_DIALER_TELESALES_SPECIALTY') }} ds_dialer_telesales_specialty
+              LEFT JOIN {{ ref('STAGE','V_DLBV_PCCE_DL_5026_5026_CURRENT') }} V_DLBV_PCCE_DL_5026_5026_CURRENT
+                ON ds_dialer_telesales_specialty.C_CUSTOMERID = RTRIM(split_part(V_DLBV_PCCE_DL_5026_5026_CURRENT.AccountNumber, '-', 0))
+               AND DATE(V_DLBV_PCCE_DL_5026_5026_CURRENT.ImportRuleDate) =CURRENT_DATE()
+              LEFT JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_DLBV_CPS_IDNC_CURRENT" DNC
+                ON ds_dialer_telesales_specialty.PHONE1 = DNC.PhoneNumber
+              LEFT JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_DLBV_CPS_IDNC_CURRENT" DNC1
+                ON ds_dialer_telesales_specialty.PHONE2 = DNC1.PhoneNumber
+              LEFT JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_DLBV_PCCE_DIALER_DETAIL_CURRENT" DD
+                ON DD.DIALINGLISTID = V_DLBV_PCCE_DL_5026_5026_CURRENT.DIALINGLISTID
+             WHERE ds_dialer_telesales_specialty.INSERTEDDATE = CURRENT_DATE()
+               AND ((HOUR(CURRENT_TIMESTAMP()) <= 8 AND ds_dialer_telesales_specialty.Hour <= 9) OR (HOUR(CURRENT_TIMESTAMP()) BETWEEN 9 AND 16 AND ds_dialer_telesales_specialty.Hour <= HOUR(CURRENT_TIMESTAMP())+3) OR HOUR(CURRENT_TIMESTAMP()) >= 17 )--AND DD.DIALINGLISTID IS NULL
+
+               AND V_DLBV_PCCE_DL_5026_5026_CURRENT.AccountNumber IS NULL
+               AND DNC.PhoneNumber IS NULL
+               AND DNC1.PhoneNumber IS NULL
+             ORDER BY ds_dialer_telesales_specialty.HOUR
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_DIALER_TELESALES
+          - locationName: EDW
+            nodeName: DS_DIALER_TELESALES_SPECIALTY
+          - locationName: STAGE
+            nodeName: V_DLBV_PCCE_DL_5026_5026_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','BVSTG_DIALER_TELESALES') }}
+            {{ ref('EDW','DS_DIALER_TELESALES_SPECIALTY') }}
+            {{ ref('STAGE','V_DLBV_PCCE_DL_5026_5026_CURRENT') }}
+        name: V_TELESALES_DILER_REFRESH_SPECIALTY
+        noLinkRefs: []
+  name: V_TELESALES_DILER_REFRESH_SPECIALTY
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

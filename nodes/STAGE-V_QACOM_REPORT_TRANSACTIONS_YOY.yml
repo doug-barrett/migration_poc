@@ -1,0 +1,144 @@
+fileVersion: 1
+id: 0e904d4b-714e-497e-a52c-f65c10b27156
+name: V_QACOM_REPORT_TRANSACTIONS_YOY
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 276036b4-38b6-42ab-a303-295e3d65225f
+          stepCounter: 0e904d4b-714e-497e-a52c-f65c10b27156
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CARRIER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d4fd7fff-83c4-4325-b76a-449218dcb3f1
+                stepCounter: f457036c-71e2-4ff2-b58f-4e37796bac1f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0dd97d8e-de7a-4129-9e32-e7147db23431
+          stepCounter: 0e904d4b-714e-497e-a52c-f65c10b27156
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: EXECUTIONMONTH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 311f150f-e373-436d-8aeb-9d88bd30c624
+                stepCounter: f457036c-71e2-4ff2-b58f-4e37796bac1f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ddb8d511-94ac-4ed3-bfbe-1cf41c13554a
+          stepCounter: 0e904d4b-714e-497e-a52c-f65c10b27156
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0348c1f1-7efd-4119-8987-6cc55f275f61
+                stepCounter: f457036c-71e2-4ff2-b58f-4e37796bac1f
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_QACOM_REPORT_TRANSACTIONS_YOY: 0e904d4b-714e-497e-a52c-f65c10b27156
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_QACOM_REPORT_TRANSACTIONS_YOY') }} AS SELECT IFNULL(t1.TRANSACTIONTYPE, t2.TRANSACTIONTYPE) AS TRANSACTIONTYPE,
+                   t2.TRANSACTIONCOUNT AS "Last year Tran",
+                   t1.TRANSACTIONCOUNT AS "Current year Tran",
+                   (t1.TRANSACTIONCOUNT + t2.TRANSACTIONCOUNT) AS "Total Tran",
+                   to_Number(t2.TRANSACTIONCOUNT/tt2.TRANSACTIONCOUNT, 10, 4) AS "Last Year %",
+                   to_Number(t1.TRANSACTIONCOUNT/tt1.TRANSACTIONCOUNT, 10, 4) AS "This Year %",
+                   to_Number((t1.TRANSACTIONCOUNT + t2.TRANSACTIONCOUNT) / (tt1.TRANSACTIONCOUNT + tt2.TRANSACTIONCOUNT), 10, 4) AS "Total %",
+                   t2.ACTUALCOMMISSION AS "Last year comm",
+                   t1.ACTUALCOMMISSION AS "This year comm",
+                   (t1.ACTUALCOMMISSION + t2.ACTUALCOMMISSION) AS "Total Comm",
+                   t1.Carrier,
+                   t1.ExecutionYear
+              FROM (
+                    SELECT ExecutionYear,
+                           Carrier,
+                           TRANSACTIONTYPE,
+                           sum(TRANSACTIONCOUNT) AS TRANSACTIONCOUNT,
+                           sum(ACTUALCOMMISSION) AS ACTUALCOMMISSION
+                      FROM "RETAIL_DEV"."SCH_BVSTAGE"."V_QACOM_TRANSACTION_COUNTS"
+                     GROUP BY TRANSACTIONTYPE,
+                              ExecutionYear,
+                              Carrier
+                   ) t1
+              LEFT JOIN (
+                    SELECT ExecutionYear,
+                           Carrier,
+                           TRANSACTIONTYPE,
+                           sum(TRANSACTIONCOUNT) AS TRANSACTIONCOUNT,
+                           sum(ACTUALCOMMISSION) AS ACTUALCOMMISSION
+                      FROM "RETAIL_DEV"."SCH_BVSTAGE"."V_QACOM_TRANSACTION_COUNTS"
+                     GROUP BY TRANSACTIONTYPE,
+                              ExecutionYear,
+                              Carrier
+                   ) t2
+                ON t1.Carrier = t2.Carrier
+               AND t1.TRANSACTIONTYPE = t2.TRANSACTIONTYPE
+               AND t2.ExecutionYear = t1.ExecutionYear - 1
+              LEFT JOIN (
+                    SELECT ExecutionYear,
+                           Carrier,
+                           sum(TRANSACTIONCOUNT) AS TRANSACTIONCOUNT,
+                           sum(ACTUALCOMMISSION) AS ACTUALCOMMISSION
+                      FROM "RETAIL_DEV"."SCH_BVSTAGE"."V_QACOM_TRANSACTION_COUNTS"
+                     GROUP BY ExecutionYear,
+                              Carrier
+                   ) tt1
+                ON t1.Carrier = tt1.Carrier
+               AND t1.ExecutionYear = tt1.ExecutionYear
+              LEFT JOIN (
+                    SELECT ExecutionYear,
+                           Carrier,
+                           sum(TRANSACTIONCOUNT) AS TRANSACTIONCOUNT,
+                           sum(ACTUALCOMMISSION) AS ACTUALCOMMISSION
+                      FROM "RETAIL_DEV"."SCH_BVSTAGE"."V_QACOM_TRANSACTION_COUNTS"
+                     GROUP BY ExecutionYear,
+                              Carrier
+                   ) tt2
+                ON t2.Carrier = tt2.Carrier
+               AND t2.ExecutionYear = tt2.ExecutionYear
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT') }}
+        name: V_QACOM_REPORT_TRANSACTIONS_YOY
+        noLinkRefs: []
+  name: V_QACOM_REPORT_TRANSACTIONS_YOY
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

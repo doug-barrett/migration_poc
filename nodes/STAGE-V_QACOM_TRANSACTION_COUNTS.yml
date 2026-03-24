@@ -1,0 +1,167 @@
+fileVersion: 1
+id: 9657367b-4d9e-4050-aead-c664c87e7e48
+name: V_QACOM_TRANSACTION_COUNTS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a22d451e-d5b9-4341-abb3-1abf3d022c5f
+          stepCounter: 9657367b-4d9e-4050-aead-c664c87e7e48
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CARRIER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d4fd7fff-83c4-4325-b76a-449218dcb3f1
+                stepCounter: f457036c-71e2-4ff2-b58f-4e37796bac1f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b3600a0c-b8f4-4b8c-a8e3-dafe8ac9f6ad
+          stepCounter: 9657367b-4d9e-4050-aead-c664c87e7e48
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: EXECUTION_YEAR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 311f150f-e373-436d-8aeb-9d88bd30c624
+                stepCounter: f457036c-71e2-4ff2-b58f-4e37796bac1f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 69449c0a-b06b-4f73-89a2-65fc379dd208
+          stepCounter: 9657367b-4d9e-4050-aead-c664c87e7e48
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: TRANS_TYPE_MAPPING
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0348c1f1-7efd-4119-8987-6cc55f275f61
+                stepCounter: f457036c-71e2-4ff2-b58f-4e37796bac1f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d581bc7f-3f8a-4f15-bb58-7086dc48a6df
+          stepCounter: 9657367b-4d9e-4050-aead-c664c87e7e48
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: ACTUAL_COMMISSION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0348c1f1-7efd-4119-8987-6cc55f275f61
+                stepCounter: f457036c-71e2-4ff2-b58f-4e37796bac1f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 165f3daa-0c41-482a-9a76-65170a160fea
+          stepCounter: 9657367b-4d9e-4050-aead-c664c87e7e48
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: FILE_COMPLETE_PATH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0348c1f1-7efd-4119-8987-6cc55f275f61
+                stepCounter: f457036c-71e2-4ff2-b58f-4e37796bac1f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 73d11b85-1bbe-42a9-ac04-724ff7986373
+          stepCounter: 9657367b-4d9e-4050-aead-c664c87e7e48
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: EXECUTION_MONTH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0348c1f1-7efd-4119-8987-6cc55f275f61
+                stepCounter: f457036c-71e2-4ff2-b58f-4e37796bac1f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d568a133-0627-44f3-8f82-833310903be3
+          stepCounter: 9657367b-4d9e-4050-aead-c664c87e7e48
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTION_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0348c1f1-7efd-4119-8987-6cc55f275f61
+                stepCounter: f457036c-71e2-4ff2-b58f-4e37796bac1f
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_QACOM_TRANSACTION_COUNTS: 9657367b-4d9e-4050-aead-c664c87e7e48
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_QACOM_TRANSACTION_COUNTS') }} AS SELECT ---Report filters
+             V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.Carrier,
+                   year(V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.ExecutionMonth) AS Execution_Year,
+                   month(V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.ExecutionMonth) AS Execution_Month, ---Report Fields
+             IFNULL(IFNULL(e.TRANSTYPEMAPPING, c.TRANSTYPEMAPPING),V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.TRANSACTIONTYPE) AS TRANS_TYPE_MAPPING,
+                   count(V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.TransactionType) AS TRANSACTION_COUNT,
+                   sum(V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.ACTUALCOMMISSION) AS ACTUAL_COMMISSION,
+                   count(V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.FILECOMPLETEPATH)AS FILE_COMPLETE_PATH
+              FROM "RETAIL_DEV"."SCH_BVSTAGE"."V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT" V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT
+              LEFT OUTER JOIN "DATA_LAKE"."MAGUIRE"."V_DL_COMM_TRANSTYPEMAPPINGCDRC_CURRENT" d
+                ON (V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.MASTERCARRIERID = d.MASTERCARRIERID AND V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.TRANSACTIONTYPE = d.TRANSTYPEMAPPINGCDRC AND d.ISACTIVE='True')
+              LEFT JOIN "DATA_LAKE"."MAGUIRE"."V_DL_COMM_TRANSTYPEMAPPING_CURRENT" e
+                ON (d.TRANSTYPEMAPPINGID = e.TRANSTYPEMAPPINGID AND e.ISACTIVE='True')
+              LEFT OUTER JOIN "DATA_LAKE"."MAGUIRE"."V_DL_COMM_TRANSTYPEMAPPINGCDRC_CURRENT" b
+                ON (V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT."TRANSACTIONTYPE" = b.TRANSTYPEMAPPINGCDRC AND b.MASTERCARRIERID=0 AND b.ISACTIVE='True')
+              LEFT JOIN "DATA_LAKE"."MAGUIRE"."V_DL_COMM_TRANSTYPEMAPPING_CURRENT" c
+                ON (b.TRANSTYPEMAPPINGID = c.TRANSTYPEMAPPINGID AND c.ISACTIVE='True')
+             WHERE V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.IsDeleted = 'False'
+             GROUP BY V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.Carrier,
+                      year(V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.ExecutionMonth),
+                      month(V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.ExecutionMonth),
+                      IFNULL(IFNULL(e.TRANSTYPEMAPPING, c.TRANSTYPEMAPPING),V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.TRANSACTIONTYPE)
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT') }}
+        name: V_QACOM_TRANSACTION_COUNTS
+        noLinkRefs: []
+  name: V_QACOM_TRANSACTION_COUNTS
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

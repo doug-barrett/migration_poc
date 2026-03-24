@@ -1,0 +1,180 @@
+fileVersion: 1
+id: 66b39900-c023-4b22-8321-3655e9e99293
+name: BVSTG_TBAI_VIEWEVENT_DEDUP
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 99bfbe93-4664-4782-b3e7-a40da1cde944
+          stepCounter: 66b39900-c023-4b22-8321-3655e9e99293
+        config: {}
+        dataType: VARCHAR(16777216)
+        defaultValue: ""
+        description: ""
+        name: SESSIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ae4343b6-4382-4299-b649-3be2d23eecf5
+                stepCounter: 7ac68de1-9d2a-4603-bd07-c882e5900329
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c4e22100-1886-44ed-ae6d-4639d73e3972
+          stepCounter: 66b39900-c023-4b22-8321-3655e9e99293
+        config: {}
+        dataType: VARCHAR(16777216)
+        defaultValue: ""
+        description: ""
+        name: STEPNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7c17131b-197d-4675-b8cf-dd46bc949905
+                stepCounter: 7ac68de1-9d2a-4603-bd07-c882e5900329
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d927385f-742d-4512-9d87-f6b6dda69532
+          stepCounter: 66b39900-c023-4b22-8321-3655e9e99293
+        config: {}
+        dataType: VARCHAR(16777216)
+        defaultValue: ""
+        description: ""
+        name: EVENTID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 035e43c3-bbb6-4446-ae64-8c0a08f15033
+                stepCounter: 7ac68de1-9d2a-4603-bd07-c882e5900329
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 583426f7-5dc4-4eb9-815f-2ecb9ee883cf
+          stepCounter: 66b39900-c023-4b22-8321-3655e9e99293
+        config: {}
+        dataType: VARCHAR(16777216)
+        defaultValue: ""
+        description: ""
+        name: FORMNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6cf75110-1dc2-42f2-a2cc-0f06685d9dca
+                stepCounter: 7ac68de1-9d2a-4603-bd07-c882e5900329
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 057bdc61-4e39-4138-a74b-0d195be73c87
+          stepCounter: 66b39900-c023-4b22-8321-3655e9e99293
+        config: {}
+        dataType: VARCHAR(16777216)
+        defaultValue: ""
+        description: ""
+        name: EVENTTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5aef783a-26ae-4d47-b4bf-b4eb06b8091f
+                stepCounter: 7ac68de1-9d2a-4603-bd07-c882e5900329
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1176f968-28db-4a30-a329-1c869def2c11
+          stepCounter: 66b39900-c023-4b22-8321-3655e9e99293
+        config: {}
+        dataType: TIMESTAMP_TZ(9)
+        defaultValue: ""
+        description: ""
+        name: EVENTTIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f8b61724-c321-4cbe-b0d1-6ac2c9fa23e6
+                stepCounter: 7ac68de1-9d2a-4603-bd07-c882e5900329
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5d142371-e6a8-4b42-ad45-b90093ef0fbf
+          stepCounter: 66b39900-c023-4b22-8321-3655e9e99293
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e007f239-6ba6-404e-ae02-05d658eb6785
+          stepCounter: 66b39900-c023-4b22-8321-3655e9e99293
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_DLBV_TBAI_VIEWEVENT_CURRENT: 7ac68de1-9d2a-4603-bd07-c882e5900329
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_DLBV_TBAI_VIEWEVENT_CURRENT
+        join:
+          joinCondition: |-
+            FROM(
+                    SELECT VE.SESSIONID ,
+                           VE.STEPNO ,
+                           VE.FORMNAME ,
+                           VE.EVENTID ,
+                           VE.EVENTTYPE ,
+                           VE.EVENTTIME
+                      FROM {{ ref('STAGE','V_DLBV_TBAI_VIEWEVENT_CURRENT') }} VE
+                     INNER JOIN (
+                            SELECT SESSIONID,
+                                   STEPNO,
+                                   CASE WHEN STEPNO = '1' THEN MIN(EVENTTIME)
+                                        ELSE MAX(EVENTTIME)
+                                         END EVENTTIME
+                              FROM {{ ref('STAGE','V_DLBV_TBAI_VIEWEVENT_CURRENT') }}
+                             GROUP BY SESSIONID,
+                                      STEPNO
+                           )VEG
+                        ON VE.SESSIONID = VEG.SESSIONID
+                       AND VE.STEPNO = VEG.STEPNO
+                       AND VE.EVENTTIME = VEG.EVENTTIME
+                   )V_DLBV_TBAI_VIEWEVENT_CURRENT
+        name: BVSTG_TBAI_VIEWEVENT_DEDUP
+        noLinkRefs: []
+  name: BVSTG_TBAI_VIEWEVENT_DEDUP
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

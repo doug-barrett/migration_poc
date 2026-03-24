@@ -1,0 +1,447 @@
+fileVersion: 1
+id: 5286f0cc-4185-4776-b1be-60344920d473
+name: BVSTG_H2O_RWL_AU1_PAYMENTS_30DAYS_BEF_EXP
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 95b7ffdf-3e24-4218-ae21-fc6113f21c33
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: PR_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a14a3169-be89-46f2-8a66-a0ecb7a2dc33
+                stepCounter: 2a2051cb-983b-412d-95c5-c709a18b3b5e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 70076d87-196a-4cde-9b9d-ca70b7b5c85b
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 14eea8f2-3262-4f5d-a670-a6a5066b27a3
+                stepCounter: 2a2051cb-983b-412d-95c5-c709a18b3b5e
+            transform: MAX(ds_policysummary_renewals.transactionid)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c19748a0-98bc-4203-b7d1-b474c9234522
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(19,2)
+        defaultValue: ""
+        description: ""
+        name: DOWNPAYMENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 AND ds_bvstg_ap1_payment.ISRECEIVED = 1 AND DATE(ds_bvstg_ap1_payment.CREATED_PAYMENT) = DATE(ds_ap1_transactionsummary.created) THEN ds_bvstg_ap1_payment.PAYMENTAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0bff8648-6ca2-4dd7-8c2e-be18fed35dfc
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(19,2)
+        defaultValue: ""
+        description: ""
+        name: TOTALPAYMENTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 AND ds_bvstg_ap1_payment.ISRECEIVED = 1 THEN ds_bvstg_ap1_payment.PAYMENTAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 510aeac4-0f54-45a3-9c15-638b3b607d2b
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(19,2)
+        defaultValue: ""
+        description: ""
+        name: CASHPAYMENTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 AND ds_bvstg_ap1_payment.ISRECEIVED = 1 AND ds_bvstg_ap1_payment.PAYMENTTYPE = 'Cash' THEN ds_bvstg_ap1_payment.PAYMENTAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ae2bf520-c145-4d9c-9a68-ab08f409bb58
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(19,2)
+        defaultValue: ""
+        description: ""
+        name: CHECKPAYMENTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 AND ds_bvstg_ap1_payment.ISRECEIVED = 1 AND ds_bvstg_ap1_payment.PAYMENTTYPE = 'Check' THEN ds_bvstg_ap1_payment.PAYMENTAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dd7da853-2ae1-4e2f-a065-4fa9f737fa98
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(19,2)
+        defaultValue: ""
+        description: ""
+        name: CREDITCARDPAYMENTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 AND ds_bvstg_ap1_payment.ISRECEIVED = 1 AND ds_bvstg_ap1_payment.PAYMENTTYPE = 'Credit Card' THEN ds_bvstg_ap1_payment.PAYMENTAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cc58c0d8-06aa-4988-8c12-64f2de236925
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(19,2)
+        defaultValue: ""
+        description: ""
+        name: OTHERPAYMENTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 AND ds_bvstg_ap1_payment.ISRECEIVED = 1 AND ds_bvstg_ap1_payment.PAYMENTTYPE NOT IN ('Credit Card','Check','Cash') THEN ds_bvstg_ap1_payment.PAYMENTAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 13c792cc-4f06-4ef5-b3d0-cc64537af3e7
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: VARCHAR(1000)
+        defaultValue: ""
+        description: ""
+        name: PAYMENTTYPESLIST
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: left(listagg(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 AND ds_bvstg_ap1_payment.ISRECEIVED = 1 THEN ds_bvstg_ap1_payment.PAYMENTTYPE ELSE NULL END, ','), 1000)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fc2ecf88-6eb7-4a0e-b55a-ca51eb85add0
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: VARCHAR(1000)
+        defaultValue: ""
+        description: ""
+        name: PAYMENTNAMELIST
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: left(listagg(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 AND ds_bvstg_ap1_payment.ISRECEIVED = 1 THEN ds_bvstg_ap1_payment.PAYMENTNAME ELSE NULL END, ','), 1000)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8540b632-6d33-4c3b-84a2-e546c2eac186
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: VARCHAR(1000)
+        defaultValue: ""
+        description: ""
+        name: PAYMENTAMOUNTLIST
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: left(listagg(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 AND ds_bvstg_ap1_payment.ISRECEIVED = 1 THEN ds_bvstg_ap1_payment.PAYMENTAMOUNT ELSE NULL END, ','), 1000)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a07f2626-b5ce-47ba-b452-9f1a50cecc0d
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: LAST_PAYMENTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MAX(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 THEN ds_bvstg_ap1_payment.CREATED_PAYMENT ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ef0cd8cf-65ba-4f34-a119-5a2b8ebe1a71
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(5)
+        defaultValue: ""
+        description: ""
+        name: ISEXPORTEDTOCOLLECTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MAX(CASE WHEN ISEXPORTEDTOCOLLECTIONASDEBT = TRUE THEN 1 ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5ad8c9a3-7292-4f35-86f2-6db28af1cee0
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(19,2)
+        defaultValue: ""
+        description: ""
+        name: TOTALEXPORTEDTOCOLLECTIONAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ISEXPORTEDTOCOLLECTIONASDEBT = TRUE THEN PAYMENTAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4f43197b-a97a-4af6-a259-4ce698bd68b7
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(19,2)
+        defaultValue: ""
+        description: ""
+        name: DOWNPAYMENTON30DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 AND ds_bvstg_ap1_payment.ISRECEIVED = 1 AND DATE(ds_bvstg_ap1_payment.CREATED_PAYMENT) = DATE(ds_ap1_transactionsummary.created) AND DATE(ds_bvstg_ap1_payment.CREATED_PAYMENT) <= ds_policysummary_renewals.renewal_start_period THEN ds_bvstg_ap1_payment.PAYMENTAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ffba1f9c-03d0-420a-b004-aa7876414aba
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(19,2)
+        defaultValue: ""
+        description: ""
+        name: TOTALPAYMENTSON30DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 AND ds_bvstg_ap1_payment.ISRECEIVED = 1 AND DATE(ds_bvstg_ap1_payment.CREATED_PAYMENT) <= ds_policysummary_renewals.renewal_start_period THEN ds_bvstg_ap1_payment.PAYMENTAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e955574d-2bac-43f7-ad72-de54b1991910
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(19,2)
+        defaultValue: ""
+        description: ""
+        name: CASHPAYMENTSON30DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 AND ds_bvstg_ap1_payment.ISRECEIVED = 1 AND ds_bvstg_ap1_payment.PAYMENTTYPE = 'Cash' AND DATE(ds_bvstg_ap1_payment.CREATED_PAYMENT) <= ds_policysummary_renewals.renewal_start_period THEN ds_bvstg_ap1_payment.PAYMENTAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b1e0b3f6-b1c0-4d47-af7b-f60f2694222a
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(19,2)
+        defaultValue: ""
+        description: ""
+        name: CHECKPAYMENTSON30DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 AND ds_bvstg_ap1_payment.ISRECEIVED = 1 AND ds_bvstg_ap1_payment.PAYMENTTYPE = 'Check' AND DATE(ds_bvstg_ap1_payment.CREATED_PAYMENT) <= ds_policysummary_renewals.renewal_start_period THEN ds_bvstg_ap1_payment.PAYMENTAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 90ced5c3-4eb4-4135-886f-516606975384
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(19,2)
+        defaultValue: ""
+        description: ""
+        name: CREDITCARDPAYMENTSON30DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 AND ds_bvstg_ap1_payment.ISRECEIVED = 1 AND ds_bvstg_ap1_payment.PAYMENTTYPE = 'Credit Card' AND DATE(ds_bvstg_ap1_payment.CREATED_PAYMENT) <= ds_policysummary_renewals.renewal_start_period THEN ds_bvstg_ap1_payment.PAYMENTAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5c058f18-003a-452e-aad4-e1cb01f669c1
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(19,2)
+        defaultValue: ""
+        description: ""
+        name: OTHERPAYMENTSON30DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 AND ds_bvstg_ap1_payment.ISRECEIVED = 1 AND ds_bvstg_ap1_payment.PAYMENTTYPE NOT IN ('Credit Card','Check','Cash') AND DATE(ds_bvstg_ap1_payment.CREATED_PAYMENT) <= ds_policysummary_renewals.renewal_start_period THEN ds_bvstg_ap1_payment.PAYMENTAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 18d70e72-77ec-4783-bc9c-c21faa829683
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(5)
+        defaultValue: ""
+        description: ""
+        name: ISEXPORTEDTOCOLLECTIONON30DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MAX(CASE WHEN ISEXPORTEDTOCOLLECTIONASDEBT = TRUE AND DATE(ds_bvstg_ap1_payment.DATEEXPORTEDTOCOLLECTIONASDEBT) <= ds_policysummary_renewals.renewal_start_period THEN 1 ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bb52f3b8-3dae-47ad-8a73-260881bb2fe4
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(19,2)
+        defaultValue: ""
+        description: ""
+        name: EXPORTEDTOCOLLECTIONAMOUNTON30DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ISEXPORTEDTOCOLLECTIONASDEBT = TRUE AND DATE(ds_bvstg_ap1_payment.DATEEXPORTEDTOCOLLECTIONASDEBT)<= ds_policysummary_renewals.renewal_start_period THEN PAYMENTAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aeda5dd0-b1f1-4275-8548-ca3442866b5a
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(5)
+        defaultValue: ""
+        description: ""
+        name: ISEXPORTEDTOCOLLECTIONAFTER30DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MAX(CASE WHEN ISEXPORTEDTOCOLLECTIONASDEBT = TRUE AND DATE(ds_bvstg_ap1_payment.DATEEXPORTEDTOCOLLECTIONASDEBT) > ds_policysummary_renewals.renewal_start_period THEN 1 ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ba243dc4-15e1-4485-a68d-1995740d9383
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: NUMBER(19,2)
+        defaultValue: ""
+        description: ""
+        name: EXPORTEDTOCOLLECTIONAMOUNTAFTER30DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ISEXPORTEDTOCOLLECTIONASDEBT = TRUE AND DATE(ds_bvstg_ap1_payment.DATEEXPORTEDTOCOLLECTIONASDEBT) > ds_policysummary_renewals.renewal_start_period THEN PAYMENTAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 234f85ad-70ec-4e1a-953c-a01820b08861
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: VARCHAR(1000)
+        defaultValue: ""
+        description: ""
+        name: PAYMENTNAMELISTON30DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: left(listagg(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 AND ds_bvstg_ap1_payment.ISRECEIVED = 1 AND DATE(ds_bvstg_ap1_payment.CREATED_PAYMENT) <= ds_policysummary_renewals.renewal_start_period THEN ds_bvstg_ap1_payment.PAYMENTNAME ELSE NULL END, ','), 1000)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 326c6c42-64b5-495b-9528-75f0e769df54
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: VARCHAR(1000)
+        defaultValue: ""
+        description: ""
+        name: PAYMENTTYPELISTON30DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: left(listagg(CASE WHEN ds_bvstg_ap1_payment.ISNSF = 0 AND ds_bvstg_ap1_payment.ISRECEIVED = 1 AND DATE(ds_bvstg_ap1_payment.CREATED_PAYMENT) <= ds_policysummary_renewals.renewal_start_period THEN ds_bvstg_ap1_payment.PAYMENTTYPE ELSE NULL END, ','), 1000)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 747a12d3-b1d4-47a0-b461-bee7362e2ad1
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: LAST_DUEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: max(CASE WHEN ds_bvstg_ap1_payment.isreceived = 0 THEN ds_bvstg_ap1_payment.duedate ELSE NULL END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6ed26ec5-4855-4c61-96ea-e81ee96a56e4
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b5618644-6989-489a-83ed-8cd267bef6d0
+          stepCounter: 5286f0cc-4185-4776-b1be-60344920d473
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_BVSTG_AP1_PAYMENT: 98dd5fca-4fd6-4ecd-85c3-eea74c0094f3
+          DS_AP1_TRANSACTIONSUMMARY: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+          DS_POLICYSUMMARY_RENEWALS: 2a2051cb-983b-412d-95c5-c709a18b3b5e
+          BVSTG_CUSTOMER_TO_REFRESH: 7cbd0921-faef-4eb6-bdf6-f95f09598096
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_POLICYSUMMARY_RENEWALS
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_PAYMENT
+          - locationName: EDW
+            nodeName: DS_AP1_TRANSACTIONSUMMARY
+          - locationName: STAGE
+            nodeName: BVSTG_CUSTOMER_TO_REFRESH
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','DS_BVSTG_AP1_PAYMENT') }} ds_bvstg_ap1_payment
+             INNER JOIN {{ ref('EDW','DS_AP1_TRANSACTIONSUMMARY') }} ds_ap1_transactionsummary
+                ON to_varchar(ds_bvstg_ap1_payment.transactionid) = to_varchar(ds_ap1_transactionsummary.transactionid)
+             INNER JOIN {{ ref('EDW','DS_POLICYSUMMARY_RENEWALS') }} ds_policysummary_renewals
+                ON to_varchar(ds_bvstg_ap1_payment.transactionid) = to_varchar(ds_policysummary_renewals.transactionid)
+               AND ds_policysummary_renewals.SourceDB = 'AppOne'
+             INNER JOIN (
+                    SELECT DISTINCT customerid,
+                           SOURCEDB
+                      FROM {{ ref('STAGE','BVSTG_CUSTOMER_TO_REFRESH') }}
+                   ) bvstg_customer_to_refresh
+                ON TO_CHAR(bvstg_customer_to_refresh.customerid) = TO_CHAR(ds_policysummary_renewals.customerid)
+               AND bvstg_customer_to_refresh.SourceDB = 'AppOne'
+             WHERE ds_bvstg_ap1_payment.ISVOID_PAYMENT = 0
+             GROUP BY ds_policysummary_renewals.ID
+        name: BVSTG_H2O_RWL_AU1_PAYMENTS_30DAYS_BEF_EXP
+        noLinkRefs: []
+  name: BVSTG_H2O_RWL_AU1_PAYMENTS_30DAYS_BEF_EXP
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,105 @@
+fileVersion: 1
+id: 71f71896-51f4-47a8-b6a0-eeeaa5b24ef9
+name: BVSTG_AMS_AU1_PREMIUM
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "tran for prepium - SUM(s_ams_policytranpremium_mroc.billedpremium) AS billedpremium"
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4c3ceb6f-c61b-4121-9a38-042bdc3b3969
+          stepCounter: 71f71896-51f4-47a8-b6a0-eeeaa5b24ef9
+        config: {}
+        dataType: CHAR(32)
+        defaultValue: ""
+        description: ""
+        name: HK_H_BASICPOLINFO
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f1aeb346-ad9b-4076-b0ca-53e17d0f3019
+                stepCounter: 962e741c-108f-4645-a21d-ffee4343f302
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7b277dcc-2249-4034-a2fb-44b984482d29
+          stepCounter: 71f71896-51f4-47a8-b6a0-eeeaa5b24ef9
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: BILLEDPREMIUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 53101d4a-f43e-4c3f-bf72-d42a6e828e0d
+                stepCounter: 3f6eafb2-7365-4684-8bcc-191074ddca94
+            transform: SUM(v_s_ams_policytranpremium_mroc_current.billedpremium)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fbb32451-027b-45b5-80ee-f79b9c2d2505
+          stepCounter: 71f71896-51f4-47a8-b6a0-eeeaa5b24ef9
+        config: {}
+        dataType: VARCHAR(36)
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: POLID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 61d7cff7-dfc5-4302-8858-0e6b5e1e719b
+                stepCounter: 962e741c-108f-4645-a21d-ffee4343f302
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          H_BASICPOLINFO: 962e741c-108f-4645-a21d-ffee4343f302
+          L_POLICYTRANPREMIUM_BASICPOLINFO: 3761e526-87b5-4483-a3b3-d4eaf1914365
+          H_POLICYTRANPREMIUM: 09528c82-4392-4913-b280-db72bad94195
+          V_S_AMS_POLICYTRANPREMIUM_MROC_CURRENT: 3f6eafb2-7365-4684-8bcc-191074ddca94
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DATA_VAULT
+            nodeName: H_BASICPOLINFO
+          - locationName: DATA_VAULT
+            nodeName: L_POLICYTRANPREMIUM_BASICPOLINFO
+          - locationName: DATA_VAULT
+            nodeName: H_POLICYTRANPREMIUM
+          - locationName: STAGE
+            nodeName: V_S_AMS_POLICYTRANPREMIUM_MROC_CURRENT
+        join:
+          joinCondition: |-
+            FROM {{ ref('DATA_VAULT','H_BASICPOLINFO') }} h_basicpolinfo
+              JOIN {{ ref('DATA_VAULT','L_POLICYTRANPREMIUM_BASICPOLINFO') }} l_policytranpremium_basicpolinfo
+                ON h_basicpolinfo.HK_h_basicpolinfo = l_policytranpremium_basicpolinfo.HK_h_basicpolinfo
+              JOIN {{ ref('DATA_VAULT','H_POLICYTRANPREMIUM') }} h_policytranpremium
+                ON l_policytranpremium_basicpolinfo.HK_h_policytranpremium = h_policytranpremium.HK_h_policytranpremium
+              JOIN {{ ref('STAGE','V_S_AMS_POLICYTRANPREMIUM_MROC_CURRENT') }} v_s_ams_policytranpremium_mroc_current
+                ON h_policytranpremium.HK_h_policytranpremium = v_s_ams_policytranpremium_mroc_current.HK_h_policytranpremium
+             WHERE v_s_ams_policytranpremium_mroc_current.BILLEDPREMIUM > 0
+             GROUP BY h_basicpolinfo.HK_h_basicpolinfo,
+                      h_basicpolinfo.polid
+        name: BVSTG_AMS_AU1_PREMIUM
+        noLinkRefs: []
+  name: BVSTG_AMS_AU1_PREMIUM
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

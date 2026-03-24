@@ -1,0 +1,632 @@
+fileVersion: 1
+id: 92495d89-78ad-4fba-890e-3ac016e60103
+name: BVSTG_ACUMATICA_FEES_AND_VOIDS
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: true
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ef3f1ce2-a14c-477b-8a97-36153d42f643
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MD5(IFNULL(TO_NUMBER(TO_CHAR(DS_BVSTG_AP1_TRANSACTIONITEM.created, 'YYYYMM'), '999999'),0) || '-' || IFNULL(TO_NUMBER(TO_CHAR(DS_AP1_TRANSACTIONSUMMARY.CREATED, 'YYYYMM'), '999999'),0) || '-' || CASE WHEN DS_BVSTG_AP1_TRANSACTIONITEM.isVoid = 'True' THEN 'TRUE' ELSE 'FALSE' END || '-' || IFNULL(TO_NUMBER(TO_CHAR(DS_BVSTG_AP1_TRANSACTIONITEM.VOIDEDON, 'YYYYMM'), '999999'),0) || '-' || CASE WHEN DS_AP1_TRANSACTIONSUMMARY.isVoid = 'True' THEN 'TRUE' ELSE 'FALSE' END || '-' || IFNULL(TO_NUMBER(TO_CHAR(ds_ap1_transactionsummary.VoidedOn, 'YYYYMM'), '999999'),0) || '-' || IFNULL(TRIM(ds_ap1_transactionsummary.TransactionType),'') || '-' || IFNULL(TRIM(DS_BVSTG_AP1_TRANSACTIONITEM.FeeType),'') || '-' || IFNULL(TRIM(DS_BVSTG_AP1_TRANSACTIONITEM.FeeName),'') || '-' || IFNULL(DS_AP1_TRANSACTIONSUMMARY.BIAPRIMARYAGENTOFFICE,'') || '-' || IFNULL(DS_AP1_TRANSACTIONSUMMARY.TransactionOfficeCode,'') || '-' || IFNULL(CASE WHEN DS_AP1_TRANSACTIONSUMMARY.OrganizationCode like 'SSB%' THEN 'SSB' ELSE DS_AP1_TRANSACTIONSUMMARY.OrganizationCode END,'') || '-' || TO_CHAR(IFNULL(STAGE_DATE_SF.YEAR_MONTH,0)) || '-' || IFNULL(CASE WHEN DS_AP1_TRANSACTIONSUMMARY.OrganizationCode IN ('OLBT','ODT') THEN '425' WHEN DS_AP1_TRANSACTIONSUMMARY.OrganizationCode = 'INOW' THEN '421INOW' WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND (DS_AP1_TRANSACTIONSUMMARY.OrganizationCode like '%SSB%' OR DS_AP1_TRANSACTIONSUMMARY.OrganizationCode = 'APS1') THEN '421' WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND DS_AP1_TRANSACTIONSUMMARY.TransactionOfficeCode not like '%SSB%'THEN DS_RETAIL_OFFICE_SO.BusinessEntityCode ELSE DS_RETAIL_OFFICE.BusinessEntityCode END,'0') || '-' || IFNULL(CASE WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND (DS_AP1_TRANSACTIONSUMMARY.OrganizationCode like '%SSB%' OR DS_AP1_TRANSACTIONSUMMARY.OrganizationCode = 'APS1') THEN '421-SSB Insurance Services (AUS)' WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND DS_AP1_TRANSACTIONSUMMARY.TransactionOfficeCode not like '%SSB%'THEN DS_RETAIL_OFFICE_SO.BusinessEntityName ELSE DS_RETAIL_OFFICE.BusinessEntityName END,'') || '-' || IFNULL(CASE WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND (DS_AP1_TRANSACTIONSUMMARY.OrganizationCode like '%SSB%' OR DS_AP1_TRANSACTIONSUMMARY.OrganizationCode = 'APS1') THEN 'California' WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND DS_AP1_TRANSACTIONSUMMARY.TransactionOfficeCode not like '%SSB%'THEN DS_RETAIL_OFFICE_SO.state ELSE DS_RETAIL_OFFICE.state END,'') || '-' || IFNULL(CASE WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND (DS_AP1_TRANSACTIONSUMMARY.OrganizationCode like '%SSB%' OR DS_AP1_TRANSACTIONSUMMARY.OrganizationCode = 'APS1') THEN '000632' WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND DS_AP1_TRANSACTIONSUMMARY.TransactionOfficeCode not like '%SSB%'THEN RIGHT('00000'||DS_RETAIL_OFFICE_SO.CORPORATEOFFICENUMBER,6) ELSE RIGHT('00000'||DS_RETAIL_OFFICE.CORPORATEOFFICENUMBER,6) END,''))
+          - columnReferences:
+              - columnCounter: d84a1794-fb07-4f16-99ff-b36d17026aac
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4a723f15-bcfb-4f7a-91e4-c7188397b97e
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: YEAR_MONTH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+          - columnReferences:
+              - columnCounter: 0f3dcfbe-994f-47c4-a6dc-cbeec9c64bcb
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 508674ea-e47d-4074-9d60-6072ebf6e738
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(6)
+        defaultValue: ""
+        description: ""
+        name: CREATED_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2c98f3c6-f87d-487e-a203-b07d12d70270
+                stepCounter: 80f81938-7e6e-4863-9ea5-4321d79434f8
+            transform: TO_NUMBER(TO_CHAR(DS_BVSTG_AP1_TRANSACTIONITEM.created, 'YYYYMM'), '999999')
+          - columnReferences:
+              - columnCounter: 80857dd3-cb7b-4bfd-8758-a7a13db680cc
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2389c10f-1527-48fd-935f-a835013d0fee
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(6)
+        defaultValue: ""
+        description: ""
+        name: TRANS_CREATED_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: TO_NUMBER(TO_CHAR(DS_AP1_TRANSACTIONSUMMARY.CREATED, 'YYYYMM'), '999999')
+          - columnReferences:
+              - columnCounter: 8cf0ef63-8f14-4dea-974b-0c8e23da7efb
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6438ce1a-9044-4b40-977f-938d03f620ca
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(6)
+        defaultValue: ""
+        description: ""
+        name: ISVOID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6a4b906a-09df-4d01-b909-aeb19e20662f
+                stepCounter: 80f81938-7e6e-4863-9ea5-4321d79434f8
+            transform: |-
+              CASE WHEN DS_BVSTG_AP1_TRANSACTIONITEM.isVoid = 'True' THEN 'TRUE'
+                          ELSE 'FALSE'
+                           END
+          - columnReferences:
+              - columnCounter: d8bb6df2-de9a-4c68-993a-024e076de29d
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b9474377-b325-44ae-999a-06ed0a88572e
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(6)
+        defaultValue: ""
+        description: ""
+        name: VOID_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ada929cc-d32c-424b-bbcd-97660452b644
+                stepCounter: 80f81938-7e6e-4863-9ea5-4321d79434f8
+            transform: TO_NUMBER(TO_CHAR(DS_BVSTG_AP1_TRANSACTIONITEM.VOIDEDON, 'YYYYMM'), '999999')
+          - columnReferences:
+              - columnCounter: 50fcb846-0d48-4974-ab29-52dee1470741
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a0479f8a-b656-4e38-b277-feb6a34b729e
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(6)
+        defaultValue: ""
+        description: ""
+        name: ISTRANSACTIONVOID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: adeded5d-f0d1-4f2f-b772-e0a15cb82a45
+                stepCounter: 95296926-a461-45bf-919b-1e93cca0d1ad
+            transform: |-
+              CASE WHEN DS_AP1_TRANSACTIONSUMMARY.isVoid = 'True' THEN 'TRUE'
+                          ELSE 'FALSE'
+                           END
+          - columnReferences:
+              - columnCounter: 9b652b29-8148-428e-9996-0dc59f0a6e74
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9d30bb8a-f121-4301-90ab-b761221a0696
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(6)
+        defaultValue: ""
+        description: ""
+        name: TRANS_VOID_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 01a8f489-304e-4001-ad09-da5efb742851
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: TO_NUMBER(TO_CHAR(ds_ap1_transactionsummary.VoidedOn, 'YYYYMM'), '999999')
+          - columnReferences:
+              - columnCounter: fb029d7a-18c2-4351-978b-5f9d90466b36
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d5786bfc-5407-44e2-9461-14c852dca8b6
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 86edc52a-c46a-4b9d-8651-4d7b13a3cf59
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: TRIM(ds_ap1_transactionsummary.TransactionType)
+          - columnReferences:
+              - columnCounter: 73560a00-d0cd-47d7-8979-42751771ab9e
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ddae0639-a6a1-498c-9ec3-5fe576762426
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: FEENAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 015347e7-f82d-4e25-9952-f1b888770062
+                stepCounter: 80f81938-7e6e-4863-9ea5-4321d79434f8
+            transform: TRIM(DS_BVSTG_AP1_TRANSACTIONITEM.FeeName)
+          - columnReferences:
+              - columnCounter: 97f9a448-2411-4037-ba5e-f7c4452504c1
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 774331fc-b85a-40ef-a8d1-7764ed3c7f4f
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: FEETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1f57198b-3377-4c83-8709-4b1f7e87500a
+                stepCounter: 80f81938-7e6e-4863-9ea5-4321d79434f8
+            transform: TRIM(DS_BVSTG_AP1_TRANSACTIONITEM.FeeType)
+          - columnReferences:
+              - columnCounter: 0a336095-a11c-4794-8229-517da4c2068d
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d30d7ae5-efd2-4f2b-8d7b-15cab4f21f81
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: ORGCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a3917d66-86d9-446f-bdd5-5e7402a31022
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: |-
+              CASE WHEN DS_AP1_TRANSACTIONSUMMARY.OrganizationCode like 'SSB%' THEN 'SSB'
+                          ELSE DS_AP1_TRANSACTIONSUMMARY.OrganizationCode
+                           END
+          - columnReferences:
+              - columnCounter: cd094a03-d307-4142-8e77-1134a9965482
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3bbb41a0-2811-43f2-88fd-30dc96e09193
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: BRANCH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fcd5d562-5da6-4ecc-b76e-fcdf0ea994da
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: |-
+              CASE WHEN DS_AP1_TRANSACTIONSUMMARY.OrganizationCode IN ('OLBT','ODT')                                                                                                     THEN '425'
+                          WHEN DS_AP1_TRANSACTIONSUMMARY.OrganizationCode = 'INOW'                                                                                                              THEN '421INOW'
+                          WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND (DS_AP1_TRANSACTIONSUMMARY.OrganizationCode like '%SSB%' OR DS_AP1_TRANSACTIONSUMMARY.OrganizationCode = 'APS1') THEN '421'
+                          WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND DS_AP1_TRANSACTIONSUMMARY.TransactionOfficeCode not like '%SSB%'                                                THEN DS_RETAIL_OFFICE_SO.BusinessEntityCode
+                          ELSE DS_RETAIL_OFFICE.BusinessEntityCode
+                           END
+          - columnReferences:
+              - columnCounter: a6a8d920-7b4c-4101-9407-7123ecf29ce5
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bcf0a00b-ed44-4bd8-a616-a6b97f4047c7
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(300)
+        defaultValue: ""
+        description: ""
+        name: ENTITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b86baf19-5495-4dc9-bb3c-f5962d23a310
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: |-
+              CASE WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND (DS_AP1_TRANSACTIONSUMMARY.OrganizationCode like '%SSB%' OR DS_AP1_TRANSACTIONSUMMARY.OrganizationCode = 'APS1') THEN '421-SSB Insurance Services (AUS)'
+                          WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND DS_AP1_TRANSACTIONSUMMARY.TransactionOfficeCode not like '%SSB%'                                                THEN DS_RETAIL_OFFICE_SO.BusinessEntityName
+                          ELSE DS_RETAIL_OFFICE.BusinessEntityName
+                           END
+          - columnReferences:
+              - columnCounter: d9251cc8-52af-4ca7-abba-0c9b3b93751c
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1e4307a9-ee0d-46f8-89a9-9bd28185ca23
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: STATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d8ee00da-3702-4e07-9148-7dcd3c6c6121
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: |-
+              CASE WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND (DS_AP1_TRANSACTIONSUMMARY.OrganizationCode like '%SSB%' OR DS_AP1_TRANSACTIONSUMMARY.OrganizationCode = 'APS1') THEN 'California'
+                          WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND DS_AP1_TRANSACTIONSUMMARY.TransactionOfficeCode not like '%SSB%'                                                THEN DS_RETAIL_OFFICE_SO.state
+                          ELSE DS_RETAIL_OFFICE.state
+                           END
+          - columnReferences:
+              - columnCounter: 2647e66a-5ee8-4d8a-8ae2-bb32d4ac9529
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 02585e22-e9a5-4a92-b02a-00ce2f4a857f
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: STORE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 66099d95-d490-440f-8c3b-0455d12a6293
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: |-
+              CASE WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND (DS_AP1_TRANSACTIONSUMMARY.OrganizationCode like '%SSB%' OR DS_AP1_TRANSACTIONSUMMARY.OrganizationCode = 'APS1') THEN '000632'
+                          WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND DS_AP1_TRANSACTIONSUMMARY.TransactionOfficeCode not like '%SSB%'                                                THEN RIGHT('00000'||DS_RETAIL_OFFICE_SO.CORPORATEOFFICENUMBER,6)
+                          ELSE RIGHT('00000'||DS_RETAIL_OFFICE.CORPORATEOFFICENUMBER,6)
+                           END
+          - columnReferences:
+              - columnCounter: 21c5c585-9f5d-42ca-9ac8-db3c2f0c43c8
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6c719265-0e0e-47f6-aa7e-3ca6025653c1
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: POLICYTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 620c922b-415d-433f-ae00-0f2cf512a1f7
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+          - columnReferences:
+              - columnCounter: 522ddcec-a1f7-42ed-8285-83ec5a36f46f
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 568e43dd-1f91-412c-b101-985310aa5c3c
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: OFFICE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8d0d6d07-44df-48e7-bb4a-3623eb3c2a16
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+          - columnReferences:
+              - columnCounter: dd62ec29-3683-4b36-8bb1-ceb68b2c71ba
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cd0eda4f-4921-45c7-9f28-698d4c1923b8
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONOFFICECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ef4c3e5a-3ad8-4e0a-888c-0fb3b5b3c2a7
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+          - columnReferences:
+              - columnCounter: f21a6b68-72a7-4fe1-a908-fb8b8f5ec8ab
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 573145bd-9264-47c7-8e80-6ff6dafea166
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: NUMBER(18,2)
+        defaultValue: ""
+        description: ""
+        name: AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(IFNULL(DS_BVSTG_AP1_TRANSACTIONITEM.Amount,0))
+          - columnReferences:
+              - columnCounter: 112234d9-4351-4f16-a21e-74679c7c6c18
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6bafd8f0-4387-498c-8bee-1b1796098123
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: NUMBER(18,2)
+        defaultValue: ""
+        description: ""
+        name: AP_COST
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(IFNull(DS_BVSTG_AP1_TRANSACTIONITEM.COMPANYCOST,0))
+          - columnReferences:
+              - columnCounter: dd89fdc3-bad7-4e98-8434-282221b008c5
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c9352800-e320-4ed1-baaf-c6d41018fa1b
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ISROWDELETED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+          - columnReferences: []
+            transform: '1'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ca32ee2e-7dd6-49b9-88ed-bc3d69b199c2
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: ""
+        name: ADDITIONALPRODUCTOPTIONNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ad6f5309-1958-43f6-88f5-213e890d6567
+                stepCounter: 80f81938-7e6e-4863-9ea5-4321d79434f8
+            transform: MAX(DS_BVSTG_AP1_TRANSACTIONITEM.ADDITIONALPRODUCTOPTIONNAME)
+          - columnReferences:
+              - columnCounter: 51007a92-8a70-4abc-b77a-0a8ea19c0793
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5df5fc61-f463-4f6f-84f6-796eeb0be2e2
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONITEMID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ad6f5309-1958-43f6-88f5-213e890d6567
+                stepCounter: 80f81938-7e6e-4863-9ea5-4321d79434f8
+            transform: MAX(DS_BVSTG_AP1_TRANSACTIONITEM.transactionitemid)
+          - columnReferences:
+              - columnCounter: 99d04ad9-e113-467f-8480-bdb98597c46a
+                stepCounter: b7ce001a-089d-441a-a294-acf7895f62e6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5ecc8baa-35b7-4e6d-82e7-3df482617498
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7ba7f32d-b3ce-4b2c-86fe-808bac435ca1
+          stepCounter: 92495d89-78ad-4fba-890e-3ac016e60103
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_BVSTG_AP1_TRANSACTIONITEM: 80f81938-7e6e-4863-9ea5-4321d79434f8
+          DS_BVSTG_AP1_ANCILLARYPRODUCT: 7cc93e3c-b00d-4b64-bc70-8cb95ccbfebe
+          DS_AP1_TRANSACTIONSUMMARY: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+          DS_RETAIL_OFFICE: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_TRANSACTIONITEM
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_TRANSACTION
+          - locationName: EDW
+            nodeName: DS_AP1_TRANSACTIONSUMMARY
+          - locationName: EDW
+            nodeName: DS_RETAIL_OFFICE
+          - locationName: UNKNOWN
+            nodeName: STAGE_DATE_SF
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_ANCILLARYPRODUCT
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM (
+                    SELECT MIN(DATE(CALENDAR_DATE))min_date,
+                           MAX(DATE(CALENDAR_DATE))max_date,
+                           MAX(CAL_MONTH) YEAR_MONTH
+                      FROM {{ ref('UNKNOWN','STAGE_DATE_SF') }}
+                     WHERE CAL_MONTH = '{{ parameters.HWM_BVSTG_Acumatica }}'
+                   )STAGE_DATE_SF
+             INNER JOIN (
+                    SELECT IFNULL(a.TransactionID,b.TransactionID) TransactionID,
+                           IFNULL(a.created,b.created) created,
+                           VoidedON,
+                           FeeName,
+                           FeeType,
+                           Amount,
+                           COMPANYCOST,
+                           IFNULL(a.isVoid,'False') isVoid,
+                           transactionitemid,
+                           ADDITIONALPRODUCTOPTIONNAME
+                      FROM {{ ref('STAGE','DS_BVSTG_AP1_TRANSACTIONITEM') }} a
+                      FULL JOIN {{ ref('STAGE','DS_BVSTG_AP1_ANCILLARYPRODUCT') }} b
+                        ON a.ADDITIONALPRODUCTSALEID = b.ADDITIONALPRODUCTSALEID
+                       AND b.ISROWDELETED = 0
+                   )DS_BVSTG_AP1_TRANSACTIONITEM
+                ON 1=1
+             INNER JOIN {{ ref('EDW','DS_AP1_TRANSACTIONSUMMARY') }} DS_AP1_TRANSACTIONSUMMARY
+                ON DS_AP1_TRANSACTIONSUMMARY.TransactionID = DS_BVSTG_AP1_TRANSACTIONITEM.TransactionID
+               AND IFNULL(DS_AP1_TRANSACTIONSUMMARY.HK_H_TRANSACTION,'') != ''
+              LEFT JOIN {{ ref('EDW','DS_RETAIL_OFFICE') }} DS_RETAIL_OFFICE
+                ON DS_RETAIL_OFFICE.officecode = DS_AP1_TRANSACTIONSUMMARY.BIAPRIMARYAGENTOFFICE
+               AND DS_RETAIL_OFFICE.CORPORATEOFFICENUMBER > 0
+              LEFT JOIN {{ ref('EDW','DS_RETAIL_OFFICE') }} DS_RETAIL_OFFICE_SO
+                ON DS_RETAIL_OFFICE_SO.officecode = DS_AP1_TRANSACTIONSUMMARY.TransactionOfficeCode
+               AND DS_RETAIL_OFFICE_SO.CORPORATEOFFICENUMBER > 0
+             WHERE ((DATE(DS_BVSTG_AP1_TRANSACTIONITEM.created) BETWEEN min_date AND max_date) OR (DATE(DS_BVSTG_AP1_TRANSACTIONITEM.VoidedON) BETWEEN min_date AND max_date) OR ((DATE(DS_AP1_TRANSACTIONSUMMARY.VoidedOn) BETWEEN min_date AND max_date) AND DS_BVSTG_AP1_TRANSACTIONITEM.VoidedON IS NULL))
+             GROUP BY STAGE_DATE_SF.YEAR_MONTH ,
+                      TO_NUMBER(TO_CHAR(DS_BVSTG_AP1_TRANSACTIONITEM.created, 'YYYYMM'), '999999') ,
+                      TO_NUMBER(TO_CHAR(DS_AP1_TRANSACTIONSUMMARY.CREATED, 'YYYYMM'), '999999') ,
+                      CASE WHEN DS_BVSTG_AP1_TRANSACTIONITEM.isVoid = 'True' THEN 'TRUE'
+                           ELSE 'FALSE'
+                            END ,
+                      TO_NUMBER(TO_CHAR(DS_BVSTG_AP1_TRANSACTIONITEM.VOIDEDON, 'YYYYMM'), '999999') ,
+                      CASE WHEN DS_AP1_TRANSACTIONSUMMARY.isVoid = 'True' THEN 'TRUE'
+                           ELSE 'FALSE'
+                            END ,
+                      TO_NUMBER(TO_CHAR(ds_ap1_transactionsummary.VoidedOn, 'YYYYMM'), '999999') ,
+                      TRIM(ds_ap1_transactionsummary.TransactionType) ,
+                      TRIM(DS_BVSTG_AP1_TRANSACTIONITEM.FeeType) ,
+                      TRIM(DS_BVSTG_AP1_TRANSACTIONITEM.FeeName) ,
+                      CASE WHEN DS_AP1_TRANSACTIONSUMMARY.OrganizationCode like 'SSB%' THEN 'SSB'
+                           ELSE DS_AP1_TRANSACTIONSUMMARY.OrganizationCode
+                            END ,
+                      CASE WHEN DS_AP1_TRANSACTIONSUMMARY.OrganizationCode IN ('OLBT','ODT')                                                                                                     THEN '425'
+                           WHEN DS_AP1_TRANSACTIONSUMMARY.OrganizationCode = 'INOW'                                                                                                              THEN '421INOW'
+                           WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND (DS_AP1_TRANSACTIONSUMMARY.OrganizationCode like '%SSB%' OR DS_AP1_TRANSACTIONSUMMARY.OrganizationCode = 'APS1') THEN '421'
+                           WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND DS_AP1_TRANSACTIONSUMMARY.TransactionOfficeCode not like '%SSB%'                                                THEN DS_RETAIL_OFFICE_SO.BusinessEntityCode
+                           ELSE DS_RETAIL_OFFICE.BusinessEntityCode
+                            END ,
+                      CASE WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND (DS_AP1_TRANSACTIONSUMMARY.OrganizationCode like '%SSB%' OR DS_AP1_TRANSACTIONSUMMARY.OrganizationCode = 'APS1') THEN '421-SSB Insurance Services (AUS)'
+                           WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL AND DS_AP1_TRANSACTIONSUMMARY.TransactionOfficeCode not like '%SSB%'                                                THEN DS_RETAIL_OFFICE_SO.BusinessEntityName
+                           ELSE DS_RETAIL_OFFICE.BusinessEntityName
+                            END ,
+                      CASE WHEN DS_RETAIL_OFFICE.BusinessEntityCode IS NULL
+               AND (DS_AP1_TR
+        name: SRC_bvstg_acumatica_fees_and_voids_1_insert
+        noLinkRefs: []
+      - aliases:
+          DS_ACUMATICA_FEES_AND_VOIDS: b7ce001a-089d-441a-a294-acf7895f62e6
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_ACUMATICA_FEES_AND_VOIDS
+        join:
+          joinCondition: |-
+            FROM {{ ref('EDW','DS_ACUMATICA_FEES_AND_VOIDS') }} ds_acumatica_fees_and_voids
+             WHERE YEAR_MONTH = '{{ parameters.HWM_BVSTG_Acumatica }}'
+        name: SRC_bvstg_acumatica_fees_and_voids_2_update
+        noLinkRefs: []
+  name: BVSTG_ACUMATICA_FEES_AND_VOIDS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

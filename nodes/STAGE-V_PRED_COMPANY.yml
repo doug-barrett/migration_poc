@@ -1,0 +1,131 @@
+fileVersion: 1
+id: b4cf4ded-3a7e-4c72-b6db-452995d25cb7
+name: V_PRED_COMPANY
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6de2d1ec-8b5b-495a-a1bc-87cdd5a8d30b
+          stepCounter: b4cf4ded-3a7e-4c72-b6db-452995d25cb7
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: companyid
+        name: COMPANYID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 089169a0-877f-41f0-a87a-e8d60fb0015a
+          stepCounter: b4cf4ded-3a7e-4c72-b6db-452995d25cb7
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: name
+        name: NAME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 88328ed3-421b-422b-8007-382b07c4e1eb
+          stepCounter: b4cf4ded-3a7e-4c72-b6db-452995d25cb7
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: cocode
+        name: COCODE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4056201a-01dc-4950-98fd-d6da084cd433
+          stepCounter: b4cf4ded-3a7e-4c72-b6db-452995d25cb7
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: mastercarrierid
+        name: MASTERCARRIERID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PRED_COMPANY: b4cf4ded-3a7e-4c72-b6db-452995d25cb7
+          V_S_AMS_COMPANY_MROC_CURRENT: 712dc1c0-0e80-49bb-ab77-2791b4f7683f
+          V_S_AP1_MASTERCARRIER_MROC_CURRENT: 06cbe835-21cb-4312-8098-c00a3325e583
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PRED_COMPANY') }} AS SELECT MD5(CONCAT(IFNULL(cocode,'NOTAMS'),'_',IFNULL(mastercarrierid,0),'_',name)) companyid,
+                   UPPER(trim(name)) name,
+                   cocode,
+                   cast(mastercarrierid AS varchar(50)) mastercarrierid
+              FROM {{ ref('STAGE','V_S_AMS_COMPANY_MROC_CURRENT') }} a,
+                   {{ ref('STAGE','V_S_AP1_MASTERCARRIER_MROC_CURRENT') }} b
+             WHERE UPPER(trim(a.name))=upper(trim(b.carriername))
+               AND b.isrowdeleted=0
+             UNION SELECT MD5(CONCAT(cocode,'_',name)) companyid,
+                   UPPER(trim(name)),
+                   cocode,
+                   NULL
+              FROM {{ ref('STAGE','V_S_AMS_COMPANY_MROC_CURRENT') }} a
+             WHERE UPPER(trim(a.name)) NOT IN (
+                    SELECT upper(trim(b.carriername))
+                      FROM (
+                            SELECT *
+                              FROM {{ ref('STAGE','V_S_AP1_MASTERCARRIER_MROC_CURRENT') }}
+                             WHERE isrowdeleted=0
+                           ) b
+                   )
+             UNION SELECT MD5(CONCAT(mastercarrierid,'_',carriername)) companyid,
+                   UPPER(trim(carriername)),
+                   NULL,
+                   cast(mastercarrierid AS varchar(50)) mastercarrierid
+              FROM {{ ref('STAGE','V_S_AP1_MASTERCARRIER_MROC_CURRENT') }} b
+             WHERE UPPER(trim(b.carriername)) NOT IN (
+                    SELECT upper(trim(name))
+                      FROM {{ ref('STAGE','V_S_AMS_COMPANY_MROC_CURRENT') }}
+                   )
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AMS_COMPANY_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AP1_MASTERCARRIER_MROC_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_S_AMS_COMPANY_MROC_CURRENT') }}
+            {{ ref('STAGE','V_S_AP1_MASTERCARRIER_MROC_CURRENT') }}
+        name: V_PRED_COMPANY
+        noLinkRefs: []
+  name: V_PRED_COMPANY
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,108 @@
+fileVersion: 1
+id: 1431e09f-a3bb-468d-b80e-74ee6703d7d4
+name: V_POSB_AMS_RWL_CREATED
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 87b9ff1a-4f78-4c74-b7c7-dbf092f87712
+          stepCounter: 1431e09f-a3bb-468d-b80e-74ee6703d7d4
+        config: {}
+        dataType: VARCHAR(36)
+        defaultValue: ""
+        description: ""
+        name: POLID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 05894ea1-7385-46a1-ad0b-d3c41a6c40d6
+                stepCounter: 1ad8f9e0-3c95-4fc3-be6d-542153f7eca9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f5974cbf-5921-42d9-bc32-32705df90b31
+          stepCounter: 1431e09f-a3bb-468d-b80e-74ee6703d7d4
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: ENTEREDDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c127e598-bf16-46d6-89b1-9f309b9699e7
+                stepCounter: 1606f10f-9a41-4fc9-a5e9-42248b4403b3
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_POSB_AMS_RWL_CREATED: 1431e09f-a3bb-468d-b80e-74ee6703d7d4
+          S_AMS_INVOICE: 5b1c5e25-9d62-491f-aad5-1f2783c5bc25
+          H_INVOICE: d5fb99ff-f824-46a0-b4ab-a5aa4de2b93d
+          S_AMS_INVOICETRANSACTION_MROC: 1606f10f-9a41-4fc9-a5e9-42248b4403b3
+          BVSTG_AMS_AU3_BASICPOL_INFO: 1ad8f9e0-3c95-4fc3-be6d-542153f7eca9
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_POSB_AMS_RWL_CREATED') }} AS SELECT a.PolID,
+                   MIN(a.ENTEREDDATE)ENTEREDDATE
+              FROM(
+                    SELECT a.PolID,
+                           b.ENTEREDDATE,
+                           b.BACKINVTPID,
+                           b.NEWINVTPID
+                      FROM {{ ref('DATA_VAULT','S_AMS_INVOICE') }} a
+                     INNER JOIN {{ ref('DATA_VAULT','H_INVOICE') }} a1
+                        ON a.HK_H_INVOICE = a1.HK_H_INVOICE
+                     INNER JOIN {{ ref('DATA_VAULT','S_AMS_INVOICETRANSACTION_MROC') }} b
+                        ON a1.INVID = b.INVID
+                     WHERE a.PolID IN(
+                            SELECT PolID
+                              FROM {{ ref('STAGE','BVSTG_AMS_AU3_BASICPOL_INFO') }}
+                             WHERE ModeID = 14
+                           )
+                       AND LINEOFBUS='AUTOP'
+                       AND TRANTYPE='RWL' QUALIFY ROW_NUMBER() OVER (PARTITION BY a.HK_H_INVOICE,HK_H_INVOICETRANSACTION ORDER BY a.DSS_VERSION DESC,b.DSS_VERSION DESC)=1
+                   ) a
+             INNER JOIN {{ ref('STAGE','BVSTG_AMS_AU3_BASICPOL_INFO') }} b
+                ON a.PolID = b.PolID
+               AND b.ModeID = 14
+             GROUP BY a.PolID
+            HAVING DATEDIFF(DAY,MIN(DATE(a.ENTEREDDATE)), MIN(b.entereddate)) BETWEEN 1 AND 90
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_AMS_AU3_BASICPOL_INFO
+          - locationName: DATA_VAULT
+            nodeName: S_AMS_INVOICE
+          - locationName: DATA_VAULT
+            nodeName: H_INVOICE
+          - locationName: DATA_VAULT
+            nodeName: S_AMS_INVOICETRANSACTION_MROC
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','BVSTG_AMS_AU3_BASICPOL_INFO') }}
+            {{ ref('DATA_VAULT','S_AMS_INVOICE') }}
+            {{ ref('DATA_VAULT','H_INVOICE') }}
+            {{ ref('DATA_VAULT','S_AMS_INVOICETRANSACTION_MROC') }}
+        name: V_POSB_AMS_RWL_CREATED
+        noLinkRefs: []
+  name: V_POSB_AMS_RWL_CREATED
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,138 @@
+fileVersion: 1
+id: 1e8584bb-6687-4fa2-b375-b45b5361c7dc
+name: V_POSB_APPONE_CIGH_MIGRATED_POLICIES
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 92f3c19c-377f-4b86-8063-0b95395e8225
+          stepCounter: 1e8584bb-6687-4fa2-b375-b45b5361c7dc
+        config: {}
+        dataType: VARCHAR(144)
+        defaultValue: ""
+        description: ""
+        name: CIGH_POLICYID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e0fd9af2-4fce-4443-903a-64b5b1dab08e
+                stepCounter: 23ba684a-5671-4cfa-9e5f-11f1386d24b3
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: da676028-e943-449b-be7f-17141b53aca5
+          stepCounter: 1e8584bb-6687-4fa2-b375-b45b5361c7dc
+        config: {}
+        dataType: VARCHAR(144)
+        defaultValue: ""
+        description: ""
+        name: CIGH_CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f20b89bc-ab1e-48d3-a9ec-237a73f708b1
+                stepCounter: c5a432da-156b-460f-ba67-985b9517bedb
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 158ac54d-4fce-405e-9ca6-430ef32b8b52
+          stepCounter: 1e8584bb-6687-4fa2-b375-b45b5361c7dc
+        config: {}
+        dataType: VARCHAR(144)
+        defaultValue: ""
+        description: ""
+        name: APPONE_POLICYID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e0fd9af2-4fce-4443-903a-64b5b1dab08e
+                stepCounter: 23ba684a-5671-4cfa-9e5f-11f1386d24b3
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fb963789-86db-4fef-80a1-2614264c34a9
+          stepCounter: 1e8584bb-6687-4fa2-b375-b45b5361c7dc
+        config: {}
+        dataType: VARCHAR(144)
+        defaultValue: ""
+        description: ""
+        name: APPONECUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f20b89bc-ab1e-48d3-a9ec-237a73f708b1
+                stepCounter: c5a432da-156b-460f-ba67-985b9517bedb
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_POSB_APPONE_CIGH_MIGRATED_POLICIES: 1e8584bb-6687-4fa2-b375-b45b5361c7dc
+          DS_POLICYSUMMARY_V2: 23ba684a-5671-4cfa-9e5f-11f1386d24b3
+          DS_CUSTOMERSUMMARY_V2: c5a432da-156b-460f-ba67-985b9517bedb
+          DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES: 62e4c62e-c5fa-4abb-8a26-a5acaccb175b
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_POSB_APPONE_CIGH_MIGRATED_POLICIES') }} AS SELECT ds_policysummary_v2.PolicyID CIGH_PolicyID ,
+                   ds_policysummary_v2_appone.PolicyID AppOne_PolicyID ,
+                   ds_customersummary_v2.AFW_CUSTOMER_LEGACYID CIGH_CustomerID ,
+                   ds_customersummary_v2.CustomerID AppOneCustomerID
+              FROM {{ ref('EDW','DS_POLICYSUMMARY_V2') }} ds_policysummary_v2
+             INNER JOIN {{ ref('EDW','DS_CUSTOMERSUMMARY_V2') }} ds_customersummary_v2
+                ON ds_policysummary_v2.CustomerID = ds_customersummary_v2.AFW_CUSTOMER_LEGACYID
+             INNER JOIN (
+                    SELECT DISTINCT POLICYNUMBER_EDW,
+                           CARRIERNAME_EDW,
+                           POLICYNUMBERFORMATTED
+                      FROM {{ ref('STAGE','DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES') }}
+                   ) ds_bvstg_comm_policynumberformatting_allsources
+                ON ds_policysummary_v2.PolicyNumber = ds_bvstg_comm_policynumberformatting_allsources.POLICYNUMBER_EDW
+               AND ds_policysummary_v2.CarrierName = ds_bvstg_comm_policynumberformatting_allsources.CARRIERNAME_EDW
+             INNER JOIN (
+                    SELECT DISTINCT POLICYNUMBER_EDW,
+                           CARRIERNAME_EDW,
+                           POLICYNUMBERFORMATTED
+                      FROM "DATA_LAKE"."BIA_ANALYTICS"."DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES"
+                   ) ds_bvstg_comm_policynumberformatting_allsources_appone
+                ON ds_bvstg_comm_policynumberformatting_allsources.POLICYNUMBERFORMATTED = ds_bvstg_comm_policynumberformatting_allsources_appone.POLICYNUMBERFORMATTED
+               AND ds_bvstg_comm_policynumberformatting_allsources.CARRIERNAME_EDW = ds_bvstg_comm_policynumberformatting_allsources_appone.CARRIERNAME_EDW
+             INNER JOIN {{ ref('EDW','DS_POLICYSUMMARY_V2') }} ds_policysummary_v2_appone
+                ON ds_policysummary_v2_appone.SourceDb='AppOne'
+               AND ds_policysummary_v2_appone.ISLEGACYTRANSACTION = 'Migrated'
+               AND ds_policysummary_v2_appone.CustomerID = ds_customersummary_v2.CustomerID
+               AND ds_bvstg_comm_policynumberformatting_allsources_appone.POLICYNUMBER_EDW = ds_policysummary_v2_appone.PolicyNumber
+             WHERE ds_policysummary_v2.SourceDb='CIGH' QUALIFY ROW_NUMBER() OVER (PARTITION BY ds_policysummary_v2.PolicyID,ds_customersummary_v2.CustomerID ORDER BY CASE WHEN ds_policysummary_v2.PolicyNumber = ds_policysummary_v2_appone.PolicyNumber THEN 1 WHEN ds_policysummary_v2.Created = ds_policysummary_v2_appone.Created THEN 2 ELSE 3 END,ds_policysummary_v2_appone.Created)=1
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_POLICYSUMMARY_V2
+          - locationName: EDW
+            nodeName: DS_CUSTOMERSUMMARY_V2
+          - locationName: STAGE
+            nodeName: DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('EDW','DS_POLICYSUMMARY_V2') }}
+            {{ ref('EDW','DS_CUSTOMERSUMMARY_V2') }}
+            {{ ref('STAGE','DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES') }}
+        name: V_POSB_APPONE_CIGH_MIGRATED_POLICIES
+        noLinkRefs: []
+  name: V_POSB_APPONE_CIGH_MIGRATED_POLICIES
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

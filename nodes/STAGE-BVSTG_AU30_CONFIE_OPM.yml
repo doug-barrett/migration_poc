@@ -1,0 +1,247 @@
+fileVersion: 1
+id: 24524337-5b4e-4855-b4f8-d48a5d710c56
+name: BVSTG_AU30_CONFIE_OPM
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9a85a196-111e-4485-8af0-a38d5022527f
+          stepCounter: 24524337-5b4e-4855-b4f8-d48a5d710c56
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_AU30_CONFIE_OPM_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5 (ifnull(bvstg_au14_confie_opm.monthyear,'1900-01-01') || bvstg_au14_confie_opm.sg_description)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f94cd9eb-ee23-4b48-ab49-d62c23a8b2c7
+          stepCounter: 24524337-5b4e-4855-b4f8-d48a5d710c56
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: MONTHYEAR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4c3cecf2-62ef-4761-840c-529b21b780ad
+          stepCounter: 24524337-5b4e-4855-b4f8-d48a5d710c56
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: SG_DESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e63bbdfe-10e2-4cbb-9068-f014cdb3ad1d
+          stepCounter: 24524337-5b4e-4855-b4f8-d48a5d710c56
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: OPEXP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_AU14_CONFIE_OPM: 1e3809f3-5b2e-4d04-81cb-e5c74a20a826
+          BVSTG_AU8_CONFIE_OPM: 28568189-26e2-4950-937b-34c46e35d5ab
+          BVSTG_AU6_CONFIE_OPM: 229d24ad-41fe-4baa-a289-031d65af0f47
+          BVSTG_AU9_CONFIE_OPM: fca74184-af95-46d1-b825-2627819d783c
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_AU14_CONFIE_OPM
+          - locationName: STAGE
+            nodeName: BVSTG_AU8_CONFIE_OPM
+          - locationName: STAGE
+            nodeName: BVSTG_AU6_CONFIE_OPM
+          - locationName: STAGE
+            nodeName: BVSTG_AU9_CONFIE_OPM
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM ( SELECT *
+              FROM (
+                    SELECT monthyear,
+                           sum(values_month) OpExp,
+                           sg_description
+                      FROM (
+                            SELECT table2.monthyear,
+                                   ud2id,
+                                   CASE WHEN month(monthyear) <> 1 THEN values_month- lag(values_month) OVER (PARTITION BY ud2id ORDER BY monthyear)
+                                        ELSE values_month
+                                         END values_month,
+                                   'IT_0044' sg_description
+                              FROM (
+                                    SELECT DISTINCT date(concat(yearid,'-',replace(replace(MONTH,'M'),'VALUE'),'-01')) monthyear,
+                                           ifnull(sum(values_month),0) values_month,
+                                           ud2id
+                                      FROM {{ ref('STAGE','BVSTG_AU14_CONFIE_OPM') }}
+                                     WHERE concat(ud2id,ud1id) IN (
+                                            SELECT DISTINCT concat(ud2id,ud1id)
+                                              FROM {{ ref('STAGE','BVSTG_AU8_CONFIE_OPM') }}
+                                             WHERE sg_description= 'IT_0044'
+                                           )
+                                       AND accountid IN (
+                                            SELECT DISTINCT accountid
+                                              FROM {{ ref('STAGE','BVSTG_AU6_CONFIE_OPM') }}
+                                             WHERE sg_description ='TotalOpExp'
+                                           )
+                                       AND monthyear<=dateadd('day',-1,date_trunc('month',CURRENT_DATE))
+                                     GROUP BY ud2id,
+                                              date(concat(yearid,'-',replace(replace(MONTH,'M'),'VALUE'),'-01'))
+                                   ) table2
+                           )
+                     GROUP BY monthyear,
+                              sg_description
+                   )
+            UNION ALL (
+                    SELECT monthyear,
+                           sum(values_month) OpExp,
+                           sg_description
+                      FROM (
+                            SELECT table3.monthyear,
+                                   ud2id,
+                                   CASE WHEN month(monthyear) <> 1 THEN values_month- lag(values_month) OVER (PARTITION BY ud2id ORDER BY monthyear)
+                                        ELSE values_month
+                                         END values_month,
+                                   'IT_0049' sg_description
+                              FROM (
+                                    SELECT DISTINCT date(concat(yearid,'-',replace(replace(MONTH,'M'),'VALUE'),'-01')) monthyear,
+                                           ifnull(sum(values_month),0) values_month,
+                                           ud2id
+                                      FROM {{ ref('STAGE','BVSTG_AU14_CONFIE_OPM') }}
+                                     WHERE concat(ud2id,ud1id) IN (
+                                            SELECT DISTINCT concat(ud2id,ud1id)
+                                              FROM {{ ref('STAGE','BVSTG_AU8_CONFIE_OPM') }}
+                                             WHERE sg_description= 'IT_0049'
+                                           )
+                                       AND accountid IN (
+                                            SELECT DISTINCT accountid
+                                              FROM {{ ref('STAGE','BVSTG_AU6_CONFIE_OPM') }}
+                                             WHERE sg_description ='TotalOpExp'
+                                           )
+                                       AND monthyear<=dateadd('day',-1,date_trunc('month',CURRENT_DATE))
+                                     GROUP BY ud2id,
+                                              date(concat(yearid,'-',replace(replace(MONTH,'M'),'VALUE'),'-01'))
+                                   ) table3
+                           )
+                     GROUP BY monthyear,
+                              sg_description
+                   )
+            UNION ALL (
+                    SELECT monthyear,
+                           sum(values_month) OpExp,
+                           sg_description
+                      FROM (
+                            SELECT table4.monthyear,
+                                   ud2id,
+                                   CASE WHEN month(monthyear) <> 1 THEN values_month- lag(values_month) OVER (PARTITION BY ud2id ORDER BY monthyear)
+                                        ELSE values_month
+                                         END values_month,
+                                   'IT_0035' sg_description
+                              FROM (
+                                    SELECT DISTINCT date(concat(yearid,'-',replace(replace(MONTH,'M'),'VALUE'),'-01')) monthyear,
+                                           ifnull(sum(values_month),0) values_month,
+                                           ud2id
+                                      FROM {{ ref('STAGE','BVSTG_AU14_CONFIE_OPM') }}
+                                     WHERE concat(ud2id,ud1id) IN (
+                                            SELECT DISTINCT concat(ud2id,ud1id)
+                                              FROM {{ ref('STAGE','BVSTG_AU8_CONFIE_OPM') }}
+                                             WHERE sg_description= 'IT_0035'
+                                           )
+                                       AND accountid IN (
+                                            SELECT DISTINCT accountid
+                                              FROM {{ ref('STAGE','BVSTG_AU6_CONFIE_OPM') }}
+                                             WHERE sg_description ='TotalOpExp'
+                                           )
+                                       AND monthyear<=dateadd('day',-1,date_trunc('month',CURRENT_DATE))
+                                     GROUP BY ud2id,
+                                              date(concat(yearid,'-',replace(replace(MONTH,'M'),'VALUE'),'-01'))
+                                   ) table4
+                           )
+                     GROUP BY monthyear,
+                              sg_description
+                   )
+            UNION ALL (
+                    SELECT monthyear,
+                           sum(values_month) OpExp,
+                           sg_description
+                      FROM (
+                            SELECT table6.monthyear,
+                                   ud2id,
+                                   CASE WHEN month(monthyear) <> 1 THEN values_month- lag(values_month) OVER (PARTITION BY ud2id ORDER BY monthyear)
+                                        ELSE values_month
+                                         END values_month,
+                                   'SGA_Numerator' sg_description
+                              FROM (
+                                    SELECT DISTINCT date(concat(yearid,'-',replace(replace(MONTH,'M'),'VALUE'),'-01')) monthyear,
+                                           ifnull(sum(values_month),0) values_month,
+                                           ud2id
+                                      FROM {{ ref('STAGE','BVSTG_AU14_CONFIE_OPM') }}
+                                     WHERE concat(ud2id,ud1id) IN (
+                                            SELECT DISTINCT concat(ud2id,ud1id)
+                                              FROM {{ ref('STAGE','BVSTG_AU9_CONFIE_OPM') }}
+                                             WHERE sg_description= 'SGA_Numerator'
+                                           )
+                                       AND accountid IN (
+                                            SELECT DISTINCT accountid
+                                              FROM {{ ref('STAGE','BVSTG_AU6_CONFIE_OPM') }}
+                                             WHERE sg_description ='TotalOpExp'
+                                           )
+                                       AND monthyear<=dateadd('day',-1,date_trunc('month',CURRENT_DATE))
+                                     GROUP BY ud2id,
+                                              date(concat(yearid,'-',replace(replace(MONTH,'M'),'VALUE'),'-01'))
+                                   ) table6
+                           )
+                     GROUP BY monthyear,
+                              sg_description
+                   )
+            UNION ALL (SELECT monthyear,
+                   sum(values_month) OpExp,
+                   sg_description
+        name: BVSTG_AU30_CONFIE_OPM
+        noLinkRefs: []
+  name: BVSTG_AU30_CONFIE_OPM
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

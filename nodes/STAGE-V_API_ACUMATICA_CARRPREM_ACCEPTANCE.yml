@@ -1,0 +1,101 @@
+fileVersion: 1
+id: 37181f38-cad8-49cf-9c1e-b5f7fc788f41
+name: V_API_ACUMATICA_CARRPREM_ACCEPTANCE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7bf07087-27cb-42b4-98d6-f7b8be4e7078
+          stepCounter: 37181f38-cad8-49cf-9c1e-b5f7fc788f41
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ACCOUNTID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_API_ACUMATICA_CARRPREM_ACCEPTANCE: 37181f38-cad8-49cf-9c1e-b5f7fc788f41
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_API_ACUMATICA_CARRPREM_ACCEPTANCE') }} AS SELECT DISTINCT ti.TransactionItemID,
+                   ti.Created AS "Date",
+                   ti.CreatedBy,
+                   ti.FeeName,
+                   ti.Amount,
+                   ti.FeeType,
+                   ts.TransactionID,
+                   ts.IsLegacyTransaction,
+                   p.PolicyID,
+                   p.PolicyNumber,
+                   ts.CustomerID,
+                   ts.TransactionType,
+                   ts_nbre.TransactionType AS NBRenTransactionType,
+                   ts_nbre.TransactionID AS NB_Rwl_TransactionID,
+                   ts_nbre.BIAPRIMARYAGENTOFFICE AS NBOfficeCode,
+                   ro.CorporateOfficeNumber AS OfficeID,
+                   CASE WHEN ts_nbre.ORGANIZATIONCODE LIKE 'SSB%' THEN 'SSB'
+                        ELSE ts_nbre.ORGANIZATIONCODE
+                         END AS NBOrganizationCode,
+                   v_off.OFFICECODE AS LoggedOfficeCode,
+                   CASE WHEN v_org.Code LIKE '%SSB%' THEN 'SSB'
+                        ELSE v_org.Code
+                         END AS LoggedOrganizationCode,
+                   CASE WHEN (ts.PYMRECEIVED_DIRECTCREDITCARD > 0 OR ts.PYMRECEIVED_DIRECTCHECK > 0) THEN '1'
+                        ELSE '0'
+                         END AS IsDirectPayment,
+                   IFNULL(c.BRANCH, 0) AS BranchID
+              FROM RETAIL_PROD.SCH_BVSTAGE.DS_BVSTG_AP1_TRANSACTIONITEM ti
+             INNER JOIN RETAIL_PROD.SCH_EDW.DS_AP1_TRANSACTIONSUMMARY ts
+                ON ts.TransactionID = ti.TransactionID
+             INNER JOIN RETAIL_PROD.SCH_BVSTAGE.DS_BVSTG_AP1_POLICY p
+                ON ts.PolicyID = p.PolicyID
+               AND p.TRANSACTIONTYPE IN ('New Business', 'Renewal')
+             INNER JOIN RETAIL_PROD.SCH_EDW.DS_AP1_TRANSACTIONSUMMARY ts_nbre
+                ON ts_nbre.TransactionID = p.TransactionID
+              LEFT JOIN RETAIL_PROD.SCH_BVSTAGE.DS_BVSTG_AP1_LOGINSTATUS ls
+                ON ls.USERID = ti.CreatedBy
+               AND ls.CREATED <= ti.Created
+              LEFT JOIN RETAIL_PROD.SCH_BVSTAGE.V_PRE_AP1_OFFICE_MROC_CURRENT v_off
+                ON v_off.OfficeID = ls.LOGGEDINOFFICEID
+              LEFT JOIN RETAIL_PROD.SCH_BVSTAGE.V_S_AP1_ORGANIZATION_MROC_CURRENT v_org
+                ON v_org.OrganizationID = v_off.OrganizationID
+              LEFT JOIN RETAIL_PROD.SCH_EDW.DS_RETAIL_OFFICE ro
+                ON ro.OfficeCode = ts_nbre.BIAPRIMARYAGENTOFFICE
+              LEFT JOIN "RETAIL_PROD"."SCH_EDW"."DS_ACUMATICA_RAW" c
+                ON c.FEE_ITEM_ID = ti.TRANSACTIONITEMID
+             WHERE DATE(ti.Created) BETWEEN DATE_TRUNC('MONTH', DATEADD(DAY,-10,CURRENT_DATE())) AND LAST_DAY(DATEADD(DAY,-5,CURRENT_DATE()))
+               AND ti.CodeDefinition = 'FeeType'
+               AND ti.FeeType = 'Carrier Premium'
+               AND ti.IsVoid = 0
+               AND IFNULL(c.BRANCH, 0) IN (440, 441)
+               AND v_org.Code LIKE 'ACC%' QUALIFY ROW_NUMBER() OVER (PARTITION BY ti.TransactionItemID ORDER BY ls.CREATED DESC) = 1
+        dependencies: []
+        join:
+          joinCondition: None
+        name: V_API_ACUMATICA_CARRPREM_ACCEPTANCE
+        noLinkRefs: []
+  name: V_API_ACUMATICA_CARRPREM_ACCEPTANCE
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

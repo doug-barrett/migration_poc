@@ -1,0 +1,135 @@
+fileVersion: 1
+id: 81a34e64-6bf4-4915-899b-cacf6475dde8
+name: BVSTG_CUSTOMER_GROUP_LEAD_TO_REFRESH
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 74f0cc7e-35de-43d4-8be3-d86a19bedbda
+          stepCounter: 81a34e64-6bf4-4915-899b-cacf6475dde8
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: de9f5120-dd56-4bec-96a5-9c9597500c84
+                stepCounter: d29a0c5c-e296-46c4-bc55-861d60fe906d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ba6a91d7-3d54-4ae9-af6a-bae4308f9135
+          stepCounter: 81a34e64-6bf4-4915-899b-cacf6475dde8
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: SOURCEDB
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 98116c1a-4021-47dd-b87d-08aaca84c6f9
+                stepCounter: d29a0c5c-e296-46c4-bc55-861d60fe906d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9ea260e6-b48a-4353-bd5a-b2012c7f7b17
+          stepCounter: 81a34e64-6bf4-4915-899b-cacf6475dde8
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d6a36587-ccc9-4472-b71c-806d9bc55be6
+          stepCounter: 81a34e64-6bf4-4915-899b-cacf6475dde8
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          S_AP1_LEAD_MROC: 6ae689cf-56bd-4d64-b1e8-1a7ae400301e
+          DS_RAM_RETAIL_REPOSITORY: d29a0c5c-e296-46c4-bc55-861d60fe906d
+          DS_CUSTOMERSUMMARY_V2: c5a432da-156b-460f-ba67-985b9517bedb
+          DS_MKT_CALL_CUSTOMER: a1eb4560-c80e-4133-a2d9-f6a82026093c
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_RAM_RETAIL_REPOSITORY
+          - locationName: DATA_VAULT
+            nodeName: S_AP1_LEAD_MROC
+          - locationName: EDW
+            nodeName: DS_CUSTOMERSUMMARY_V2
+          - locationName: EDW
+            nodeName: DS_MKT_CALL_CUSTOMER
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT TO_VARCHAR(S_AP1_LEAD_MROC.customerid) AS customerid ,
+                           'AppOne' AS SourceDB
+                      FROM {{ ref('DATA_VAULT','S_AP1_LEAD_MROC') }} S_AP1_LEAD_MROC
+                     WHERE S_AP1_LEAD_MROC.customerid IS NOT NULL
+                       AND (('{{ parameters.HWM_BVSTG_Mapping_Refresh_Flag }}' = 0) OR ('{{ parameters.HWM_BVSTG_Mapping_Refresh_Flag }}' = 1 AND DATEDIFF(DAY,S_AP1_LEAD_MROC.dss_create_time,CURRENT_DATE()) <= '{{ parameters.HWM_BVSTG_Mapping_Refresh_Days }}'))
+                     UNION SELECT CustomerID ,
+                           SourceDB
+                      FROM {{ ref('EDW','DS_RAM_RETAIL_REPOSITORY') }}
+                     WHERE customerid IS NOT NULL
+                       AND (('{{ parameters.HWM_BVSTG_Mapping_Refresh_Flag }}' = 0) OR ('{{ parameters.HWM_BVSTG_Mapping_Refresh_Flag }}' = 1 AND DATEDIFF(DAY,DSS_UPDATE_TIME,CURRENT_DATE()) <= '{{ parameters.HWM_BVSTG_Mapping_Refresh_Days }}'))
+                     GROUP BY CustomerID ,
+                              SourceDB
+                     UNION SELECT CustomerID ,
+                           SourceDB
+                      FROM {{ ref('EDW','DS_CUSTOMERSUMMARY_V2') }}
+                     WHERE customerid IS NOT NULL
+                       AND (('{{ parameters.HWM_BVSTG_Mapping_Refresh_Flag }}' = 0) OR ('{{ parameters.HWM_BVSTG_Mapping_Refresh_Flag }}' = 1 AND DATEDIFF(DAY,DSS_UPDATE_TIME,CURRENT_DATE()) <= '{{ parameters.HWM_BVSTG_Mapping_Refresh_Days }}'))
+                     GROUP BY CustomerID ,
+                              SourceDB
+                     UNION SELECT CustomerID ,
+                           SOURCEDB_CUSTOMER SourceDB
+                      FROM {{ ref('EDW','DS_MKT_CALL_CUSTOMER') }}
+                     WHERE customerid IS NOT NULL
+                       AND (('{{ parameters.HWM_BVSTG_Mapping_Refresh_Flag }}' = 0) OR ('{{ parameters.HWM_BVSTG_Mapping_Refresh_Flag }}' = 1 AND DATEDIFF(DAY,DSS_UPDATE_TIME,CURRENT_DATE()) <= '{{ parameters.HWM_BVSTG_Mapping_Refresh_Days }}'))
+                     GROUP BY CustomerID ,
+                              SOURCEDB_CUSTOMER
+                   )DS_RAM_RETAIL_REPOSITORY
+        name: BVSTG_CUSTOMER_GROUP_LEAD_TO_REFRESH
+        noLinkRefs: []
+  name: BVSTG_CUSTOMER_GROUP_LEAD_TO_REFRESH
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

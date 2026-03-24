@@ -1,0 +1,118 @@
+fileVersion: 1
+id: 154c687c-1886-4a9c-b3f9-ce362cf5539d
+name: V_BVSTG_AP1_STATUS_BYTRANSACTION
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 84db2991-f4d7-45ef-8a56-7a845b79ca9a
+          stepCounter: 154c687c-1886-4a9c-b3f9-ce362cf5539d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: POLICYID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7aa7e1da-b037-46cf-b13c-0dfa6172ba2c
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f2998138-f582-4673-bac7-3f11dc193c7a
+          stepCounter: 154c687c-1886-4a9c-b3f9-ce362cf5539d
+        config: {}
+        dataType: TIMESTAMP_TZ
+        defaultValue: ""
+        description: ""
+        name: CREATED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3840c992-14f2-4d81-b841-2607c039fad6
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0ac2ce37-3686-4bc0-8eb0-008e13b70589
+          stepCounter: 154c687c-1886-4a9c-b3f9-ce362cf5539d
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 86edc52a-c46a-4b9d-8651-4d7b13a3cf59
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2618fe3f-9e29-40a4-8f88-8d8a5730cd7f
+          stepCounter: 154c687c-1886-4a9c-b3f9-ce362cf5539d
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: STATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6c03e2d8-38ee-453e-afa1-15fa019c1246
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_BVSTG_AP1_STATUS_BYTRANSACTION: 154c687c-1886-4a9c-b3f9-ce362cf5539d
+          DS_AP1_TRANSACTIONSUMMARY: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_BVSTG_AP1_STATUS_BYTRANSACTION') }} AS SELECT PolicyID,
+                   Created,
+                   TransactionType,
+                   Status
+              FROM (
+                    SELECT PolicyID,
+                           Created,
+                           TransactionType,
+                           CASE WHEN TRANSACTIONTYPE IN ('Endorsement','Additional Products','Reinstatement','Renewal Payment','Submitted Documents','Company Payment') THEN 'Active'
+                                ELSE 'Cancelled'
+                                 END AS Status,
+                           RANK() OVER (PARTITION BY PolicyID ORDER BY Created DESC,TransactionID DESC) AS Ranking
+                      FROM {{ ref('EDW','DS_AP1_TRANSACTIONSUMMARY') }}
+                     WHERE created > '2020-01-01'
+                       AND TRANSACTIONTYPE IN ('Cancellation Request','Endorsement','Additional Products','Reinstatement','Renewal Payment','Submitted Documents','Company Payment')
+                   )a
+             WHERE Ranking =1
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_AP1_TRANSACTIONSUMMARY
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('EDW','DS_AP1_TRANSACTIONSUMMARY') }}
+        name: V_BVSTG_AP1_STATUS_BYTRANSACTION
+        noLinkRefs: []
+  name: V_BVSTG_AP1_STATUS_BYTRANSACTION
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,165 @@
+fileVersion: 1
+id: da871140-68ea-4fe5-a6d0-49c08e2b6987
+name: BVSTG_DAYS_TO_REFRESH
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 77ce4ff2-977a-40fc-a878-c699a9018964
+          stepCounter: da871140-68ea-4fe5-a6d0-49c08e2b6987
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: The calendar month number 1-12.
+        name: CAL_MONTH_NO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: db38b999-7007-4340-8a7c-8faf64a44b2d
+          stepCounter: da871140-68ea-4fe5-a6d0-49c08e2b6987
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: The calendar year. Format YYYY
+        name: CAL_YEAR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d4b88c20-6e80-4359-a2fe-39550166d644
+          stepCounter: da871140-68ea-4fe5-a6d0-49c08e2b6987
+        config: {}
+        dataType: VARCHAR(7)
+        defaultValue: ""
+        description: 'The calendar month name. Format MON. Examples: jan, feb, mar.'
+        name: CAL_MONTH_NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6c30ec4a-4a39-43ae-93a6-4ab79e496660
+          stepCounter: da871140-68ea-4fe5-a6d0-49c08e2b6987
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: 'The calendar month representation. Format YYYYMM. Example: 200206.'
+        name: CAL_MONTH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b8a8f4c9-7fed-4280-88b1-fedae8bc0f1c
+          stepCounter: da871140-68ea-4fe5-a6d0-49c08e2b6987
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: The calendar date for this row.
+        name: MIN_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: MIN(STAGE_DATE_SF.CALENDAR_DATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0f54e8a3-3035-4fc9-a6db-536d492aced0
+          stepCounter: da871140-68ea-4fe5-a6d0-49c08e2b6987
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: The calendar date for this row.
+        name: MAX_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: MAX(STAGE_DATE_SF.CALENDAR_DATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 904529c9-65d8-4b26-b848-991652782fab
+          stepCounter: da871140-68ea-4fe5-a6d0-49c08e2b6987
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 93045542-9934-4555-9a9b-ecc4c9451b89
+          stepCounter: da871140-68ea-4fe5-a6d0-49c08e2b6987
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: STAGE_DATE_SF
+          - locationName: UNKNOWN
+            nodeName: STAGE_DATE_SF
+        join:
+          joinCondition: |-
+            FROM {{ ref('UNKNOWN','STAGE_DATE_SF') }} STAGE_DATE_SF
+             WHERE (('{{ parameters.HWM_BVSTG_cust-pol_summary_flag }}' = 0 AND STAGE_DATE_SF.CALENDAR_DATE >= '2018-01-01' AND STAGE_DATE_SF.CALENDAR_DATE < CURRENT_DATE()) OR ('{{ parameters.HWM_BVSTG_cust-pol_summary_flag }}' = 1 AND STAGE_DATE_SF.CALENDAR_DATE >= DATEADD(WEEK,-2,CURRENT_DATE()) AND STAGE_DATE_SF.CALENDAR_DATE < CURRENT_DATE()))
+             GROUP BY STAGE_DATE_SF.CAL_MONTH_NO ,
+                      STAGE_DATE_SF.CAL_YEAR ,
+                      STAGE_DATE_SF.CAL_MONTH_NAME ,
+                      STAGE_DATE_SF.CAL_MONTH ,
+                      TO_DATE(CALENDAR_DATE)
+        name: BVSTG_DAYS_TO_REFRESH
+        noLinkRefs: []
+  name: BVSTG_DAYS_TO_REFRESH
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

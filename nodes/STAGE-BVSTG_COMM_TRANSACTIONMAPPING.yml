@@ -1,0 +1,127 @@
+fileVersion: 1
+id: 38cfea14-25e2-4509-9c25-0e6deec6af61
+name: BVSTG_COMM_TRANSACTIONMAPPING
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ecac4ada-dc92-4049-ac87-430232ad53ac
+          stepCounter: 38cfea14-25e2-4509-9c25-0e6deec6af61
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONMAPPINGID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(ifnull(v_dlbv_comm_carrierdatarepositorycomplete_current.TransactionCode, '-') || ifnull(v_dlbv_comm_carrierdatarepositorycomplete_current.carrier, '-'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6f13bb7a-e660-4e99-9641-074a0f8596cf
+          stepCounter: 38cfea14-25e2-4509-9c25-0e6deec6af61
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: CARRIER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d4fd7fff-83c4-4325-b76a-449218dcb3f1
+                stepCounter: f457036c-71e2-4ff2-b58f-4e37796bac1f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b030d4cf-929a-4d3b-8612-308c08b3f601
+          stepCounter: 38cfea14-25e2-4509-9c25-0e6deec6af61
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8a8828d4-903a-4be6-ae44-e3e7740b478a
+          stepCounter: 38cfea14-25e2-4509-9c25-0e6deec6af61
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0348c1f1-7efd-4119-8987-6cc55f275f61
+                stepCounter: f457036c-71e2-4ff2-b58f-4e37796bac1f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: abd59fef-9f01-4429-9b03-4d1f39c742cc
+          stepCounter: 38cfea14-25e2-4509-9c25-0e6deec6af61
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 991fc806-e65c-4da8-b68e-555d975f5e20
+          stepCounter: 38cfea14-25e2-4509-9c25-0e6deec6af61
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies: []
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM ( SELECT DISTINCT carrier,
+                   TransactionCode,
+                   CASE WHEN lower(trim(TransactionType)) IN ('rewrite','rewwrite') THEN 'New Business' ---------Added new 03/04  when lower(trim(TransactionType))='cxl rewrite' then 'Cancellation'  ---------Added new   03/04  when carrier not in ('Dairyland', 'Aspire') and  trim(TransactionType) in ('Cancel', 'CnyFinal', 'WriteOff', 'Writeoff', 'Write Off', 'Writenff', 'Cancel-Rewrite',  'Write Off Nonreco', 'Write Off Recover', 'CA', 'CANC', 'CXR', 'WriteOff or Waive',   'RequestCancel', 'WRITE-OFF PREMIUM', 'CANCEL (SHORT RATE)', 'AX', 'Cancel Fee',   'WriteOff or Waive', 'UCC', 'Cancel - Payment', 'Cancel - Refund', 'CP', 'Premium Write-Off',   'ABT Cancel-Rewrite', 'write-off premium', 'Can')  and trim(TransactionCode) <> 'NP' then 'Cancellation'   when carrier = 'Dairyland' and  trim(TransactionType) in ('Cancel', 'CnyFinal', 'WriteOff', 'Writeoff', 'Write Off', 'Writenff', 'Cancel-Rewrite',   'Write Off Nonreco', 'Write Off Recover', 'CA', 'CANC', 'CXR', 'WriteOff or Waive',   'RequestCancel', 'WRITE-OFF PREMIUM', 'CANCEL (SHORT RATE)', 'AX', 'Cancel Fee',   'WriteOff or Waive', 'UCC', 'Cancel - Payment', 'Cancel - Refund', 'CP', 'Premium Write-Off',   'ABT Cancel-Rewrite')   and trim(TransactionCode) <> 'NP' then 'Cancellation'   when carrier = 'Aspire' and trim(TransactionType) in ('Cancel', 'CnyFinal', 'WriteOff', 'Writeoff', 'Write Off', 'Writenff', 'Cancel-Rewrite',  'Write Off Nonreco', 'Write Off Recover', 'CA', 'CANC', 'CXR', 'WriteOff or Waive',   'RequestCancel', 'WRITE-OFF PREMIUM', 'CANCEL (SHORT RATE)', 'AX', 'Cancel Fee',   'WriteOff or Waive', 'UCC', 'Cancel - Payment', 'Cancel - Refund', 'CP',  'ABT Cancel-Rewrite')  and trim(TransactionCode) <> 'NP' then 'Cancellation'   when trim(TransactionType) in ('Renewal', 'Renwal', 'renewal', 'RW', 'RR', 'Renewal Renewal', 'Renew AD&D', 'RENEWAL', 'RENEW',   'RENEWAL * Economy Plan *', 'Renewal - Payment', 'Ren', 'RENL')   then 'Renewal'  when trim(TransactionType) in ('New Business', 'NEW', 'New Policy', 'NewBusiness', 'NEW BUSINESS', 'NEW BUSINESS * Economy Plan *',  'New BusinessAD', 'New Bus AD&D', 'New Bus AD2', 'New Business - Payment', 'new policy')  then 'New Business'  when trim(TransactionType) in ('Reinstatement', 'Reinstate Payment', 'REINSTATEMENT', 'RE', 'REINSTATE',  'Reinstatement Fee', 'UCR', 'Reinstatement - Payment', 'Reinstatemen', 'REIN')   then 'Reinstatement'  when trim(TransactionType) in ('Endorsement', 'Policy Change', 'CH', '?AD', 'Endorsement - Payment', 'E', 'Policy Adjustment', 'End', 'ENDR')   then 'Endorsement'   when trim(TransactionType) = 'Payments' and  trim(TransactionCode) = 'E' then 'Endorsement'  ------------------Updated 16/10/23 to fix issue for duplicate ids (Temporary fix)        when trim(TransactionType) in ('Viol Hist Chargeback', 'Loss Hist Chargeback', 'Adjustment', 'Credit Card Dispute',   'Endorsement - Prem Adjustment', 'Endorsement - Refund', 'New Business - Prem Adjustment',   'New Business - Refund', 'Reinstatement - Prem Adjustment', 'Renewal - Prem Adjustment',   'Renewal - Refund', 'Reverse Debit Premium Made In Erro', 'Reverse Payment', 'Reverse Write Off Fee',  'Decrease Adjustment', 'Agent Sweep', 'Reinstatement - Refund', 'EFT-Ins', 'EFT-Upl','Ajustment')  then 'Exclusion'  when upper(trim(TransactionType)) like '%NEW BUSINESS%'  then 'New Business'  when upper(trim(TransactionType)) like '%REINSTATEMENT%'  then 'Reinstatement'  when upper(trim(TransactionType)) like '%RENEWAL%'   and trim(TransactionType) not in ('Non-Renewal', 'Renewal Endorsement', 'Non-Renewal', 'FLAT CANCEL PENDING RENEWAL')  then 'Renewal'  when upper(trim(TransactionType)) like '%ENDORSE%' and trim(TransactionType) not in ('Renewal Endorsement')  then 'Endorsement'  when upper(trim(TransactionType)) like '%CANCEL%'   and trim(TransactionCode) <> 'NP'   and trim(TransactionType) not in ('Payment After Cancellation', 'FLAT CANCEL PENDING RENEWAL', 'Reverse Cancel Fee','Cancellation Noti
+        name: BVSTG_COMM_TRANSACTIONMAPPING
+        noLinkRefs: []
+  name: BVSTG_COMM_TRANSACTIONMAPPING
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,76 @@
+fileVersion: 1
+id: fb888797-28da-4554-aa1d-2a81383654a5
+name: V_MKT_WEEKNUM
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2b8013a2-41af-46e9-8574-43d4c70dff93
+          stepCounter: fb888797-28da-4554-aa1d-2a81383654a5
+        config: {}
+        dataType: DECIMAL(4.0)
+        defaultValue: ""
+        description: ""
+        name: YEAR_NUMBER
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 48623c06-b4ed-4a7a-81aa-5b5974bc72aa
+          stepCounter: fb888797-28da-4554-aa1d-2a81383654a5
+        config: {}
+        dataType: DECIMAL(2.0)
+        defaultValue: ""
+        description: ""
+        name: WEEK_NUMBER
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_MKT_WEEKNUM: fb888797-28da-4554-aa1d-2a81383654a5
+          BVSTG_MKT_AU1B_CALL_LOG_CARS: 16ab5c9c-9738-4fbc-82eb-d4fbf9f48c80
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_MKT_WEEKNUM') }} AS SELECT year(INITIATEDDATETIME) year_number,
+                   week(INITIATEDDATETIME) week_number
+              FROM {{ ref('STAGE','BVSTG_MKT_AU1B_CALL_LOG_CARS') }}
+             GROUP BY year(INITIATEDDATETIME),
+                      week(INITIATEDDATETIME);
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_MKT_AU1B_CALL_LOG_CARS
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','BVSTG_MKT_AU1B_CALL_LOG_CARS') }}
+        name: V_MKT_WEEKNUM
+        noLinkRefs: []
+  name: V_MKT_WEEKNUM
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

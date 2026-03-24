@@ -1,0 +1,177 @@
+fileVersion: 1
+id: 0191299e-9790-4dbc-ba26-a85dae3432da
+name: BVSTG_NSA_RWL_TABLEAU_AU1
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 85853e90-e0ef-4892-b38e-5967c8d2a8f5
+          stepCounter: 0191299e-9790-4dbc-ba26-a85dae3432da
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 85853e90-e0ef-4892-b38e-5967c8d2a8f5
+                stepCounter: 0191299e-9790-4dbc-ba26-a85dae3432da
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8e1c5bda-5de3-4066-a233-dc4b027fe818
+          stepCounter: 0191299e-9790-4dbc-ba26-a85dae3432da
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8e1c5bda-5de3-4066-a233-dc4b027fe818
+                stepCounter: 0191299e-9790-4dbc-ba26-a85dae3432da
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 79ec38a9-5c1e-4a23-bef1-ef6a318b5b77
+          stepCounter: 0191299e-9790-4dbc-ba26-a85dae3432da
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: EFFECTIVEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 79ec38a9-5c1e-4a23-bef1-ef6a318b5b77
+                stepCounter: 0191299e-9790-4dbc-ba26-a85dae3432da
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: df7aba73-b405-434d-8437-ab2eca2ad6fe
+          stepCounter: 0191299e-9790-4dbc-ba26-a85dae3432da
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: TARGET_RAM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: df7aba73-b405-434d-8437-ab2eca2ad6fe
+                stepCounter: 0191299e-9790-4dbc-ba26-a85dae3432da
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6bb1f1e9-d5b4-4490-bb21-3523628edd68
+          stepCounter: 0191299e-9790-4dbc-ba26-a85dae3432da
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: NEXT_POLICY_STATUS_RAM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6bb1f1e9-d5b4-4490-bb21-3523628edd68
+                stepCounter: 0191299e-9790-4dbc-ba26-a85dae3432da
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_NSA_RWL_TABLEAU_AU1
+        join:
+          joinCondition: |-
+            FROM (
+                    WITH EXACT_RENEWALS AS (
+                            SELECT BL.TRANSACTIONID,
+                                   BL.CUSTOMERID,
+                                   BL.EFFECTIVEDATE,
+                                   MAX(CASE WHEN COUNTER IS NULL THEN 0 ELSE 1 END) AS TARGET_RAM,
+                                   MAX(CASE WHEN COUNTER IS NULL THEN 'Not Renewed' ELSE RR.CLASSIFICATIONGROUP END) NEXT_POLICY_STATUS_RAM
+                              FROM DATA_ANALYTICS.DS_FEATURE_REPO.NB_NSA_RWL_FOLLOWUP_EXTRACT BL
+                              LEFT JOIN (
+                                    SELECT DISTINCT TRANSACTIONID,
+                                           NBTRANSACTIONID,
+                                           CUSTOMERID,
+                                           DATE(CREATEDDATE) AS CREATEDDATE,
+                                           CLASSIFICATIONGROUP,
+                                           1 AS COUNTER
+                                      FROM RETAIL_PROD.SCH_EDW.DS_RAM_RETAIL_REPOSITORY
+                                     WHERE 1 = 1
+                                       AND LINEOFBUSINESSTYPE = 'Auto'
+                                       AND SOURCEDB = 'AppOne'
+                                       AND CLASSIFICATION = 'Carrier Premium'
+                                       AND CLASSIFICATIONGROUP IN ('New Business', 'Renewal')
+                                   ) RR
+                                ON (BL.CUSTOMERID = RR.CUSTOMERID AND DATE(RR.CREATEDDATE) > BL.EFFECTIVEDATE AND BL.TRANSACTIONID = RR.NBTRANSACTIONID)
+                             GROUP BY BL.TRANSACTIONID,
+                                      BL.CUSTOMERID,
+                                      BL.EFFECTIVEDATE
+                             ORDER BY BL.CUSTOMERID ASC
+                           ) ,
+                           NEW_BUSINESS AS (
+                            SELECT A.TRANSACTIONID,
+                                   A.CUSTOMERID,
+                                   A.EFFECTIVEDATE ,
+                                   MAX(CASE WHEN RR.COUNTER IS NULL THEN 0 ELSE 1 END) AS TARGET_RAM ,
+                                   MAX(CASE WHEN RR.COUNTER IS NULL THEN 'Not Renewed' ELSE RR.CLASSIFICATIONGROUP END) NEXT_POLICY_STATUS_RAM
+                              FROM (
+                                    SELECT *
+                                      FROM EXACT_RENEWALS
+                                     WHERE TARGET_RAM = 0
+                                   ) A
+                              LEFT JOIN (
+                                    SELECT DISTINCT TRANSACTIONID,
+                                           NBTRANSACTIONID,
+                                           CUSTOMERID,
+                                           DATE(CREATEDDATE) AS CREATEDDATE,
+                                           CLASSIFICATIONGROUP,
+                                           1 AS COUNTER
+                                      FROM RETAIL_PROD.SCH_EDW.DS_RAM_RETAIL_REPOSITORY
+                                     WHERE 1 = 1
+                                       AND NBTRANSACTIONID IS NULL
+                                       AND LINEOFBUSINESSTYPE = 'Auto'
+                                       AND SOURCEDB = 'AppOne'
+                                       AND CLASSIFICATION = 'Carrier Premium'
+                                       AND CLASSIFICATIONGROUP IN ('New Business')
+                                   ) RR
+                                ON (A.CUSTOMERID = RR.CUSTOMERID AND DATE(RR.CREATEDDATE) > A.EFFECTIVEDATE)
+                             GROUP BY A.TRANSACTIONID,
+                                      A.CUSTOMERID,
+                                      A.EFFECTIVEDATE
+                           ) SELECT *
+                      FROM EXACT_RENEWALS
+                     WHERE TARGET_RAM = 1
+                 UNION ALL SELECT *
+                      FROM NEW_BUSINESS
+                   ) bvstg_nsa_rwl_tableau_au1
+        name: BVSTG_NSA_RWL_TABLEAU_AU1
+        noLinkRefs: []
+  name: BVSTG_NSA_RWL_TABLEAU_AU1
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

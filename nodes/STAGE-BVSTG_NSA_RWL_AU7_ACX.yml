@@ -1,0 +1,88 @@
+fileVersion: 1
+id: 26e5fa91-6eeb-4965-9fbe-efca43486b99
+name: BVSTG_NSA_RWL_AU7_ACX
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6ab2c536-d9de-4542-bca1-5e0c13eb9a74
+          stepCounter: 26e5fa91-6eeb-4965-9fbe-efca43486b99
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6ab2c536-d9de-4542-bca1-5e0c13eb9a74
+                stepCounter: 26e5fa91-6eeb-4965-9fbe-efca43486b99
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 507cc870-f286-4954-aa71-532917cf6996
+          stepCounter: 26e5fa91-6eeb-4965-9fbe-efca43486b99
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: MAINSTATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 507cc870-f286-4954-aa71-532917cf6996
+                stepCounter: 26e5fa91-6eeb-4965-9fbe-efca43486b99
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_NSA_RWL_AU0_BSL: 0ba656cb-34d5-4986-b255-6055716b0770
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_NSA_RWL_AU7_ACX
+          - locationName: STAGE
+            nodeName: BVSTG_NSA_RWL_AU0_BSL
+        join:
+          joinCondition: |-
+            FROM (
+                    WITH ACX_FEATURES AS (
+                            SELECT CUSTOMERID,
+                                   MAINSTATE,
+                                   DATATYPE ,
+                                   CASE WHEN DATATYPE = 'Prospect' THEN 0
+                                        ELSE 1
+                                         END AS flag_datatype
+                              FROM EDW_COMMON.PUBLIC.ACXIOM_DATA
+                             WHERE CUSTOMERID IN (
+                                    SELECT CUSTOMERID
+                                      FROM {{ ref('STAGE','BVSTG_NSA_RWL_AU0_BSL') }}
+                                   )
+                           ) SELECT CUSTOMERID,
+                           MAINSTATE
+                      FROM ACX_FEATURES QUALIFY row_number() over(PARTITION BY CUSTOMERID ORDER BY flag_datatype DESC) = 1
+                   ) bvstg_nsa_rwl_au7_acx
+        name: BVSTG_NSA_RWL_AU7_ACX
+        noLinkRefs: []
+  name: BVSTG_NSA_RWL_AU7_ACX
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

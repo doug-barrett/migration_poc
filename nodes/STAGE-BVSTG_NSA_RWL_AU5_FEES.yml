@@ -1,0 +1,145 @@
+fileVersion: 1
+id: 5cf022b2-5ecd-4fbe-b293-1355c527e1ca
+name: BVSTG_NSA_RWL_AU5_FEES
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 002caf74-c8d1-405e-a975-6daa86e0679a
+          stepCounter: 5cf022b2-5ecd-4fbe-b293-1355c527e1ca
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 002caf74-c8d1-405e-a975-6daa86e0679a
+                stepCounter: 5cf022b2-5ecd-4fbe-b293-1355c527e1ca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2caa4432-9131-40ea-ba6a-d5be526de0b8
+          stepCounter: 5cf022b2-5ecd-4fbe-b293-1355c527e1ca
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2caa4432-9131-40ea-ba6a-d5be526de0b8
+                stepCounter: 5cf022b2-5ecd-4fbe-b293-1355c527e1ca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f0c2123d-daef-4db9-9e5d-1e74e23f0c4f
+          stepCounter: 5cf022b2-5ecd-4fbe-b293-1355c527e1ca
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: POLICYID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f0c2123d-daef-4db9-9e5d-1e74e23f0c4f
+                stepCounter: 5cf022b2-5ecd-4fbe-b293-1355c527e1ca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4a463721-4e89-4c73-b25b-910d9b55dafb
+          stepCounter: 5cf022b2-5ecd-4fbe-b293-1355c527e1ca
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: FEE_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4a463721-4e89-4c73-b25b-910d9b55dafb
+                stepCounter: 5cf022b2-5ecd-4fbe-b293-1355c527e1ca
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_NSA_RWL_AU0_BSL: 0ba656cb-34d5-4986-b255-6055716b0770
+          DS_RAM_RETAIL_REPOSITORY: d29a0c5c-e296-46c4-bc55-861d60fe906d
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_NSA_RWL_AU5_FEES
+          - locationName: STAGE
+            nodeName: BVSTG_NSA_RWL_AU0_BSL
+          - locationName: EDW
+            nodeName: DS_RAM_RETAIL_REPOSITORY
+        join:
+          joinCondition: |-
+            FROM (
+                    WITH COMISSIONSANDFEES AS (
+                            SELECT BL.TRANSACTIONID,
+                                   BL.CUSTOMERID,
+                                   BL.POLICYID,
+                                   BL.TERM_IN_MONTHS,
+                                   BL.STARTDATE,
+                                   BL.ESTIMATE_END_DATE,
+                                   DATE(FEES.CREATEDDATE) CREATEDDATE,
+                                   FEES.CLASSIFICATION,
+                                   FEES.LABEL,
+                                   FEES.AMOUNT,
+                                   FEES.COUNTER,
+                                   FEES.WRITTENPREMIUMAMOUNT,
+                                   FEES.CURRENTPREMIUMAMOUNT
+                              FROM {{ ref('STAGE','BVSTG_NSA_RWL_AU0_BSL') }} BL
+                             INNER JOIN {{ ref('EDW','DS_RAM_RETAIL_REPOSITORY') }} FEES
+                                ON (BL.POLICYID = FEES.POLICYID AND DATE(FEES.CREATEDDATE) >= BL.STARTDATE AND DATE(FEES.CREATEDDATE) < DATEADD(DAY, -30, ESTIMATE_END_DATE))
+                             WHERE FEES.SOURCEDB = 'AppOne'
+                               AND FEES.AMOUNT IS NOT NULL
+                               AND FEES.AMOUNT <> 0
+                             ORDER BY POLICYID,
+                                      DATE(FEES.CREATEDDATE) ASC
+                           ) ,
+                           AGROUPATION AS (
+                            SELECT TRANSACTIONID,
+                                   CUSTOMERID,
+                                   POLICYID ,
+                                   SUM(CASE WHEN CLASSIFICATION IN ('Fee', 'Service Transactions Fee') THEN AMOUNT ELSE 0 END) AS FEE_AMOUNT
+                              FROM COMISSIONSANDFEES
+                             GROUP BY TRANSACTIONID,
+                                      CUSTOMERID,
+                                      POLICYID
+                           ) SELECT TRANSACTIONID,
+                           CUSTOMERID,
+                           POLICYID ,
+                           CASE WHEN FEE_AMOUNT < 0 THEN 0
+                                ELSE FEE_AMOUNT
+                                 END AS FEE_AMOUNT
+                      FROM AGROUPATION
+                   ) bvstg_nsa_rwl_au5_fees
+        name: BVSTG_NSA_RWL_AU5_FEES
+        noLinkRefs: []
+  name: BVSTG_NSA_RWL_AU5_FEES
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,139 @@
+fileVersion: 1
+id: 91730b23-f87a-44f6-a25d-740e33eb1bd8
+name: BVSTG_AMS_AU1_INVOICETRANS_A1
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "base AMS transaction summary"
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 19d11f44-8670-4272-b11c-c17634c16a8a
+          stepCounter: 91730b23-f87a-44f6-a25d-740e33eb1bd8
+        config: {}
+        dataType: VARCHAR(36)
+        defaultValue: ""
+        description: invtpid
+        name: INVTPID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5308ffc5-2a9f-4d58-a384-dcb43c55806c
+                stepCounter: 938836a4-90fb-4417-84fc-e7b20315b5a9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 492ffd33-549c-4a1c-a603-b5c906e5b318
+          stepCounter: 91730b23-f87a-44f6-a25d-740e33eb1bd8
+        config: {}
+        dataType: VARCHAR(36)
+        defaultValue: ""
+        description: invid
+        name: INVID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0714172c-0486-40b7-a709-04e4e1465306
+                stepCounter: 0243fdf3-e28e-4ab3-9fd1-7d3889040e68
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 91efa9c1-883c-43ea-af78-603f828e553b
+          stepCounter: 91730b23-f87a-44f6-a25d-740e33eb1bd8
+        config: {}
+        dataType: CHAR(32)
+        defaultValue: ""
+        description: ""
+        name: HK_H_POLICYTRANSACTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c0fef618-ffb9-4082-ab23-106501b78168
+                stepCounter: 58e3a98e-5a6c-4aef-a031-ebbb500b6ba2
+            transform: MAX(v_s_ams_policytransaction_mroc_current.hk_h_policytransaction)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_S_AMS_BASICPOLINFO_MROC_CURRENT: 67f84403-360e-4a29-8ad5-22e902d5e9d0
+          V_S_AMS_POLICYTRANPREMIUM_MROC_CURRENT: 3f6eafb2-7365-4684-8bcc-191074ddca94
+          V_S_AMS_POLICYTRANSACTION_MROC_CURRENT: 58e3a98e-5a6c-4aef-a031-ebbb500b6ba2
+          V_S_AMS_INVOICE_MROC_CURRENT: 0243fdf3-e28e-4ab3-9fd1-7d3889040e68
+          V_S_AMS_INVOICETRANSACTION_MROC_CURRENT: 938836a4-90fb-4417-84fc-e7b20315b5a9
+          V_S_AMS_SETUPBILLINGTRAN_MROC_CURRENT: 6e93cac6-4b56-489e-81e5-8a72386a560e
+          V_S_AMS_CASHRECEIPTDETAIL_MROC_CURRENT: 50df307f-49a0-4fac-89a8-59ea4b6cacbd
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AMS_INVOICETRANSACTION_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AMS_BASICPOLINFO_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AMS_POLICYTRANPREMIUM_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AMS_POLICYTRANSACTION_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AMS_INVOICE_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AMS_SETUPBILLINGTRAN_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AMS_CASHRECEIPTDETAIL_MROC_CURRENT
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_S_AMS_BASICPOLINFO_MROC_CURRENT') }} v_s_ams_basicpolinfo_mroc_current
+             INNER JOIN {{ ref('STAGE','V_S_AMS_POLICYTRANPREMIUM_MROC_CURRENT') }} v_s_ams_POLICYTRANPREMIUM_mroc_current
+                ON v_s_ams_basicpolinfo_mroc_current.POLID = v_s_ams_POLICYTRANPREMIUM_mroc_current.POLID
+             INNER JOIN {{ ref('STAGE','V_S_AMS_POLICYTRANSACTION_MROC_CURRENT') }} v_s_ams_policytransaction_mroc_current
+                ON v_s_ams_basicpolinfo_mroc_current.POLID = v_s_ams_policytransaction_mroc_current.POLID
+               AND TO_DATE(v_s_ams_policytransaction_mroc_current.EFFDATE) >= TO_DATE(v_s_ams_basicpolinfo_mroc_current.POLEFFDATE)
+               AND TO_DATE(v_s_ams_policytransaction_mroc_current.EFFDATE) <= TO_DATE(v_s_ams_basicpolinfo_mroc_current.POLEXPDATE)
+              LEFT JOIN {{ ref('STAGE','V_S_AMS_INVOICE_MROC_CURRENT') }} v_s_ams_invoice_mroc_current
+                ON v_s_ams_invoice_mroc_current.POLID = v_s_ams_basicpolinfo_mroc_current.POLID
+               AND TO_DATE(v_s_ams_invoice_mroc_current.ENTEREDDATE) = (
+                    SELECT MIN(TO_DATE(ENTEREDDATE))
+                      FROM {{ ref('STAGE','V_S_AMS_INVOICE_MROC_CURRENT') }}
+                     WHERE polid = v_s_ams_basicpolinfo_mroc_current.POLID
+                   )
+              LEFT JOIN {{ ref('STAGE','V_S_AMS_INVOICETRANSACTION_MROC_CURRENT') }} v_s_ams_invoicetransaction_mroc_current
+                ON v_s_ams_invoicetransaction_mroc_current.INVID = v_s_ams_invoice_mroc_current.INVID
+               AND TO_DATE(v_s_ams_invoicetransaction_mroc_current.ENTEREDDATE) = (
+                    SELECT MIN(TO_DATE(ENTEREDDATE))
+                      FROM {{ ref('STAGE','V_S_AMS_INVOICETRANSACTION_MROC_CURRENT') }}
+                     WHERE invid = v_s_ams_invoice_mroc_current.INVID
+                   )
+             INNER JOIN {{ ref('STAGE','V_S_AMS_SETUPBILLINGTRAN_MROC_CURRENT') }} v_s_ams_SetupBillingTran_mroc_current
+                ON v_s_ams_invoicetransaction_mroc_current.ChargeCode = v_s_ams_SetupBillingTran_mroc_current.ChargeCode
+              LEFT JOIN {{ ref('STAGE','V_S_AMS_CASHRECEIPTDETAIL_MROC_CURRENT') }} v_s_ams_CASHRECEIPTDETAIL_mroc_current
+                ON v_s_ams_CASHRECEIPTDETAIL_mroc_current.ReceivedFromId = v_s_ams_basicpolinfo_mroc_current.CustId
+             WHERE v_s_ams_POLICYTRANPREMIUM_mroc_current.BILLEDPREMIUM > 0
+               AND v_s_ams_invoicetransaction_mroc_current.TRANTYPE = v_s_ams_policytransaction_mroc_current.TranType
+               AND v_s_ams_invoicetransaction_mroc_current.GROSSAMT > 0
+               AND v_s_ams_invoicetransaction_mroc_current.backinvtpid IS NULL
+               AND v_s_ams_invoicetransaction_mroc_current.oldinvtpid IS NULL
+               AND v_s_ams_invoicetransaction_mroc_current.LINEOFBUS = v_s_ams_POLICYTRANPREMIUM_mroc_current.LINEOFBUS
+               AND v_s_ams_SetupBillingTran_mroc_current.ShortName != 'PRFAGY'
+               AND v_s_ams_policytransaction_mroc_current.TranType IN ('NBS','NBQ','RWL','RWQ','RIX','REW')
+               AND v_s_ams_invoicetransaction_mroc_current.LineOfBus IN('AUTOP')
+             GROUP BY v_s_ams_invoicetransaction_mroc_current.invtpid ,
+                      v_s_ams_invoice_mroc_current.invid
+        name: BVSTG_AMS_AU1_INVOICETRANS_A1
+        noLinkRefs: []
+  name: BVSTG_AMS_AU1_INVOICETRANS_A1
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

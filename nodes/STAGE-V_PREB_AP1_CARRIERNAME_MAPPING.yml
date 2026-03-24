@@ -1,0 +1,91 @@
+fileVersion: 1
+id: 11b6f5f6-7ec3-4e50-a298-5a2ece609e27
+name: V_PREB_AP1_CARRIERNAME_MAPPING
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5512593d-f219-431c-a288-7c78aa3956ae
+          stepCounter: 11b6f5f6-7ec3-4e50-a298-5a2ece609e27
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: ""
+        name: CARRIERNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d8823d97-a11a-47e0-b5fe-5d1dcf209ab2
+                stepCounter: 06cbe835-21cb-4312-8098-c00a3325e583
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8d62f823-46d0-40e2-a906-9cabac0fb68d
+          stepCounter: 11b6f5f6-7ec3-4e50-a298-5a2ece609e27
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: ""
+        name: GROUPINGCARRIERNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_AP1_CARRIERNAME_MAPPING: 11b6f5f6-7ec3-4e50-a298-5a2ece609e27
+          V_S_AP1_MASTERCARRIER_MROC_CURRENT: 06cbe835-21cb-4312-8098-c00a3325e583
+          V_S_AMS_COMPANY_MROC_CURRENT: 712dc1c0-0e80-49bb-ab77-2791b4f7683f
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PREB_AP1_CARRIERNAME_MAPPING') }} AS SELECT DISTINCT mastercarrier.CARRIERNAME,
+                   IFNULL(ap1_carriername_mapping.GROUPINGCARRIERNAME,mastercarrier.CARRIERNAME) AS GROUPINGCARRIERNAME
+              FROM (
+                    SELECT CARRIERNAME
+                      FROM {{ ref('STAGE','V_S_AP1_MASTERCARRIER_MROC_CURRENT') }}
+                     UNION SELECT Name
+                      FROM {{ ref('STAGE','V_S_AMS_COMPANY_MROC_CURRENT') }}
+                   )mastercarrier
+              LEFT JOIN (
+                    SELECT CARRIERNAME,
+                           MIN(CARRIERNAME_GROUPED)GROUPINGCARRIERNAME
+                      FROM "RETAIL_PROD"."SCH_BVSTAGE"."DS_BVSTG_COMM_CARRIERMAPPING"
+                     WHERE SOURCE = 'EDW'
+                     GROUP BY CARRIERNAME
+                   )ap1_carriername_mapping
+                ON mastercarrier.CARRIERNAME= ap1_carriername_mapping.CARRIERNAME
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_MASTERCARRIER_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AMS_COMPANY_MROC_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_S_AP1_MASTERCARRIER_MROC_CURRENT') }}
+            {{ ref('STAGE','V_S_AMS_COMPANY_MROC_CURRENT') }}
+        name: V_PREB_AP1_CARRIERNAME_MAPPING
+        noLinkRefs: []
+  name: V_PREB_AP1_CARRIERNAME_MAPPING
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

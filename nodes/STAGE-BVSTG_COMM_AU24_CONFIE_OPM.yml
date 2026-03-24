@@ -1,0 +1,271 @@
+fileVersion: 1
+id: f3669073-864a-451b-aa63-797d3e14f982
+name: BVSTG_COMM_AU24_CONFIE_OPM
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e97a012a-9c6f-49e2-b51b-a44d34b72db6
+          stepCounter: f3669073-864a-451b-aa63-797d3e14f982
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_COMM_AU24_CONFIE_OPM_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(ifnull(to_varchar(bvstg_comm_au6_store_evaluation.monthyear), '-') || ifnull(bvstg_comm_au6_store_evaluation.sg_description, '-'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3909bb8d-84e1-4535-b098-e1d5e0affb72
+          stepCounter: f3669073-864a-451b-aa63-797d3e14f982
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: MONTHYEAR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 216db5fe-3dbe-4444-8f7b-9292b8b6bf3a
+          stepCounter: f3669073-864a-451b-aa63-797d3e14f982
+        config: {}
+        dataType: NUMBER(38,9)
+        defaultValue: ""
+        description: ""
+        name: OPEXP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5b052100-0310-47cf-81de-c0dea73ce892
+          stepCounter: f3669073-864a-451b-aa63-797d3e14f982
+        config: {}
+        dataType: VARCHAR(24)
+        defaultValue: ""
+        description: ""
+        name: SG_DESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 58d39211-eebb-4115-b2b1-5d3962c3c4cc
+          stepCounter: f3669073-864a-451b-aa63-797d3e14f982
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aeaa75fc-d052-4c82-9acd-9db7c6f98f6d
+          stepCounter: f3669073-864a-451b-aa63-797d3e14f982
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_COMM_AU13_CONFIE_OPM: 09fa5fb4-8d65-424d-8a0b-31ab5edbdac5
+          BVSTG_COMM_AU18_CONFIE_OPM: 00e208f1-0a77-47cf-918c-37dd66126e12
+          BVSTG_COMM_AU23_CONFIE_OPM: 4c1fc72f-f574-4034-a2f5-de6b5e5914a4
+          BVSTG_COMM_AU6_STORE_EVALUATION: a5996bd8-56d0-4828-b4b5-d4100341a294
+          BVSTG_COMM_AU22_CONFIE_OPM: 9263bd75-ec9f-4b75-9354-ef2b4bd56fa6
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_COMM_AU13_CONFIE_OPM
+          - locationName: STAGE
+            nodeName: BVSTG_COMM_AU18_CONFIE_OPM
+          - locationName: STAGE
+            nodeName: BVSTG_COMM_AU23_CONFIE_OPM
+          - locationName: STAGE
+            nodeName: BVSTG_COMM_AU6_STORE_EVALUATION
+          - locationName: STAGE
+            nodeName: BVSTG_COMM_AU22_CONFIE_OPM
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM ((
+                    SELECT monthyear,
+                           sum(values_month) OpExp,
+                           sg_description
+                      FROM (
+                            SELECT bvstg_comm_au1.monthyear,
+                                   ud2id,
+                                   CASE WHEN month(monthyear) <> 1 THEN values_month- lag(values_month) OVER (PARTITION BY ud2id ORDER BY monthyear)
+                                        ELSE values_month
+                                         END AS values_month,
+                                   'MGA_EBITDA_Budget' AS sg_description
+                              FROM (
+                                    SELECT DISTINCT date(concat(yearid,'-',replace(replace(MONTH,'M'),'VALUE'),'-01')) monthyear ,
+                                           ifnull(sum(values_month),0) values_month,
+                                           ud2id
+                                      FROM (
+                                            SELECT UD2ID,
+                                                   UD1ID,
+                                                   yearid,
+                                                   accountid,
+
+                                             MONTH,
+                                                   sum(ifnull(values_month,0)) Values_Month
+                                              FROM {{ ref('STAGE','BVSTG_COMM_AU13_CONFIE_OPM') }} UNPIVOT (values_month FOR MONTH IN (M1VALUE,M2VALUE,M3VALUE,M4VALUE,M5VALUE,M6VALUE, M7VALUE,M8VALUE,M9VALUE,M10VALUE,M11VALUE,M12VALUE))
+                                             GROUP BY UD2ID,
+                                                      UD1ID,
+                                                      yearid,
+                                                      accountid,
+
+                                                MONTH
+                                           )
+                                     WHERE concat(ud2id,ud1id) IN (
+                                            SELECT DISTINCT concat(ud2id,ud1id)
+                                              FROM {{ ref('STAGE','BVSTG_COMM_AU18_CONFIE_OPM') }}
+                                             WHERE sg_description= 'MGA_Revenue_Budget'
+                                           )
+                                       AND accountid IN (
+                                            SELECT DISTINCT accountid
+                                              FROM {{ ref('STAGE','BVSTG_COMM_AU23_CONFIE_OPM') }}
+                                             WHERE sg_description ='TotalOpExp'
+                                           )
+                                       AND monthyear<=dateadd('day',-1,date_trunc('month',CURRENT_DATE))
+                                     GROUP BY ud2id,
+                                              date(concat(yearid,'-',replace(replace(MONTH,'M'),'VALUE'),'-01'))
+                                   ) bvstg_comm_au1
+                           )
+                     GROUP BY monthyear,
+                              sg_description
+                   )
+            UNION ALL (
+                    SELECT monthyear,
+                           sum(values_month) OpExp,
+                           sg_description
+                      FROM (
+                            SELECT bvstg_comm_au2.monthyear,
+                                   ud2id,
+                                   CASE WHEN month(monthyear) <> 1 THEN values_month- lag(values_month) OVER (PARTITION BY ud2id ORDER BY monthyear)
+                                        ELSE values_month
+                                         END AS values_month,
+                                   'MGA_EBITDA_Actual' AS sg_description
+                              FROM (
+                                    SELECT DISTINCT date(concat(yearid,'-',replace(replace(MONTH,'M'),'VALUE'),'-01')) monthyear ,
+                                           ifnull(sum(values_month),0) values_month,
+                                           ud2id
+                                      FROM (
+                                            SELECT UD2ID,
+                                                   UD1ID,
+                                                   yearid,
+                                                   accountid,
+
+                                             MONTH,
+                                                   sum(ifnull(values_month,0)) Values_Month
+                                              FROM {{ ref('STAGE','BVSTG_COMM_AU6_STORE_EVALUATION') }} UNPIVOT (values_month FOR MONTH IN (M1VALUE,M2VALUE,M3VALUE,M4VALUE,M5VALUE,M6VALUE, M7VALUE,M8VALUE,M9VALUE,M10VALUE,M11VALUE,M12VALUE))
+                                             GROUP BY UD2ID,
+                                                      UD1ID,
+                                                      yearid,
+                                                      accountid,
+
+                                                MONTH
+                                           )
+                                     WHERE concat(ud2id,ud1id) IN (
+                                            SELECT DISTINCT concat(ud2id,ud1id)
+                                              FROM {{ ref('STAGE','BVSTG_COMM_AU18_CONFIE_OPM') }}
+                                             WHERE sg_description= 'MGA_Revenue_Actual'
+                                           )
+                                       AND accountid IN (
+                                            SELECT DISTINCT accountid
+                                              FROM {{ ref('STAGE','BVSTG_COMM_AU22_CONFIE_OPM') }}
+                                             WHERE sg_description ='TotalOpExp'
+                                           )
+                                       AND monthyear<=dateadd('day',-1,date_trunc('month',CURRENT_DATE))
+                                     GROUP BY ud2id,
+                                              date(concat(yearid,'-',replace(replace(MONTH,'M'),'VALUE'),'-01'))
+                                   ) bvstg_comm_au2
+                           )
+                     GROUP BY monthyear,
+                              sg_description
+                   )
+            UNION ALL (SELECT monthyear,
+                   sum(values_month) OpExp,
+                   sg_description
+              FROM ( SELECT bvstg_comm_au3.monthyear,
+                   ud2id,
+                   CASE WHEN month(monthyear) <> 1 THEN values_month- lag(values_month) OVER (PARTITION BY ud2id ORDER BY monthyear)
+                        ELSE values_month
+                         END AS values_month,
+                   'Retail_EBITDA_Budget' AS sg_description
+              FROM ( SELECT DISTINCT date(concat(yearid,'-',replace(replace(MONTH,'M'),'VALUE'),'-01')) monthyear ,
+                   ifnull(sum(values_month),0) values_month,
+                   ud2id
+              FROM (
+                    SELECT UD2ID,
+                           UD1ID,
+                           yearid,
+                           accountid,
+
+                     MONTH,
+                           sum(ifnull(values_month,0)) Values_Month
+                      FROM {{ ref('STAGE','BVSTG_COMM_AU13_CONFIE_OPM') }} UNPIVOT (values_month FOR MONTH IN (M1VALUE,M2VALUE,M3VALUE,M4VALUE,M5VALUE,M6VALUE, M7VALUE,M8VALUE,M9VALUE,M10VALUE,M11VALUE,M12VALUE))
+                     GROUP BY UD2ID,
+                              UD1ID,
+                              yearid,
+                              accountid,
+
+                        MONTH
+                   )
+             WHERE concat(ud2id,ud1id) IN (
+                    SELECT DISTINCT concat(ud2id,ud1id)
+                      FROM {{ ref('STAGE','BVSTG_COMM_AU18_CONFIE_OPM') }}
+                     WHERE sg_description= 'Retail_Revenue_Budget'
+                   )
+               AND accountid IN (SELECT DISTINCT accountid
+              FROM
+        name: BVSTG_COMM_AU24_CONFIE_OPM
+        noLinkRefs: []
+  name: BVSTG_COMM_AU24_CONFIE_OPM
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

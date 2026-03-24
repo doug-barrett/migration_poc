@@ -1,0 +1,165 @@
+fileVersion: 1
+id: b3946bf4-667a-4314-b6df-e236c68b35e7
+name: BVSTG_COMM_AU16_CONFIE_OPM
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dd9f70bc-897d-4f25-ba71-4e2d425da33f
+          stepCounter: b3946bf4-667a-4314-b6df-e236c68b35e7
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: DS_BVSTG_COMM_AU16_CONFIE_OPM_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(ifnull(to_varchar(bvstg_comm_au14_confie_opm.childid), '-') || ifnull(bvstg_comm_au14_confie_opm.Accounts_Mapped, '-') || ifnull(bvstg_comm_au14_confie_opm.parent_descr, '-'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8693fcbc-6994-458b-acab-f5b3c8da104d
+          stepCounter: b3946bf4-667a-4314-b6df-e236c68b35e7
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: CHILDID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3c650cd1-1995-495b-9b18-6bca9c015a88
+          stepCounter: b3946bf4-667a-4314-b6df-e236c68b35e7
+        config: {}
+        dataType: VARCHAR(1000)
+        defaultValue: ""
+        description: ""
+        name: ACCOUNTS_MAPPED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 99624ee3-1a11-4d8d-ba7b-bc05ad5844f4
+          stepCounter: b3946bf4-667a-4314-b6df-e236c68b35e7
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: ""
+        name: PARENT_DESCR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d8d81dc9-d654-466e-8fe3-f1440c4ead9d
+          stepCounter: b3946bf4-667a-4314-b6df-e236c68b35e7
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: ""
+        name: CHILD_DESCR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dd4aa9e7-e109-4903-8c4c-ba59c3cd56aa
+          stepCounter: b3946bf4-667a-4314-b6df-e236c68b35e7
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bd71d467-c9f6-4e7a-a25a-dea720400bf0
+          stepCounter: b3946bf4-667a-4314-b6df-e236c68b35e7
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_COMM_AU13_CONFIE_OPM: 09fa5fb4-8d65-424d-8a0b-31ab5edbdac5
+          BVSTG_COMM_AU14_CONFIE_OPM: 70f38467-abd0-4f07-b186-c3297af91788
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_COMM_AU13_CONFIE_OPM
+          - locationName: STAGE
+            nodeName: BVSTG_COMM_AU14_CONFIE_OPM
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT DISTINCT v_dl_osm_relationship_current_1.parentid,
+                           v_dl_osm_relationship_current_1.childid,
+                           v_dl_osm_member_current_1.name parent_name,
+                           v_dl_osm_member_current_1.description parent_descr,
+                           v_dl_osm_member_current_2.name child_name,
+                           v_dl_osm_member_current_2.description child_descr,
+                           DATA_LAKE.BIA_ANALYTICS.ACCOUNTID_MAPPING(v_dl_osm_member_current_1.description, v_dl_osm_member_current_2.description) Accounts_Mapped
+                      FROM "DATA_LAKE"."ONESTREAM"."V_DL_OSM_RELATIONSHIP_CURRENT" v_dl_osm_relationship_current_1
+                      LEFT JOIN "DATA_LAKE"."ONESTREAM"."V_DL_OSM_MEMBER_CURRENT" v_dl_osm_member_current_1
+                        ON v_dl_osm_relationship_current_1.parentid = v_dl_osm_member_current_1.memberid
+                      LEFT JOIN "DATA_LAKE"."ONESTREAM"."V_DL_OSM_MEMBER_CURRENT" v_dl_osm_member_current_2
+                        ON v_dl_osm_relationship_current_1.childid = v_dl_osm_member_current_2.memberid
+                     WHERE v_dl_osm_relationship_current_1.childid IN (
+                            SELECT DISTINCT accountid
+                              FROM {{ ref('STAGE','BVSTG_COMM_AU13_CONFIE_OPM') }}
+                             WHERE accountid IN (
+                                    SELECT DISTINCT accountid
+                                      FROM {{ ref('STAGE','BVSTG_COMM_AU14_CONFIE_OPM') }}
+                                   )
+                           )
+                   )bvstg_comm_au14_confie_opm
+        name: BVSTG_COMM_AU16_CONFIE_OPM
+        noLinkRefs: []
+  name: BVSTG_COMM_AU16_CONFIE_OPM
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

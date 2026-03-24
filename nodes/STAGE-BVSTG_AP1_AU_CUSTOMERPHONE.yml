@@ -1,0 +1,157 @@
+fileVersion: 1
+id: e6be1c25-813e-41f5-a685-cad21b15537c
+name: BVSTG_AP1_AU_CUSTOMERPHONE
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "latest customer phone"
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7d734834-e24b-469f-87b6-21ce3f09d42a
+          stepCounter: e6be1c25-813e-41f5-a685-cad21b15537c
+        config: {}
+        dataType: CHAR(32)
+        defaultValue: ""
+        description: ""
+        name: HK_H_CUSTOMER
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 39c1eade-9d86-40be-abd7-b9e91a7f0044
+                stepCounter: b4a6af1c-b023-4dd4-842e-246be5614467
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3ecc0b32-9470-42cc-a905-f81612c6a3c9
+          stepCounter: e6be1c25-813e-41f5-a685-cad21b15537c
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4b45cc82-8ad3-49d2-9137-03593c370f5d
+                stepCounter: b4a6af1c-b023-4dd4-842e-246be5614467
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 311bfd39-aeba-415e-b873-755d55bf3d6a
+          stepCounter: e6be1c25-813e-41f5-a685-cad21b15537c
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: PHONEVALUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 77df2369-1a77-4578-9b31-b5b2415ae87b
+                stepCounter: ab5591d0-4cae-467e-8898-9c243ae9e87c
+            transform: MAX(v_s_ap1_phone_mroc_current.value)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7dad1ee2-0f37-4418-9b59-f04e4dcc6f44
+          stepCounter: e6be1c25-813e-41f5-a685-cad21b15537c
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: PHONETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 882019b0-cc7a-4661-bd04-abfa35818915
+                stepCounter: 3e151b27-0aac-487a-9684-1e06159f8b6e
+            transform: |-
+              CASE WHEN phonetypeid = 618 THEN 'Home Phone'
+                          WHEN phonetypeid = 619 THEN 'Cell Phone'
+                          WHEN phonetypeid = 620 THEN 'Contact Phone'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b237adc5-304e-442a-9e7e-5a2c84326d01
+          stepCounter: e6be1c25-813e-41f5-a685-cad21b15537c
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: ""
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cc7d3baf-bcde-43f5-a5d1-59f9260506c2
+          stepCounter: e6be1c25-813e-41f5-a685-cad21b15537c
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_AP1_CUSTOMER_REFRESH: e1a00289-44b3-474b-85e0-78530ef8c867
+          H_CUSTOMER: b4a6af1c-b023-4dd4-842e-246be5614467
+          L_CUSTOMER_PHONE: e1a7af29-82b1-49d9-ad99-b438d44cb121
+          V_S_AP1_PHONE_MROC_CURRENT: ab5591d0-4cae-467e-8898-9c243ae9e87c
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DATA_VAULT
+            nodeName: H_CUSTOMER
+          - locationName: STAGE
+            nodeName: BVSTG_AP1_CUSTOMER_REFRESH
+          - locationName: DATA_VAULT
+            nodeName: L_CUSTOMER_PHONE
+          - locationName: STAGE
+            nodeName: V_S_AP1_PHONE_MROC_CURRENT
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','BVSTG_AP1_CUSTOMER_REFRESH') }} bvstg_ap1_customer_refresh
+              JOIN {{ ref('DATA_VAULT','H_CUSTOMER') }} h_customer
+                ON h_customer.customerid = TO_CHAR(bvstg_ap1_customer_refresh.customerid)
+              JOIN {{ ref('DATA_VAULT','L_CUSTOMER_PHONE') }} l_customer_phone
+                ON h_customer.HK_h_customer = l_customer_phone.HK_h_customer
+              JOIN {{ ref('STAGE','V_S_AP1_PHONE_MROC_CURRENT') }} v_s_ap1_phone_mroc_current
+                ON l_customer_phone.HK_h_phone = v_s_ap1_phone_mroc_current.HK_h_phone
+             WHERE v_s_ap1_phone_mroc_current.isrowdeleted = 0
+               AND v_s_ap1_phone_mroc_current.phonetypeid IN (618,619,620)
+             GROUP BY h_customer.customerid,
+                      h_customer.HK_h_customer,
+                      CASE WHEN phonetypeid = 618 THEN 'Home Phone'
+                           WHEN phonetypeid = 619 THEN 'Cell Phone'
+                           WHEN phonetypeid = 620 THEN 'Contact Phone'
+                            END
+        name: BVSTG_AP1_AU_CUSTOMERPHONE
+        noLinkRefs: []
+  name: BVSTG_AP1_AU_CUSTOMERPHONE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

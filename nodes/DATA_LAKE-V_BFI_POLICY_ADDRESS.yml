@@ -1,0 +1,176 @@
+fileVersion: 1
+id: be5ff91b-8f1b-48cf-bf11-36624c1b9eea
+name: V_BFI_POLICY_ADDRESS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: DATA_LAKE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8c868dbd-704b-4837-b420-093d0d91e6b5
+          stepCounter: be5ff91b-8f1b-48cf-bf11-36624c1b9eea
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: POLICY_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: XMLGET(policy.value,'policy_id'):"$" ::integer
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 114cc880-59ed-4bb4-bd3f-408b0da25822
+          stepCounter: be5ff91b-8f1b-48cf-bf11-36624c1b9eea
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: HOUSE_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: XMLGET(address.VALUE,'house_num'):"$" ::integer
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8e015ccc-26f0-4aaa-9c82-1a0f07270f24
+          stepCounter: be5ff91b-8f1b-48cf-bf11-36624c1b9eea
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: ""
+        name: APT_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: XMLGET(address.VALUE,'apt_num'):"$" ::varchar(8)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1fae98f2-3716-450a-b793-1413e7075b15
+          stepCounter: be5ff91b-8f1b-48cf-bf11-36624c1b9eea
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: OTHER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: XMLGET(address.VALUE,'other'):"$" ::varchar(30)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8ddd939a-68f1-4d66-a8a0-e0a7b343d1ea
+          stepCounter: be5ff91b-8f1b-48cf-bf11-36624c1b9eea
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: ZIP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: XMLGET(address.VALUE,'zip'):"$" ::varchar(30)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 423face8-1214-44c4-8ae0-24617471bac2
+          stepCounter: be5ff91b-8f1b-48cf-bf11-36624c1b9eea
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: Record source.
+        name: DSS_RECORD_SOURCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6c2078c6-7fb9-40bf-8637-565ada0a62b8
+                stepCounter: 5042222a-566a-46ec-8a10-51937378b7ba
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 994f5499-e930-42f0-84bd-a81ac490bd81
+          stepCounter: be5ff91b-8f1b-48cf-bf11-36624c1b9eea
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: STREET_NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: XMLGET(address.VALUE,'street_name'):"$" ::varchar(50)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9ff6e3e2-df9e-428a-882c-fbfe8d2dcc3d
+          stepCounter: be5ff91b-8f1b-48cf-bf11-36624c1b9eea
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: CITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: XMLGET(address.VALUE,'city'):"$" ::varchar(30)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 366c76b8-1cfc-4c1e-a9de-f578cef702b2
+          stepCounter: be5ff91b-8f1b-48cf-bf11-36624c1b9eea
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Load date.
+        name: DSS_LOAD_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 03933b2f-65a9-432e-a883-328399ec3fd3
+                stepCounter: 5042222a-566a-46ec-8a10-51937378b7ba
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          LD_BFI_POLICY_TRANSACTION: 5042222a-566a-46ec-8a10-51937378b7ba
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DATA_LAKE
+            nodeName: LD_BFI_POLICY_TRANSACTION
+        join:
+          joinCondition: |-
+            FROM {{ ref('DATA_LAKE','LD_BFI_POLICY_TRANSACTION') }} ld_bfi_policy_transaction ,
+                   LATERAL FLATTEN(ld_bfi_policy_transaction .policyxml:"$") policy ,
+                   LATERAL FLATTEN(policy.value:"$") address
+             WHERE GET(address.value,'@') = 'Address'
+        name: V_BFI_POLICY_ADDRESS
+        noLinkRefs: []
+  name: V_BFI_POLICY_ADDRESS
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

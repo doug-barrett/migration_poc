@@ -1,0 +1,165 @@
+fileVersion: 1
+id: 5ef2d1aa-7f07-4c89-ba19-524d368c5557
+name: BVSTG_ACCOUNTID_MAPPING
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fa6b4bbc-3fa2-47fa-a716-c3b28f270048
+          stepCounter: 5ef2d1aa-7f07-4c89-ba19-524d368c5557
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: DS_BVSTG_ACCOUNTID_MAPPING_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(ifnull(to_varchar(v_dlbv_osm_relationship_current.childid),'-')|| ifnull(v_dlbv_osm_relationship_current.parent_descr,'-'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 18f430e1-ed72-4083-b10a-bd0700e504bc
+          stepCounter: 5ef2d1aa-7f07-4c89-ba19-524d368c5557
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: ""
+        name: CHILD_DESCR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 97fd72fe-9456-42d6-975b-b04961fc3c1b
+          stepCounter: 5ef2d1aa-7f07-4c89-ba19-524d368c5557
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: CHILDID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d32e8ce1-674e-436d-b067-2180c19e6c0f
+                stepCounter: d0ff5487-0256-482e-8f8b-eb1718384786
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5632e3bc-af1a-43d3-867b-75a9a3895cb7
+          stepCounter: 5ef2d1aa-7f07-4c89-ba19-524d368c5557
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: ""
+        name: PARENT_DESCR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e089e469-149e-44d6-989c-163cc52ad1ef
+          stepCounter: 5ef2d1aa-7f07-4c89-ba19-524d368c5557
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: ""
+        name: ACCOUNTS_MAPPED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1d80aaa1-7461-4777-ad6b-88c73b4cece5
+          stepCounter: 5ef2d1aa-7f07-4c89-ba19-524d368c5557
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 116e6578-56a7-4de4-89d8-3a031a3d01d7
+          stepCounter: 5ef2d1aa-7f07-4c89-ba19-524d368c5557
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_DLBV_OSM_RELATIONSHIP_CURRENT: d0ff5487-0256-482e-8f8b-eb1718384786
+          V_DLBV_OSM_MEMBER_CURRENT: dd70a2ba-0013-4f94-96ba-482a4e6cd1d3
+          BVSTG_COMM_AU7_STORE_EVALUATION: c78c3f55-4241-48a3-8d0d-06b133b1dc2c
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_DLBV_OSM_RELATIONSHIP_CURRENT
+          - locationName: STAGE
+            nodeName: V_DLBV_OSM_MEMBER_CURRENT
+          - locationName: STAGE
+            nodeName: BVSTG_COMM_AU7_STORE_EVALUATION
+        join:
+          joinCondition: |-
+            FROM(
+                    SELECT DISTINCT V_DLBV_OSM_RELATIONSHIP_CURRENT.parentid,
+                           V_DLBV_OSM_RELATIONSHIP_CURRENT.childid,
+                           v_dlbv_osm_member_current.name parent_name,
+                           v_dlbv_osm_member_current.description parent_descr,
+                           v_dl_osm_member_current_1.name child_name,
+                           v_dl_osm_member_current_1.description child_descr,
+                           DATA_LAKE.BIA_ANALYTICS.ACCOUNTID_MAPPING(v_dlbv_osm_member_current.description,v_dl_osm_member_current_1.description) Accounts_Mapped
+                      FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} V_DLBV_OSM_RELATIONSHIP_CURRENT
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }} v_dlbv_osm_member_current
+                        ON V_DLBV_OSM_RELATIONSHIP_CURRENT.parentid = v_dlbv_osm_member_current.memberid
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }} v_dl_osm_member_current_1
+                        ON V_DLBV_OSM_RELATIONSHIP_CURRENT.childid = v_dl_osm_member_current_1.memberid
+                     WHERE V_DLBV_OSM_RELATIONSHIP_CURRENT.childid IN (
+                            SELECT DISTINCT accountid
+                              FROM {{ ref('STAGE','BVSTG_COMM_AU7_STORE_EVALUATION') }}
+                           )
+                   ) V_DLBV_OSM_RELATIONSHIP_CURRENT
+        name: BVSTG_ACCOUNTID_MAPPING
+        noLinkRefs: []
+  name: BVSTG_ACCOUNTID_MAPPING
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,227 @@
+fileVersion: 1
+id: fca74184-af95-46d1-b825-2627819d783c
+name: BVSTG_AU9_CONFIE_OPM
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 009a5a08-d703-472a-9265-4cf65b5a652e
+          stepCounter: fca74184-af95-46d1-b825-2627819d783c
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_AU8_CONFIE_OPM_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(bvstg_au11_cspr.ud2id || bvstg_au11_cspr.ud1id || bvstg_au11_cspr.sg_description)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2abd28e4-095d-4e13-9ad5-8c14c382731b
+          stepCounter: fca74184-af95-46d1-b825-2627819d783c
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: UD2ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a1ccf8c9-8272-4402-990b-43d5a9297e0b
+                stepCounter: e09d3343-71f2-4910-a2dd-113c42442f47
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a75aad67-4cfa-4ceb-aef5-9a1e11303890
+          stepCounter: fca74184-af95-46d1-b825-2627819d783c
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: UD1ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f8204582-e4c7-4f1c-9775-5e08dfe8f2c3
+                stepCounter: e09d3343-71f2-4910-a2dd-113c42442f47
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e750202e-31eb-4282-b588-28d520311c5b
+          stepCounter: fca74184-af95-46d1-b825-2627819d783c
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: SG_DESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_AU11_CSPR: e09d3343-71f2-4910-a2dd-113c42442f47
+          V_DLBV_OSM_RELATIONSHIP_CURRENT: d0ff5487-0256-482e-8f8b-eb1718384786
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_AU11_CSPR
+          - locationName: STAGE
+            nodeName: V_DLBV_OSM_RELATIONSHIP_CURRENT
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM( SELECT *
+              FROM (SELECT DISTINCT ud2id,
+                   ud1id,
+                   'SGA_Numerator'AS sg_description
+              FROM {{ ref('STAGE','BVSTG_AU11_CSPR') }}
+             WHERE ud1id IN(SELECT DISTINCT ud1id
+              FROM {{ ref('STAGE','BVSTG_AU11_CSPR') }} intersect((
+                    SELECT DISTINCT childid
+                      FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                     WHERE parentid IN ('5242881','3145728','4194304')
+                   )
+             UNION (
+                    SELECT DISTINCT parentid
+                      FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                     WHERE parentid IN ('5242881','3145728','4194304')
+                   )
+             UNION SELECT DISTINCT childid
+              FROM ((
+                    SELECT DISTINCT b.childid childid
+                      FROM (
+                            SELECT *
+                              FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                             WHERE parentid IN ('5242881','3145728','4194304')
+                           ) a
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} b
+                        ON a.childid=b.parentid
+                   )
+            UNION ALL(
+                    SELECT DISTINCT c.childid childid
+                      FROM (
+                            SELECT *
+                              FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                             WHERE parentid IN ('5242881','3145728','4194304')
+                           ) a
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} b
+                        ON a.childid=b.parentid
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} c
+                        ON b.childid=c.parentid
+                   )
+            UNION ALL (
+                    SELECT DISTINCT d.childid childid
+                      FROM (
+                            SELECT *
+                              FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                             WHERE parentid IN ('5242881','3145728','4194304')
+                           ) a
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} b
+                        ON a.childid=b.parentid
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} c
+                        ON b.childid=c.parentid
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} d
+                        ON c.childid=d.parentid
+                   )
+            UNION ALL (
+                    SELECT DISTINCT e.childid childid
+                      FROM (
+                            SELECT *
+                              FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                             WHERE parentid IN ('5242881','3145728','4194304')
+                           ) a
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} b
+                        ON a.childid=b.parentid
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} c
+                        ON b.childid=c.parentid
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} d
+                        ON c.childid=d.parentid
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} e
+                        ON d.childid=e.parentid
+                   )
+            UNION ALL (
+                    SELECT DISTINCT f.childid childid
+                      FROM (
+                            SELECT *
+                              FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                             WHERE parentid IN ('5242881','3145728','4194304')
+                           ) a
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} b
+                        ON a.childid=b.parentid
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} c
+                        ON b.childid=c.parentid
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} d
+                        ON c.childid=d.parentid
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} e
+                        ON d.childid=e.parentid
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} f
+                        ON e.childid=f.parentid
+                   )
+            UNION ALL (
+                    SELECT DISTINCT g.childid childid
+                      FROM (
+                            SELECT *
+                              FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                             WHERE parentid IN ('5242881','3145728','4194304')
+                           ) a
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} b
+                        ON a.childid=b.parentid
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} c
+                        ON b.childid=c.parentid
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} d
+                        ON c.childid=d.parentid
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} e
+                        ON d.childid=e.parentid
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} f
+                        ON e.childid=f.parentid
+                      LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} g
+                        ON f.childid=g.parentid
+                   )
+            UNION ALL (SELECT DISTINCT h.childid childid
+              FROM (
+                    SELECT *
+                      FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                     WHERE parentid IN ('5242881','3145728','4194304')
+                   ) a
+              LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} b
+                ON a.childid=b.parentid
+              LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} c
+                ON b.childid=c.parentid
+              LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} d
+                ON c.childid=d.parentid
+              LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} e
+                ON d.childid=e.parentid
+              LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} f
+                ON e.childid=f.parentid
+              LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} g
+                ON f.childid=g.parentid
+              LEFT JOIN [TAB
+        name: BVSTG_AU9_CONFIE_OPM
+        noLinkRefs: []
+  name: BVSTG_AU9_CONFIE_OPM
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

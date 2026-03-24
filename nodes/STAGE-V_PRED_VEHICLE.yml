@@ -1,0 +1,114 @@
+fileVersion: 1
+id: 203234ec-fead-462f-a58e-9c560f1653ec
+name: V_PRED_VEHICLE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0a309579-21a6-40c3-9670-9206ac6b5a9d
+          stepCounter: 203234ec-fead-462f-a58e-9c560f1653ec
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: make
+        name: MAKE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5fd80896-720f-4766-92e1-d27a7b59fc51
+                stepCounter: 52e50954-7bee-45db-87cc-98d1e945624a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 722b8e05-34f9-4026-bc80-5d09315e4f4a
+          stepCounter: 203234ec-fead-462f-a58e-9c560f1653ec
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: model
+        name: MODEL
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 44827d23-22fa-45a8-b9f6-6a9bec1e2639
+                stepCounter: 35b9a1d7-3392-4409-9115-61a258435c93
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9aaf3b5a-5ed0-479d-955f-1f31f8558bd5
+          stepCounter: 203234ec-fead-462f-a58e-9c560f1653ec
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: vehyear
+        name: VEHYEAR
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bca95c7c-47e8-460a-86e7-df361d350870
+                stepCounter: 35b9a1d7-3392-4409-9115-61a258435c93
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PRED_VEHICLE: 203234ec-fead-462f-a58e-9c560f1653ec
+          V_S_AMS_VEHICLE_MROC_CURRENT: 52e50954-7bee-45db-87cc-98d1e945624a
+          V_S_AP1_POLICYVEHICLE_MROC_CURRENT: 35b9a1d7-3392-4409-9115-61a258435c93
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PRED_VEHICLE') }} AS SELECT upper(make) AS make,
+                   upper(model) AS model,
+                   cast(vehyear AS varchar(10)) AS vehyear
+              FROM {{ ref('STAGE','V_S_AMS_VEHICLE_MROC_CURRENT') }}
+             WHERE make IS NOT NULL
+               AND make <>''
+               AND model IS NOT NULL
+               AND model <>''
+               AND vehyear IS NOT NULL
+               AND vehyear <>''
+             UNION SELECT upper(make) AS make,
+                   upper(model) AS model,
+                   cast(vehicleyear AS varchar(10)) AS vehyear
+              FROM {{ ref('STAGE','V_S_AP1_POLICYVEHICLE_MROC_CURRENT') }}
+             WHERE make IS NOT NULL
+               AND make <>''
+               AND model IS NOT NULL
+               AND model <>''
+               AND vehicleyear IS NOT NULL
+               AND vehicleyear > 0
+               AND isrowdeleted=0
+             ORDER BY 1,
+                      2,
+                      3
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AMS_VEHICLE_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AP1_POLICYVEHICLE_MROC_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_S_AMS_VEHICLE_MROC_CURRENT') }}
+            {{ ref('STAGE','V_S_AP1_POLICYVEHICLE_MROC_CURRENT') }}
+        name: V_PRED_VEHICLE
+        noLinkRefs: []
+  name: V_PRED_VEHICLE
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

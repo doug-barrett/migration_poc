@@ -1,0 +1,582 @@
+fileVersion: 1
+id: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+name: BVSTG_FUNNEL_POINT_OF_SALE
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3ca958f2-8b31-487a-8630-1b585ea694ab
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: CREATEDDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 952311c9-7432-4eea-9423-0628f778152c
+                stepCounter: d29a0c5c-e296-46c4-bc55-861d60fe906d
+            transform: CAST(ds_ram_retail_repository.CREATEDDATE AS DATETIME)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e3d3004f-6fb4-44f0-a1f4-66d5f92943b1
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: PRIMARYAGENTULTIPRO_BROKER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4191d2ee-1433-4d19-bd3d-efc8db8a76f9
+                stepCounter: d29a0c5c-e296-46c4-bc55-861d60fe906d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7ad1a093-afcb-444c-b131-0d6e30541c7c
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: PRIMARYAGENTNAME_BROKER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 026f6ba6-5054-4f1a-9833-613d6bc6e714
+                stepCounter: d29a0c5c-e296-46c4-bc55-861d60fe906d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c193f9da-2d8c-4368-b115-668325aecd3c
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: NUMBER(1,0)
+        defaultValue: ""
+        description: ""
+        name: TOTALSALES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '1'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: acff2709-3e08-4675-a187-7d2158eecc3e
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: NUMBER(1,0)
+        defaultValue: ""
+        description: ""
+        name: PHONE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN COALESCE(ds_pcce_termination_call_agent_session.ANI,ds_pcce_termination_call_agent_session_cellphone.ANI,ds_pcce_termination_call_agent_session_cigh.ANI) IS NOT NULL THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 541a3cfb-59c9-406b-9f16-d0a3e7d5f97e
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: NUMBER(1,0)
+        defaultValue: ""
+        description: ""
+        name: ONLINE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN ds_ram_retail_repository.ORGANIZATIONCODE IN ('OLBT','ODT') OR ds_ram_retail_repository.PRIMARYAGENTNAME_BROKER='Turbo SVC_Web' THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c45b0069-a102-4985-bbab-8bc974967367
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: NUMBER(1,0)
+        defaultValue: ""
+        description: ""
+        name: STORE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN COALESCE(ds_pcce_termination_call_agent_session.ANI,ds_pcce_termination_call_agent_session_cellphone.ANI,ds_pcce_termination_call_agent_session_cigh.ANI) IS NULL AND ds_ram_retail_repository.ORGANIZATIONCODE NOT IN ('OLBT','ODT') AND ds_ram_retail_repository.PRIMARYAGENTNAME_BROKER != 'Turbo SVC_Web' THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ffdd4166-728d-46bb-9b86-c2ab878be4d3
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: NUMBER(1,0)
+        defaultValue: ""
+        description: ""
+        name: MIX
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN (CASE WHEN COALESCE(ds_pcce_termination_call_agent_session.ANI,ds_pcce_termination_call_agent_session_cellphone.ANI,ds_pcce_termination_call_agent_session_cigh.ANI) IS NOT NULL THEN 1 ELSE 0 END + CASE WHEN ds_ram_retail_repository.ORGANIZATIONCODE IN ('OLBT','ODT') OR ds_ram_retail_repository.PRIMARYAGENTNAME_BROKER='Turbo SVC_Web' THEN 1 ELSE 0 END + CASE WHEN v_s_ap1_appointment_mroc_current.APPOINTMENTID IS NOT NULL THEN 1 ELSE 0 END) > 1 THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0be9b094-dd2c-4ff9-ad3c-c3c0fee2db4f
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: NUMBER(1,0)
+        defaultValue: ""
+        description: ""
+        name: APPOINMENTSAMEDATESALE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN v_s_ap1_appointment_mroc_current.APPOINTMENTID IS NOT NULL THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9b4739bc-b9e5-4730-b7a4-3123e730bac4
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: NUMBER(1,0)
+        defaultValue: ""
+        description: ""
+        name: CALLSAMEDATESALE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN COALESCE(ds_pcce_termination_call_agent_session_saledate.ANI,ds_pcce_termination_call_agent_session_cellphone_saledate.ANI,ds_pcce_termination_call_agent_session_cigh_Saledate.ANI) IS NOT NULL THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a7acb4ee-feba-4562-b531-f8df13bcbe62
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: NUMBER(1,0)
+        defaultValue: ""
+        description: ""
+        name: EZBUY_ESIGN
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN ISEZBUY=1 OR ISESIGN=1 THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1812a5b0-cd45-40fa-9a3b-b2d5093b735c
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: OFFICECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9cf6489b-d534-40fc-8694-e5fc70b9aa92
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8f925dd8-f52f-4d4d-a5f9-c51bc6433a17
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: OFFICE_STATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN ds_ram_retail_repository.ORGANIZATIONCODE IN ('ODT','OLBT') OR ds_ram_retail_repository.PRIMARYAGENTNAME_BROKER='Turbo SVC_Web'                            THEN 'ODT'
+                          WHEN ds_retail_office.STATECODE='BC' OR ds_retail_office.OFFICECODE='COLT' OR ds_retail_office.OFFICECODE LIKE '%SSB%' AND ds_retail_office.OFFICECODE!='GESSB' THEN 'NTN'
+                          ELSE ds_retail_office.STATECODE
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ad606b71-324f-440d-9e4e-015640378719
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: SALESVP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fc5e9d95-2c43-4e32-883c-5ef77a35777b
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 20e489ca-3845-46e3-8a45-313dcf918c10
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: OFFICESTATUSDETAIL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 422f56f9-01e5-42ef-a226-301e2a453477
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ec9288c1-e3dd-460d-ae3f-e993ce650d13
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: SALESTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9667e30b-b270-453d-9d6b-daf29b6c0b70
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d9a2bc0f-24cc-4b5f-ba1a-93832920a27d
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: LOCATIONTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b4f4aeab-dda6-41dd-85d5-194df96093b3
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 43ec4895-ce5b-41a1-84b3-bf416a9c57b7
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: LOCATIONSTATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6af659f8-a117-4192-8e2f-e522c9ef08dc
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 98f385b2-c767-4870-9b50-5b48b2d80f85
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: QUOTETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE LEADBRIDGEDQUOTETYPEID
+                          WHEN 0                 THEN 'Undefined'
+                          WHEN 1                 THEN 'Fsc'
+                          WHEN 2                 THEN 'PolicyOne'
+                          WHEN 4                 THEN 'Itc'
+                          WHEN 5                 THEN 'PL'
+                          WHEN 6                 THEN 'AccuAuto'
+                          WHEN 7                 THEN 'ItcApi'
+                          WHEN 8                 THEN 'Applied'
+                          WHEN 9                 THEN 'OnlinePolicySale'
+                          ELSE 'No Populated'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 35e68852-d2bd-4222-ac04-ba1375a42d4b
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: GROUPQUOTETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE LEADBRIDGEDQUOTETYPEID
+                          WHEN 0                 THEN 'Undefined'
+                          WHEN 1                 THEN 'Fsc'
+                          WHEN 2                 THEN 'PolicyOne'
+                          WHEN 4                 THEN 'Itc Rater'
+                          WHEN 5                 THEN 'PL Rater'
+                          WHEN 6                 THEN 'Turbo'
+                          WHEN 7                 THEN 'Itc Rater'
+                          WHEN 8                 THEN 'Applied Rater'
+                          WHEN 9                 THEN 'Turbo'
+                          ELSE 'No Populated'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f635ef55-95ad-45ec-a867-251e73e027a6
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: SALESDM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN ds_retail_office.OFFICECODE IN ('SSBBP1','SSBBP2','SSBBP3')                                                                                                                                                           THEN 'SSB Buena Park'
+                          WHEN ds_retail_office.OFFICECODE IN ('SSBNH1','SSBNH2','SSBNH3')                                                                                                                                                           THEN 'SSB North Hollywood'
+                          WHEN ds_retail_office.OFFICECODE IN ('SSBNOR','SSBNO1','SSBNO2')                                                                                                                                                           THEN 'SSB Norwalk'
+                          WHEN ds_retail_office.DISTRICTMANAGERNAME='None Assigned' AND (ds_retail_office.STATECODE='BC' OR ds_retail_office.OFFICECODE='COLT' OR ds_retail_office.OFFICECODE LIKE '%SSB%' AND ds_retail_office.OFFICECODE!='GESSB') THEN 'SSB Other'
+                          ELSE ds_retail_office.DISTRICTMANAGERNAME
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 331571b4-6884-4ac2-896a-9864a4569bd0
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: SALESPRES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4e9591b6-678d-4801-95d9-22168f641168
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c8138c98-b076-43d7-a13f-060cf6a25271
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: OFFICETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: afd06f11-7ab2-4833-8af1-93b3e73ac59b
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fe9d77d9-ef64-4e4e-b5fc-48af821a2e72
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CHANNEL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4c4e3bea-8679-4c10-b315-bf26b702fc32
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1f531d45-4aab-45b0-a136-7714623a795e
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: OFFICEOPENEDDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 18aeff8f-c357-4e5e-a094-5edee89ec886
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a510ed1c-b27d-4912-974d-fc4293d15701
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: OFFICECLOSEDDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6e1dc1fa-c14c-429a-9141-5927c4ce4aba
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2f2e2325-0f6a-40b1-a523-c46c91ffa6e6
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: LOCATIONCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 36f60e33-a98a-4bf7-95e9-1e6b92482bd5
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 91659dae-c899-4f03-a6e7-77ad1cfc99c8
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: OFFICENAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4db4ad64-f5ed-4208-bc69-f067fade11f0
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8152a606-10ba-4db9-932e-b5d75774692a
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: LEADSOURCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEADSOURCE IN ('Cust TimeStamp (i)','Cust TimeStamp (o)','Cust TimeStamp (u)','Cust/User (i)','Cust/User (o)','Cust/User (u)','Phone AppOne') THEN 'Phone'
+                          WHEN LEADSOURCE IN ('Web','LMS (email)','LMS (Phone)')                                                                                             THEN 'Web'
+                          WHEN IFNULL(LEADSOURCE,'') = ''                                                                                                                    THEN 'Walkin'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0eb7c1ed-88cb-473a-a480-b25924937a5d
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cd9b2749-c378-4085-a4a1-0884271dd14d
+          stepCounter: 142b2160-ce9a-475b-be24-7f0e6a9b3460
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_RAM_RETAIL_REPOSITORY: d29a0c5c-e296-46c4-bc55-861d60fe906d
+          DS_BVSTG_AP1_CUSTOMER: 63de7b8d-d867-4db2-a0d0-3068b99f119e
+          S_AMS_CUSTOMER_MROC: 8c8b4904-9c5e-450b-95d7-4fec86917540
+          DS_AGENT_KEY: e03830da-869e-4c69-8cc5-0b677f38927e
+          DS_PCCE_TERMINATION_CALL_AGENT_SESSION: 4e775929-6773-40a3-a0f9-20c8adfa1f05
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_RAM_RETAIL_REPOSITORY
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_CUSTOMER
+          - locationName: DATA_VAULT
+            nodeName: S_AMS_CUSTOMER_MROC
+          - locationName: EDW
+            nodeName: DS_AGENT_KEY
+          - locationName: EDW
+            nodeName: DS_PCCE_TERMINATION_CALL_AGENT_SESSION
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM {{ ref('EDW','DS_RAM_RETAIL_REPOSITORY') }} ds_ram_retail_repository
+              LEFT JOIN {{ ref('STAGE','DS_BVSTG_AP1_CUSTOMER') }} ds_bvstg_ap1_customer
+                ON ds_ram_retail_repository.CustomerID = ds_bvstg_ap1_customer.CustomerID
+               AND ds_ram_retail_repository.SourceDB = 'AppOne'
+              LEFT JOIN {{ ref('DATA_VAULT','S_AMS_CUSTOMER_MROC') }} s_ams_customer_mroc
+                ON ds_ram_retail_repository.CustomerID = s_ams_customer_mroc.CustID
+              LEFT JOIN {{ ref('EDW','DS_AGENT_KEY') }} ds_agent_key
+                ON ds_agent_key.EmployeeNumber = ds_ram_retail_repository.PRIMARYAGENTULTIPRO_BROKER
+               AND ds_agent_key.RANK_EMPLOYEENUMBER = 1
+              LEFT JOIN {{ ref('EDW','DS_AGENT_KEY') }} ds_agent_key_secundary
+                ON ds_agent_key.EmployeeNumber = ds_ram_retail_repository.SECONDARYAGENTULTIPRO
+               AND ds_agent_key.RANK_EMPLOYEENUMBER = 1
+              LEFT JOIN {{ ref('EDW','DS_PCCE_TERMINATION_CALL_AGENT_SESSION') }} ds_pcce_termination_call_agent_session
+                ON ds_bvstg_ap1_customer.HomePhone = REPLACE(ds_pcce_termination_call_agent_session.ANI,'+1','')
+               AND ds_pcce_termination_call_agent_session.ENDDATETIME BETWEEN dateadd(HOUR,-2,ds_ram_retail_repository.CREATEDDATE) AND dateadd(HOUR,2, ds_ram_retail_repository.CREATEDDATE)
+               AND (ds_pcce_termination_call_agent_session.Agent = ds_agent_key.CISCO_LOGINNAME OR ds_pcce_termination_call_agent_session.Agent = ds_agent_key_secundary.CISCO_LOGINNAME )/*get calls same date of the sale)*/
+              LEFT JOIN {{ ref('EDW','DS_PCCE_TERMINATION_CALL_AGENT_SESSION') }} ds_pcce_termination_call_agent_session_saledate
+                ON ds_bvstg_ap1_customer.HomePhone = REPLACE(ds_pcce_termination_call_agent_session_saledate.ANI,'+1','')
+               AND date(ds_pcce_termination_call_agent_session_saledate.ENDDATETIME) = date(ds_ram_retail_repository.CREATEDDATE)
+               AND (ds_pcce_termination_call_agent_session_saledate.Agent = ds_agent_key.CISCO_LOGINNAME OR ds_pcce_termination_call_agent_session_saledate.Agent = ds_agent_key_secundary.CISCO_LOGINNAME)
+              LEFT JOIN {{ ref('EDW','DS_PCCE_TERMINATION_CALL_AGENT_SESSION') }} ds_pcce_termination_call_agent_session_cellphone
+                ON IFNULL(ds_bvstg_ap1_customer.CellPhone,'') != IFNULL(ds_bvstg_ap1_customer.HomePhone,'')
+               AND ds_bvstg_ap1_customer.CellPhone = REPLACE(ds_pcce_termination_call_agent_session_cellphone.ANI,'+1','')
+               AND ds_pcce_termination_call_agent_session_cellphone.ENDDATETIME BETWEEN dateadd(HOUR,-2,ds_ram_retail_repository.CREATEDDATE) AND dateadd(HOUR,2, ds_ram_retail_repository.CREATEDDATE)
+               AND (ds_pcce_termination_call_agent_session_cellphone.Agent = ds_agent_key.CISCO_LOGINNAME OR ds_pcce_termination_call_agent_session_cellphone.Agent = ds_agent_key_secundary.CISCO_LOGINNAME)/*get calls same date of the sale)*/
+              LEFT JOIN {{ ref('EDW','DS_PCCE_TERMINATION_CALL_AGENT_SESSION') }} ds_pcce_termination_call_agent_session_cellphone_saledate
+                ON IFNULL(ds_bvstg_ap1_customer.CellPhone,'') != IFNULL(ds_bvstg_ap1_customer.HomePhone,'')
+               AND ds_bvstg_ap1_customer.CellPhone = REPLACE(ds_pcce_termination_call_agent_session_cellphone_saledate.ANI,'+1','')
+               AND date(ds_pcce_termination_call_agent_session_cellphone_saledate.ENDDATETIME)= date(ds_ram_retail_repository.CREATEDDATE)
+               AND (ds_pcce_termination_call_agent_session_cellphone_saledate.Agent = ds_agent_key.CISCO_LOGINNAME OR ds_pcce_termination_call_agent_session_cellphone_saledate.Agent = ds_agent_key_secundary.CISCO_LOGINNAME)
+              LEFT JOIN {{ ref('EDW','DS_PCCE_TERMINATION_CALL_AGENT_SESSION') }} ds_pcce_termination_call_agent_session_cigh
+                ON COALESCE(s_ams_customer_mroc.ResFullPhone,s_ams_customer_mroc.BusFullPhone,s_ams_customer_mroc.MarineFullPhone, s_ams_customer_mroc.OtherFullPhone,s_ams_customer_mroc.PagerFullPhone,s_ams_customer_mroc.FaxFullPhone) = REPLACE(ds_pcce_termination_call_agent_session_cigh.ANI,'+1','')
+               AND ds_pcce_termination_call_agent_session_cigh.ENDDATETIME BETWEEN da
+        name: BVSTG_FUNNEL_POINT_OF_SALE
+        noLinkRefs: []
+  name: BVSTG_FUNNEL_POINT_OF_SALE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

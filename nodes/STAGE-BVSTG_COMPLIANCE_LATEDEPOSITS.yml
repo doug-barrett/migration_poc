@@ -1,0 +1,635 @@
+fileVersion: 1
+id: b25384fa-99d0-4a77-8e8d-0540922c79f2
+name: BVSTG_COMPLIANCE_LATEDEPOSITS
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "late deposits from the confieapp for compliance reporting  "
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 51eaee63-4507-43ed-8099-2ccbb408451f
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: VARCHAR(60)
+        defaultValue: ""
+        description: ""
+        name: ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MD5(V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.PaymentDate||V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.PaymentID ||V_DLBV_CFA_PRODUCTION_CURRENT.PRODUCTIONID)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: abfb5ff4-3a37-47f2-acb7-40a08acc3434
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: RANK
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: RANK () OVER(PARTITION BY V_DLBV_CFA_PRODUCTION_CURRENT.PRODUCTIONID ORDER BY V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.PaymentID)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5e8fc45d-4242-4fe6-a648-3dc3327e978e
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: DATE(V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.PaymentDate)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b74307be-9b0c-4bb4-8658-fe0bb228badf
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PAYMENTID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8a69e233-6f38-4c17-b962-c25a9eaf16d1
+                stepCounter: a13179f2-ebc0-4fbd-a7a2-db399f382204
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a2ecaaaf-eba8-472d-b70c-fee53302118b
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PRODUCTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6115af39-49b9-4a9c-b825-1458e81d8288
+                stepCounter: c80d0227-c5ce-49b5-9bce-d68b247db5e9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9a5d5d77-c224-4c2a-b967-b3ffcd67bbd4
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: TOTALDEPOSIT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '1'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 158874b4-4033-43a1-9545-80d3cc34692a
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: LATEDEPOSIT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN V_DLBV_CFA_PRODUCTION_CURRENT.TOTALEXPECTED = 0                                                                                                                                                                                                                   THEN 0
+                          WHEN ((SELECT COUNT(1) FROM {{ ref('UNKNOWN','STAGE_DATE_SF') }} WHERE CALENDAR_DATE > V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.PaymentDate AND CALENDAR_DATE < ifnull(V_DLBV_CFA_PRODUCTION_CURRENT.BANKDATE,current_date()) AND CAL_DAY_IN_WEEK NOT IN ('Sat', 'Sun'))) >= 1 THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 16439244-33bc-472a-a96d-b9f654e064b8
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: OUSTANDINGDEPOSIT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN V_PREB_DEPOSIT_PRODUCTION.TotalExpected = V_PREB_DEPOSIT_PRODUCTION.DIFFERENCEAMT AND (SELECT COUNT(1) FROM {{ ref('UNKNOWN','STAGE_DATE_SF') }} WHERE CALENDAR_DATE > V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.PaymentDate AND CALENDAR_DATE <= current_date() AND CAL_DAY_IN_WEEK NOT IN ('Sat', 'Sun') AND IFNULL(V_PREB_DEPOSIT_PRODUCTION.BANKAMOUNT,-0.0001)=-0.0001 AND V_PREB_DEPOSIT_PRODUCTION.TotalExpected>0 AND (V_PREB_DEPOSIT_PRODUCTION.DIFFERENCEAMT < -0.01 OR V_PREB_DEPOSIT_PRODUCTION.DIFFERENCEAMT > 0.01)) >= 1 THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 63e8807a-6b07-4102-96cb-df364259bd4e
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: NUMBER(12,2)
+        defaultValue: ""
+        description: ""
+        name: OUSTANDINGDEPOSITAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN V_PREB_DEPOSIT_PRODUCTION.TotalExpected = V_PREB_DEPOSIT_PRODUCTION.DIFFERENCEAMT AND (SELECT COUNT(1) FROM {{ ref('UNKNOWN','STAGE_DATE_SF') }} WHERE CALENDAR_DATE > V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.PaymentDate AND CALENDAR_DATE <= current_date() AND CAL_DAY_IN_WEEK NOT IN ('Sat', 'Sun') AND IFNULL(V_PREB_DEPOSIT_PRODUCTION.BANKAMOUNT,-0.0001)=-0.0001 AND V_PREB_DEPOSIT_PRODUCTION.TotalExpected>0 AND (V_PREB_DEPOSIT_PRODUCTION.DIFFERENCEAMT < -0.01 OR V_PREB_DEPOSIT_PRODUCTION.DIFFERENCEAMT > 0.01)) >= 1 THEN V_PREB_DEPOSIT_PRODUCTION.DIFFERENCEAMT
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bb491876-3b0b-4ddb-a261-c4728f6d35b7
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: DEPOSITS_WITH_DISCREPANCIES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN (SELECT COUNT(1) FROM {{ ref('UNKNOWN','STAGE_DATE_SF') }} WHERE CALENDAR_DATE > V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.PaymentDate AND IFNULL(V_DLBV_CFA_PRODUCTION_CURRENT.BANKAMOUNT,0)>0 AND CALENDAR_DATE < current_date() AND CAL_DAY_IN_WEEK NOT IN ('Sat', 'Sun') AND (V_PREB_DEPOSIT_PRODUCTION.DifferenceAmt > 0.01 OR V_PREB_DEPOSIT_PRODUCTION.DifferenceAmt < -0.01)) >= 1 THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f817e86f-fb92-4c64-82a8-ff7e97215ebe
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: DEPOSITS_WITH_DISCREPANCIESSHORT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN (SELECT COUNT(1) FROM {{ ref('UNKNOWN','STAGE_DATE_SF') }} WHERE CALENDAR_DATE > V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.PaymentDate AND IFNULL(V_DLBV_CFA_PRODUCTION_CURRENT.BANKAMOUNT,0)>0 AND CALENDAR_DATE < current_date() AND CAL_DAY_IN_WEEK NOT IN ('Sat', 'Sun') AND V_PREB_DEPOSIT_PRODUCTION.DifferenceAmt > 0.01) >= 1 THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fbff0dca-6bc2-4b73-958b-8187b12afae0
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: DEPOSITS_WITH_DISCREPANCIESOVER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN (SELECT COUNT(1) FROM {{ ref('UNKNOWN','STAGE_DATE_SF') }} WHERE CALENDAR_DATE > V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.PaymentDate AND IFNULL(V_DLBV_CFA_PRODUCTION_CURRENT.BANKAMOUNT,0)>0 AND CALENDAR_DATE < current_date() AND CAL_DAY_IN_WEEK NOT IN ('Sat', 'Sun') AND V_PREB_DEPOSIT_PRODUCTION.DifferenceAmt < -0.01) >= 1 THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d3197643-3da0-4c86-aaed-7973f5434775
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: NUMBER(12,2)
+        defaultValue: ""
+        description: ""
+        name: DEPOSITS_WITH_DISCREPANCIESAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN (SELECT COUNT(1) FROM {{ ref('UNKNOWN','STAGE_DATE_SF') }} WHERE CALENDAR_DATE > V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.PaymentDate AND CALENDAR_DATE < current_date() AND IFNULL(V_DLBV_CFA_PRODUCTION_CURRENT.BANKAMOUNT,0)>0 AND CAL_DAY_IN_WEEK NOT IN ('Sat', 'Sun') AND (V_PREB_DEPOSIT_PRODUCTION.DifferenceAmt > 0.01 OR V_PREB_DEPOSIT_PRODUCTION.DifferenceAmt < -0.01)) >= 1 THEN V_PREB_DEPOSIT_PRODUCTION.DifferenceAmt
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 48590cee-3993-406e-b525-0c16102a6bb2
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: NUMBER(12,2)
+        defaultValue: ""
+        description: ""
+        name: DEPOSITS_WITH_DISCREPANCIESAMOUNTOVER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN (SELECT COUNT(1) FROM {{ ref('UNKNOWN','STAGE_DATE_SF') }} WHERE CALENDAR_DATE > V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.PaymentDate AND CALENDAR_DATE < current_date() AND IFNULL(V_DLBV_CFA_PRODUCTION_CURRENT.BANKAMOUNT,0)>0 AND CAL_DAY_IN_WEEK NOT IN ('Sat', 'Sun') AND V_PREB_DEPOSIT_PRODUCTION.DifferenceAmt < -0.01) >= 1 THEN V_PREB_DEPOSIT_PRODUCTION.DifferenceAmt
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fa97e001-b30e-4538-a2b0-4db0b52ce871
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: NUMBER(12,2)
+        defaultValue: ""
+        description: ""
+        name: DEPOSITS_WITH_DISCREPANCIESAMOUNTSHORT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN (SELECT COUNT(1) FROM {{ ref('UNKNOWN','STAGE_DATE_SF') }} WHERE CALENDAR_DATE > V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.PaymentDate AND CALENDAR_DATE < current_date() AND IFNULL(V_DLBV_CFA_PRODUCTION_CURRENT.BANKAMOUNT,0)>0 AND CAL_DAY_IN_WEEK NOT IN ('Sat', 'Sun') AND V_PREB_DEPOSIT_PRODUCTION.DifferenceAmt > 0.01) >= 1 THEN V_PREB_DEPOSIT_PRODUCTION.DifferenceAmt
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 13c4ec6e-4c44-4063-9725-93935a12c3e4
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN V_PREB_DEPOSIT_PRODUCTION.BANKDATE IS NULL      THEN 0
+                          WHEN V_DLBV_CFA_PRODUCTION_CURRENT.TOTALEXPECTED = 0 THEN 0
+                          ELSE (SELECT COUNT(1) FROM RETAIL_PROD.SCH_BVSTAGE.STAGE_DATE_SF WHERE CALENDAR_DATE > V_PREB_DEPOSIT_PRODUCTION.PaymentDate AND CALENDAR_DATE < IFNULL(V_PREB_DEPOSIT_PRODUCTION.BANKDATE,CURRENT_DATE()) AND CAL_DAY_IN_WEEK NOT IN ('Sat', 'Sun'))
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 574ab7bc-dcea-40b8-960a-3caf009a6cc0
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: TOTALFOLLOWUPS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: IFNULL(V_DLBV_CFA_FOLLOWUP_CURRENT.Qty, 0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c4b6f18f-e6ed-437a-9a15-16c710657090
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: NUMBER(12,2)
+        defaultValue: ""
+        description: ""
+        name: DEPOSITED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: V_PREB_DEPOSIT_PRODUCTION.BANKAMOUNT
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 282a71ba-c5b2-49dd-a961-845e055b8cd0
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: NUMBER(12,2)
+        defaultValue: ""
+        description: ""
+        name: TOTALEXPECTED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: V_DLBV_CFA_PRODUCTION_CURRENT.TOTALEXPECTED
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 738cb63a-9e41-4510-a889-d983eb9f6975
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0b5ec564-3745-4b7e-9de0-bab9f3a250a5
+                stepCounter: a13179f2-ebc0-4fbd-a7a2-db399f382204
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b1c250af-d498-442e-b163-cc1a9dc18bbb
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: AGENCY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1ae1e9d5-573d-4e57-856a-d3a4fc0bb2b7
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 64cce0db-ee42-4787-bf59-d76a110e6f7d
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: SALESVP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fc5e9d95-2c43-4e32-883c-5ef77a35777b
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 98b9e464-20ad-4147-97dc-07da966c7011
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: DISTRICT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2838f644-16d4-46c3-8000-075fca345a0a
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 19f5434e-69a6-4751-9df3-f916b35e0b07
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: DISTRICTMANAGERNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b4d401d9-f7e8-467f-8d5b-54e2456b7529
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3fc2e7aa-680b-401a-bf41-32cd65ab46fd
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: TERRITORYMANAGERNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4e9591b6-678d-4801-95d9-22168f641168
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8cd59da6-dd5a-4b2e-b180-a3593c3bed25
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: OFFICECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9cf6489b-d534-40fc-8694-e5fc70b9aa92
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3f667c22-aff9-4dec-9bb4-8ed91c2c0911
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: OFFICENAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4db4ad64-f5ed-4208-bc69-f067fade11f0
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 60ab2045-0938-4fa1-9793-102914c5543b
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: STATECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ac4ed474-3ac0-49af-ab69-220a77c28cc6
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 38dd82ba-f26b-446f-8abb-643d0077d4a7
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: PRIMARYAGENTNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e00c1865-2c9b-44ba-97b0-77e7485c6dae
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 81e80da9-9caf-46ee-bd73-7620cf872cdc
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: PRIMARYAGENTNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fce05ab4-6360-4c21-b281-0e29535865a2
+                stepCounter: eb40b9b4-16a8-47be-8699-9c6c04540ac6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7cb5a492-b1a8-452d-a32d-c155f54999cf
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CARRIERNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1de3c446-c3d8-4b42-b03d-381519b3c25b
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: LEADSOURCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 472f1cb6-edfb-40c8-b466-6b53d8a6d5c8
+                stepCounter: 0aaa279e-0731-4ba4-882c-75dc6cf7d3c9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 29e558b0-9cd2-4ac8-9dcb-5da689692606
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dcd1d563-44b6-4ba8-a984-a7eb6c5b6074
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 101e9cfb-ec0f-4e68-b175-0821e2feb888
+                stepCounter: 0aaa279e-0731-4ba4-882c-75dc6cf7d3c9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 855a4807-a11c-49b1-a20c-3452723f43da
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0f41b4e5-48e4-4c47-b155-9b864e076f48
+          stepCounter: b25384fa-99d0-4a77-8e8d-0540922c79f2
+        config: {}
+        dataType: TIMESTAMP
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies: []
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM (
+                    SELECT PAYMENTID,
+                           PAYMENTDATE,
+                           TRANSACTIONID,
+                           SITEID,
+                           OFFICECODE
+                      FROM RETAIL_PROD.SCH_BVSTAGE.V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT
+                     UNION SELECT ProductionID*-1,
+                           PAYMENTDATE,
+                           0,
+                           SITEID,
+                           OFFICECODE
+                      FROM RETAIL_PROD.SCH_EDW.V_PREB_DEPOSIT_PRODUCTION
+                     WHERE PAYMENTS IS NULL
+                   )V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT
+              LEFT JOIN RETAIL_PROD.SCH_BVSTAGE.DS_BVSTG_AP1_PAYMENT ds_bvstg_ap1_payment
+                ON ds_bvstg_ap1_payment.PaymentID = V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.PaymentID
+               AND ds_bvstg_ap1_payment.ISVOID_PAYMENT = 0
+              LEFT JOIN RETAIL_PROD.SCH_BVSTAGE.V_DLBV_CFA_PRODUCTION_CURRENT V_DLBV_CFA_PRODUCTION_CURRENT
+                ON (V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.SiteID = V_DLBV_CFA_PRODUCTION_CURRENT.SiteID AND DATE(V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.PaymentDate) = V_DLBV_CFA_PRODUCTION_CURRENT.PaymentDate)
+              LEFT JOIN RETAIL_PROD.SCH_EDW.V_PREB_DEPOSIT_PRODUCTION V_PREB_DEPOSIT_PRODUCTION
+                ON V_PREB_DEPOSIT_PRODUCTION.ProductionID = V_DLBV_CFA_PRODUCTION_CURRENT.ProductionID
+              LEFT JOIN RETAIL_PROD.SCH_BVSTAGE.V_DLBV_CFA_BANKFILE_CURRENT V_DLBV_CFA_BANKFILE_CURRENT
+                ON V_DLBV_CFA_BANKFILE_CURRENT.ProductionID = V_DLBV_CFA_PRODUCTION_CURRENT.ProductionID
+             INNER JOIN RETAIL_PROD.SCH_EDW.DS_RETAIL_OFFICE DS_RETAIL_OFFICE
+                ON (V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.OfficeCode = DS_RETAIL_OFFICE.OfficeCode)
+              LEFT JOIN RETAIL_PROD.SCH_EDW.DS_AP1_TRANSACTIONSUMMARY DS_AP1_TRANSACTIONSUMMARY
+                ON DS_AP1_TRANSACTIONSUMMARY.transactionID = V_DLBV_CFA_APPONEPAYMENTS_DETAIL_CURRENT.transactionID
+              LEFT JOIN (
+                    SELECT a.FollowUpID,
+                           a.ProductionID,
+                           b.Qty
+                      FROM RETAIL_PROD.SCH_BVSTAGE.V_DLBV_CFA_FOLLOWUP_CURRENT AS a
+                     INNER JOIN (
+                            SELECT ProductionID,
+                                   MAX(FollowUpID) AS FollowUpID,
+                                   COUNT(1) AS Qty
+                              FROM RETAIL_PROD.SCH_BVSTAGE.V_DLBV_CFA_FOLLOWUP_CURRENT
+                             GROUP BY ProductionID
+                           ) AS b
+                        ON a.FollowUpID = b.FollowUpID
+                   ) V_DLBV_CFA_FOLLOWUP_CURRENT
+                ON (V_DLBV_CFA_PRODUCTION_CURRENT.ProductionID = V_DLBV_CFA_FOLLOWUP_CURRENT.ProductionID)
+              LEFT JOIN ( SELECT to_varchar(DS_RAM_RETAIL_REPOSITORY.TransactionID) TransactionID,
+                   DS_BVSTG_COMM_CARRIERMAPPING.CARRIERNAME_GROUPED CARRIERNAME,
+                   CASE WHEN DS_MKT_LEAD_SOURCE.LEADSOURCE IN ('Cust TimeStamp (i)','Cust TimeStamp (o)','Cust TimeStamp (u)','Cust/User (i)', 'Cust/User (o)','Cust/User (u)','Phone AppOne') THEN 'Phone'
+                        WHEN DS_MKT_LEAD_SOURCE.LEADSOURCE IN ('Web', 'LMS (email)', 'LMS (Phone)')                                                                                            THEN 'Web'
+                        WHEN DS_MKT_LEAD_SOURCE.LEADSOURCE = ''                                                                                                                                THEN 'Unknown'
+                        ELSE NULL
+                         END LEADSOURCE,
+                   DS_RAM_RETAIL_REPOSITORY.CUSTOMERTYPE,
+                   date(date_trunc('MONTH', DS_RAM_RETAIL_REPOSITORY.TRANSACTIONDATE)) ASOFMONTH,
+                   DS_RAM_RETAIL_REPOSITORY.CUSTOMERID
+              FROM RETAIL_PROD.SCH_EDW.DS_RAM_RETAIL_REPOSITORY DS_RAM_RETAIL_REPOSITORY
+              LEFT JOIN RETAIL_PROD.SCH_EDW.DS_MKT_LEAD_SOURCE DS_MKT_LEAD_SOURCE
+                ON to_varchar(DS_MKT_LEAD_SOURCE.LEADID) = to_varchar(DS_RAM_RETAIL_REPOSITORY.LEADID)
+              LEFT JOIN RETAIL_PROD.SCH_BVSTAGE.DS_BVSTG_COMM_CARRIERMAPPING DS_BVSTG_COMM_CARRIERMAPPING
+                ON DS_BVSTG_COMM_CARRIERMAPPING.CARRIERNAME = DS_RAM_RETAIL_REPOSITORY.CARRIERNAME
+               AND DS_BVSTG_COMM_CARRIERMAPPING.SOURCE = 'EDW'
+             WHERE DS_RAM_RETAIL_REPOSITORY.TransactionType = 'New Business'
+               AND CLASSIFICATIONGROUP = 'New Business'
+        name: BVSTG_COMPLIANCE_LATEDEPOSITS
+        noLinkRefs: []
+  name: BVSTG_COMPLIANCE_LATEDEPOSITS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

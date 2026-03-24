@@ -1,0 +1,216 @@
+fileVersion: 1
+id: 122f2f6b-b81f-403b-bcd9-ff39c82db152
+name: BVSTG_UD2ID_MAPPING
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1730d130-298a-4bc9-8dad-1d0e293fa8a4
+          stepCounter: 122f2f6b-b81f-403b-bcd9-ff39c82db152
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: DS_BVSTG_UD2ID_MAPPING_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(bvstg_comm_au6_store_evaluation.ud2id)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4374bbc3-fdf9-4b69-a15b-8b5ae7e00906
+          stepCounter: 122f2f6b-b81f-403b-bcd9-ff39c82db152
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: ""
+        name: UD2ID_DESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9f939974-263e-414e-9e82-aeef365bcaa8
+                stepCounter: a5996bd8-56d0-4828-b4b5-d4100341a294
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8883a6c0-445a-4e1f-a359-b26c0bf14dd7
+          stepCounter: 122f2f6b-b81f-403b-bcd9-ff39c82db152
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: ""
+        name: NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 95a7a0dd-23bc-44c8-bc5a-0fb4956d7bac
+          stepCounter: 122f2f6b-b81f-403b-bcd9-ff39c82db152
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: UD2ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9e94f9ad-9c7e-4b00-aa92-1fd2d3cb84bf
+                stepCounter: a5996bd8-56d0-4828-b4b5-d4100341a294
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 22ab6eff-f969-4058-94a7-40fdee1d3aba
+          stepCounter: 122f2f6b-b81f-403b-bcd9-ff39c82db152
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: OFFICECODES_MAPPED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 49dd0501-70ee-4f95-9ecd-550e77b08763
+          stepCounter: 122f2f6b-b81f-403b-bcd9-ff39c82db152
+        config: {}
+        dataType: NUMBER(1,0)
+        defaultValue: ""
+        description: ""
+        name: PREFRENCE_ORDER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d1f5f276-1030-4dcc-a9e2-f1e0afc47d38
+          stepCounter: 122f2f6b-b81f-403b-bcd9-ff39c82db152
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 38f4d4f1-2b6b-49d8-8cc0-a6b4207ffc08
+          stepCounter: 122f2f6b-b81f-403b-bcd9-ff39c82db152
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_COMM_AU6_STORE_EVALUATION: a5996bd8-56d0-4828-b4b5-d4100341a294
+          DS_RETAIL_OFFICE: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_COMM_AU6_STORE_EVALUATION
+          - locationName: EDW
+            nodeName: DS_RETAIL_OFFICE
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM (SELECT DISTINCT bvstg_comm_au6_store_evaluation.ud2id,
+                   bvstg_comm_au6_store_evaluation.ud2id_description ,
+                   v_dl_osm_member_current.name ,
+                   ltrim(ifnull(nullif(split_part(v_dl_osm_member_current.name,'_',2),''),v_dl_osm_member_current.name),'0') Corporate_number ,
+                   CASE WHEN bvstg_comm_au6_store_evaluation.ud2id_description like '(%)%' THEN replace(split_part(bvstg_comm_au6_store_evaluation.ud2id_description,')',1),'(')
+                         END Officecode_ud2id ,
+                   ds_retail_office.Officecode officecode_corporate ,
+                   ds_retail_office_3.officecode Officecode_SimilarName ,
+                   ds_retail_office_2.Officecode officecode_officename ,
+                   ifnull(CASE WHEN bvstg_comm_au6_store_evaluation.ud2id_description like '(%)%' THEN replace(split_part(bvstg_comm_au6_store_evaluation.ud2id_description,')',1),'(') END, ifnull(ds_retail_office.Officecode, ifnull(ds_retail_office_2.Officecode, ifnull(ds_retail_office_3.officecode,ifnull(v_bvstg_comm_os_officecodes.officecode, CASE WHEN lower(bvstg_comm_au6_store_evaluation.ud2id_description) like '%house%' THEN 'House' WHEN lower(bvstg_comm_au6_store_evaluation.ud2id_description) like '%admin%' THEN 'Admin' WHEN lower(bvstg_comm_au6_store_evaluation.ud2id_description) like '%online binding%' OR lower(ud2id_description) like '%web dep%'THEN 'OLB' WHEN lower(bvstg_comm_au6_store_evaluation.ud2id_description) like '%call%center%' THEN 'Call-Center' END))))) Officecodes_mapped ,
+                   (CASE WHEN bvstg_comm_au6_store_evaluation.ud2id_description like '(%)%' THEN 1 WHEN ds_retail_office.Officecode IS NOT NULL THEN 2 WHEN ds_retail_office_2.Officecode IS NOT NULL THEN 3 WHEN ds_retail_office_3.Officecode IS NOT NULL THEN 4 WHEN v_bvstg_comm_os_officecodes.officecode IS NOT NULL THEN 5 WHEN lower(ud2id_description) like '%house%' THEN 1 WHEN lower(ud2id_description) like '%admin%' THEN 1 WHEN lower(ud2id_description) like '%online binding%' OR lower(ud2id_description) like '%web dep%'THEN 1 WHEN lower(ud2id_description) like '%call%center%' THEN 1 END) prefrence_order
+              FROM {{ ref('STAGE','BVSTG_COMM_AU6_STORE_EVALUATION') }} bvstg_comm_au6_store_evaluation
+              LEFT JOIN "DATA_LAKE"."ONESTREAM"."V_DL_OSM_MEMBER_CURRENT" v_dl_osm_member_current
+                ON bvstg_comm_au6_store_evaluation.ud2id=v_dl_osm_member_current.memberid
+              LEFT JOIN (
+                    SELECT CORPORATEOFFICENUMBER,
+                           OFFICECODE
+                      FROM {{ ref('EDW','DS_RETAIL_OFFICE') }}
+                     WHERE CORPORATEOFFICENUMBER IN (
+                            SELECT CORPORATEOFFICENUMBER
+                              FROM {{ ref('EDW','DS_RETAIL_OFFICE') }}
+                             GROUP BY CORPORATEOFFICENUMBER
+                            HAVING count(*)=1
+                           )
+                   ) ds_retail_office
+                ON ltrim(ifnull(nullif(split_part(v_dl_osm_member_current.name,'_',2),''),v_dl_osm_member_current.name),'0')=ds_retail_office.CORPORATEOFFICENUMBER
+              LEFT JOIN (
+                    SELECT OFFICENAME,
+                           OFFICECODE
+                      FROM {{ ref('EDW','DS_RETAIL_OFFICE') }}
+                     WHERE OFFICENAME IN (
+                            SELECT OFFICENAME
+                              FROM {{ ref('EDW','DS_RETAIL_OFFICE') }}
+                             GROUP BY OFFICENAME
+                            HAVING count(*)=1
+                           )
+                   ) ds_retail_office_2
+                ON lower(ds_retail_office_2.officename)=lower(bvstg_comm_au6_store_evaluation.ud2id_description)
+               AND ud2id_description IS NOT NULL
+               AND len(ud2id_description)>1
+              LEFT JOIN (SELECT DISTINCT ud2id,
+                   OFFICECODE
+              FROM {{ ref('STAGE','BVSTG_COMM_AU6_STORE_EVALUATION') }}
+              LEFT JOIN (
+                    SELECT DISTINCT OFFICENAME,
+                           OFFICECODE
+                      FROM {{ ref('EDW','DS_RETAIL_OFFICE') }}
+                     WHERE OFFICENAME IN (
+                            SELECT OFFICENAME
+                              FROM {{ ref('EDW','DS_RETAIL_OFFICE') }}
+                             GROUP BY OFFICENAME
+                            HAVING count(*)=1
+                           )
+                   ) ds_retail_office_3
+                ON (((contains(lower(ud2id_description), lower(ds_retail_office_3.Officename))
+                OR co
+        name: BVSTG_UD2ID_MAPPING
+        noLinkRefs: []
+  name: BVSTG_UD2ID_MAPPING
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

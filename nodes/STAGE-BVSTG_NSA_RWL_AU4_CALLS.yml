@@ -1,0 +1,189 @@
+fileVersion: 1
+id: eb349c14-09f0-4779-b036-15e110178650
+name: BVSTG_NSA_RWL_AU4_CALLS
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3416aeeb-adb7-4468-916d-62ea6c07095c
+          stepCounter: eb349c14-09f0-4779-b036-15e110178650
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3416aeeb-adb7-4468-916d-62ea6c07095c
+                stepCounter: eb349c14-09f0-4779-b036-15e110178650
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0f08b37b-02e9-4c84-aeb0-79fca2b82652
+          stepCounter: eb349c14-09f0-4779-b036-15e110178650
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0f08b37b-02e9-4c84-aeb0-79fca2b82652
+                stepCounter: eb349c14-09f0-4779-b036-15e110178650
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5cf6856d-3a4f-4648-aadf-35f779012d91
+          stepCounter: eb349c14-09f0-4779-b036-15e110178650
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: DAYS_SINCE_LAST_CALL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5cf6856d-3a4f-4648-aadf-35f779012d91
+                stepCounter: eb349c14-09f0-4779-b036-15e110178650
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cc2b68e1-89cc-40dc-b9e9-0199e290f1d8
+          stepCounter: eb349c14-09f0-4779-b036-15e110178650
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: DAYS_SINCE_LAST_INBOUND
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cc2b68e1-89cc-40dc-b9e9-0199e290f1d8
+                stepCounter: eb349c14-09f0-4779-b036-15e110178650
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1bbf069f-97ca-4286-8537-a9b11e7d1c73
+          stepCounter: eb349c14-09f0-4779-b036-15e110178650
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: DAYS_SINCE_LAST_OUTBOUND
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1bbf069f-97ca-4286-8537-a9b11e7d1c73
+                stepCounter: eb349c14-09f0-4779-b036-15e110178650
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 848b0eee-4aa9-4a6d-9e29-6d5da385d181
+          stepCounter: eb349c14-09f0-4779-b036-15e110178650
+        config: {}
+        dataType: FLOAT
+        defaultValue: ""
+        description: ""
+        name: RATIO_ANS_EFFEC_TALKTIME_AT_FIRSTMONTH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 848b0eee-4aa9-4a6d-9e29-6d5da385d181
+                stepCounter: eb349c14-09f0-4779-b036-15e110178650
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_NSA_RWL_AU0_BSL: 0ba656cb-34d5-4986-b255-6055716b0770
+          DS_MKT_CALL_CUSTOMER: a1eb4560-c80e-4133-a2d9-f6a82026093c
+          DS_PCCE_TERMINATION_CALL_SUMMARY_SESSION: b0e80be4-9751-4d96-a11d-f935debb1375
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_NSA_RWL_AU4_CALLS
+          - locationName: STAGE
+            nodeName: BVSTG_NSA_RWL_AU0_BSL
+          - locationName: EDW
+            nodeName: DS_MKT_CALL_CUSTOMER
+          - locationName: EDW
+            nodeName: DS_PCCE_TERMINATION_CALL_SUMMARY_SESSION
+        join:
+          joinCondition: |-
+            FROM (
+                    WITH CALL_HISTORY AS (
+                            SELECT BASE_LINE.CUSTOMERID,
+                                   BASE_LINE.TRANSACTIONID,
+                                   BASE_LINE.STARTDATE,
+                                   BASE_LINE.TERM_IN_MONTHS ,
+                                   BASE_LINE.ESTIMATE_END_DATE ,
+                                   MKT_ID.INTERACTIONIDKEY ,
+                                   MKT_ID.DIRECTION
+                              FROM {{ ref('STAGE','BVSTG_NSA_RWL_AU0_BSL') }} BASE_LINE
+                              LEFT JOIN {{ ref('EDW','DS_MKT_CALL_CUSTOMER') }} MKT_ID
+                                ON (BASE_LINE.CUSTOMERID = MKT_ID.CUSTOMERID AND BASE_LINE.SOURCEDB = MKT_ID.SOURCEDB_CUSTOMER AND DATE(MKT_ID.STARTDATETIME) >= BASE_LINE.STARTDATE AND DATE(MKT_ID.STARTDATETIME) < DATEADD(DAY, -30, BASE_LINE.ESTIMATE_END_DATE))
+                           ) ,
+                           FULL_HISTORY AS (
+                            SELECT CALL_HISTORY.CUSTOMERID ,
+                                   CALL_HISTORY.TRANSACTIONID ,
+                                   CALL_HISTORY.STARTDATE ,
+                                   CALL_HISTORY.ESTIMATE_END_DATE ,
+                                   CALL_HISTORY.DIRECTION ,
+                                   CALL_HISTORY.TERM_IN_MONTHS ,
+                                   CALL_SUMMARY.*
+                              FROM CALL_HISTORY CALL_HISTORY
+                             INNER JOIN {{ ref('EDW','DS_PCCE_TERMINATION_CALL_SUMMARY_SESSION') }} CALL_SUMMARY
+                                ON (CALL_HISTORY.INTERACTIONIDKEY = CALL_SUMMARY.ID)
+                           ) ,
+                           FEATURE_CREATION AS (
+                            SELECT CUSTOMERID ,
+                                   TRANSACTIONID ,
+                                   TERM_IN_MONTHS ,
+                                   ESTIMATE_END_DATE ,
+                                   STARTDATE ,
+                                   DATEDIFF(DAY, MAX(DATE(STARTDATETIME)), DATEADD(DAY, -30, ESTIMATE_END_DATE)) AS DAYS_SINCE_LAST_CALL ,
+                                   DATEDIFF(DAY, MAX(CASE WHEN ISINBOUND = 1 THEN DATE(STARTDATETIME) END), DATEADD(DAY, -30, ESTIMATE_END_DATE)) AS DAYS_SINCE_LAST_INBOUND ,
+                                   DATEDIFF(DAY, MAX(CASE WHEN ISOUTBOUND = 1 THEN DATE(STARTDATETIME) END), DATEADD(DAY, -30, ESTIMATE_END_DATE)) AS DAYS_SINCE_LAST_OUTBOUND ,
+                                   SUM(CASE WHEN DATE(STARTDATETIME) <= DATEADD(MONTH, 1, STARTDATE) AND TALKTIME > 180 THEN TALKTIME ELSE 0 END) TOTAL_TALKTIME_GREATER_THAN_3MIN_FIRSTMONTH ,
+                                   SUM(CASE WHEN ISANSWERCALL = 1 AND TALKTIME > 180 THEN TALKTIME ELSE 0 END) AS TOTAL_ANSWER_TALKTIME_GREATER_THAN_3_MIN_30D_BEF_END
+                              FROM FULL_HISTORY
+                             GROUP BY CUSTOMERID,
+                                      TRANSACTIONID,
+                                      TERM_IN_MONTHS,
+                                      ESTIMATE_END_DATE,
+                                      STARTDATE
+                           ) SELECT CUSTOMERID ,
+                           TRANSACTIONID ,
+                           DAYS_SINCE_LAST_CALL ,
+                           DAYS_SINCE_LAST_INBOUND ,
+                           DAYS_SINCE_LAST_OUTBOUND ,
+                           CASE WHEN TOTAL_ANSWER_TALKTIME_GREATER_THAN_3_MIN_30D_BEF_END = 0 THEN 0
+                                ELSE TOTAL_TALKTIME_GREATER_THAN_3MIN_FIRSTMONTH/TOTAL_ANSWER_TALKTIME_GREATER_THAN_3_MIN_30D_BEF_END
+                                 END AS RATIO_ANS_EFFEC_TALKTIME_AT_FIRSTMONTH
+                      FROM FEATURE_CREATION
+                   ) bvstg_nsa_rwl_au4_calls
+        name: BVSTG_NSA_RWL_AU4_CALLS
+        noLinkRefs: []
+  name: BVSTG_NSA_RWL_AU4_CALLS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

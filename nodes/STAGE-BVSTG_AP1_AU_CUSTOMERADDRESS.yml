@@ -1,0 +1,253 @@
+fileVersion: 1
+id: f9f12a40-05df-4426-90df-ba71d632c74e
+name: BVSTG_AP1_AU_CUSTOMERADDRESS
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "latest customer address"
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7aa5f348-d665-456c-abd1-b28bd5781201
+          stepCounter: f9f12a40-05df-4426-90df-ba71d632c74e
+        config: {}
+        dataType: CHAR(32)
+        defaultValue: ""
+        description: ""
+        name: HK_H_CUSTOMER
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 39c1eade-9d86-40be-abd7-b9e91a7f0044
+                stepCounter: b4a6af1c-b023-4dd4-842e-246be5614467
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d868638a-fb6c-496e-856d-9a7e20f0a30b
+          stepCounter: f9f12a40-05df-4426-90df-ba71d632c74e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ADDRESSID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0cf72b4d-b44a-4ae7-860b-6d49d8e49442
+                stepCounter: 0400cef5-c13c-411f-b787-7ba3042c8572
+            transform: MAX(h_address.addressid)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 80408f1c-7f56-4e60-babb-f2a4477b86ad
+          stepCounter: f9f12a40-05df-4426-90df-ba71d632c74e
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4b45cc82-8ad3-49d2-9137-03593c370f5d
+                stepCounter: b4a6af1c-b023-4dd4-842e-246be5614467
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a79de0f0-b734-4015-af92-be3725b07504
+          stepCounter: f9f12a40-05df-4426-90df-ba71d632c74e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: STREET
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8be0627c-02df-4b96-9fe4-a64e9f194eac
+                stepCounter: b8c01004-41e8-4529-ae69-64ca9c90ffb5
+            transform: MAX(v_s_ap1_address_mroc_current.street)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7e3e0f20-a960-443f-bac9-31bf078c5c30
+          stepCounter: f9f12a40-05df-4426-90df-ba71d632c74e
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: CITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7ef21d43-afae-486e-aede-de835738117e
+                stepCounter: b8c01004-41e8-4529-ae69-64ca9c90ffb5
+            transform: MAX(v_s_ap1_address_mroc_current.city)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 84011c2b-d82f-4063-bc6d-f6cc3c4b5261
+          stepCounter: f9f12a40-05df-4426-90df-ba71d632c74e
+        config: {}
+        dataType: CHAR(5)
+        defaultValue: ""
+        description: ""
+        name: ZIP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7d338157-fd32-48be-aac6-5347162f8d60
+                stepCounter: b8c01004-41e8-4529-ae69-64ca9c90ffb5
+            transform: MAX(v_s_ap1_address_mroc_current.zip)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9f0c7ca0-82b2-4622-8cc2-15e02ef9d21c
+          stepCounter: f9f12a40-05df-4426-90df-ba71d632c74e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ISMAINADDRESS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN MAX(h_mainaddress.mainaddressid) IS NULL AND MAX(v_s_ap1_customer_mroc_current.customerid) IS NULL THEN CASE WHEN RANK() OVER (PARTITION BY h_customer.customerid ORDER BY CASE ref_ap1_codevaluetype.codevalue WHEN 'Mailing Address' THEN 1 WHEN 'Garage Address' THEN 2 WHEN 'Quote Garaging Address' THEN 3 ELSE 4 END) = 1 THEN 1 ELSE 0 END
+                          ELSE CASE WHEN MAX(h_address.addressid) = MAX(h_mainaddress.mainaddressid)AND MAX(v_s_ap1_customer_mroc_current.mainaddressid) = MAX(h_address.addressid) THEN 1 ELSE 0 END
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8cd9b4d9-6ba6-420e-88a3-461f4af25228
+          stepCounter: f9f12a40-05df-4426-90df-ba71d632c74e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: STATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 882019b0-cc7a-4661-bd04-abfa35818915
+                stepCounter: 3e151b27-0aac-487a-9684-1e06159f8b6e
+            transform: MAX(ref_ap1_codevalue.codevalue)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 231b636b-333f-4dbc-8856-547b2ae66315
+          stepCounter: f9f12a40-05df-4426-90df-ba71d632c74e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: ADDRESSTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bf2ce15a-4736-4852-bea4-476e6f9d5563
+          stepCounter: f9f12a40-05df-4426-90df-ba71d632c74e
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: ""
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d2f8b8f5-4178-4e46-8ff7-2ce820a56083
+          stepCounter: f9f12a40-05df-4426-90df-ba71d632c74e
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_AP1_CUSTOMER_REFRESH: e1a00289-44b3-474b-85e0-78530ef8c867
+          H_CUSTOMER: b4a6af1c-b023-4dd4-842e-246be5614467
+          V_S_AP1_CUSTOMERADDRESS_MROC_CURRENT: 3e824951-53d3-46d6-9a8e-cb3146b6454d
+          H_ADDRESS: 0400cef5-c13c-411f-b787-7ba3042c8572
+          V_S_AP1_ADDRESS_MROC_CURRENT: b8c01004-41e8-4529-ae69-64ca9c90ffb5
+          REF_AP1_CODEVALUE: 3e151b27-0aac-487a-9684-1e06159f8b6e
+          H_MAINADDRESS: c1966b25-8ce2-422d-a144-cbf831572092
+          V_S_AP1_CUSTOMER_MROC_CURRENT: c4641ae7-18fc-472b-a970-38215f4341e0
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DATA_VAULT
+            nodeName: H_CUSTOMER
+          - locationName: STAGE
+            nodeName: BVSTG_AP1_CUSTOMER_REFRESH
+          - locationName: STAGE
+            nodeName: V_S_AP1_CUSTOMERADDRESS_MROC_CURRENT
+          - locationName: DATA_VAULT
+            nodeName: H_ADDRESS
+          - locationName: STAGE
+            nodeName: V_S_AP1_ADDRESS_MROC_CURRENT
+          - locationName: EDW
+            nodeName: REF_AP1_CODEVALUE
+          - locationName: DATA_VAULT
+            nodeName: H_MAINADDRESS
+          - locationName: STAGE
+            nodeName: V_S_AP1_CUSTOMER_MROC_CURRENT
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','BVSTG_AP1_CUSTOMER_REFRESH') }} bvstg_ap1_customer_refresh
+              JOIN {{ ref('DATA_VAULT','H_CUSTOMER') }} h_customer
+                ON h_customer.customerid = TO_CHAR(bvstg_ap1_customer_refresh.customerid)
+              JOIN {{ ref('STAGE','V_S_AP1_CUSTOMERADDRESS_MROC_CURRENT') }} v_s_ap1_customeraddress_mroc_current
+                ON h_customer.customerid = TO_CHAR(v_s_ap1_customeraddress_mroc_current.customerid)
+              JOIN {{ ref('DATA_VAULT','H_ADDRESS') }} h_address
+                ON v_s_ap1_customeraddress_mroc_current.addressid = h_address.addressid
+              JOIN {{ ref('STAGE','V_S_AP1_ADDRESS_MROC_CURRENT') }} v_s_ap1_address_mroc_current
+                ON h_address.HK_h_address = v_s_ap1_address_mroc_current.HK_h_address
+              JOIN {{ ref('EDW','REF_AP1_CODEVALUE') }} ref_ap1_codevalue
+                ON v_s_ap1_address_mroc_current.stateid = ref_ap1_codevalue.codevalueid
+              JOIN {{ ref('EDW','REF_AP1_CODEVALUE') }} ref_ap1_codevaluetype
+                ON v_s_ap1_address_mroc_current.addresstypeid = ref_ap1_codevaluetype.codevalueid
+              LEFT JOIN {{ ref('DATA_VAULT','H_MAINADDRESS') }} h_mainaddress
+                ON h_address.addressid = h_mainaddress.mainaddressid
+              LEFT JOIN (
+                    SELECT TO_CHAR(customerid) AS customerid,
+                           MAX(mainaddressid) AS mainaddressid
+                      FROM {{ ref('STAGE','V_S_AP1_CUSTOMER_MROC_CURRENT') }}
+                     WHERE mainaddressid IS NOT NULL
+                     GROUP BY customerid
+                   ) v_s_ap1_customer_mroc_current
+                ON h_customer.customerid=TO_CHAR(v_s_ap1_customer_mroc_current.customerid)
+             WHERE v_s_ap1_address_mroc_current.isrowdeleted = 0
+             GROUP BY h_customer.HK_h_customer,
+                      h_customer.customerid,
+                      ref_ap1_codevaluetype.codevalue
+        name: BVSTG_AP1_AU_CUSTOMERADDRESS
+        noLinkRefs: []
+  name: BVSTG_AP1_AU_CUSTOMERADDRESS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

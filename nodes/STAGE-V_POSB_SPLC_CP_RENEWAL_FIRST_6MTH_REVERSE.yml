@@ -1,0 +1,132 @@
+fileVersion: 1
+id: 87ea7461-c512-422b-b736-d2b55213e003
+name: V_POSB_SPLC_CP_RENEWAL_FIRST_6MTH_REVERSE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1eb9ee19-ce31-4809-803d-c37175c96239
+          stepCounter: 87ea7461-c512-422b-b736-d2b55213e003
+        config: {}
+        dataType: VARCHAR(36)
+        defaultValue: ""
+        description: ""
+        name: POLID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9d2b8406-fa64-428e-8a64-a7c3435356f3
+                stepCounter: 5dc2e08e-2546-436c-b786-415675045f41
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2a0bbc09-6f13-46e2-b80c-94548df2a058
+          stepCounter: 87ea7461-c512-422b-b736-d2b55213e003
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: PREMIUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 37e5c0f0-f2ed-4357-a63a-170de0dc7692
+                stepCounter: b83c4ada-d518-41a9-9963-26ed01abeb9e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b5ac8bf4-b50d-490e-a3bb-adc3ec9bf039
+          stepCounter: 87ea7461-c512-422b-b736-d2b55213e003
+        config: {}
+        dataType: VARCHAR(52)
+        defaultValue: ""
+        description: ""
+        name: POLTYPELOB
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: aeb78baa-b663-41a7-bfa1-9e2f9c83deea
+                stepCounter: 53be11e0-3474-41bb-9671-54424f4a8c0e
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_POSB_SPLC_CP_RENEWAL_FIRST_6MTH_REVERSE: 87ea7461-c512-422b-b736-d2b55213e003
+          DS_SPLC_POLICYTRANSACTION: 5d141078-d046-41e2-9718-10bf4a289f11
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_POSB_SPLC_CP_RENEWAL_FIRST_6MTH_REVERSE') }} AS SELECT DISTINCT DS_SPLC_POLICYTRANSACTION.ID,
+                   DS_SPLC_POLICYTRANSACTION_POL.COMTYPE
+              FROM {{ ref('EDW','DS_SPLC_POLICYTRANSACTION') }} DS_SPLC_POLICYTRANSACTION
+             INNER JOIN (
+                    SELECT DISTINCT a.policyid ,
+                           CASE WHEN a.POLICYTERM != 6  THEN 'NO 6MTHS'
+                                WHEN b.TRANTYPE = 'RWL' THEN 'NO 1ST RWL'
+                                 END COMTYPE
+                      FROM RETAIL_PROD.SCH_EDW.DS_SPLC_POLICYTRANSACTION a
+                     INNER JOIN (
+                            SELECT POLICYID,
+                                   TRANTYPE,
+                                   EXPIRATIONDATE
+                              FROM RETAIL_PROD.SCH_EDW.DS_SPLC_POLICYTRANSACTION
+                             WHERE TRANTYPE IN('NBS','REW','RWL')
+                           )b
+                        ON a.PRIORPOLID =b.PolicyID
+                     WHERE a.TRANTYPE ='RWL'
+                       AND a.PRIORPOLID IS NOT NULL
+                       AND DATEDIFF(DAY,b.expirationdate,a.effectivedate) BETWEEN -30 AND 30
+                     UNION SELECT DISTINCT a.policyid ,
+                           CASE WHEN a.POLICYTERM != 6  THEN 'NO 6MTHS'
+                                WHEN b.TRANTYPE = 'RWL' THEN 'NO 1ST RWL'
+                                 END COMTYPE
+                      FROM RETAIL_PROD.SCH_EDW.DS_SPLC_POLICYTRANSACTION a
+                     INNER JOIN (
+                            SELECT CUSTOMERID,
+                                   TRANTYPE,
+                                   EXPIRATIONDATE,
+                                   CARRIERNAME,
+                                   POLICYTYPE
+                              FROM RETAIL_PROD.SCH_EDW.DS_SPLC_POLICYTRANSACTION
+                             WHERE TRANTYPE IN('NBS','REW','RWL')
+                           )b
+                        ON a.CUSTOMERID =b.CUSTOMERID
+                       AND a.CARRIERNAME =b.CARRIERNAME
+                       AND a.POLICYTYPE =b.POLICYTYPE
+                     WHERE a.TRANTYPE ='RWL'
+                       AND a.PRIORPOLID IS NULL
+                       AND DATEDIFF(DAY,b.expirationdate,a.effectivedate) BETWEEN -30 AND 30
+                   )DS_SPLC_POLICYTRANSACTION_POL
+                ON DS_SPLC_POLICYTRANSACTION.POLICYID = DS_SPLC_POLICYTRANSACTION_POL.POLICYID
+             WHERE PolicyType IN('Private Passenger Auto','Business Auto')
+        dependencies:
+          - locationName: DATA_VAULT
+            nodeName: H_SPLC_POLICYTRANPREMIUM
+          - locationName: EDW
+            nodeName: DS_SPLC_POLICYTRANSACTION
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('DATA_VAULT','H_SPLC_POLICYTRANPREMIUM') }}
+            {{ ref('EDW','DS_SPLC_POLICYTRANSACTION') }}
+        name: V_POSB_SPLC_CP_RENEWAL_FIRST_6MTH_REVERSE
+        noLinkRefs: []
+  name: V_POSB_SPLC_CP_RENEWAL_FIRST_6MTH_REVERSE
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

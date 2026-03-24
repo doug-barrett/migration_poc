@@ -1,0 +1,104 @@
+fileVersion: 1
+id: ae01a759-9eca-4ccd-8267-bef20d3ed062
+name: BVSTG_TCPA_OPTOUT_STATUS
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 99639f13-0769-4925-b7c1-1096633a636f
+          stepCounter: ae01a759-9eca-4ccd-8267-bef20d3ed062
+        config: {}
+        dataType: NUMBER(10,0)
+        defaultValue: ""
+        description: ""
+        name: PHONENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a8d1ac49-e3a3-4a6e-8342-7d168662e7ee
+                stepCounter: ac83799e-a9ac-4e7e-a832-1cb39f9457ef
+            transform: EDW_COMMON.PUBLIC.CLEAN_STANDARDIZE_PHONENUMBER(phonenumber)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b2de6ca5-0ddc-42cd-bf89-78f6a034d15a
+          stepCounter: ae01a759-9eca-4ccd-8267-bef20d3ed062
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: ""
+        name: BRAND
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'ALL'"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cac1f522-82ff-451f-a75e-541358716ba0
+          stepCounter: ae01a759-9eca-4ccd-8267-bef20d3ed062
+        config: {}
+        dataType: TIMESTAMP(3)
+        defaultValue: ""
+        description: ""
+        name: OPT_OUTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4052d1d6-c19d-4c22-a5ae-48208635251f
+                stepCounter: ac83799e-a9ac-4e7e-a832-1cb39f9457ef
+            transform: |-
+              CASE WHEN UPPER(SOURCE) IN ('INTELEPEER','SPLICE') THEN CONVERT_TIMEZONE('UTC','America/Los_Angeles',OPT_OUTDATE)
+                          ELSE OPT_OUTDATE
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9004aa1b-4b00-42c9-b00c-a64580177458
+          stepCounter: ae01a759-9eca-4ccd-8267-bef20d3ed062
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: ""
+        name: SOURCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ad2a8d16-2767-40b8-8c8b-5aff7589e4b7
+                stepCounter: ac83799e-a9ac-4e7e-a832-1cb39f9457ef
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_DLBV_DNC_PHONEREPOSITORY_CURRENT: ac83799e-a9ac-4e7e-a832-1cb39f9457ef
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_DLBV_DNC_PHONEREPOSITORY_CURRENT
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_DLBV_DNC_PHONEREPOSITORY_CURRENT') }} v_dlbv_dnc_phonerepository_current
+             WHERE updatedon >= DATEADD('DAY',-1,CURRENT_DATE())
+               AND PHONENUMBER NOT IN ('0000000000','1111111111','1231231231','1231231234','1234567890','0')
+               AND EDW_COMMON.PUBLIC.CLEAN_STANDARDIZE_PHONENUMBER(PHONENUMBER) IS NOT NULL QUALIFY ROW_NUMBER() OVER (PARTITION BY PHONENUMBER ORDER BY OPT_OUTDATE DESC) = 1
+        name: BVSTG_TCPA_OPTOUT_STATUS
+        noLinkRefs: []
+  name: BVSTG_TCPA_OPTOUT_STATUS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

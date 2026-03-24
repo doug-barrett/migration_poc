@@ -1,0 +1,61 @@
+fileVersion: 1
+id: 59da32e0-b9f4-47ca-aaa2-dbec904d6165
+name: V_POSB_AP1_PHONES
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a5c08272-011a-40bc-9571-0d40d40e9f36
+          stepCounter: 59da32e0-b9f4-47ca-aaa2-dbec904d6165
+        config: {}
+        dataType: VARCHAR(36)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d01183f8-5f0d-4315-8628-5aeafab26c06
+                stepCounter: d595c090-9840-4022-808e-a35c34d36c03
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_POSB_AP1_PHONES: 59da32e0-b9f4-47ca-aaa2-dbec904d6165
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_POSB_AP1_PHONES') }} AS SELECT CUSTOMERID ,
+                   MAX(CASE WHEN PHONETYPE='Home Phone' THEN PHONEVALUE END) HomePhone ,
+                   MAX(CASE WHEN PHONETYPE='Cell Phone' THEN PHONEVALUE END) CellPhone ,
+                   MAX(CASE WHEN PHONETYPE='Contact Phone' THEN PHONEVALUE END) ContactPhone
+              FROM "RETAIL_PROD"."SCH_BVSTAGE"."BVSTG_AP1_AU_CUSTOMERPHONE"
+             GROUP BY CUSTOMERID
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_ACTIVITY_MROC_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_S_AP1_ACTIVITY_MROC_CURRENT') }}
+        name: V_POSB_AP1_PHONES
+        noLinkRefs: []
+  name: V_POSB_AP1_PHONES
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

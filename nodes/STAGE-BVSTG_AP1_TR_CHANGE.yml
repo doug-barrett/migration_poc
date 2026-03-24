@@ -1,0 +1,180 @@
+fileVersion: 1
+id: b77a3f18-521d-436b-b332-ac54ffb940df
+name: BVSTG_AP1_TR_CHANGE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: true
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 104c0e7f-cba3-4013-9493-86bbb1bccd43
+          stepCounter: b77a3f18-521d-436b-b332-ac54ffb940df
+        config: {}
+        dataType: DECIMAL(38,0)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 93c0a3f7-b566-45e5-a995-79fc67886b9c
+                stepCounter: ecb637b0-4c24-401b-85f9-8dac28702efa
+            transform: ""
+          - columnReferences:
+              - columnCounter: 93c0a3f7-b566-45e5-a995-79fc67886b9c
+                stepCounter: ecb637b0-4c24-401b-85f9-8dac28702efa
+            transform: ""
+          - columnReferences:
+              - columnCounter: cd8888f6-6bd7-4625-a22b-3602bbfd5e2d
+                stepCounter: ca04db32-039a-4b56-95c0-394b7b641187
+            transform: ""
+          - columnReferences:
+              - columnCounter: a0b555e0-0010-41d0-9820-4fcaf3fe3122
+                stepCounter: 37332086-384b-49d4-85e3-460caaf4e40e
+            transform: ""
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 836ac625-7a46-48df-98f0-ef4dbb55de79
+          stepCounter: b77a3f18-521d-436b-b332-ac54ffb940df
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9c7b8630-0652-4782-ab36-8a0a76b5d453
+          stepCounter: b77a3f18-521d-436b-b332-ac54ffb940df
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_S_AP1_TRANSACTION_MROC_CURRENT: ecb637b0-4c24-401b-85f9-8dac28702efa
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_TRANSACTION_MROC_CURRENT
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_S_AP1_TRANSACTION_MROC_CURRENT') }} v_s_ap1_transaction_mroc_current
+             WHERE (('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 0) OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1 AND HOUR(current_timestamp()) <= '{{ parameters.HWM_BVSTG_Hour }}' AND DATEDIFF(DAY,v_s_ap1_transaction_mroc_current.dss_create_time,CURRENT_DATE()) <= '{{ parameters.HWM_BVSTG_AppOne_Refresh_Days }}') OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1 AND HOUR(current_timestamp()) > '{{ parameters.HWM_BVSTG_Hour }}' AND TO_DATE(v_s_ap1_transaction_mroc_current.dss_create_time) = TO_DATE(CURRENT_DATE())))
+        name: SRC_bvstg_ap1_tr_change_1_tr
+        noLinkRefs: []
+      - aliases:
+          V_S_AP1_PAYMENT_MROC_CURRENT: 8f9a86c3-1aa0-4e50-b9fe-f365703ad6dc
+          V_S_AP1_PAYMENTRECEIPT_MROC_CURRENT: 0b096dae-15d9-4288-b608-66cbd0e9bec9
+          V_S_AP1_TRANSACTION_MROC_CURRENT: ecb637b0-4c24-401b-85f9-8dac28702efa
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_TRANSACTION_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AP1_PAYMENT_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AP1_PAYMENTRECEIPT_MROC_CURRENT
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_S_AP1_PAYMENT_MROC_CURRENT') }} v_s_ap1_payment_mroc_current
+              LEFT JOIN {{ ref('STAGE','V_S_AP1_PAYMENTRECEIPT_MROC_CURRENT') }} v_s_ap1_paymentreceipt_mroc_current
+                ON (v_s_ap1_payment_mroc_current.paymentreceiptid = v_s_ap1_paymentreceipt_mroc_current.paymentreceiptid)
+              LEFT JOIN {{ ref('STAGE','V_S_AP1_TRANSACTION_MROC_CURRENT') }} v_s_ap1_transaction_mroc_current
+                ON (v_s_ap1_paymentreceipt_mroc_current.transactionid = v_s_ap1_transaction_mroc_current.transactionid)
+             WHERE (('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 0) OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1 AND HOUR(current_timestamp()) <= '{{ parameters.HWM_BVSTG_Hour }}' AND DATEDIFF(DAY,v_s_ap1_payment_mroc_current.dss_create_time,CURRENT_DATE()) <= '{{ parameters.HWM_BVSTG_AppOne_Refresh_Days }}') OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1 AND HOUR(current_timestamp()) > '{{ parameters.HWM_BVSTG_Hour }}' AND TO_DATE(v_s_ap1_payment_mroc_current.dss_create_time) = TO_DATE(CURRENT_DATE())))
+        name: SRC_bvstg_ap1_tr_change_2_pymt
+        noLinkRefs: []
+      - aliases:
+          V_S_AP1_TRANSACTIONSTATUS_MROC_CURRENT: ca04db32-039a-4b56-95c0-394b7b641187
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_TRANSACTIONSTATUS_MROC_CURRENT
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_S_AP1_TRANSACTIONSTATUS_MROC_CURRENT') }} v_s_ap1_transactionstatus_mroc_current
+             WHERE (('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 0) OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1 AND HOUR(current_timestamp()) <= '{{ parameters.HWM_BVSTG_Hour }}' AND DATEDIFF(DAY,v_s_ap1_transactionstatus_mroc_current.dss_create_time,CURRENT_DATE()) <= '{{ parameters.HWM_BVSTG_AppOne_Refresh_Days }}') OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1 AND HOUR(current_timestamp()) > '{{ parameters.HWM_BVSTG_Hour }}' AND TO_DATE(v_s_ap1_transactionstatus_mroc_current.dss_create_time) = TO_DATE(CURRENT_DATE())))
+        name: SRC_bvstg_ap1_tr_change_4_trStatus
+        noLinkRefs: []
+      - aliases:
+          V_S_AP1_ADDITIONALPRODUCTSALE_MROC_CURRENT: 37332086-384b-49d4-85e3-460caaf4e40e
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_ADDITIONALPRODUCTSALE_MROC_CURRENT
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_S_AP1_ADDITIONALPRODUCTSALE_MROC_CURRENT') }} v_s_ap1_additionalproductsale_mroc_current
+             WHERE (('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 0) OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1 AND HOUR(current_timestamp()) <= '{{ parameters.HWM_BVSTG_Hour }}' AND DATEDIFF(DAY,v_s_ap1_additionalproductsale_mroc_current.dss_create_time,CURRENT_DATE()) <= '{{ parameters.HWM_BVSTG_AppOne_Refresh_Days }}') OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1 AND HOUR(current_timestamp()) > '{{ parameters.HWM_BVSTG_Hour }}' AND TO_DATE(v_s_ap1_additionalproductsale_mroc_current.dss_create_time) = TO_DATE(CURRENT_DATE())))
+        name: SRC_bvstg_ap1_tr_change_5_addprod
+        noLinkRefs: []
+      - aliases:
+          V_S_AP1_TRANSACTIONITEM_MROC_CURRENT: f2715b8e-61c9-4380-8ff3-a505de74ca36
+          V_S_AP1_FEE_MROC_CURRENT: eced12d4-7308-4c3a-8239-e9eb9e408058
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_TRANSACTIONITEM_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AP1_FEE_MROC_CURRENT
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_S_AP1_TRANSACTIONITEM_MROC_CURRENT') }} v_s_ap1_transactionitem_mroc_current
+              JOIN {{ ref('STAGE','V_S_AP1_FEE_MROC_CURRENT') }} v_s_ap1_fee_mroc_current
+                ON v_s_ap1_transactionitem_mroc_current.feeid = v_s_ap1_fee_mroc_current.feeid
+             WHERE ((('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 0) OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1 AND HOUR(current_timestamp()) <= '{{ parameters.HWM_BVSTG_Hour }}' AND DATEDIFF(DAY,v_s_ap1_transactionitem_mroc_current.dss_create_time,CURRENT_DATE()) <= '{{ parameters.HWM_BVSTG_AppOne_Refresh_Days }}') OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1 AND HOUR(current_timestamp()) > '{{ parameters.HWM_BVSTG_Hour }}' AND TO_DATE(v_s_ap1_transactionitem_mroc_current.dss_create_time) = TO_DATE(CURRENT_DATE()))) OR (('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 0) OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1 AND HOUR(current_timestamp()) <= '{{ parameters.HWM_BVSTG_Hour }}' AND DATEDIFF(DAY,v_s_ap1_fee_mroc_current.dss_create_time,CURRENT_DATE()) <= '{{ parameters.HWM_BVSTG_AppOne_Refresh_Days }}') OR ('{{ parameters.HWM_BVSTG_AppOne_Refresh_Flag }}' = 1 AND HOUR(current_timestamp()) > '{{ parameters.HWM_BVSTG_Hour }}' AND TO_DATE(v_s_ap1_fee_mroc_current.dss_create_time) = TO_DATE(CURRENT_DATE()))))
+        name: SRC_bvstg_ap1_tr_change_6_tritem
+        noLinkRefs: []
+  name: BVSTG_AP1_TR_CHANGE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

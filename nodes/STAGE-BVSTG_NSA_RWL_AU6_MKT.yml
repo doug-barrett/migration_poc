@@ -1,0 +1,111 @@
+fileVersion: 1
+id: 660d7d5d-89a4-4b37-9a06-db28cdeb4778
+name: BVSTG_NSA_RWL_AU6_MKT
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4b6aafc8-a78b-4dfa-aacb-2e284433f4c0
+          stepCounter: 660d7d5d-89a4-4b37-9a06-db28cdeb4778
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c60a0ef4-c709-4cc9-a5c3-6a00a2029642
+                stepCounter: 0ba656cb-34d5-4986-b255-6055716b0770
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f7d46bd4-5da0-486f-9e9a-6b2d65cf8dcf
+          stepCounter: 660d7d5d-89a4-4b37-9a06-db28cdeb4778
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: daf1e2e3-026b-491c-baaf-11be7934c082
+                stepCounter: 0ba656cb-34d5-4986-b255-6055716b0770
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1d1cadf4-cd5c-4185-8050-d6f8c4e574a7
+          stepCounter: 660d7d5d-89a4-4b37-9a06-db28cdeb4778
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: MKT_LEAD_TYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: IFNULL(DS_MKT_LEAD_SOURCE.LEAD_TYPE,'')
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_NSA_RWL_AU0_BSL: 0ba656cb-34d5-4986-b255-6055716b0770
+          DS_MKT_LEAD_SOURCE: 0aaa279e-0731-4ba4-882c-75dc6cf7d3c9
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_NSA_RWL_AU0_BSL
+          - locationName: EDW
+            nodeName: DS_MKT_LEAD_SOURCE
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT *
+                      FROM {{ ref('STAGE','BVSTG_NSA_RWL_AU0_BSL') }}
+                   ) BVSTG_NSA_RWL_AU0_BSL
+              LEFT JOIN (
+                    SELECT LEADID,
+                           CUSTOMERID,
+                           LEADSOURCENAME_SYSTEM,
+                           OFFICECODE,
+                           AREACODE,
+                           LEADCREATED,
+                           LEADSOURCE,
+                           CAMPAIGNID ,
+                           CASE WHEN LEADSOURCE IN ('Cust TimeStamp (i)', 'Cust TimeStamp (o)', 'Cust TimeStamp (u)', 'Cust/User (i)', 'Cust/User (o)', 'Cust/User (u)', 'Phone AppOne') THEN 'Phone'
+                                WHEN LEADSOURCE IN ('Web', 'LMS (email)', 'LMS (Phone)') AND (ISQUOTE + ISSALE + ISTRANSFER) > 0                                                         THEN 'Qualifed Web'
+                                WHEN LEADSOURCE IN ('Web', 'LMS (email)', 'LMS (Phone)')                                                                                                 THEN 'UnQualifed Web'
+                                WHEN CAMPAIGNID IS NOT NULL                                                                                                                              THEN 'Phone'
+                                ELSE 'Walk-in'
+                                 END AS LEAD_TYPE ,
+                           CASE WHEN CAMPAIGNID IS NULL THEN 0
+                                ELSE 1
+                                 END AS CAMPAINGID_FLAG
+                      FROM {{ ref('EDW','DS_MKT_LEAD_SOURCE') }}
+                     WHERE sourcedb = 'AppOne'
+                   ) DS_MKT_LEAD_SOURCE
+                ON (BVSTG_NSA_RWL_AU0_BSL.customerid = DS_MKT_LEAD_SOURCE.customerid AND BVSTG_NSA_RWL_AU0_BSL.leadid = DS_MKT_LEAD_SOURCE.leadid)
+        name: BVSTG_NSA_RWL_AU6_MKT
+        noLinkRefs: []
+  name: BVSTG_NSA_RWL_AU6_MKT
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

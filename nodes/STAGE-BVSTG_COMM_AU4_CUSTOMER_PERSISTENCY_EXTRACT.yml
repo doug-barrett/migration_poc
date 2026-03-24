@@ -1,0 +1,117 @@
+fileVersion: 1
+id: 37caa33a-41d6-4e1e-8c3f-06969f3fc830
+name: BVSTG_COMM_AU4_CUSTOMER_PERSISTENCY_EXTRACT
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1c8d3d4f-69cc-4f7c-b4c9-404f054d5798
+          stepCounter: 37caa33a-41d6-4e1e-8c3f-06969f3fc830
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_COMM_AU4_CUSTOMER_PERSISTENCY_EXTRACT_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(ifnull(bvstg_comm_au3_customer_persistency_extract.customer_id,'-'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 15402170-a2c1-4f56-b3a6-41ec04bc6600
+          stepCounter: 37caa33a-41d6-4e1e-8c3f-06969f3fc830
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bc9988c7-f25f-43fc-90c1-52c827f7de6b
+                stepCounter: f79af7f5-bc58-457b-be23-6011d80582f9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d44f2f16-cf9f-4b53-9756-9b7fb9bccb68
+          stepCounter: 37caa33a-41d6-4e1e-8c3f-06969f3fc830
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: POLICYTENURE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2645cad5-4ab4-4a2a-af77-739d32c87c89
+          stepCounter: 37caa33a-41d6-4e1e-8c3f-06969f3fc830
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a4b0cae8-2c58-4a00-93a6-944fbd6d060b
+          stepCounter: 37caa33a-41d6-4e1e-8c3f-06969f3fc830
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_COMM_AU3_CUSTOMER_PERSISTENCY_EXTRACT: f79af7f5-bc58-457b-be23-6011d80582f9
+          BVSTG_COMM_AU1_CUSTOMER_PERSISTENCY_EXTRACT: 78ffc6ef-3e72-46fc-a19b-058807125a27
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_COMM_AU3_CUSTOMER_PERSISTENCY_EXTRACT
+          - locationName: STAGE
+            nodeName: BVSTG_COMM_AU1_CUSTOMER_PERSISTENCY_EXTRACT
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM( SELECT DISTINCT bvstg_comm_au3_customer_persistency_extract.customer_id,
+                   IFNULL(bvstg_comm_au3_customer_persistency_extract_1.policytenure,0) + IFNULL(bvstg_comm_au3_customer_persistency_extract_2.policytenure,0) AS PolicyTenure --from "DATA_LAKE"."BIA_ANALYTICS"."BVSTG_COMM_AU3_CUSTOMER_PERSISTENCY_EXTRACT" bvstg_comm_au3_customer_persistency_extract  from {{ ref('STAGE','BVSTG_COMM_AU3_CUSTOMER_PERSISTENCY_EXTRACT') }} bvstg_comm_au3_customer_persistency_extract  left join  (    select customer_id, sum(PolicyTenure) as policyTenure     from    (    ---Set 4    select distinct bvstg_comm_au3_customer_persistency_extract.customer_id,                     datediff('month',bvstg_comm_au3_customer_persistency_extract_1.effectivedate, bvstg_comm_au3_customer_persistency_extract_1.expirationdate) as PolicyTenure    --from "DATA_LAKE"."BIA_ANALYTICS"."BVSTG_COMM_AU3_CUSTOMER_PERSISTENCY_EXTRACT" bvstg_comm_au3_customer_persistency_extract   from {{ ref('STAGE','BVSTG_COMM_AU3_CUSTOMER_PERSISTENCY_EXTRACT') }} bvstg_comm_au3_customer_persistency_extract    left join (select customer_id, min(effectivedate) effectivedate, max(expirationdate) expirationdate                --from "DATA_LAKE"."BIA_ANALYTICS"."BVSTG_COMM_AU3_CUSTOMER_PERSISTENCY_EXTRACT"             from {{ ref('STAGE','BVSTG_COMM_AU3_CUSTOMER_PERSISTENCY_EXTRACT') }}               where source_table = 'splc' and in_extract = 'No'                group by customer_id) bvstg_comm_au3_customer_persistency_extract_1         on bvstg_comm_au3_customer_persistency_extract.customer_id = bvstg_comm_au3_customer_persistency_extract_1.customer_id    where bvstg_comm_au3_customer_persistency_extract.source_table = 'splc'       and bvstg_comm_au3_customer_persistency_extract.in_extract = 'No'    UNION    ---Set 1    select bvstg_comm_au3_customer_persistency_extract.customer_id,            count(distinct asofmonth) as PolicyTenure       --from "DATA_LAKE"."BIA_ANALYTICS"."BVSTG_COMM_AU3_CUSTOMER_PERSISTENCY_EXTRACT" bvstg_comm_au3_customer_persistency_extract   from {{ ref('STAGE','BVSTG_COMM_AU3_CUSTOMER_PERSISTENCY_EXTRACT') }} bvstg_comm_au3_customer_persistency_extract    left join (select distinct policynumberformatted, carrier, customer_id, asofmonth                --from "DATA_LAKE"."BIA_ANALYTICS"."BVSTG_COMM_AU1_CUSTOMER_PERSISTENCY_EXTRACT"              from {{ ref('STAGE','BVSTG_COMM_AU1_CUSTOMER_PERSISTENCY_EXTRACT') }}               where combinedstatus_eom = 'Active') bvstg_comm_au1_customer_persistency_extract         on bvstg_comm_au3_customer_persistency_extract.policynumberformatted=bvstg_comm_au1_customer_persistency_extract.policynumberformatted         and bvstg_comm_au3_customer_persistency_extract.carrier=bvstg_comm_au1_customer_persistency_extract.carrier         and bvstg_comm_au3_customer_persistency_extract.customer_id=bvstg_comm_au1_customer_persistency_extract.customer_id    where year(bvstg_comm_au3_customer_persistency_extract.effectivedate) >= 2019       and bvstg_comm_au3_customer_persistency_extract.source_table in ('polsummary & RamRetail','splc')       and bvstg_comm_au3_customer_persistency_extract.in_extract = 'Yes'     group by bvstg_comm_au3_customer_persistency_extract.customer_id     UNION    ---Set 2    select bvstg_comm_au3_customer_persistency_extract.customer_id,            datediff('month',min(bvstg_comm_au3_customer_persistency_extract_1.firstrecorddate), max(bvstg_comm_au3_customer_persistency_extract_1.LASTRECORDDATE)) as PolicyTenure    --from "DATA_LAKE"."BIA_ANALYTICS"."BVSTG_COMM_AU3_CUSTOMER_PERSISTENCY_EXTRACT" bvstg_comm_au3_customer_persistency_extract   from {{ ref('STAGE','BVSTG_COMM_AU3_CUSTOMER_PERSISTENCY_EXTRACT') }} bvstg_comm_au3_customer_persistency_extract    left join (select distinct policynumberformatted, carrier, customer_id, firstrecorddate, lastrecorddate                --from "DATA_LAKE"."BIA_ANALYTICS"."BVSTG_COMM_AU3_CUSTOMER_PERSISTENCY_EXTRACT") bvstg_comm_au3_customer_persistency_extract_1             fro
+        name: BVSTG_COMM_AU4_CUSTOMER_PERSISTENCY_EXTRACT
+        noLinkRefs: []
+  name: BVSTG_COMM_AU4_CUSTOMER_PERSISTENCY_EXTRACT
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

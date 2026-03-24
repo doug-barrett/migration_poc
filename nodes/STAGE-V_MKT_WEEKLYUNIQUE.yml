@@ -1,0 +1,82 @@
+fileVersion: 1
+id: a565d189-f100-4848-932d-e1b5fada507b
+name: V_MKT_WEEKLYUNIQUE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 63fa8caa-48cd-4c92-b1e0-a522041522c1
+          stepCounter: a565d189-f100-4848-932d-e1b5fada507b
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: call_id
+        name: CALL_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 865b9102-8209-464a-9793-d465989275bc
+          stepCounter: a565d189-f100-4848-932d-e1b5fada507b
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: isWeeklyUnique
+        name: ISWEEKLYUNIQUE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_MKT_WEEKLYUNIQUE: a565d189-f100-4848-932d-e1b5fada507b
+          V_MKT_CALL_WEEKLY: e75c605a-1772-4bc1-b050-9fe0d4db9ee0
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_MKT_WEEKLYUNIQUE') }} AS SELECT DISTINCT a.call_id,
+                   1 isWeeklyUnique
+              FROM {{ ref('STAGE','V_MKT_CALL_WEEKLY') }} a
+             INNER JOIN(
+                    SELECT call_id
+                      FROM(
+                            SELECT call_id ,
+                                   (RANK() OVER (PARTITION BY caller_number, Brandid, Year_Number,Week_Number ORDER BY call_Id)) isWeeklyUnique
+                              FROM {{ ref('STAGE','V_MKT_CALL_WEEKLY') }}
+                           )a
+                     WHERE isWeeklyUnique = 1
+                   )b
+                ON (a.call_id = b.call_id)
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_MKT_CALL_WEEKLY
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_MKT_CALL_WEEKLY') }}
+        name: V_MKT_WEEKLYUNIQUE
+        noLinkRefs: []
+  name: V_MKT_WEEKLYUNIQUE
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

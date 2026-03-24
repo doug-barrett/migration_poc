@@ -1,0 +1,136 @@
+fileVersion: 1
+id: 9c660baa-5dd2-43cb-ab96-093c4b19bb73
+name: BVSTG_H2O_RWL_AU1_VEHICLE_30DAYS_BEF_EXP
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e3846fba-66d4-43a6-854a-034fc433d851
+          stepCounter: 9c660baa-5dd2-43cb-ab96-093c4b19bb73
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: PR_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a14a3169-be89-46f2-8a66-a0ecb7a2dc33
+                stepCounter: 2a2051cb-983b-412d-95c5-c709a18b3b5e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 729591b7-3b23-41bc-93c3-2e4c590ff45d
+          stepCounter: 9c660baa-5dd2-43cb-ab96-093c4b19bb73
+        config: {}
+        dataType: NUMBER(10,2)
+        defaultValue: ""
+        description: ""
+        name: AVG_AGE_OF_VEHICLE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN MIN(YEAR(ds_policysummary_renewals.STARTDATE))-AVG(VEHICLEYEAR) <0 THEN 0
+                          ELSE MIN(YEAR(ds_policysummary_renewals.STARTDATE))-AVG(VEHICLEYEAR)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d161f522-c34f-487e-b413-5e32434f3112
+          stepCounter: 9c660baa-5dd2-43cb-ab96-093c4b19bb73
+        config: {}
+        dataType: NUMBER(10,2)
+        defaultValue: ""
+        description: ""
+        name: VINCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: COUNT(v_s_ap1_policyvehicle_mroc_current.VIN)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e45c6492-f581-40d9-965f-fadd46f24f73
+          stepCounter: 9c660baa-5dd2-43cb-ab96-093c4b19bb73
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e7f52b09-5ae8-4ecb-a7f9-c170c8f6235e
+          stepCounter: 9c660baa-5dd2-43cb-ab96-093c4b19bb73
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_S_AP1_POLICYVEHICLE_MROC_CURRENT: 35b9a1d7-3392-4409-9115-61a258435c93
+          V_S_AP1_POLICYVERSION_MROC_CURRENT: 2116f500-76bb-43c1-a269-a89379c9e9c6
+          DS_POLICYSUMMARY_RENEWALS: 2a2051cb-983b-412d-95c5-c709a18b3b5e
+          BVSTG_CUSTOMER_TO_REFRESH: 7cbd0921-faef-4eb6-bdf6-f95f09598096
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_POLICYSUMMARY_RENEWALS
+          - locationName: STAGE
+            nodeName: V_S_AP1_POLICYVEHICLE_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AP1_POLICYVERSION_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: BVSTG_CUSTOMER_TO_REFRESH
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_S_AP1_POLICYVEHICLE_MROC_CURRENT') }} v_s_ap1_policyvehicle_mroc_current
+             INNER JOIN {{ ref('STAGE','V_S_AP1_POLICYVERSION_MROC_CURRENT') }} v_s_ap1_policyversion_mroc_current
+                ON v_s_ap1_policyvehicle_mroc_current.policyversionId = v_s_ap1_policyversion_mroc_current.policyversionId
+             INNER JOIN {{ ref('EDW','DS_POLICYSUMMARY_RENEWALS') }} ds_policysummary_renewals
+                ON TO_VARCHAR(v_s_ap1_policyversion_mroc_current.policyid) = TO_VARCHAR(ds_policysummary_renewals.Source_policyid)
+               AND v_s_ap1_policyversion_mroc_current.EFFECTIVEDATE <= ds_policysummary_renewals.renewal_start_period
+               AND ds_policysummary_renewals.SourceDB = 'AppOne'
+             INNER JOIN (
+                    SELECT DISTINCT customerid,
+                           SOURCEDB
+                      FROM {{ ref('STAGE','BVSTG_CUSTOMER_TO_REFRESH') }}
+                   ) bvstg_customer_to_refresh
+                ON TO_CHAR(bvstg_customer_to_refresh.customerid) = TO_CHAR(ds_policysummary_renewals.customerid)
+               AND bvstg_customer_to_refresh.SourceDB = 'AppOne'
+             GROUP BY ds_policysummary_renewals.ID
+        name: BVSTG_H2O_RWL_AU1_VEHICLE_30DAYS_BEF_EXP
+        noLinkRefs: []
+  name: BVSTG_H2O_RWL_AU1_VEHICLE_30DAYS_BEF_EXP
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

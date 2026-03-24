@@ -1,0 +1,233 @@
+fileVersion: 1
+id: 3dac3c19-1fe7-4b84-8c0c-128bfbf03b38
+name: V_PREB_PCCE_FCR_REPORT
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e1e7b295-df15-4a90-a3a3-0bf55911187b
+          stepCounter: 3dac3c19-1fe7-4b84-8c0c-128bfbf03b38
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: OFFICE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d3ec15bf-4e11-46a5-9e96-3eada23a2a62
+          stepCounter: 3dac3c19-1fe7-4b84-8c0c-128bfbf03b38
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: SKILLTARGETID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 665a5723-5652-46a4-b8d4-c14e326df839
+          stepCounter: 3dac3c19-1fe7-4b84-8c0c-128bfbf03b38
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: YEAR
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6b96e24d-05ce-4a6b-9fff-f99c0b8e1f5a
+          stepCounter: 3dac3c19-1fe7-4b84-8c0c-128bfbf03b38
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: WEEK
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 993f066c-66ca-4ebd-b882-e54dc790eb48
+          stepCounter: 3dac3c19-1fe7-4b84-8c0c-128bfbf03b38
+        config: {}
+        dataType: NUMBER(10)
+        defaultValue: ""
+        description: ""
+        name: CALLS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a20bd25b-15b3-44bc-b5af-dcb14c49da96
+          stepCounter: 3dac3c19-1fe7-4b84-8c0c-128bfbf03b38
+        config: {}
+        dataType: NUMBER(10)
+        defaultValue: ""
+        description: ""
+        name: CALLED_AGAIN
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fac55437-2072-475c-943f-3631bfd597d3
+          stepCounter: 3dac3c19-1fe7-4b84-8c0c-128bfbf03b38
+        config: {}
+        dataType: NUMBER(10)
+        defaultValue: ""
+        description: ""
+        name: FCR_CALLS
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e79d2015-f37e-41a9-b72a-d4d22107798d
+          stepCounter: 3dac3c19-1fe7-4b84-8c0c-128bfbf03b38
+        config: {}
+        dataType: NUMBER(10)
+        defaultValue: ""
+        description: ""
+        name: FCR_CALLED_AGAIN
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 975f56d8-5bd8-4740-8306-0366fd7c06d5
+          stepCounter: 3dac3c19-1fe7-4b84-8c0c-128bfbf03b38
+        config: {}
+        dataType: NUMBER(10,4)
+        defaultValue: ""
+        description: ""
+        name: FCR_SCORE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_PCCE_FCR_REPORT: 3dac3c19-1fe7-4b84-8c0c-128bfbf03b38
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PREB_PCCE_FCR_REPORT') }} AS SELECT YEAR,
+                   WEEK,
+                   AGENTSKILLTARGETID SKILLTARGETID,
+                   FULLNAME,
+                   EMPLOYEENUMBER,
+                   DEPARTMENTNAME,
+                   Department OFFICE,
+                   OFFICENAME,
+                   SUPERVISOR,
+                   sum(Calls) AS CALLS,
+                   sum(CASE WHEN CALLS > 160 THEN 1 ELSE 0 END) AS FullCalls,
+                   sum(CALLEDAGAIN) AS CALLED_AGAIN,
+                   sum(INTERNAL) AS TotalInternal,
+                   sum(FCRApplicableFinal) AS FCR_CALLS,
+                   SUM (FCRCalledAgainFinal) AS FCR_CALLED_AGAIN,
+                   ROUND(CASE WHEN FCR_CALLS > 0 THEN (1 - (FCR_CALLED_AGAIN / FCR_CALLS)) ELSE NULL END,4) AS FCR_SCORE,
+                   CASE WHEN FCR_SCORE >= 0.80                      THEN 'A'
+                        WHEN FCR_SCORE >= 0.77 AND FCR_SCORE < 0.80 THEN 'B'
+                        WHEN FCR_SCORE >= 0.74 AND FCR_SCORE < 0.77 THEN 'C'
+                        WHEN FCR_SCORE >= 0.70 AND FCR_SCORE < 0.74 THEN 'D'
+                        WHEN FCR_SCORE < 0.70                       THEN 'E'
+                        ELSE NULL
+                         END AS FCRCategory
+              FROM (
+                    WITH Calls AS ((WITH CSInternals AS (SELECT DISTINCT Number, Internal FROM "RETAIL_PROD"."SCH_BVSTAGE"."V_FCR_INTERNAL_NUMBERS" WHERE Office = 'Retail Customer Service'), NewCallsCS AS (SELECT DateTime AS NewCall, ANI FROM "RETAIL_PROD"."SCH_BVSTAGE"."V_DLBV_PCCE_TERMINATION_CALL_DETAIL_CURRENT" T2 JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_DLBV_PCCE_SKILL_GROUP_CURRENT" SG ON SG.SkillTargetID = T2.SkillGroupSkillTargetID AND SG.EnterpriseName IN ('5000.PQ.5020','5007.PQ.5020','5000.PQ.5019','5007.PQ.5019','5000.PQ.5000', '5007.PQ.5000','5000.PQ.5001','5007.PQ.5001','5000.PQ.5022','5007.PQ.5022', 'CS_English','5000.PQ.5013','5007.PQ.5013','CS_Spanish','5000.PQ.5021', '5007.PQ.5021', '5000.PQ.6632','5007.PQ.6632', '5000.PQ.6634','5007.PQ.6634', '5000.PQ.6635','5007.PQ.6635', '5007.PQ.6636','5000.PQ.6636','5000.PQ.6637', '5007.PQ.6637','5007.PQ.6638', '5000.PQ.6638','5000.PQ.6639','5007.PQ.6639', 'Customer_Service_SSB','5000.PQ.6605', '5007.PQ.6605','5000.PQ.6606','5007.PQ.6606', '5000.PQ.6611','5007.PQ.6611','5007.PQ.6612', '5000.PQ.6612','5007.PQ.6607','5000.PQ.6607','5000.PQ.6608','5007.PQ.6608', '5000.PQ.6617','5007.PQ.6617', '5007.PQ.6618','5000.PQ.6618','5000.PQ.6595', '5007.PQ.6595','5007.PQ.6578', '5000.PQ.6578','5007.PQ.6615','5000.PQ.6615', '5007.PQ.6616', '5000.PQ.6616', '5000.PQ.6610','5007.PQ.6610','5007.PQ.6609', '5000.PQ.6609','Lienholder', 'SSB_CS_ENG','SSB_CS_SPA','5007.PQ.6729','5000.PQ.6729') ORDER BY T2.DateTime) SELECT -- ID Llamada
+             TC.DateTime, last_day(DateTime, 'week') AS LastDay, weekiso(dateadd(WEEK, 0, TC.Datetime)) AS WEEK, -- Para alinear el resultado a los KPI's de los agentes 
+             YEAROFWEEKISO(TC.Datetime)YEAR, TC.AGENTSKILLTARGETID, TC.AgentPeripheralNumber, 'Retail Customer Service' AS Department, SG.ENTERPRISENAME, TC.ANI, CASE WHEN LEFT(TC.ANI,1) = '+' THEN replace(TC.ANI, '+1') ELSE TC.ANI END AS ANI10, LEFT(ANI10,3) AS Lada, -- Calculos 
+             Internal, DATEDIFF(HOUR, TC.DateTime, MIN(CASE WHEN T3.NewCall IS NOT NULL THEN T3.NewCall ELSE '3022-12-31' END)) AS HoursDiff, iff(HoursDiff < 24*7, 1, 0) AS CalledAgain, 1 AS Calls FROM "RETAIL_PROD"."SCH_BVSTAGE"."V_DLBV_PCCE_TERMINATION_CALL_DETAIL_CURRENT" TC -- Tabla TCD #1 
+             LEFT JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_S_BOE_TJ_EMPLOYEE_CURRENT" AS TJE -- Tabla RH  
+             ON TC.AGENTSKILLTARGETID = TJE.AGENTSKILLTARGETID JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_DLBV_PCCE_SKILL_GROUP_CURRENT" SG -- Tabla SGC 
+             ON SG.SkillTargetID = TC.SkillGroupSkillTargetID LEFT JOIN NewCallsCS T3 -- Tabla TCD #2 
+             ON T3.ANI = TC.ANI AND T3.newCall > TC.DateTime LEFT JOIN CSInternals AS CSI ON (CASE WHEN LEFT(TC.ANI,1) = '+' THEN replace(TC.ANI, '+1') ELSE TC.ANI END) = CSI.Number WHERE TC.DateTime BETWEEN dateadd(WEEK, -5, date_trunc('week', Getdate())) AND date_trunc('week', Getdate()) AND (LEN(TC.ANI) > 7.0) AND SG.ENTERPRISENAME IN ('5000.PQ.5020','5007.PQ.5020','5000.PQ.5019','5007.PQ.5019','5000.PQ.5000', '5007.PQ.5000','5000.PQ.5001','5007.PQ.5001','5000.PQ.5022','5007.PQ.5022', 'CS_English','5000.PQ.5013','5007.PQ.5013','CS_Spanish','5000.PQ.5021', '5007.PQ.5021', '5000.PQ.6632','5007.PQ.6632', '5000.PQ.6634','5007.PQ.6634', '5000.PQ.6635','5007.PQ.6635', '5007.PQ.6636','5000.PQ.6636','5000.PQ.6637', '5007.PQ.6637','5007.PQ.6638', '5000.PQ.6638','5000.PQ.6639','5007.PQ.6639', 'Customer_Service_SSB','5000.PQ.6605', '5007.PQ.6605','5000.PQ.6606','5007.PQ.6606', '5000.PQ.6611','5007.PQ.6611','5007.PQ.6612', '5000.PQ.6612','5007.PQ.6607','5000.PQ.6607','5000.PQ.6608','5007.PQ.6608', '5000.PQ.6617','5007.PQ.6617', '5007.PQ.6618','5000.PQ.6618','5000.PQ.6595', '5007.PQ.6595','5007.PQ.6578', '5000.PQ.6578','5007.PQ.6615','5000.PQ.6615', '5007.PQ.6616', '5000.PQ.6616', '5000.PQ.6610','5007.PQ.6610','5007.PQ.6609', '5000.PQ.6609','Lienholder', 'SSB_CS_ENG','SSB_CS_SPA','5007.PQ.6729','5000.PQ.6729') AND TALKTIME > 10 AND tje.officename IN ('CIGH CUSTOMER SERVICE', 'ESCALATIONS', 'Customer Service BackOffice', 'CUSTOMER SERVICE', 'CS Retentions') GROUP BY last_day(DateTime, 'week'), TC.DateTime, TC.ANI, TC.AGENTSKILLTARGETID, weekiso(TC.Datetime), TC.AgentPeripheralNumber, Internal, SG.enterprisename,YEAROFWEEKISO(TC.Datetime) ORDER BY 1) UNION (WITH OSInternals AS (SELECT DISTINCT Number, Internal FROM "RETAIL_PROD"."SCH_BVSTAGE"."V_FCR_INTERNAL_NUMBERS" WHERE Office = 'OneSource Customer Service'), // OS Calls NewCallsOS AS (SELECT DateTime AS Newcall, ANI FROM "RETAIL_PROD"."SCH_BVSTAGE"."V_DLBV_PCCE_TERMINATION_CALL_DETAIL_CURRENT" T2 JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_DLBV_PCCE_SKILL_GROUP_CURRENT" SG ON SG.SkillTargetID = T2.SkillGroupSkillTargetID AND sg.ENTERPRISENAME IN ('OneSource_Customer_Service','TJ_CIGH_Payments') ORDER BY T2.DateTime) // OS Calls + Internals SELECT -- ID Llamada 
+             TC.DateTime, last_day(DateTime, 'week') AS LastDay, weekiso(dateadd(WEEK, 0, TC.Datetime)) AS WEEK, -- Para alinear el resultado a los KPI's de los agentes
+             YEAROFWEEKISO(TC.Datetime)YEAR, TC.AGENTSKILLTARGETID, TC.AgentPeripheralNumber, 'OneSource Customer Service' AS Department, SG.ENTERPRISENAME, TC.ANI, CASE WHEN LEFT(TC.ANI,1) = '+' THEN replace(TC.ANI, '+1') ELSE TC.ANI END AS ANI10, LEFT(ANI10,3) AS Lada, -- Calculos
+             Internal, DATEDIFF(HOUR, TC.DateTime, MIN(CASE WHEN T3.NewCall IS NOT NULL THEN T3.NewCall ELSE '3022-12-31' END)) AS HoursDiff, iff(HoursDiff < 24*7, 1, 0) AS CalledAgain, 1 AS Calls FROM "RETAIL_PROD"."SCH_BVSTAGE"."V_DLBV_PCCE_TERMINATION_CALL_DETAIL_CURRENT" TC -- Tabla TCD #1
+             LEFT JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_S_BOE_TJ_EMPLOYEE_CURRENT" AS TJE -- Tabla RH
+             ON TC.AGENTSKILLTARGETID = TJE.AGENTSKILLTARGETID JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_DLBV_PCCE_SKILL_GROUP_CURRENT" SG -- Tabla SGC
+             ON SG.SkillTargetID = TC.SkillGroupSkillTargetID LEFT JOIN NewCallsOS T3 -- Tabla TCD #2
+             ON T3.ANI = TC.ANI AND T3.newCall > TC.DateTime LEFT JOIN OSInternals AS OSI ON (CASE WHEN LEFT(TC.ANI,1) = '+' THEN replace(TC.ANI, '+1') ELSE TC.ANI END) = OSI.Number WHERE TC.DateTime BETWEEN dateadd(WEEK, -5, date_trunc('week', Getdate())) AND date_trunc('week', Getdate()) AND LEN(TC.ANI) > 7.0 AND SG.ENTERPRISENAME IN ('OneSource_Customer_Service','TJ_CIGH_Payments') AND TALKTIME > 10 AND tje.officename = 'ONE SOURCE CS' GROUP BY last_day(DateTime, 'week'), TC.DateTime, TC.ANI, TC.AGENTSKILLTARGETID, weekiso(TC.Datetime), TC.AgentPeripheralNumber, Internal, SG.ENTERPRISENAME,YEAROFWEEKISO(TC.Datetime) ORDER BY 1)--*/
+            ) SELECT -- Calls
+             C.*, -- Codes
+             CODES.STATE AS State, -- Queues
+             CASE WHEN ((FCRApplicable > 0) AND (State IS NULL OR State != 'Toll Free') AND (Internal IS NULL)) THEN 1
+                                ELSE 0
+                                 END AS FCRApplicableFinal,
+                           iff(FCRApplicableFinal > 0, CalledAgain, 0) AS FCRCalledAgainFinal, -- RH
+             FULLNAME,
+                           EMPLOYEENUMBER,
+                           DEPARTMENTNAME,
+                           OFFICENAME,
+                           SUPERVISOR
+                      FROM Calls AS C
+                      JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_DLBV_PCCE_AGENT_CURRENT" AS AG -- Tabla AC
+
+                        ON C.AgentPeripheralNumber = AG.PeripheralNumber
+                      JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_DLBV_PCCE_PERSON_CURRENT" AS PE -- Tabla PC
+
+                        ON AG.PersonId = PE.PersonID
+                      LEFT JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_S_BOE_TJ_EMPLOYEE_CURRENT" AS TJE -- Tabla RH
+
+                        ON C.AGENTSKILLTARGETID = TJE.AGENTSKILLTARGETID
+                      LEFT JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_FCR_AREA_CODES" AS CODES -- Tabla Area Codes
+
+                        ON C.Lada = CODES.AREA_CODE
+                      LEFT JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_FCR_QUEUES" AS QUEUE -- Tabla Enterprise Queues
+
+                        ON C.enterprisename = QUEUE.ENTERPRISENAME
+                   )
+             GROUP BY WEEK,
+                      AGENTSKILLTARGETID,
+                      FULLNAME,
+                      EMPLOYEENUMBER,
+                      DEPARTMENTNAME,
+                      Department,
+                      OFFICENAME,
+                      SUPERVISOR,
+                      YEAR
+             ORDER BY 1,
+                      2,
+                      3
+        dependencies: []
+        join:
+          joinCondition: None
+        name: V_PREB_PCCE_FCR_REPORT
+        noLinkRefs: []
+  name: V_PREB_PCCE_FCR_REPORT
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,102 @@
+fileVersion: 1
+id: 2569de13-8a81-4692-9142-9d6d01c97f45
+name: BVSTG_PREP_LEAD_PROBABILITY_L2
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: false
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e8946186-c025-42dc-abfd-7b2ff30247c2
+          stepCounter: 2569de13-8a81-4692-9142-9d6d01c97f45
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: L_LEADID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b6a70b6d-49fd-4a53-8465-f5ec304e3b7b
+          stepCounter: 2569de13-8a81-4692-9142-9d6d01c97f45
+        config: {}
+        dataType: NUMBER(10,5)
+        defaultValue: ""
+        description: ""
+        name: PROBABILITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: DATA_ANALYTICS.DS_FEATURE_REPO.abhi_udf_gnl_vec_cached(PREP."SECUENCE", PREP."AGE_OF_LEAD_FROM_ORIG", PREP."AGE_OF_LEAD_FROM_PRIOR", PREP."DAYS_DIFF_LEAD_AGE", PREP."LEADTYPE", PREP."DOCUMENT_LANGUAGE_TYPE", PREP."VERBAL_LANGUAGE_TYPE", PREP."CUSTOMER_GENDER", PREP."MAILINGSTATE", PREP."ALLCUSTOMERAGE", PREP."CATEGORY", PREP."SUBCATEGORY", PREP."VENDOR", PREP."PRODUCTTYPE", PREP."PLACEMENTLEVEL", PREP."NO_OF_SOUCE_SYSTEM_2STEP", PREP."INBOUND_CALLS", PREP."TOTAL_INBOUND_CALLS", PREP."INBOUND_CONVERSATION", PREP."TOTAL_INBOUND_CONVERSATION", PREP."INBOUND_CALLS_7DAYS", PREP."TOTAL_INBOUND_CALLS_7DAYS", PREP."INBOUND_CONVERSATION_7DAYS", PREP."TOTAL_INBOUND_CONVERSATION_7DAYS", PREP."OUTBOUND_CALLS", PREP."TOTAL_OUTBOUND_CALLS", PREP."OUTBOUND_CONVERSATION", PREP."TOTAL_OUTBOUND_CONVERSATION", PREP."OUTBOUND_CALLS_7DAYS", PREP."TOTAL_OUTBOUND_CALLS_7DAYS", PREP."OUTBOUND_CONVERSATION_7DAYS", PREP."TOTAL_OUTBOUND_CONVERSATION_7DAYS", PREP."QUOTE", PREP."TOTAL_QUOTE", PREP."QUOTE_7DAYS", PREP."TOTAL_QUOTE_7DAYS", PREP."TRANSFER", PREP."TOTAL_TRANSFER", PREP."TRANSFER_7DAYS", PREP."TOTAL_TRANSFER_7DAYS", PREP."LEADACCESSED", PREP."TOTAL_LEADACCESSED", PREP."LEADACCESSED_7DAYS", PREP."TOTAL_LEADACCESSED_7DAYS", PREP."IS_TURBO", PREP."DWELLING_TYPE", PREP."EDUCATION_1ST_PERSON_IN_HOUSEHOLD_100", PREP."PERSONICX_LIFESTAGE_GROUP_CODE", PREP."POPULATION_DENSITY", PREP."RACE_CODE_LOW_DETAIL", PREP."GENDER_PERSON", PREP."GENERATIONS_IN_HOUSEHOLD", PREP."HOUSEHOLD_SIZE_100", PREP."ADULTS_NUMBER_IN_HOUSEHOLD_100", PREP."MARITAL_STATUS_IN_THE_HOUSEHOLD_100", PREP."INCOME_ESTIMATED_HOUSEHOLD_BROAD_RANGES_100", PREP."ECONOMIC_STABILITY_INDICATOR", PREP."HOME_OWNER_RENTER_100")
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 02516c54-1a44-4cb8-8bc8-90ad4401acb4
+          stepCounter: 2569de13-8a81-4692-9142-9d6d01c97f45
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6db946b7-777b-4393-98f8-7548669817f3
+          stepCounter: 2569de13-8a81-4692-9142-9d6d01c97f45
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: UNKNOWN
+            nodeName: BVSTG_PREP_LEAD_FEATURES_GNL
+        join:
+          joinCondition: |-
+            FROM {{ ref('UNKNOWN','BVSTG_PREP_LEAD_FEATURES_GNL') }} PREP
+             INNER JOIN (
+                    SELECT L_LEADID,
+                           ROW_NUMBER() OVER (ORDER BY L_LEADID) ROW_No
+                      FROM RETAIL_DEV.SCH_BVSTAGE.BVSTG_PREP_LEAD_FEATURES_GNL
+                   )BVSTG_PREP_LEAD_FEATURES_GNL
+                ON BVSTG_PREP_LEAD_FEATURES_GNL.L_LEADID = PREP.L_LEADID --AND BVSTG_PREP_LEAD_FEATURES_GNL.ROW_No BETWEEN 1 AND 100000
+        name: BVSTG_PREP_LEAD_PROBABILITY_L2
+        noLinkRefs: []
+  name: BVSTG_PREP_LEAD_PROBABILITY_L2
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

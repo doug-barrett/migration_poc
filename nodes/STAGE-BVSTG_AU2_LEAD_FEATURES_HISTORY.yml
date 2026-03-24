@@ -1,0 +1,123 @@
+fileVersion: 1
+id: dfa654b6-0327-423f-8b24-aa065019a7d4
+name: BVSTG_AU2_LEAD_FEATURES_HISTORY
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 76abe9b8-1406-43c7-8c4e-84a7aaee1f1c
+          stepCounter: dfa654b6-0327-423f-8b24-aa065019a7d4
+        config: {}
+        dataType: VARCHAR(70)
+        defaultValue: ""
+        description: ""
+        name: L_LEADID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8e8744a8-954c-44db-b7ae-cbf1d3e97ed3
+                stepCounter: f885e7fa-3f60-4661-a067-a278e04b8a2b
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a9d361e0-2491-46cf-9b62-1db7bfe2967d
+          stepCounter: dfa654b6-0327-423f-8b24-aa065019a7d4
+        config: {}
+        dataType: NUMBER(10,0)
+        defaultValue: ""
+        description: ""
+        name: TOTAL_NUMBER_OF_TIMES_LEADACCESSED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: COUNT(DISTINCT L_LEADID || DATE(CREATED) || PRIMARYUSERID)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ace596de-71a5-4f14-b9b8-8af9e220a07d
+          stepCounter: dfa654b6-0327-423f-8b24-aa065019a7d4
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: LAST_LEAD_INTERACTION_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: MAX(CAST(CREATED AS datetime))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 79ad4742-9960-4e9f-a75d-c3e7653b457b
+          stepCounter: dfa654b6-0327-423f-8b24-aa065019a7d4
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f9b90b87-0e15-42ac-9e5e-df1a4a8a678b
+          stepCounter: dfa654b6-0327-423f-8b24-aa065019a7d4
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_AU2_GROUP_LEAD: f885e7fa-3f60-4661-a067-a278e04b8a2b
+          DS_BVSTG_AP1_LEADHISTORY: 44e18710-0e1e-45ca-98f0-65ef8e735c2e
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_AU2_GROUP_LEAD
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_LEADHISTORY
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','BVSTG_AU2_GROUP_LEAD') }} BVSTG_AU2_GROUP_LEAD
+              LEFT JOIN {{ ref('STAGE','DS_BVSTG_AP1_LEADHISTORY') }} DS_BVSTG_AP1_LEADHISTORY
+                ON BVSTG_AU2_GROUP_LEAD.L_LEADID = LEADID
+               AND DATE(CREATED) < DATE(IFNULL(SALEDATE,DATEADD(DAY,1,CURRENT_DATE)))
+               AND PRIMARYUSERID != '1147'
+               AND statusname = 'Reassigned'
+             GROUP BY L_LEADID
+        name: BVSTG_AU2_LEAD_FEATURES_HISTORY
+        noLinkRefs: []
+  name: BVSTG_AU2_LEAD_FEATURES_HISTORY
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

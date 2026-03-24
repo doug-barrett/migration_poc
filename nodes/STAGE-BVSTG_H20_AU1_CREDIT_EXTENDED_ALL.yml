@@ -1,0 +1,151 @@
+fileVersion: 1
+id: fd1cffe3-7750-4966-aedd-26da871492e0
+name: BVSTG_H20_AU1_CREDIT_EXTENDED_ALL
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f584743b-b737-4157-8e3e-84f8004e9f1e
+          stepCounter: fd1cffe3-7750-4966-aedd-26da871492e0
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: dfe66c76-3874-4bd4-8837-9b56eea9e192
+                stepCounter: 98dd5fca-4fd6-4ecd-85c3-eea74c0094f3
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 915eba88-5ada-411e-89d6-ade5dce9bf5f
+          stepCounter: fd1cffe3-7750-4966-aedd-26da871492e0
+        config: {}
+        dataType: NUMBER(1,0)
+        defaultValue: ""
+        description: ""
+        name: IS_CREDIT_EXTENDED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONITEMAMOUNT > DS_BVSTG_AP1_PAYMENT.PAYMENT_AMOUNT THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f1671523-57f7-40bf-a5ba-ac45e1f1d615
+          stepCounter: fd1cffe3-7750-4966-aedd-26da871492e0
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: CREDIT_EXTENDED_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONITEMAMOUNT > DS_BVSTG_AP1_PAYMENT.PAYMENT_AMOUNT THEN DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONITEMAMOUNT - DS_BVSTG_AP1_PAYMENT.PAYMENT_AMOUNT
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6a4263f6-1a4d-4373-aea9-f6cd6564e7b3
+          stepCounter: fd1cffe3-7750-4966-aedd-26da871492e0
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5ecb2476-c575-4df0-a836-070d918215a8
+          stepCounter: fd1cffe3-7750-4966-aedd-26da871492e0
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_H20_LAPSE_MODEL_REFRESH: d2daaa44-a718-4c97-9d33-d5b6900008cb
+          DS_BVSTG_AP1_PAYMENT: 98dd5fca-4fd6-4ecd-85c3-eea74c0094f3
+          DS_BVSTG_AP1_TRANSACTIONITEM: 80f81938-7e6e-4863-9ea5-4321d79434f8
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_PAYMENT
+          - locationName: STAGE
+            nodeName: BVSTG_H20_LAPSE_MODEL_REFRESH
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_TRANSACTIONITEM
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT DS_BVSTG_AP1_PAYMENT.TRANSACTIONID,
+                           To_DATE(DS_BVSTG_AP1_PAYMENT.CREATED_TRANSACTION) AS PAYMENT_CREATED,
+                           SUM(DS_BVSTG_AP1_PAYMENT.PaymentAmount) AS PAYMENT_AMOUNT
+                      FROM {{ ref('STAGE','BVSTG_H20_LAPSE_MODEL_REFRESH') }} MODEL_REFRESH
+                     INNER JOIN {{ ref('STAGE','DS_BVSTG_AP1_PAYMENT') }} DS_BVSTG_AP1_PAYMENT
+                        ON MODEL_REFRESH.TransactionID = DS_BVSTG_AP1_PAYMENT.TRANSACTIONID
+                     WHERE DS_BVSTG_AP1_PAYMENT.ISNSF = 0
+                       AND DS_BVSTG_AP1_PAYMENT.ISRECEIVED = 1
+                       AND DS_BVSTG_AP1_PAYMENT.ISVOID_PAYMENT = 0
+                       AND DS_BVSTG_AP1_PAYMENT.ISROWDELETED_PAYMENT = 0
+                       AND DS_BVSTG_AP1_PAYMENT.ISROWDELETED_TRANSACTION = 0
+                       AND To_Date(DS_BVSTG_AP1_PAYMENT.CREATED_PAYMENT) = To_Date(DS_BVSTG_AP1_PAYMENT.CREATED_TRANSACTION)
+                     GROUP BY DS_BVSTG_AP1_PAYMENT.TRANSACTIONID,
+                              To_DATE(DS_BVSTG_AP1_PAYMENT.CREATED_TRANSACTION)
+                   ) DS_BVSTG_AP1_PAYMENT
+             INNER JOIN (
+                    SELECT DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONID,
+                           To_Date(DS_BVSTG_AP1_TRANSACTIONITEM.CREATED) AS TRANSACTIONITEM_CREATED,
+                           SUM(DS_BVSTG_AP1_TRANSACTIONITEM.AMOUNT) AS TRANSACTIONITEMAMOUNT
+                      FROM {{ ref('STAGE','BVSTG_H20_LAPSE_MODEL_REFRESH') }} MODEL_REFRESH
+                     INNER JOIN {{ ref('STAGE','DS_BVSTG_AP1_TRANSACTIONITEM') }} DS_BVSTG_AP1_TRANSACTIONITEM
+                        ON MODEL_REFRESH.TransactionID = DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONID
+                       AND To_Date(DS_BVSTG_AP1_TRANSACTIONITEM.CREATED) = To_Date(DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONCREATED)
+                       AND DS_BVSTG_AP1_TRANSACTIONITEM.ISVOID = 0
+                     GROUP BY DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONID,
+                              To_Date(DS_BVSTG_AP1_TRANSACTIONITEM.CREATED)
+                   ) DS_BVSTG_AP1_TRANSACTIONITEM
+                ON DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONID = DS_BVSTG_AP1_PAYMENT.TRANSACTIONID
+               AND DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONITEM_CREATED = DS_BVSTG_AP1_PAYMENT.PAYMENT_CREATED
+        name: BVSTG_H20_AU1_CREDIT_EXTENDED_ALL
+        noLinkRefs: []
+  name: BVSTG_H20_AU1_CREDIT_EXTENDED_ALL
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,79 @@
+fileVersion: 1
+id: a553e379-5f8e-45c1-a593-5493ffcace28
+name: V_POSB_AP1_MISSING_MAPPINGS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7e866387-448a-4140-8321-96cc690e2c1a
+          stepCounter: a553e379-5f8e-45c1-a593-5493ffcace28
+        config: {}
+        dataType: VARCHAR(36)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d01183f8-5f0d-4315-8628-5aeafab26c06
+                stepCounter: d595c090-9840-4022-808e-a35c34d36c03
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_POSB_AP1_MISSING_MAPPINGS: a553e379-5f8e-45c1-a593-5493ffcace28
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_POSB_AP1_MISSING_MAPPINGS') }} AS SELECT a.* ,
+                   CLASSIFICATIONGROUP,
+                   FEEREVENUE
+              FROM (
+                    SELECT DISTINCT c.TRANSACTIONTYPE,
+                           d.feetype,
+                           d.feename,
+                           a.ADDITIONALPRODUCTNAME
+                      FROM RETAIL_PROD.SCH_BVSTAGE.DS_BVSTG_AP1_ANCILLARYPRODUCT_AC a
+                     INNER JOIN RETAIL_PROD.SCH_BVSTAGE.DS_BVSTG_AP1_POLICY b
+                        ON a.ap1_policyid = b.policyid
+                     INNER JOIN RETAIL_PROD.SCH_EDW.DS_AP1_TRANSACTIONSUMMARY c
+                        ON b.policyid = c.policyid
+                     INNER JOIN RETAIL_PROD.SCH_BVSTAGE.DS_BVSTG_AP1_TRANSACTIONITEM d
+                        ON c.transactionid = d.transactionid
+                     WHERE c.TRANSACTIONTYPE = 'New Business'
+                   )a
+              LEFT JOIN RETAIL_PROD.SCH_BVSTAGE.V_PREB_REPORTING_MAPPING b
+                ON a.TRANSACTIONTYPE =b.TRANSACTIONTYPE
+               AND a.feetype=b.feetype
+               AND a.feename =b.feename
+               AND a.ADDITIONALPRODUCTNAME = b.ADDITIONALPRODUCTNAME
+             WHERE b.CLASSIFICATIONGROUP IS NULL
+               AND a.feetype NOT IN('Carrier Premium','Non-Broker Fee')
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_ACTIVITY_MROC_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_S_AP1_ACTIVITY_MROC_CURRENT') }}
+        name: V_POSB_AP1_MISSING_MAPPINGS
+        noLinkRefs: []
+  name: V_POSB_AP1_MISSING_MAPPINGS
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

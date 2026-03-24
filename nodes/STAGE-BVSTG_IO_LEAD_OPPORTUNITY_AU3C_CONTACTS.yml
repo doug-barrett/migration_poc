@@ -1,0 +1,139 @@
+fileVersion: 1
+id: a8d4aced-2a82-4e9e-be1a-657bbd634317
+name: BVSTG_IO_LEAD_OPPORTUNITY_AU3C_CONTACTS
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bcd30854-8f83-4064-87c4-7bf771c428a0
+          stepCounter: a8d4aced-2a82-4e9e-be1a-657bbd634317
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: TIMELINE_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: bvstg_io_lead_opportunity_au2c_deals.timeline_id
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c7aa6690-4457-4748-8346-ad7e8a97675a
+          stepCounter: a8d4aced-2a82-4e9e-be1a-657bbd634317
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: SMS_CONTACT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: COUNT(DISTINCT CASE WHEN CONTACTS_TIMELINETYPE = 'sms' THEN TIMELINE_ID END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0aa9e719-fe42-428e-95d1-0015777853b9
+          stepCounter: a8d4aced-2a82-4e9e-be1a-657bbd634317
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: NOTES_CONTACT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: COUNT(DISTINCT CASE WHEN CONTACTS_TIMELINETYPE = 'notes' THEN TIMELINE_ID END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 74a347ee-b9b9-43e3-a232-1ce735774354
+          stepCounter: a8d4aced-2a82-4e9e-be1a-657bbd634317
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: EMAIL_CONTACT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: COUNT(DISTINCT CASE WHEN CONTACTS_TIMELINETYPE = 'email' THEN TIMELINE_ID END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fed2b8ff-7ea9-43f9-ae6c-8720f22ef09d
+          stepCounter: a8d4aced-2a82-4e9e-be1a-657bbd634317
+        config: {}
+        dataType: TIMESTAMP(9)
+        defaultValue: ""
+        description: ""
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d0158ee9-e568-4ce4-8b15-c9ea381840a5
+          stepCounter: a8d4aced-2a82-4e9e-be1a-657bbd634317
+        config: {}
+        dataType: TIMESTAMP_NTZ(9)
+        defaultValue: ""
+        description: ""
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_IO_LEAD_OPPORTUNITY_AU2C_DEALS: 6f61b911-3355-4e9d-bcc2-52c6431496a8
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_IO_LEAD_OPPORTUNITY_AU2C_DEALS
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT a.TIMELINE_ID,
+                           a.DEAL_ID,
+                           a.MOVED_TO_BUCKET_AT,
+                           a.NEXT_MOVED_TO_BUCKET_AT,
+                           b.TIMELINE_ID AS contacts_TIMELINE_ID,
+                           CONVERT_TIMEZONE('America/Los_Angeles', createat)::TIMESTAMP_NTZ contacts_STARTDATETIME,
+                           TIMELINE_TYPE contacts_TIMELINETYPE,
+                           b.TIMELINE_INFO contacts_TIMELINEINFO,
+                           b.AGENT_NAME contacts_TIMELINEAGENT
+                      FROM {{ ref('STAGE','BVSTG_IO_LEAD_OPPORTUNITY_AU2C_DEALS') }} a
+                      JOIN DATA_LAKE.API.dl_api_insuredmine_timelines b
+                        ON a.deal_id = b.deal_id
+                     WHERE TIMELINE_TYPE IN ('sms', 'email', 'notes')
+                       AND b.dss_current_flag = 'Y'
+                   ) bvstg_io_lead_opportunity_au2c_deals
+             WHERE contacts_STARTDATETIME >= MOVED_TO_BUCKET_AT
+               AND contacts_STARTDATETIME <= COALESCE(NEXT_MOVED_TO_BUCKET_AT, current_timestamp())
+             GROUP BY TIMELINE_ID
+        name: BVSTG_IO_LEAD_OPPORTUNITY_AU3C_CONTACTS
+        noLinkRefs: []
+  name: BVSTG_IO_LEAD_OPPORTUNITY_AU3C_CONTACTS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

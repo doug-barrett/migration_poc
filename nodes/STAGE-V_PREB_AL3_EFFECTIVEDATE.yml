@@ -1,0 +1,77 @@
+fileVersion: 1
+id: 8448c0df-230a-4991-90bb-72b4159b6ef6
+name: V_PREB_AL3_EFFECTIVEDATE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: baf3bdb5-3f9e-43b9-a0bf-69c23dc165bf
+          stepCounter: 8448c0df-230a-4991-90bb-72b4159b6ef6
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: SWEEPLOGID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fa1c2ad6-bbe5-4d4c-babd-878cd77e5ec3
+                stepCounter: b64af936-89c7-4011-9312-acefb2670182
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fea778e2-9345-4fb5-b1e9-48652df7d0e1
+          stepCounter: 8448c0df-230a-4991-90bb-72b4159b6ef6
+        config: {}
+        dataType: VARCHAR(16777216)
+        defaultValue: ""
+        description: ""
+        name: EFFECTIVEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4ad089b5-bedc-4320-b330-8cf191b504a8
+                stepCounter: b64af936-89c7-4011-9312-acefb2670182
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_AL3_EFFECTIVEDATE: 8448c0df-230a-4991-90bb-72b4159b6ef6
+          V_DLBV_AL3_AL3GROUPDATAV2_CURRENT: b64af936-89c7-4011-9312-acefb2670182
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PREB_AL3_EFFECTIVEDATE') }} AS SELECT v_dlbv_al3_al3groupdatav2_current.Sweeplogid,
+                   TO_DATE(RIGHT(TRIM(v_dlbv_al3_al3groupdatav2_current.AL3DATAINGRP),8),'YYYYMMDD') AS EffectiveDate
+              FROM {{ ref('STAGE','V_DLBV_AL3_AL3GROUPDATAV2_CURRENT') }} v_dlbv_al3_al3groupdatav2_current
+             WHERE v_dlbv_al3_al3groupdatav2_current.GRPDesig='2TRG'
+               AND TRY_TO_DATE(RIGHT(TRIM(v_dlbv_al3_al3groupdatav2_current.AL3DATAINGRP),8),'YYYYMMDD') IS NOT NULL
+               AND Createddate>='2020-05-05' QUALIFY ROW_NUMBER() OVER (PARTITION BY v_dlbv_al3_al3groupdatav2_current.Sweeplogid ORDER BY v_dlbv_al3_al3groupdatav2_current.createddate DESC,v_dlbv_al3_al3groupdatav2_current.id DESC)=1
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_DLBV_AL3_AL3GROUPDATAV2_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_DLBV_AL3_AL3GROUPDATAV2_CURRENT') }}
+        name: V_PREB_AL3_EFFECTIVEDATE
+        noLinkRefs: []
+  name: V_PREB_AL3_EFFECTIVEDATE
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

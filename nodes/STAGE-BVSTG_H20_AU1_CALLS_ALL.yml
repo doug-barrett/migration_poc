@@ -1,0 +1,135 @@
+fileVersion: 1
+id: 3a801026-d74a-4f6f-9c4d-b0bcea136e8f
+name: BVSTG_H20_AU1_CALLS_ALL
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eff32581-0d3d-4191-9c2f-5de57e17658f
+          stepCounter: 3a801026-d74a-4f6f-9c4d-b0bcea136e8f
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 32e4dc45-f930-43c4-84d6-0f7d134c42df
+                stepCounter: a1eb4560-c80e-4133-a2d9-f6a82026093c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 21c7650c-c4a6-4f65-9b71-a72e9a55ddb3
+          stepCounter: 3a801026-d74a-4f6f-9c4d-b0bcea136e8f
+        config: {}
+        dataType: NUMBER(10)
+        defaultValue: ""
+        description: ""
+        name: CALLSON7DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: COUNT(1)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d8593ad2-c77f-496a-a29d-61ec2d04abc3
+          stepCounter: 3a801026-d74a-4f6f-9c4d-b0bcea136e8f
+        config: {}
+        dataType: VARCHAR(1000)
+        defaultValue: ""
+        description: ""
+        name: CALLTYPES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: left(listagg(calltypename, ','), 1000)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8ff8f5d2-64c9-4111-967a-46e0ceb15b9e
+          stepCounter: 3a801026-d74a-4f6f-9c4d-b0bcea136e8f
+        config: {}
+        dataType: VARCHAR(1000)
+        defaultValue: ""
+        description: ""
+        name: CALLDURATIONS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: left(listagg(duration, ','), 1000)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 67380605-bdd7-44f3-857c-af9ef4d2d897
+          stepCounter: 3a801026-d74a-4f6f-9c4d-b0bcea136e8f
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 86a05d62-d8fe-4960-9825-51da94af1355
+          stepCounter: 3a801026-d74a-4f6f-9c4d-b0bcea136e8f
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_PCCE_TERMINATION_CALL_SUMMARY_SESSION: b0e80be4-9751-4d96-a11d-f935debb1375
+          DS_MKT_CALL_CUSTOMER: a1eb4560-c80e-4133-a2d9-f6a82026093c
+          BVSTG_H20_LAPSE_MODEL_REFRESH_ALL: 0bbcef3b-24cf-484c-935d-a6832bd57db3
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_MKT_CALL_CUSTOMER
+          - locationName: EDW
+            nodeName: DS_PCCE_TERMINATION_CALL_SUMMARY_SESSION
+          - locationName: STAGE
+            nodeName: BVSTG_H20_LAPSE_MODEL_REFRESH_ALL
+        join:
+          joinCondition: |-
+            FROM {{ ref('EDW','DS_PCCE_TERMINATION_CALL_SUMMARY_SESSION') }} DS_PCCE_TERMINATION_CALL_SUMMARY_SESSION
+             INNER JOIN {{ ref('EDW','DS_MKT_CALL_CUSTOMER') }} DS_MKT_CALL_CUSTOMER
+                ON DS_MKT_CALL_CUSTOMER.INTERACTIONIDKEY = DS_PCCE_TERMINATION_CALL_SUMMARY_SESSION.ID
+             INNER JOIN {{ ref('STAGE','BVSTG_H20_LAPSE_MODEL_REFRESH_ALL') }} bvstg_h20_lapse_model_refresh_all
+                ON bvstg_h20_lapse_model_refresh_all.CUSTOMERID = DS_MKT_CALL_CUSTOMER.CUSTOMERID
+               AND DATE(DS_PCCE_TERMINATION_CALL_SUMMARY_SESSION.STARTDATETIME) BETWEEN DATE(bvstg_h20_lapse_model_refresh_all.STARTDATE) AND CURRENT_DATE()
+             GROUP BY DS_MKT_CALL_CUSTOMER.CUSTOMERID
+        name: BVSTG_H20_AU1_CALLS_ALL
+        noLinkRefs: []
+  name: BVSTG_H20_AU1_CALLS_ALL
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

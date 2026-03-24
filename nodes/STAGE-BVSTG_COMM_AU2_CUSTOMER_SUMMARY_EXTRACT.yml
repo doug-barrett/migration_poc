@@ -1,0 +1,129 @@
+fileVersion: 1
+id: 490a935b-14f8-4f6c-8323-e797bd0f864f
+name: BVSTG_COMM_AU2_CUSTOMER_SUMMARY_EXTRACT
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c452c97f-7ade-4ad5-95cd-94f29eb19ffa
+          stepCounter: 490a935b-14f8-4f6c-8323-e797bd0f864f
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_COMM_AU2_CUSTOMER_SUMMARY_EXTRACT_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(ifnull(l_policyvehicle_policyversion.customerid, '-'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 71da2cc1-d652-4c74-b6e1-5b90b98f48a2
+          stepCounter: 490a935b-14f8-4f6c-8323-e797bd0f864f
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f67128af-01a4-4f1c-b3d7-d38aa17153c1
+          stepCounter: 490a935b-14f8-4f6c-8323-e797bd0f864f
+        config: {}
+        dataType: NUMBER(18,0)
+        defaultValue: ""
+        description: ""
+        name: VEHICLECOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: count(DISTINCT l_policyvehicle_policyversion.policyvehicleid)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8cba8ee4-9e22-4f5b-aa64-cc3bf5a3e800
+          stepCounter: 490a935b-14f8-4f6c-8323-e797bd0f864f
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: baf16583-1f0a-4ffd-8100-884eaf3b3896
+          stepCounter: 490a935b-14f8-4f6c-8323-e797bd0f864f
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          L_POLICYVEHICLE_POLICYVERSION: e00efcd3-a421-44bc-b1be-a3e7ce112903
+          S_AP1_POLICYVEHICLE_MROC: 22ba3a91-7de7-4895-8cc7-b27a26571c38
+          L_POLICYVERSION_POLICY: 3bcdcb6b-dd00-494e-a4a7-63b0a44074fe
+          H_POLICY: cbcb4665-bcbf-40fe-9e91-7acf7efa2ab3
+          DS_POLICYSUMMARY_V2: 23ba684a-5671-4cfa-9e5f-11f1386d24b3
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DATA_VAULT
+            nodeName: L_POLICYVEHICLE_POLICYVERSION
+          - locationName: DATA_VAULT
+            nodeName: S_AP1_POLICYVEHICLE_MROC
+          - locationName: DATA_VAULT
+            nodeName: L_POLICYVERSION_POLICY
+          - locationName: DATA_VAULT
+            nodeName: H_POLICY
+          - locationName: EDW
+            nodeName: DS_POLICYSUMMARY_V2
+        join:
+          joinCondition: |-
+            FROM (SELECT h_policy.policyid,
+                   s_ap1_policyvehicle_mroc.*,
+                   ds_policysummary_v2.customerid
+              FROM ( (
+                    SELECT DISTINCT hk_h_policyvehicle,
+                           hk_h_policyversion
+                      FROM {{ ref('DATA_VAULT','L_POLICYVEHICLE_POLICYVERSION') }}
+                   ) l_policyvehicle_policyversion --"RETAIL_PROD"."SCH_DATA_VAULT"."L_POLICYVEHICLE_POLICYVERSION") l_policyvehicle_policyversion          inner join {{ ref('DATA_VAULT','S_AP1_POLICYVEHICLE_MROC') }} s_ap1_policyvehicle_mroc     --"RETAIL_PROD"."SCH_DATA_VAULT"."S_AP1_POLICYVEHICLE_MROC" s_ap1_policyvehicle_mroc     on l_policyvehicle_policyversion.hk_h_policyvehicle = s_ap1_policyvehicle_mroc.hk_h_policyvehicle          inner join     (select distinct hk_h_policy, hk_h_policyversion      from {{ ref('DATA_VAULT','L_POLICYVERSION_POLICY') }}) l_policyversion_policy      --"RETAIL_PROD"."SCH_DATA_VAULT"."L_POLICYVERSION_POLICY") l_policyversion_policy     on l_policyvehicle_policyversion.hk_h_policyversion = l_policyversion_policy.hk_h_policyversion             inner join        (select distinct policyid, hk_h_policy     from {{ ref('DATA_VAULT','H_POLICY') }}) h_policy     --"RETAIL_PROD"."SCH_DATA_VAULT"."H_POLICY") h_policy     on h_policy.hk_h_policy = l_policyversion_policy.hk_h_policy        left join     (select distinct customerid, policyid       from {{ ref('EDW','DS_POLICYSUMMARY_V2') }}      --"RETAIL_PROD"."SCH_EDW"."DS_POLICYSUMMARY_V2"                where SourceDB not in ('Velox','InsuredMine') ) ds_policysummary_v2     on to_varchar(ds_policysummary_v2.policyid)=to_varchar(h_policy.policyid))         where s_ap1_policyvehicle_mroc.isrowdeleted = 'False' and customerid is not null ) l_policyvehicle_policyversion    group by customerid
+        name: BVSTG_COMM_AU2_CUSTOMER_SUMMARY_EXTRACT
+        noLinkRefs: []
+  name: BVSTG_COMM_AU2_CUSTOMER_SUMMARY_EXTRACT
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

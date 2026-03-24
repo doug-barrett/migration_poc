@@ -1,0 +1,121 @@
+fileVersion: 1
+id: 909173a8-de81-4c74-aa03-59edb961679b
+name: BVSTG_0AU9_RETAIL_RFG_EXTRACT
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0ad17dea-80ae-4648-b4b1-b8aedb8d8a2c
+          stepCounter: 909173a8-de81-4c74-aa03-59edb961679b
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_0AU9_RETAIL_RFG_EXTRACT_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(ifnull(to_varchar(customerid),'-') || ifnull(to_varchar(created),'-'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b5f319f0-4d03-4caf-8577-e7dcffa61738
+          stepCounter: 909173a8-de81-4c74-aa03-59edb961679b
+        config: {}
+        dataType: TIMESTAMP_TZ
+        defaultValue: ""
+        description: ""
+        name: CREATED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ab07a18c-cbec-40fa-a0e5-60cce1072045
+                stepCounter: 23ba684a-5671-4cfa-9e5f-11f1386d24b3
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d600d39f-7119-4937-920a-c6e3484afaf5
+          stepCounter: 909173a8-de81-4c74-aa03-59edb961679b
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 65df4cf5-cfde-4ca3-9ff2-597bcbb25658
+                stepCounter: 23ba684a-5671-4cfa-9e5f-11f1386d24b3
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c7ded913-3f50-4afd-890f-97cbf823c33d
+          stepCounter: 909173a8-de81-4c74-aa03-59edb961679b
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9ee5429a-8939-4979-a691-f787215cfe5c
+          stepCounter: 909173a8-de81-4c74-aa03-59edb961679b
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_POLICYSUMMARY_V2: 23ba684a-5671-4cfa-9e5f-11f1386d24b3
+          DS_COMM_CUSTOMER_SUMMARY_EXTRACT: 91946650-6d8c-45b9-b70f-a50db0a94b2f
+          DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES_BF: d708d2c6-4bc1-4da9-8cc4-c9b3011b7699
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_POLICYSUMMARY_V2
+          - locationName: EDW
+            nodeName: DS_COMM_CUSTOMER_SUMMARY_EXTRACT
+          - locationName: EDW
+            nodeName: DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES_BF
+        join:
+          joinCondition: |-
+            FROM (SELECT DISTINCT *
+              FROM (SELECT DISTINCT DS_POLICYSUMMARY_V2.customerid,
+                   DS_POLICYSUMMARY_V2.created
+              FROM (SELECT DISTINCT * --from "RETAIL_PROD"."SCH_EDW"."DS_POLICYSUMMARY_V2" DS_POLICYSUMMARY_V2  from {{ ref('EDW','DS_POLICYSUMMARY_V2') }} DS_POLICYSUMMARY_V2  where sourcedb='SPLC'    and to_date(created)<=current_date()-1  and date_trunc('month',to_date(created))>  (select max(cutoffdate)    --from "RETAIL_PROD"."SCH_EDW"."DS_COMM_CUSTOMER_SUMMARY_EXTRACT"   --from "DATA_LAKE"."BIA_ANALYTICS"."DS_COMM_CUSTOMER_SUMMARY_EXTRACT"   from {{ ref('EDW','DS_COMM_CUSTOMER_SUMMARY_EXTRACT') }}  )) DS_POLICYSUMMARY_V2  --left join "RETAIL_PROD"."SCH_EDW"."DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES_BF" DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES_BF  left join {{ ref('EDW','DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES_BF') }} DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES_BF   on DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES_BF.policynumber_edw=DS_POLICYSUMMARY_V2.policynumber   and DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES_BF.carriername_edw=DS_POLICYSUMMARY_V2.carriername  inner join  (select distinct customerid,ifnull(count(distinct policynumberformatted,carrierdisplayname),0) active_policy_count   from  (select distinct DS_POLICYSUMMARY_V2.*,policynumberformatted,carriername_mapped,carrierdisplayname    --from "RETAIL_PROD"."SCH_EDW"."DS_POLICYSUMMARY_V2" DS_POLICYSUMMARY_V2   from {{ ref('EDW','DS_POLICYSUMMARY_V2') }} DS_POLICYSUMMARY_V2   --left join "RETAIL_PROD"."SCH_EDW"."DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES_BF" DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES_BF   left join {{ ref('EDW','DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES_BF') }} DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES_BF   on DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES_BF.policynumber_edw=DS_POLICYSUMMARY_V2.policynumber   and DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES_BF.carriername_edw=DS_POLICYSUMMARY_V2.carriername  where sourcedb='SPLC'   and to_date(created)<=current_date()-1  and date_trunc('month',to_date(created))>(select max(cutoffdate)                                             --from "RETAIL_PROD"."SCH_EDW"."DS_COMM_CUSTOMER_SUMMARY_EXTRACT"                                            --from "DATA_LAKE"."BIA_ANALYTICS"."DS_COMM_CUSTOMER_SUMMARY_EXTRACT"              from {{ ref('EDW','DS_COMM_CUSTOMER_SUMMARY_EXTRACT') }}                                           ))  where policystatus='Active'  group by customerid  having ifnull(count(distinct policynumberformatted,carrierdisplayname),0)>1) DS_POLICYSUMMARY_V2_1  on DS_POLICYSUMMARY_V2_1.customerid=DS_POLICYSUMMARY_V2.customerid  )  union all  (select distinct customer_id as customerid,cutoffdate as created  --from "RETAIL_PROD"."SCH_EDW"."DS_COMM_CUSTOMER_SUMMARY_EXTRACT"   --from "DATA_LAKE"."BIA_ANALYTICS"."DS_COMM_CUSTOMER_SUMMARY_EXTRACT"   from {{ ref('EDW','DS_COMM_CUSTOMER_SUMMARY_EXTRACT') }}  where customerstatus_eom=1 and policysource='SPLC' and activepolicycount>1)   ) DS_POLICYSUMMARY_V2
+        name: BVSTG_0AU9_RETAIL_RFG_EXTRACT
+        noLinkRefs: []
+  name: BVSTG_0AU9_RETAIL_RFG_EXTRACT
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

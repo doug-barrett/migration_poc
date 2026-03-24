@@ -1,0 +1,65 @@
+fileVersion: 1
+id: c8fb3954-e0c2-432b-bcfa-d4623a2063b2
+name: V_POSB_SPLC_CP_NEW_NEW_DWE_TO_HOME
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7d5ec2a0-9e22-49eb-9c4c-1aef81b0bd51
+          stepCounter: c8fb3954-e0c2-432b-bcfa-d4623a2063b2
+        config: {}
+        dataType: VARCHAR(36)
+        defaultValue: ""
+        description: ""
+        name: ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a2738244-b227-4f64-ac7d-6cc8a6d19445
+                stepCounter: 5d141078-d046-41e2-9718-10bf4a289f11
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_POSB_SPLC_CP_NEW_NEW_DWE_TO_HOME: c8fb3954-e0c2-432b-bcfa-d4623a2063b2
+          DS_SPLC_POLICYTRANSACTION: 5d141078-d046-41e2-9718-10bf4a289f11
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_POSB_SPLC_CP_NEW_NEW_DWE_TO_HOME') }} AS SELECT DISTINCT DS_SPLC_POLICYTRANSACTION.ID
+              FROM {{ ref('EDW','DS_SPLC_POLICYTRANSACTION') }} DS_SPLC_POLICYTRANSACTION
+             INNER JOIN {{ ref('EDW','DS_SPLC_POLICYTRANSACTION') }} DS_SPLC_POLICYTRANSACTION_NEW_NEW_3
+                ON DS_SPLC_POLICYTRANSACTION.PRIORPOLID= DS_SPLC_POLICYTRANSACTION_NEW_NEW_3.POLICYID
+               AND DS_SPLC_POLICYTRANSACTION_NEW_NEW_3.POLICYTYPE Like 'Homeowners%'
+               AND DATE(DS_SPLC_POLICYTRANSACTION_NEW_NEW_3.STATUSDATE) >= DATE(DATEADD(DAY,-30,DATE(DS_SPLC_POLICYTRANSACTION.ReportDate)))
+               AND DS_SPLC_POLICYTRANSACTION_NEW_NEW_3.Status='Cancelled'
+               AND DS_SPLC_POLICYTRANSACTION.POLICYTYPE Like 'Dwelling Fire%'
+             WHERE DS_SPLC_POLICYTRANSACTION.TranType ='NBS'
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_SPLC_POLICYTRANSACTION
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('EDW','DS_SPLC_POLICYTRANSACTION') }}
+        name: V_POSB_SPLC_CP_NEW_NEW_DWE_TO_HOME
+        noLinkRefs: []
+  name: V_POSB_SPLC_CP_NEW_NEW_DWE_TO_HOME
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

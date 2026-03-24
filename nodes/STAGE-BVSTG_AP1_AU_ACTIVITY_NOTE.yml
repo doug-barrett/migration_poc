@@ -1,0 +1,95 @@
+fileVersion: 1
+id: 6e7773b1-694b-4ca8-9b20-92197e551411
+name: BVSTG_AP1_AU_ACTIVITY_NOTE
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 732d05eb-c02d-4cd3-aef1-d8fea7705642
+          stepCounter: 6e7773b1-694b-4ca8-9b20-92197e551411
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: HK_H_ACTIVITY
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 30ed2e92-179b-4569-8e4b-fd9fb32c2c8b
+                stepCounter: 3a5e1ccc-841f-4ede-9b5f-ebb76e6c50e1
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b1302012-83ba-4859-9f0b-d614c2f4ed87
+          stepCounter: 6e7773b1-694b-4ca8-9b20-92197e551411
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: ACTIVITYID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c57290b8-2910-483e-8740-1e80c869ade1
+                stepCounter: 3a5e1ccc-841f-4ede-9b5f-ebb76e6c50e1
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 59ff4918-85f6-4883-b9f5-1a0d8985f8a4
+          stepCounter: 6e7773b1-694b-4ca8-9b20-92197e551411
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: ""
+        name: NOTE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4fa668d4-88bd-4f2a-834e-ec439d772b6e
+                stepCounter: 48d0cd02-8d40-4048-a9bc-9470f8ed6392
+            transform: LEFT(s_ap1_activitynote.Note,500)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_ACTIVITY_2STEP
+        join:
+          joinCondition: |-
+            FROM RETAIL_PROD.SCH_BVSTAGE.DS_BVSTG_AP1_ACTIVITY_2STEP ds_bvstg_ap1_activity_2step
+             INNER JOIN RETAIL_PROD.SCH_DATA_VAULT.H_ACTIVITYNOTE h_activitynote
+                ON ds_bvstg_ap1_activity_2step.ActivityID = h_activitynote.ActivityID
+             INNER JOIN (
+                    SELECT hk_h_activitynote ,
+                           NOTE
+                      FROM RETAIL_PROD.SCH_DATA_VAULT.S_AP1_ACTIVITYNOTE QUALIFY ROW_NUMBER() OVER (PARTITION BY hk_h_activitynote ORDER BY dss_version DESC) = 1
+                   ) S_AP1_ACTIVITYNOTE
+                ON S_AP1_ACTIVITYNOTE.hk_h_activitynote = h_activitynote.hk_h_activitynote
+             WHERE DATE (DS_BVSTG_AP1_ACTIVITY_2STEP.CREATED) >= '2025-01-01'
+               AND LEN(S_AP1_ACTIVITYNOTE.Note)>= 10
+        name: BVSTG_AP1_AU_ACTIVITY_NOTE
+        noLinkRefs: []
+  name: BVSTG_AP1_AU_ACTIVITY_NOTE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

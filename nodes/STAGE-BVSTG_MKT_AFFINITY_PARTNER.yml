@@ -1,0 +1,91 @@
+fileVersion: 1
+id: 43b4e76c-acc0-4a47-b1ca-1e846e50e89f
+name: BVSTG_MKT_AFFINITY_PARTNER
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5195ab04-373c-4094-9463-41b1408a4b88
+          stepCounter: 43b4e76c-acc0-4a47-b1ca-1e846e50e89f
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: PROSPECTIVE_CUSTOMER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: COALESCE(b.CLIENT_FIRST_NAME || ' ' || b.CLIENT_LAST_NAME, l.FirstName || ' ' || l.LastName)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 27c95f53-f580-4281-b17b-83c6e01dc824
+          stepCounter: 43b4e76c-acc0-4a47-b1ca-1e846e50e89f
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7a3ece04-4703-450e-ba28-d1bfc24cf6fc
+          stepCounter: 43b4e76c-acc0-4a47-b1ca-1e846e50e89f
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies: []
+        join:
+          joinCondition: |-
+            FROM "RETAIL_PROD"."SCH_EDW"."DS_MKT_CAMPAIGN2SALES" a
+              LEFT JOIN "RETAIL_PROD"."SCH_EDW"."DS_MKT_LEAD_SOURCE" l
+                ON a.LeadId = l.LeadId
+               AND l.sourcedb = 'AppOne'
+              LEFT JOIN RETAIL_PROD.SCH_BVSTAGE.V_DLBV_API_LMS_MASTERLEAD_CURRENT b
+                ON a.ID_LMS = b.LMS_LEAD_ID
+              LEFT JOIN RETAIL_PROD.SCH_EDW.DS_MKT_CAMPAIGN c
+                ON a.campaignid = c.campaignid
+              LEFT JOIN RETAIL_PROD.SCH_EDW.DS_RAM_RETAIL_REPOSITORY r
+                ON a.saleid = r.transactionid
+               AND r.classificationgroup = 'New Business'
+             WHERE c.vendor IN ('Rekor', 'Uved', 'Westlake Financial', 'OpenRoad', 'Smart Start', 'TaxMax', 'MaxCash', 'Infinity', 'LifeSafer', 'Yendo', 'PURLs Farmers')
+               AND a.VintageDate >= '2021-01-01'
+        name: BVSTG_MKT_AFFINITY_PARTNER
+        noLinkRefs: []
+  name: BVSTG_MKT_AFFINITY_PARTNER
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

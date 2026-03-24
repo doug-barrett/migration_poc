@@ -1,0 +1,77 @@
+fileVersion: 1
+id: 27826228-0730-448b-82f4-047d11a7137e
+name: V_PREF_AMS_LOB_MODE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 24450e7b-d5ee-456f-9b74-3ca2f1997120
+          stepCounter: 27826228-0730-448b-82f4-047d11a7137e
+        config: {}
+        dataType: VARCHAR(5)
+        defaultValue: ""
+        description: ""
+        name: NAMELOBS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f560846f-bd0c-4162-b371-ad64c00f368e
+                stepCounter: 4557f350-c0f9-4c0c-81ba-cff8d26f7e22
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3f4fdb17-8236-408e-bb9f-e169038655eb
+          stepCounter: 27826228-0730-448b-82f4-047d11a7137e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: MODEID_1
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREF_AMS_LOB_MODE: 27826228-0730-448b-82f4-047d11a7137e
+          V_S_AMS_LOBSETUP_MROC_CURRENT: 4557f350-c0f9-4c0c-81ba-cff8d26f7e22
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PREF_AMS_LOB_MODE') }} AS SELECT NameLOBs,
+                   CASE WHEN NameLOBs = 'AUTOP'                           THEN 1
+                        WHEN IncomeGrpLOBS = 'OP'                         THEN 2
+                        WHEN IncomeGrpLOBS = 'PC' AND NameLOBs != 'AUTOP' THEN 3
+                        ELSE 0
+                         END AS ModeID_1
+              FROM {{ ref('STAGE','V_S_AMS_LOBSETUP_MROC_CURRENT') }}
+             WHERE IncomeGrpLOBS IN ('OP','PC')
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AMS_LOBSETUP_MROC_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_S_AMS_LOBSETUP_MROC_CURRENT') }}
+        name: V_PREF_AMS_LOB_MODE
+        noLinkRefs: []
+  name: V_PREF_AMS_LOB_MODE
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

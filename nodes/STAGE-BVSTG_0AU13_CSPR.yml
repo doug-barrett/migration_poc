@@ -1,0 +1,278 @@
+fileVersion: 1
+id: 99c80afe-c071-452f-8459-fbfe556463fe
+name: BVSTG_0AU13_CSPR
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1bcd2b47-c49a-45d8-ab41-238058061e9d
+          stepCounter: 99c80afe-c071-452f-8459-fbfe556463fe
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_0AU13_CSPR_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(v_dlbv_osm_relationship_current.childid)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: da5e3221-63de-4a67-9d12-c0a8aa4de505
+          stepCounter: 99c80afe-c071-452f-8459-fbfe556463fe
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: CHILDID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d32e8ce1-674e-436d-b067-2180c19e6c0f
+                stepCounter: d0ff5487-0256-482e-8f8b-eb1718384786
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0db4402d-ab02-4d41-a49f-4c02ad17579d
+          stepCounter: 99c80afe-c071-452f-8459-fbfe556463fe
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CHILD_DESCR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4500d383-227a-4710-b9e5-1a25a46b2e38
+          stepCounter: 99c80afe-c071-452f-8459-fbfe556463fe
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: ACCOUNTS_MAPPED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bd62eb57-782f-494e-b89a-e3ab77c07b4e
+          stepCounter: 99c80afe-c071-452f-8459-fbfe556463fe
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e16712f3-f9c4-45ac-a840-77349f981859
+          stepCounter: 99c80afe-c071-452f-8459-fbfe556463fe
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_DLBV_OSM_MEMBER_CURRENT: dd70a2ba-0013-4f94-96ba-482a4e6cd1d3
+          V_DLBV_OSM_RELATIONSHIP_CURRENT: d0ff5487-0256-482e-8f8b-eb1718384786
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_DLBV_OSM_MEMBER_CURRENT
+          - locationName: STAGE
+            nodeName: V_DLBV_OSM_RELATIONSHIP_CURRENT
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM ( SELECT *
+              FROM ( SELECT t1.childid,
+                   t2.description AS child_descr,
+                   Accounts_Mapped
+              FROM ( SELECT DISTINCT memberid AS childid,
+                   description AS Accounts_Mapped
+              FROM (
+                    SELECT DISTINCT memberid,
+                           description
+                      FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                     WHERE name = '410010'
+                     UNION SELECT DISTINCT childid,
+                           (
+                            SELECT DISTINCT description
+                              FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                             WHERE name = '410010'
+                           ) AS description
+                      FROM (
+                            SELECT DISTINCT childid
+                              FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                             WHERE parentid IN (
+                                    SELECT DISTINCT memberid
+                                      FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                                     WHERE name = '410010'
+                                   )
+                             UNION SELECT DISTINCT b.childid childid
+                              FROM (
+                                    SELECT *
+                                      FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                                     WHERE parentid IN (
+                                            SELECT DISTINCT memberid
+                                              FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                                             WHERE name = '410010'
+                                           )
+                                   ) a
+                              LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} b
+                                ON a.childid=b.parentid
+                           )
+                   )
+             UNION (
+                    SELECT DISTINCT memberid,
+                           description
+                      FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                     WHERE name = '410080Op'
+                     UNION SELECT DISTINCT childid,
+                           (
+                            SELECT DISTINCT description
+                              FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                             WHERE name = '410080Op'
+                           ) AS description
+                      FROM (
+                            SELECT DISTINCT childid
+                              FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                             WHERE parentid IN (
+                                    SELECT DISTINCT memberid
+                                      FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                                     WHERE name = '410080Op'
+                                   )
+                             UNION SELECT DISTINCT b.childid childid
+                              FROM (
+                                    SELECT *
+                                      FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                                     WHERE parentid IN (
+                                            SELECT DISTINCT memberid
+                                              FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                                             WHERE name = '410080Op'
+                                           )
+                                   ) a
+                              LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} b
+                                ON a.childid=b.parentid
+                           )
+                   )
+             UNION (
+                    SELECT DISTINCT memberid,
+                           description
+                      FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                     WHERE name = 'FeeIncomeSubtotal'
+                     UNION SELECT DISTINCT childid,
+                           (
+                            SELECT DISTINCT description
+                              FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                             WHERE name = 'FeeIncomeSubtotal'
+                           ) AS description
+                      FROM (
+                            SELECT DISTINCT childid
+                              FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                             WHERE parentid IN (
+                                    SELECT DISTINCT memberid
+                                      FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                                     WHERE name = 'FeeIncomeSubtotal'
+                                   )
+                             UNION SELECT DISTINCT b.childid childid
+                              FROM (
+                                    SELECT *
+                                      FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                                     WHERE parentid IN (
+                                            SELECT DISTINCT memberid
+                                              FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                                             WHERE name = 'FeeIncomeSubtotal'
+                                           )
+                                   ) a
+                              LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} b
+                                ON a.childid=b.parentid
+                             UNION SELECT DISTINCT c.childid childid
+                              FROM (
+                                    SELECT *
+                                      FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                                     WHERE parentid IN (
+                                            SELECT DISTINCT memberid
+                                              FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                                             WHERE name = 'FeeIncomeSubtotal'
+                                           )
+                                   ) a
+                              LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} b
+                                ON a.childid=b.parentid
+                              LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} c
+                                ON b.childid=c.parentid
+                             UNION SELECT DISTINCT d.childid childid
+                              FROM (
+                                    SELECT *
+                                      FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+                                     WHERE parentid IN (
+                                            SELECT DISTINCT memberid
+                                              FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                                             WHERE name = 'FeeIncomeSubtotal'
+                                           )
+                                   ) a
+                              LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} b
+                                ON a.childid=b.parentid
+                              LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} c
+                                ON b.childid=c.parentid
+                              LEFT JOIN {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }} d
+                                ON c.childid=d.parentid
+                           )
+                   )
+             UNION (SELECT DISTINCT memberid,
+                   description
+              FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+             WHERE name = 'AncillaryIncomeSubtotal'
+             UNION SELECT DISTINCT childid,
+                   (
+                    SELECT DISTINCT description
+                      FROM {{ ref('STAGE','V_DLBV_OSM_MEMBER_CURRENT') }}
+                     WHERE name = 'AncillaryIncomeSubtotal'
+                   ) AS description
+              FROM ( SELECT DISTINCT childid
+              FROM {{ ref('STAGE','V_DLBV_OSM_RELATIONSHIP_CURRENT') }}
+             WHERE parentid IN (SELECT DISTINCT memberid
+              FROM [TABLEOWNER].[V_DLBV_OSM_MEMBER
+        name: BVSTG_0AU13_CSPR
+        noLinkRefs: []
+  name: BVSTG_0AU13_CSPR
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

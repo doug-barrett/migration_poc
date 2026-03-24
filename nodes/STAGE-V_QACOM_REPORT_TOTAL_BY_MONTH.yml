@@ -1,0 +1,94 @@
+fileVersion: 1
+id: b7af9ab1-4d9f-435e-805f-bac583c5ea28
+name: V_QACOM_REPORT_TOTAL_BY_MONTH
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9be8a277-75d7-4423-8631-98f05383cbe3
+          stepCounter: b7af9ab1-4d9f-435e-805f-bac583c5ea28
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CARRIER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d4fd7fff-83c4-4325-b76a-449218dcb3f1
+                stepCounter: f457036c-71e2-4ff2-b58f-4e37796bac1f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 163c561e-3e5e-4e37-81c8-b944b7f30510
+          stepCounter: b7af9ab1-4d9f-435e-805f-bac583c5ea28
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: EXECUTIONMONTH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 311f150f-e373-436d-8aeb-9d88bd30c624
+                stepCounter: f457036c-71e2-4ff2-b58f-4e37796bac1f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c2f3bc9b-ab3d-41d5-9e35-740fbd0e6bb9
+          stepCounter: b7af9ab1-4d9f-435e-805f-bac583c5ea28
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0348c1f1-7efd-4119-8987-6cc55f275f61
+                stepCounter: f457036c-71e2-4ff2-b58f-4e37796bac1f
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_QACOM_REPORT_TOTAL_BY_MONTH: b7af9ab1-4d9f-435e-805f-bac583c5ea28
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_QACOM_REPORT_TOTAL_BY_MONTH') }} AS SELECT V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.Carrier,
+                   V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.ExecutionMonth,
+                   sum(V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.PREMIUM) AS PREMIUM_SUM,
+                   sum(V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.ACTUALCOMMISSION) AS COMMISSION_SUM
+              FROM "RETAIL_DEV"."SCH_BVSTAGE"."V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT" V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT
+             WHERE V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.IsDeleted = 'False'
+             GROUP BY V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.ExecutionMonth,
+                      V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.Carrier
+             ORDER BY V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT.ExecutionMonth DESC
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_DLBV_COMM_CARRIERDATAREPOSITORYCOMPLETE_CURRENT') }}
+        name: V_QACOM_REPORT_TOTAL_BY_MONTH
+        noLinkRefs: []
+  name: V_QACOM_REPORT_TOTAL_BY_MONTH
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

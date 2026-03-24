@@ -1,0 +1,104 @@
+fileVersion: 1
+id: 6d62c48c-82dd-42d6-a4e8-b09165672f67
+name: V_PREB_AMS_AU0_PREMIUM
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 30673570-b895-460c-8233-b6d895e9174d
+          stepCounter: 6d62c48c-82dd-42d6-a4e8-b09165672f67
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: POLID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 87d1bd0d-2366-4f3f-bcf2-8ca3b7a213ba
+                stepCounter: 67f84403-360e-4a29-8ad5-22e902d5e9d0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6ca7667b-54fe-4f9c-8871-a7e8451964c2
+          stepCounter: 6d62c48c-82dd-42d6-a4e8-b09165672f67
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: LINEOFBUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ad68f71b-ad81-4f79-95e6-68a7634a75f9
+          stepCounter: 6d62c48c-82dd-42d6-a4e8-b09165672f67
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: ISBILLING
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_AMS_AU0_PREMIUM: 6d62c48c-82dd-42d6-a4e8-b09165672f67
+          BVSTG_AMS_AU00_INVOICE_TO_REFRESH: 152a9a5e-cf48-403d-a464-44398e034f4b
+          V_S_AMS_POLICYTRANPREMIUM_MROC_CURRENT: 3f6eafb2-7365-4684-8bcc-191074ddca94
+          V_S_AMS_BASICPOLINFO_MROC_CURRENT: 67f84403-360e-4a29-8ad5-22e902d5e9d0
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PREB_AMS_AU0_PREMIUM') }} AS SELECT POL.PolID,
+                   PR.LineOfBus,
+                   COUNT(1) AS isBilling
+              FROM {{ ref('STAGE','BVSTG_AMS_AU00_INVOICE_TO_REFRESH') }} INVTP
+             INNER JOIN {{ ref('STAGE','V_S_AMS_POLICYTRANPREMIUM_MROC_CURRENT') }} PR
+                ON (PR.poltpid = INVTP.poltpid AND PR.lineofbus = INVTP.lineofbus)
+             INNER JOIN {{ ref('STAGE','V_S_AMS_BASICPOLINFO_MROC_CURRENT') }} POL
+                ON (PR.PolId= POl.PolID AND TO_DATE(PR.ENTEREDDATE) >= TO_DATE(POL.ENTEREDDATE) AND TO_DATE(PR.ENTEREDDATE) <= TO_DATE(POL.POLEXPDATE) AND PR.BilledPremium > 0)
+             GROUP BY POL.PolID,
+                      PR.LineOfBus
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AMS_BASICPOLINFO_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: BVSTG_AMS_AU00_INVOICE_TO_REFRESH
+          - locationName: STAGE
+            nodeName: V_S_AMS_POLICYTRANPREMIUM_MROC_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_S_AMS_BASICPOLINFO_MROC_CURRENT') }}
+            {{ ref('STAGE','BVSTG_AMS_AU00_INVOICE_TO_REFRESH') }}
+            {{ ref('STAGE','V_S_AMS_POLICYTRANPREMIUM_MROC_CURRENT') }}
+        name: V_PREB_AMS_AU0_PREMIUM
+        noLinkRefs: []
+  name: V_PREB_AMS_AU0_PREMIUM
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

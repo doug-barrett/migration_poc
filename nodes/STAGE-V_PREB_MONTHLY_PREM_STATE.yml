@@ -1,0 +1,108 @@
+fileVersion: 1
+id: d46c9c37-61c9-42ce-adb8-6c73f6f3ea4e
+name: V_PREB_MONTHLY_PREM_STATE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0dbd863b-1cdb-4610-a137-2174c2a0b485
+          stepCounter: d46c9c37-61c9-42ce-adb8-6c73f6f3ea4e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f1c765bb-4ea1-4244-9cdd-ca8fce0b88b8
+          stepCounter: d46c9c37-61c9-42ce-adb8-6c73f6f3ea4e
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: INPUTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1a80bbb0-9bae-44d7-a79e-c32a8230b4d7
+          stepCounter: d46c9c37-61c9-42ce-adb8-6c73f6f3ea4e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 67e98982-93bb-487a-b465-1285878e5bdc
+          stepCounter: d46c9c37-61c9-42ce-adb8-6c73f6f3ea4e
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: SOURCEDB
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_MONTHLY_PREM_STATE: d46c9c37-61c9-42ce-adb8-6c73f6f3ea4e
+          BVSTG_MONTHLY_PREMIUM: b8db376e-2489-44d0-a9ce-16ad1e8c248b
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PREB_MONTHLY_PREM_STATE') }} AS SELECT State ,
+                   CASE WHEN SINGLE_CAR_FLAG = 1 THEN 'Single'
+                        ELSE 'Multple'
+                         END Vehicle ,
+                   COUNT(1) Counts ,
+                   MEDIAN(MONTHLYWRITTENPREMIUM) MedianMWP ,
+                   AVG(MONTHLYWRITTENPREMIUM) AverageMWP ,
+                   STDDEV(MONTHLYWRITTENPREMIUM) StdevMWP
+              FROM {{ ref('STAGE','BVSTG_MONTHLY_PREMIUM') }}
+             WHERE CREATEDDATE >= CURRENT_DATE -90
+               AND State NOT IN('DC','Missing')
+             GROUP BY State ,
+                      CASE WHEN SINGLE_CAR_FLAG = 1 THEN 'Single'
+                           ELSE 'Multple'
+                            END
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_MONTHLY_PREMIUM
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','BVSTG_MONTHLY_PREMIUM') }}
+        name: V_PREB_MONTHLY_PREM_STATE
+        noLinkRefs: []
+  name: V_PREB_MONTHLY_PREM_STATE
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

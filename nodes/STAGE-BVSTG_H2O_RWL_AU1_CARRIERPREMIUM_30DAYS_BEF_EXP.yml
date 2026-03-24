@@ -1,0 +1,130 @@
+fileVersion: 1
+id: 22dee0d9-7814-46c3-8fcd-7aa654b5bc96
+name: BVSTG_H2O_RWL_AU1_CARRIERPREMIUM_30DAYS_BEF_EXP
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ce8d0b93-80d5-46a4-905d-e25d87e6d7e9
+          stepCounter: 22dee0d9-7814-46c3-8fcd-7aa654b5bc96
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: PR_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a14a3169-be89-46f2-8a66-a0ecb7a2dc33
+                stepCounter: 2a2051cb-983b-412d-95c5-c709a18b3b5e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d91e925b-ac64-4b2a-b46a-9cb52afe86b9
+          stepCounter: 22dee0d9-7814-46c3-8fcd-7aa654b5bc96
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: CARRIERPREMIUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(ds_ram_retail_repository.Amount)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d9bf9749-7861-4e8f-9f29-41995bcc413e
+          stepCounter: 22dee0d9-7814-46c3-8fcd-7aa654b5bc96
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: CARRIERPREMIUMON30DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN DATE(ds_ram_retail_repository.CREATEDDATE) <= ds_policysummary_renewals.renewal_start_period THEN ds_ram_retail_repository.Amount ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 02b5db36-14bd-429e-8bf9-acad55595217
+          stepCounter: 22dee0d9-7814-46c3-8fcd-7aa654b5bc96
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 84d70956-0e69-4a1e-a086-7093e8992d13
+          stepCounter: 22dee0d9-7814-46c3-8fcd-7aa654b5bc96
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_POLICYSUMMARY_RENEWALS: 2a2051cb-983b-412d-95c5-c709a18b3b5e
+          DS_RAM_RETAIL_REPOSITORY: d29a0c5c-e296-46c4-bc55-861d60fe906d
+          BVSTG_CUSTOMER_TO_REFRESH: 7cbd0921-faef-4eb6-bdf6-f95f09598096
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_POLICYSUMMARY_RENEWALS
+          - locationName: EDW
+            nodeName: DS_RAM_RETAIL_REPOSITORY
+          - locationName: STAGE
+            nodeName: BVSTG_CUSTOMER_TO_REFRESH
+        join:
+          joinCondition: |-
+            FROM {{ ref('EDW','DS_POLICYSUMMARY_RENEWALS') }} ds_policysummary_renewals
+             INNER JOIN {{ ref('EDW','DS_RAM_RETAIL_REPOSITORY') }} ds_ram_retail_repository
+                ON TO_VARCHAR(ds_ram_retail_repository.transactionid) = TO_VARCHAR(ds_policysummary_renewals.transactionid)
+             INNER JOIN (
+                    SELECT DISTINCT customerid,
+                           SourceDB
+                      FROM {{ ref('STAGE','BVSTG_CUSTOMER_TO_REFRESH') }}
+                   ) bvstg_customer_to_refresh
+                ON TO_CHAR(bvstg_customer_to_refresh.customerid) = TO_CHAR(ds_policysummary_renewals.customerid)
+               AND bvstg_customer_to_refresh.SourceDB = ds_policysummary_renewals.SourceDB
+             WHERE ds_ram_retail_repository.TransactionType IN ('New Business')
+               AND ds_ram_retail_repository.CLASSIFICATION = 'Carrier Premium'
+               AND ds_ram_retail_repository.ISCORPORATEVOID = 0
+               AND ds_ram_retail_repository.ISVOID = 0
+             GROUP BY ds_policysummary_renewals.ID
+        name: BVSTG_H2O_RWL_AU1_CARRIERPREMIUM_30DAYS_BEF_EXP
+        noLinkRefs: []
+  name: BVSTG_H2O_RWL_AU1_CARRIERPREMIUM_30DAYS_BEF_EXP
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

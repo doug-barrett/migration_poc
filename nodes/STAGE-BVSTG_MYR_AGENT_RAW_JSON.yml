@@ -1,0 +1,81 @@
+fileVersion: 1
+id: 9e1ad4bb-e117-4ebb-8584-2fcba633cde6
+name: BVSTG_MYR_AGENT_RAW_JSON
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7f1ac31b-4e50-4cc9-84d1-2cd64e7fa5c6
+          stepCounter: 9e1ad4bb-e117-4ebb-8584-2fcba633cde6
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: AGENT_ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8aa097c3-d3e8-4668-93ec-e9e61d3b44bf
+          stepCounter: 9e1ad4bb-e117-4ebb-8584-2fcba633cde6
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: PLAN_MONTH_YEAR
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: DATE_TRUNC('MONTH', CURRENT_DATE())
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3bfe1fb4-7e0a-45d3-894b-69cbcbe8f1de
+          stepCounter: 9e1ad4bb-e117-4ebb-8584-2fcba633cde6
+        config: {}
+        dataType: VARIANT
+        defaultValue: ""
+        description: ""
+        name: RAW_JSON
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: PARSE_JSON(AI_COMPLETE(model => 'claude-4-sonnet', prompt => AI_PROMPT, model_parameters => OBJECT_CONSTRUCT('temperature', 0.3, 'max_tokens', 8192), response_format => COALESCE(AI_RESPONSE_FORMAT:response_format, AI_RESPONSE_FORMAT), show_details => FALSE))
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_MYR_AGENT_AI_PREP
+          - locationName: UNKNOWN
+            nodeName: V_MYR_AGENT_AI_PREP
+        join:
+          joinCondition: FROM {{ ref('UNKNOWN','V_MYR_AGENT_AI_PREP') }} V_MYR_AGENT_AI_PREP
+        name: BVSTG_MYR_AGENT_RAW_JSON
+        noLinkRefs: []
+  name: BVSTG_MYR_AGENT_RAW_JSON
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,65 @@
+fileVersion: 1
+id: f6d6d6d4-6f06-4dfb-b1b0-d643fa622247
+name: BVSTG_PRED_TRANSACTIONTYPE
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "temp table for DIM Transaction Type"
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9a44bbf2-2073-4dc4-b3b6-00135aeda5ec
+          stepCounter: f6d6d6d4-6f06-4dfb-b1b0-d643fa622247
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: TransactionType
+        name: TRANSACTIONTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          REF_AP1_CODEVALUE: 3e151b27-0aac-487a-9684-1e06159f8b6e
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: REF_AP1_CODEVALUE
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT codevalue AS TransactionType
+                      FROM {{ ref('EDW','REF_AP1_CODEVALUE') }}
+                     WHERE CODEDEFINITIONID = 6
+                       AND ISROWDELETED= 'FALSE'
+                     UNION SELECT 'Goal' AS TransactionType
+                     UNION SELECT 'Lead' AS TransactionType
+                     UNION SELECT 'Quote' AS TransactionType
+                     UNION SELECT 'Rewrite' AS TransactionType
+                   )ref_ap1_codevalue
+        name: BVSTG_PRED_TRANSACTIONTYPE
+        noLinkRefs: []
+  name: BVSTG_PRED_TRANSACTIONTYPE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

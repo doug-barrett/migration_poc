@@ -1,0 +1,146 @@
+fileVersion: 1
+id: 6faeffc2-3eb5-4736-93c8-3b43d6f99ea3
+name: V_PREB_CUSTOMER_SUMMARY_ADDITIONALPRODUCT
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: false
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e91d9ef3-0987-44be-9a70-04310033c756
+          stepCounter: 6faeffc2-3eb5-4736-93c8-3b43d6f99ea3
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b05a99f2-8abf-4ed3-8ff4-9c98dc63fe28
+          stepCounter: 6faeffc2-3eb5-4736-93c8-3b43d6f99ea3
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: ADDITIONALPRODUCT_ACTIVE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9469978c-4413-4520-9006-bc43dc8c79b8
+          stepCounter: 6faeffc2-3eb5-4736-93c8-3b43d6f99ea3
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: ADDITIONALPRODUCT_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3703631d-e60b-4076-8fd8-ca1a20fd0e12
+          stepCounter: 6faeffc2-3eb5-4736-93c8-3b43d6f99ea3
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: ADDITIONALPRODUCT_EXPIRED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d37de059-8f1a-429f-bbf9-ee833ef72c2d
+          stepCounter: 6faeffc2-3eb5-4736-93c8-3b43d6f99ea3
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: SOURCEDB
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_CUSTOMER_SUMMARY_ADDITIONALPRODUCT: 6faeffc2-3eb5-4736-93c8-3b43d6f99ea3
+          DS_BVSTG_AP1_ANCILLARYPRODUCT: 7cc93e3c-b00d-4b64-bc70-8cb95ccbfebe
+          BVSTG_CUSTOMER_TO_REFRESH: 7cbd0921-faef-4eb6-bdf6-f95f09598096
+          DS_AMS_TRANSACTIONDETAIL: 4936a3c8-0f74-4387-9efa-a5a8cec1fedb
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PREB_CUSTOMER_SUMMARY_ADDITIONALPRODUCT') }} AS SELECT cast(ds_bvstg_ap1_ancillaryproduct.customerid AS varchar(100)) AS customerid ,
+                   count(1) AS Additionalproduct_count ,
+                   SUM(CASE WHEN ds_bvstg_ap1_ancillaryproduct.status='Active' THEN 1 ELSE 0 END) AS Additionalproduct_active ,
+                   SUM(CASE WHEN ds_bvstg_ap1_ancillaryproduct.status='Expired' THEN 1 ELSE 0 END) AS Additionalproduct_expired ,
+                   'AppOne' AS SourceDB
+              FROM {{ ref('STAGE','DS_BVSTG_AP1_ANCILLARYPRODUCT') }} ds_bvstg_ap1_ancillaryproduct
+             INNER JOIN (
+                    SELECT DISTINCT customerid
+                      FROM {{ ref('STAGE','BVSTG_CUSTOMER_TO_REFRESH') }}
+                     WHERE bvstg_customer_to_refresh.SourceDb = 'AppOne'
+                   ) bvstg_customer_to_refresh
+                ON bvstg_customer_to_refresh.customerid = TO_CHAR(ds_bvstg_ap1_ancillaryproduct.customerid)
+             GROUP BY cast(ds_bvstg_ap1_ancillaryproduct.customerid AS varchar(100))
+             UNION SELECT ds_ams_transactiondetail.customerid ,
+                   count(1) AS Additionalproduct_count ,
+                   SUM(CASE WHEN DATEADD(MONTH,ds_ams_transactiondetail.term,ds_ams_transactiondetail.PolicyEffectiveDate) > CURRENT_DATE() THEN 1 ELSE 0 END) AS Additionalproduct_active ,
+                   SUM(CASE WHEN DATEADD(MONTH,ds_ams_transactiondetail.term,ds_ams_transactiondetail.PolicyEffectiveDate) > CURRENT_DATE() THEN 0 ELSE 1 END) AS Additionalproduct_expired ,
+                   'CIGH' AS SourceDB
+              FROM {{ ref('EDW','DS_AMS_TRANSACTIONDETAIL') }} ds_ams_transactiondetail
+             INNER JOIN (
+                    SELECT DISTINCT customerid
+                      FROM {{ ref('STAGE','BVSTG_CUSTOMER_TO_REFRESH') }}
+                     WHERE bvstg_customer_to_refresh.SourceDb = 'CIGH'
+                   ) bvstg_customer_to_refresh
+                ON bvstg_customer_to_refresh.customerid = ds_ams_transactiondetail.customerid
+             WHERE ds_ams_transactiondetail.modeid IN (22,24)
+             GROUP BY ds_ams_transactiondetail.customerid
+        dependencies:
+          - locationName: UNKNOWN
+            nodeName: DS_AP1_ANCILLARYPRODUCT
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_ANCILLARYPRODUCT
+          - locationName: STAGE
+            nodeName: BVSTG_CUSTOMER_TO_REFRESH
+          - locationName: EDW
+            nodeName: DS_AMS_TRANSACTIONDETAIL
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('UNKNOWN','DS_AP1_ANCILLARYPRODUCT') }}
+            {{ ref('STAGE','DS_BVSTG_AP1_ANCILLARYPRODUCT') }}
+            {{ ref('STAGE','BVSTG_CUSTOMER_TO_REFRESH') }}
+            {{ ref('EDW','DS_AMS_TRANSACTIONDETAIL') }}
+        name: V_PREB_CUSTOMER_SUMMARY_ADDITIONALPRODUCT
+        noLinkRefs: []
+  name: V_PREB_CUSTOMER_SUMMARY_ADDITIONALPRODUCT
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

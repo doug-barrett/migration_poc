@@ -1,0 +1,101 @@
+fileVersion: 1
+id: 7d6c028b-4b6b-45b1-ae19-bde39509106a
+name: V_BFI_POLICY_EMAIL
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: DATA_LAKE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e5b5d70f-7afe-41c2-be04-d2f431ce231f
+          stepCounter: 7d6c028b-4b6b-45b1-ae19-bde39509106a
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: POLICY_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: XMLGET(policy.value,'policy_id'):"$" ::integer
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bc93459c-9f14-4de8-b585-ce138c2e2b4e
+          stepCounter: 7d6c028b-4b6b-45b1-ae19-bde39509106a
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: EMAIL_ADDRESS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: XMLGET(email.VALUE,'email_address'):"$" ::varchar(32)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9567b431-3b56-4078-b1cd-bf6f487cf5ef
+          stepCounter: 7d6c028b-4b6b-45b1-ae19-bde39509106a
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: Record source.
+        name: DSS_RECORD_SOURCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6c2078c6-7fb9-40bf-8637-565ada0a62b8
+                stepCounter: 5042222a-566a-46ec-8a10-51937378b7ba
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6c5c1789-af47-46a1-8a5b-c191a73b3b01
+          stepCounter: 7d6c028b-4b6b-45b1-ae19-bde39509106a
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Load date.
+        name: DSS_LOAD_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 03933b2f-65a9-432e-a883-328399ec3fd3
+                stepCounter: 5042222a-566a-46ec-8a10-51937378b7ba
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          LD_BFI_POLICY_TRANSACTION: 5042222a-566a-46ec-8a10-51937378b7ba
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DATA_LAKE
+            nodeName: LD_BFI_POLICY_TRANSACTION
+        join:
+          joinCondition: |-
+            FROM {{ ref('DATA_LAKE','LD_BFI_POLICY_TRANSACTION') }} ld_bfi_policy_transaction ,
+                   LATERAL FLATTEN(ld_bfi_policy_transaction .policyxml:"$") policy ,
+                   LATERAL FLATTEN(policy.value:"$") email
+             WHERE GET(email.value,'@') = 'Email'
+        name: V_BFI_POLICY_EMAIL
+        noLinkRefs: []
+  name: V_BFI_POLICY_EMAIL
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

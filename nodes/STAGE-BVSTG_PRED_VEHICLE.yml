@@ -1,0 +1,137 @@
+fileVersion: 1
+id: bbd29988-9395-4846-92cb-3983ada6e758
+name: BVSTG_PRED_VEHICLE
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "temp table for DIM Vehicle"
+  isMultisource: true
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9c9e72bb-2284-4414-8c57-60574bc87d95
+          stepCounter: bbd29988-9395-4846-92cb-3983ada6e758
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: make
+        isBusinessKey: true
+        name: MAKE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5fd80896-720f-4766-92e1-d27a7b59fc51
+                stepCounter: 52e50954-7bee-45db-87cc-98d1e945624a
+            transform: UPPER(v_s_ams_vehicle_mroc_current.make)
+          - columnReferences:
+              - columnCounter: 8efcad4c-6c6f-48eb-9863-1f2b29196f3d
+                stepCounter: 35b9a1d7-3392-4409-9115-61a258435c93
+            transform: UPPER(v_s_ap1_policyvehicle_mroc_current.make)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 781876ac-6ae3-4148-a9e5-2a4a3d77cabd
+          stepCounter: bbd29988-9395-4846-92cb-3983ada6e758
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: model
+        isBusinessKey: true
+        name: MODEL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 593fe0d2-ca8c-41e1-bbd7-563e2d657a34
+                stepCounter: 52e50954-7bee-45db-87cc-98d1e945624a
+            transform: UPPER(v_s_ams_vehicle_mroc_current.model)
+          - columnReferences:
+              - columnCounter: 44827d23-22fa-45a8-b9f6-6a9bec1e2639
+                stepCounter: 35b9a1d7-3392-4409-9115-61a258435c93
+            transform: UPPER(v_s_ap1_policyvehicle_mroc_current.model)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4db49aad-af2d-4b04-9767-fe4948cfc467
+          stepCounter: bbd29988-9395-4846-92cb-3983ada6e758
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: vehyear
+        isBusinessKey: true
+        name: VEHYEAR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1832dccb-6ab2-456d-b541-5246f55edcaf
+                stepCounter: 52e50954-7bee-45db-87cc-98d1e945624a
+            transform: CAST(v_s_ams_vehicle_mroc_current.vehyear AS varchar(10))
+          - columnReferences:
+              - columnCounter: bca95c7c-47e8-460a-86e7-df361d350870
+                stepCounter: 35b9a1d7-3392-4409-9115-61a258435c93
+            transform: CAST(v_s_ap1_policyvehicle_mroc_current.vehicleyear AS varchar(10))
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_S_AMS_VEHICLE_MROC_CURRENT: 52e50954-7bee-45db-87cc-98d1e945624a
+          BVSTG_PRED_VEHICLE: bbd29988-9395-4846-92cb-3983ada6e758
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AMS_VEHICLE_MROC_CURRENT
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_S_AMS_VEHICLE_MROC_CURRENT') }} v_s_ams_vehicle_mroc_current
+              LEFT JOIN {{ ref_no_link('STAGE','BVSTG_PRED_VEHICLE') }} bvstg_pred_vehicle
+                ON UPPER(v_s_ams_vehicle_mroc_current.make) = bvstg_pred_vehicle.make
+               AND UPPER(v_s_ams_vehicle_mroc_current.model) = bvstg_pred_vehicle.model
+               AND CAST(v_s_ams_vehicle_mroc_current.vehyear AS varchar(10)) = bvstg_pred_vehicle.vehyear
+             WHERE v_s_ams_vehicle_mroc_current.make IS NOT NULL
+               AND v_s_ams_vehicle_mroc_current.make <>''
+               AND v_s_ams_vehicle_mroc_current.model IS NOT NULL
+               AND v_s_ams_vehicle_mroc_current.model <>''
+               AND v_s_ams_vehicle_mroc_current.vehyear IS NOT NULL
+               AND v_s_ams_vehicle_mroc_current.vehyear <>''
+               AND bvstg_pred_vehicle.make IS NULL
+        name: SRC_bvstg_pred_vehicle_ams
+        noLinkRefs: []
+      - aliases:
+          V_S_AP1_POLICYVEHICLE_MROC_CURRENT: 35b9a1d7-3392-4409-9115-61a258435c93
+          BVSTG_PRED_VEHICLE: bbd29988-9395-4846-92cb-3983ada6e758
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_POLICYVEHICLE_MROC_CURRENT
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_S_AP1_POLICYVEHICLE_MROC_CURRENT') }} v_s_ap1_policyvehicle_mroc_current
+              LEFT JOIN {{ ref_no_link('STAGE','BVSTG_PRED_VEHICLE') }} bvstg_pred_vehicle
+                ON UPPER(v_s_ap1_policyvehicle_mroc_current.make) = bvstg_pred_vehicle.make
+               AND UPPER(v_s_ap1_policyvehicle_mroc_current.model) = bvstg_pred_vehicle.model
+               AND CAST(v_s_ap1_policyvehicle_mroc_current.vehicleyear AS varchar(10)) = bvstg_pred_vehicle.vehyear
+             WHERE v_s_ap1_policyvehicle_mroc_current.make IS NOT NULL
+               AND v_s_ap1_policyvehicle_mroc_current.make <> ''
+               AND v_s_ap1_policyvehicle_mroc_current.model IS NOT NULL
+               AND v_s_ap1_policyvehicle_mroc_current.model <> ''
+               AND v_s_ap1_policyvehicle_mroc_current.vehicleyear IS NOT NULL
+               AND v_s_ap1_policyvehicle_mroc_current.vehicleyear > 0
+               AND v_s_ap1_policyvehicle_mroc_current.isrowdeleted=0
+               AND bvstg_pred_vehicle.make IS NULL
+        name: SRC_bvstg_pred_vehicle_ap1
+        noLinkRefs: []
+  name: BVSTG_PRED_VEHICLE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

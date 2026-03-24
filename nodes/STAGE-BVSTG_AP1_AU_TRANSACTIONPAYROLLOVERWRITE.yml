@@ -1,0 +1,128 @@
+fileVersion: 1
+id: 357a2431-6b98-4e5c-bed5-51402a301a57
+name: BVSTG_AP1_AU_TRANSACTIONPAYROLLOVERWRITE
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "identify PayRollOverWrite transaction"
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 41379807-6019-4746-82dd-51fa9d426a71
+          stepCounter: 357a2431-6b98-4e5c-bed5-51402a301a57
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cd8888f6-6bd7-4625-a22b-3602bbfd5e2d
+                stepCounter: ca04db32-039a-4b56-95c0-394b7b641187
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 10ace38c-445f-4bd5-a363-64125660e242
+          stepCounter: 357a2431-6b98-4e5c-bed5-51402a301a57
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: ""
+        name: CORPORATEVOID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MAX(v_s_ap1_payrolloverwrite_mroc_current.NAME)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fe0a1f9e-c4cd-4bd4-bfef-7155d1e7e96a
+          stepCounter: 357a2431-6b98-4e5c-bed5-51402a301a57
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: CORPORATEVOIDON
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MAX(TO_DATE(v_s_ap1_transactionstatus_mroc_current.Created))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 19c8e869-cdcf-4204-947f-e2dfde367dc6
+          stepCounter: 357a2431-6b98-4e5c-bed5-51402a301a57
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7d7b4622-9415-4c1a-96c4-ba82e76e8ca7
+          stepCounter: 357a2431-6b98-4e5c-bed5-51402a301a57
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_S_AP1_TRANSACTIONSTATUS_MROC_CURRENT: ca04db32-039a-4b56-95c0-394b7b641187
+          V_S_AP1_ORGANIZATIONTRANSACTIONSTATUSTYPE_MROC_CURRENT: bc29b51d-5629-4981-b1ed-213826f5bb7e
+          V_S_AP1_PAYROLLOVERWRITE_MROC_CURRENT: 8b1c113a-b779-47bf-9bfc-4889f6a81832
+          BVSTG_AP1_TRANSACTION_REFRESH: eccb40c9-8d41-4044-b9ea-23d04db3e7bc
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_TRANSACTIONSTATUS_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AP1_ORGANIZATIONTRANSACTIONSTATUSTYPE_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AP1_PAYROLLOVERWRITE_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: BVSTG_AP1_TRANSACTION_REFRESH
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_S_AP1_TRANSACTIONSTATUS_MROC_CURRENT') }} v_s_ap1_transactionstatus_mroc_current
+             INNER JOIN {{ ref('STAGE','V_S_AP1_ORGANIZATIONTRANSACTIONSTATUSTYPE_MROC_CURRENT') }} v_s_ap1_organizationtransactionstatustype_mroc_current
+                ON v_s_ap1_transactionstatus_mroc_current.Transactionstatustypeid = v_s_ap1_organizationtransactionstatustype_mroc_current.Organizationtransactionstatustypeid
+             INNER JOIN {{ ref('STAGE','V_S_AP1_PAYROLLOVERWRITE_MROC_CURRENT') }} v_s_ap1_payrolloverwrite_mroc_current
+                ON v_s_ap1_transactionstatus_mroc_current.Transactionpayrolloverwriteid = v_s_ap1_payrolloverwrite_mroc_current.Payrolloverwriteid
+             INNER JOIN {{ ref('STAGE','BVSTG_AP1_TRANSACTION_REFRESH') }} bvstg_ap1_transaction_refresh
+                ON v_s_ap1_transactionstatus_mroc_current.transactionid = bvstg_ap1_transaction_refresh.transactionid
+             WHERE v_s_ap1_payrolloverwrite_mroc_current.NAME like '%Corporate %'
+             GROUP BY v_s_ap1_transactionstatus_mroc_current.Transactionid
+        name: BVSTG_AP1_AU_TRANSACTIONPAYROLLOVERWRITE
+        noLinkRefs: []
+  name: BVSTG_AP1_AU_TRANSACTIONPAYROLLOVERWRITE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

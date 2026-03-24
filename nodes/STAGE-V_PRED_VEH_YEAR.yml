@@ -1,0 +1,70 @@
+fileVersion: 1
+id: c5363b36-111d-41b4-8a75-cb20e12f1a74
+name: V_PRED_VEH_YEAR
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 90e8bdf3-e545-40ef-b024-f116c28a60b3
+          stepCounter: c5363b36-111d-41b4-8a75-cb20e12f1a74
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: vehyear
+        name: VEHYEAR
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PRED_VEH_YEAR: c5363b36-111d-41b4-8a75-cb20e12f1a74
+          V_S_AMS_VEHICLE_MROC_CURRENT: 52e50954-7bee-45db-87cc-98d1e945624a
+          V_S_AP1_POLICYVEHICLE_MROC_CURRENT: 35b9a1d7-3392-4409-9115-61a258435c93
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PRED_VEH_YEAR') }} AS SELECT cast(vehyear AS varchar(10)) AS vehyear
+              FROM {{ ref('STAGE','V_S_AMS_VEHICLE_MROC_CURRENT') }}
+             WHERE vehyear IS NOT NULL
+               AND vehyear <>''
+             UNION SELECT cast(vehicleyear AS varchar(10)) AS vehyear
+              FROM {{ ref('STAGE','V_S_AP1_POLICYVEHICLE_MROC_CURRENT') }}
+             WHERE vehicleyear IS NOT NULL
+               AND vehicleyear > 0
+               AND isrowdeleted=0
+             ORDER BY 1;
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AMS_VEHICLE_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AP1_POLICYVEHICLE_MROC_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_S_AMS_VEHICLE_MROC_CURRENT') }}
+            {{ ref('STAGE','V_S_AP1_POLICYVEHICLE_MROC_CURRENT') }}
+        name: V_PRED_VEH_YEAR
+        noLinkRefs: []
+  name: V_PRED_VEH_YEAR
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

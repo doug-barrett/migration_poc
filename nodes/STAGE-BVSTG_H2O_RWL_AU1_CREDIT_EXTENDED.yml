@@ -1,0 +1,166 @@
+fileVersion: 1
+id: 888bcf87-bde1-4cc9-895b-9d5c2f61793d
+name: BVSTG_H2O_RWL_AU1_CREDIT_EXTENDED
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f884570b-c661-4e62-b8db-8bb22f58ce47
+          stepCounter: 888bcf87-bde1-4cc9-895b-9d5c2f61793d
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: PR_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0250d4ab-62cb-4c4a-ba8c-5e87bb562186
+          stepCounter: 888bcf87-bde1-4cc9-895b-9d5c2f61793d
+        config: {}
+        dataType: NUMBER(1,0)
+        defaultValue: ""
+        description: ""
+        name: IS_CREDIT_EXTENDED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONITEMAMOUNT > DS_BVSTG_AP1_PAYMENT.PAYMENT_AMOUNT THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 52570c8c-f551-4583-8f4c-12cdb3f9b80c
+          stepCounter: 888bcf87-bde1-4cc9-895b-9d5c2f61793d
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: CREDIT_EXTENDED_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONITEMAMOUNT > DS_BVSTG_AP1_PAYMENT.PAYMENT_AMOUNT THEN DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONITEMAMOUNT - DS_BVSTG_AP1_PAYMENT.PAYMENT_AMOUNT
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 486749cf-79c1-4a44-b774-ca0b42d5d8ff
+          stepCounter: 888bcf87-bde1-4cc9-895b-9d5c2f61793d
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f607728a-8d3e-47de-9ec2-4bc27d76c353
+          stepCounter: 888bcf87-bde1-4cc9-895b-9d5c2f61793d
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_POLICYSUMMARY_RENEWALS: 2a2051cb-983b-412d-95c5-c709a18b3b5e
+          DS_BVSTG_AP1_PAYMENT: 98dd5fca-4fd6-4ecd-85c3-eea74c0094f3
+          DS_BVSTG_AP1_TRANSACTIONITEM: 80f81938-7e6e-4863-9ea5-4321d79434f8
+          BVSTG_CUSTOMER_TO_REFRESH: 7cbd0921-faef-4eb6-bdf6-f95f09598096
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_PAYMENT
+          - locationName: EDW
+            nodeName: DS_POLICYSUMMARY_RENEWALS
+          - locationName: STAGE
+            nodeName: DS_BVSTG_AP1_TRANSACTIONITEM
+          - locationName: STAGE
+            nodeName: BVSTG_CUSTOMER_TO_REFRESH
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT ds_policysummary_renewals.ID,
+                           DS_BVSTG_AP1_PAYMENT.TRANSACTIONID,
+                           To_DATE(DS_BVSTG_AP1_PAYMENT.CREATED_TRANSACTION) AS PAYMENT_CREATED,
+                           SUM(DS_BVSTG_AP1_PAYMENT.PaymentAmount) AS PAYMENT_AMOUNT
+                      FROM {{ ref('EDW','DS_POLICYSUMMARY_RENEWALS') }} ds_policysummary_renewals
+                     INNER JOIN {{ ref('STAGE','DS_BVSTG_AP1_PAYMENT') }} DS_BVSTG_AP1_PAYMENT
+                        ON TO_VARCHAR(ds_policysummary_renewals.TransactionID) = TO_VARCHAR(DS_BVSTG_AP1_PAYMENT.TRANSACTIONID)
+                     WHERE DS_BVSTG_AP1_PAYMENT.ISNSF = 0
+                       AND DS_BVSTG_AP1_PAYMENT.ISRECEIVED = 1
+                       AND DS_BVSTG_AP1_PAYMENT.ISVOID_PAYMENT = 0
+                       AND DS_BVSTG_AP1_PAYMENT.ISROWDELETED_PAYMENT = 0
+                       AND DS_BVSTG_AP1_PAYMENT.ISROWDELETED_TRANSACTION = 0
+                       AND To_Date(DS_BVSTG_AP1_PAYMENT.CREATED_PAYMENT) = To_Date(DS_BVSTG_AP1_PAYMENT.CREATED_TRANSACTION)
+                       AND ds_policysummary_renewals.SourceDB= 'AppOne'
+                     GROUP BY ds_policysummary_renewals.ID,
+                              DS_BVSTG_AP1_PAYMENT.TRANSACTIONID,
+                              To_DATE(DS_BVSTG_AP1_PAYMENT.CREATED_TRANSACTION)
+                   ) DS_BVSTG_AP1_PAYMENT
+             INNER JOIN (
+                    SELECT ds_policysummary_renewals.ID,
+                           DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONID,
+                           To_Date(DS_BVSTG_AP1_TRANSACTIONITEM.CREATED) AS TRANSACTIONITEM_CREATED,
+                           SUM(DS_BVSTG_AP1_TRANSACTIONITEM.AMOUNT) AS TRANSACTIONITEMAMOUNT
+                      FROM {{ ref('EDW','DS_POLICYSUMMARY_RENEWALS') }} ds_policysummary_renewals
+                     INNER JOIN {{ ref('STAGE','DS_BVSTG_AP1_TRANSACTIONITEM') }} DS_BVSTG_AP1_TRANSACTIONITEM
+                        ON TO_VARCHAR(ds_policysummary_renewals.TransactionID) = TO_VARCHAR(DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONID)
+                       AND To_Date(DS_BVSTG_AP1_TRANSACTIONITEM.CREATED) = To_Date(DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONCREATED)
+                       AND DS_BVSTG_AP1_TRANSACTIONITEM.ISVOID = 0
+                     INNER JOIN (
+                            SELECT DISTINCT customerid,
+                                   SourceDB
+                              FROM {{ ref('STAGE','BVSTG_CUSTOMER_TO_REFRESH') }}
+                           ) bvstg_customer_to_refresh
+                        ON TO_CHAR(bvstg_customer_to_refresh.customerid) = TO_CHAR(ds_policysummary_renewals.customerid)
+                     WHERE ds_policysummary_renewals.SourceDB= 'AppOne'
+                     GROUP BY ds_policysummary_renewals.ID,
+                              DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONID ,
+                              To_Date(DS_BVSTG_AP1_TRANSACTIONITEM.CREATED)
+                   ) DS_BVSTG_AP1_TRANSACTIONITEM
+                ON DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONID = DS_BVSTG_AP1_PAYMENT.TRANSACTIONID
+               AND DS_BVSTG_AP1_TRANSACTIONITEM.TRANSACTIONITEM_CREATED = DS_BVSTG_AP1_PAYMENT.PAYMENT_CREATED
+        name: BVSTG_H2O_RWL_AU1_CREDIT_EXTENDED
+        noLinkRefs: []
+  name: BVSTG_H2O_RWL_AU1_CREDIT_EXTENDED
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

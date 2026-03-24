@@ -1,0 +1,155 @@
+fileVersion: 1
+id: 0a7b7919-6ec5-48f8-914d-c8f845b24869
+name: BVSTG_AU33_CONFIE_OPM
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cc0eec25-0557-449e-a3f9-e8dd82872e80
+          stepCounter: 0a7b7919-6ec5-48f8-914d-c8f845b24869
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_AU33_CONFIE_OPM_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5 (ds_ram_retail_repository.asofmonth || ds_ram_retail_repository.policysource_dimension || ds_ram_retail_repository.description)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 036ea52c-b0ab-4dfe-a3b1-fff04e1938f1
+          stepCounter: 0a7b7919-6ec5-48f8-914d-c8f845b24869
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: ASOFMONTH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6faa544a-b7bc-4f60-8cd7-7bd37a5a3842
+          stepCounter: 0a7b7919-6ec5-48f8-914d-c8f845b24869
+        config: {}
+        dataType: NUMBER(38,0)
+        defaultValue: ""
+        description: ""
+        name: VALUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 40ba4261-d097-4e25-a9b1-a191580e350d
+          stepCounter: 0a7b7919-6ec5-48f8-914d-c8f845b24869
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: POLICYSOURCE_DIMENSION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: da694148-8252-408d-9f87-b198a27104d8
+          stepCounter: 0a7b7919-6ec5-48f8-914d-c8f845b24869
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: DESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES: 62e4c62e-c5fa-4abb-8a26-a5acaccb175b
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM ( SELECT *
+              FROM (SELECT date_trunc('month', date) AS asofmonth,
+                   (CASE WHEN lower(channel) IN ('cigh','appone','nsa','dnsa') THEN 'NSA' WHEN lower(channel) IN ('splc') THEN 'SPLC' ELSE 'Missing/Total' END)PolicySource_Dimension,
+                   sum(counter) value,
+                   'GAIN_POLICIES' AS Description
+              FROM (SELECT DISTINCT coalesce(ds_ram_retail_repository_1.leadid, concat(policynumberformatted, '-', carrier), transactionid) LeadID,
+                   ds_ram_retail_repository_1.Customer_Type,
+                   ds_ram_retail_repository_1.Date,
+                   ds_ram_retail_repository_1.Quotes,
+                   ifnull(ds_ram_retail_repository_1.Label, 'Transfer') Label,
+                   ds_ram_retail_repository_1.PolicyNumberFormatted,
+                   ds_ram_retail_repository_1.Carrier,
+                   ds_ram_retail_repository_1.TransactionID,
+                   ds_ram_retail_repository_1.Counter,
+                   ds_ram_retail_repository_1.Channel
+              FROM ((SELECT A.leadid,
+                   A.Customer_Type,
+                   A.Date,
+                   A.Quotes,
+                   A.Label,
+                   A.PolicyNumberFormatted,
+                   A.Carrier,
+                   A.TransactionID,
+                   A.Counter,
+                   COALESCE(B.Channel,ifnull(A.sourcedb,'Missing')) Channel
+              FROM ((SELECT leadid,
+                   ifnull(customertype, 'Missing') AS Customer_Type,
+                   to_date(CreatedDate) Date, count(DISTINCT id) Quotes,
+                   'Quotes' AS Label,
+                   NULL PolicyNumberFormatted,
+                   NULL Carrier,
+                   NULL TransactionID,
+                   NULL Counter,
+                   sourcedb,
+                   officecode
+              FROM "RETAIL_PROD"."SCH_EDW"."DS_RAM_RETAIL_REPOSITORY" //
+              FROM "RETAIL_PROD"."SCH_EDW"."DS_RAM_RETAIL_REPOSITORY"
+             WHERE year(CreatedDate) >= 2021
+               AND to_date(CreatedDate) <= current_date()-1
+               AND (islegacytransaction IS NULL OR islegacytransaction <> 'Migrated')
+               AND counter = 1
+               AND classification = 'New Quotes' --(Quotes)    group by leadid,officecode, ifnull(customertype, 'Missing'), to_date(CreatedDate), 'Quotes', NULL, NULL, NULL, NULL,NULL,sourcedb) A    left join "RETAIL_PROD"."SCH_EDW"."DS_RETAIL_OFFICE" B  //   left join "RETAIL_PROD"."SCH_EDW"."DS_RETAIL_OFFICE" B    on A.officecode = B.officecode)    )      union all    select  LeadID, Customer_Type, Date,  Quotes, Label,    PolicyNumberFormatted,  Carrier, TransactionID, Counter, COALESCE(ds_retail_office.Channel,ifnull(ds_ram_retail_repository.sourcedb,'Missing')) Channel    from    (select LeadID, Customer_Type, CreatedDate Date, 0 Quotes, 'Sales' Label,    PolicyNumberFormatted, CarrierDisplayName Carrier, TransactionID, Counter, OfficeCode,SourceDB    from    (select distinct policynumber, carriername, to_date(CreatedDate) CreatedDate, SourceDB, LeadID, transactionid,    Counter, ifnull(customertype, 'Missing') as Customer_Type, OfficeCode  from "RETAIL_PROD"."SCH_EDW"."DS_RAM_RETAIL_REPOSITORY"  //   from "RETAIL_PROD"."SCH_EDW"."DS_RAM_RETAIL_REPOSITORY"    where year(CreatedDate) >= 2021 and to_date(CreatedDate) <= current_date() -1    and (islegacytransaction is null or islegacytransaction <> 'Migrated')    and counter = 1 and label in ('New Business Auto', 'New Business Complementary')    ) ds_ram_retail_repository_2    left join    (select distinct policynumber_Edw, carriername_Edw, policynumberformatted, carrierdisplayname  from "RETAIL_PROD"."SCH_BVSTAGE"."DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES"  //   from {{ ref('STAGE','DS_BVSTG_COMM_POLICYNUMBERFORMATTING_ALLSOURCES') }}    ) ds_bvstg_comm_policynumberformatting_allsources    on ds_bvstg_comm_policynumberformatting_allsources.policynumber_edw = ds_ram_retail_repository_2.policynumber    and ifnull(ds_bvstg_comm_policynumberformatting_allsources.carriername_edw, '-') = ifnull(ds_ram_retail_repository_2.carriername, '-')    ) ds_ram_retail_repository  left join "RETAIL_PROD"."SCH_EDW"."DS_RETAIL_OFFICE" ds_retail_office  //   left join "RETAIL_PROD"."SCH_EDW"."DS_RETAIL_OFFICE" DS_RETAIL_OFFICE    on ds_ram_retail_repository.officecode = ds_retail_office.officecode) ds_ram_retail_repository_1    )  where Label = 'Sales'  group by date_trunc('month', date),PolicySource_Dimension  )    union    (select date_trunc('month', date) as asofmonth,  (case when lower(channel) in ('cigh','appone','nsa','dnsa') then 'NSA'  when lower(channel
+        name: BVSTG_AU33_CONFIE_OPM
+        noLinkRefs: []
+  name: BVSTG_AU33_CONFIE_OPM
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

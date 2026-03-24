@@ -1,0 +1,353 @@
+fileVersion: 1
+id: 5f87c1f0-ed8f-48f3-84dc-fbe2bf4f1490
+name: V_PREB_CISCO_CUSTOMERACTIVE30DAYS_V2
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cf02c117-d044-4f96-9629-5d5dd5470ef2
+          stepCounter: 5f87c1f0-ed8f-48f3-84dc-fbe2bf4f1490
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: PHONE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 832c2f00-391a-40c3-aa8a-5cdfad3bf048
+          stepCounter: 5f87c1f0-ed8f-48f3-84dc-fbe2bf4f1490
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 54d654d3-e4e6-4d92-a11a-1f05de9ec55a
+          stepCounter: 5f87c1f0-ed8f-48f3-84dc-fbe2bf4f1490
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: OFFICECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 024006f0-e0d7-4fc5-a30b-8e977b581933
+          stepCounter: 5f87c1f0-ed8f-48f3-84dc-fbe2bf4f1490
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: SOURCEDB
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c0707d81-9ac3-4eb9-8fef-a25d9b27dcf9
+          stepCounter: 5f87c1f0-ed8f-48f3-84dc-fbe2bf4f1490
+        config: {}
+        dataType: VARCHAR452)
+        defaultValue: ""
+        description: ""
+        name: FULLNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e7182bbb-ebf9-47d5-b02f-bb840c5addcc
+          stepCounter: 5f87c1f0-ed8f-48f3-84dc-fbe2bf4f1490
+        config: {}
+        dataType: VARCHAR(36)
+        defaultValue: ""
+        description: ""
+        name: AGENCYCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0b93dfab-5e09-43a1-987b-759dc2268522
+          stepCounter: 5f87c1f0-ed8f-48f3-84dc-fbe2bf4f1490
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: STATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9281ca3c-366b-4185-9785-327c4fd3a7a5
+          stepCounter: 5f87c1f0-ed8f-48f3-84dc-fbe2bf4f1490
+        config: {}
+        dataType: VARCHAR(765)
+        defaultValue: ""
+        description: ""
+        name: OFFICESTATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cae9e648-6cba-4d2b-88cb-4bf772fa4b28
+          stepCounter: 5f87c1f0-ed8f-48f3-84dc-fbe2bf4f1490
+        config: {}
+        dataType: VARCHAR(5)
+        defaultValue: ""
+        description: ""
+        name: STATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_CISCO_CUSTOMERACTIVE30DAYS_V2: 5f87c1f0-ed8f-48f3-84dc-fbe2bf4f1490
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE
+             OR REPLACE VIEW {{ ref_no_link('STAGE','V_PREB_CISCO_CUSTOMERACTIVE30DAYS_V2') }} AS SELECT DISTINCT Phone ,
+                   CUSTOMERNO ,
+                   FULLNAME ,
+                   OFFICECODE ,
+                   OFFICESTATUS ,
+                   AGENCYCODE ,
+                   STATUS ,
+                   SourceDB ,
+                   STATE ,
+                   SourceSystem
+              FROM (
+                    SELECT DISTINCT S_AP1_CUSTOMERPHONE_MROC.PhoneNumber Phone ,
+                           ds_customersummary_v2.CUSTOMERNO ,
+                           ds_customersummary_v2.FULLNAME ,
+                           ds_policysummary_v2.biaprimaryagentoffice POLICY_OFFICECODE ,
+                           CASE WHEN position('-', ds_policysummary_v2.biaprimaryagentoffice, 7) > 0 THEN LEFT(ds_policysummary_v2.biaprimaryagentoffice, position('-', ds_policysummary_v2.biaprimaryagentoffice, 7) - 1)
+                                ELSE ds_policysummary_v2.biaprimaryagentoffice
+                                 END SPLC_CONVERSION_OFFICE ,
+                           CASE WHEN ds_customersummary_v2.sourcedb = 'SPLC' THEN ds_retail_office2.OFFICECODE
+                                ELSE ds_policysummary_v2.biaprimaryagentoffice
+                                 END OFFICECODE ,
+                           CASE WHEN ds_customersummary_v2.sourcedb = 'SPLC' THEN ds_retail_office2.LOCATIONSTATUS
+                                ELSE ds_retail_office2.LOCATIONSTATUS
+                                 END OFFICESTATUS ,
+                           CASE WHEN ds_customersummary_v2.sourcedb = 'SPLC' THEN ds_retail_office2.AGENCYCODE
+                                ELSE ds_retail_office2.AGENCYCODE
+                                 END AGENCYCODE ,
+                           CASE WHEN ds_policysummary_v2.Status_Standard = 'Active' THEN ds_policysummary_v2.Status_Standard
+                                ELSE 'Inactive Past 30 Days'
+                                 END STATUS ,
+                           CASE WHEN ds_retail_office2.OFFICETYPE = 'Franchise'        THEN 'FRAN' --Fran
+
+                                WHEN ds_customersummary_v2.sourcedb = 'SPLC'           THEN 'SPLC'
+                                WHEN ds_policysummary_v2.organizationcode LIKE '%SSB%' THEN 'SSB'
+                                WHEN ds_retail_office2.statecode IN ('AL' ,'LA' ,'IL') THEN 'CIGH'
+                                ELSE 'NSA'
+                                 END SourceDB ,
+                           IFNULL(ds_customersummary_v2.mainstate, CASE WHEN ds_customersummary_v2.sourcedb = 'SPLC' THEN ds_retail_office2.statecode ELSE ds_retail_office2.statecode END) STATE ,
+                           S_AP1_CUSTOMERPHONE_MROC.SOURCEDB SourceSystem
+                      FROM "RETAIL_PROD"."SCH_EDW"."DS_POLICYSUMMARY_V2" ds_policysummary_v2
+                     INNER JOIN "RETAIL_PROD"."SCH_EDW"."DS_CUSTOMERSUMMARY_V2" ds_customersummary_v2
+                        ON ds_customersummary_v2.CUSTOMERID = ds_policysummary_v2.CUSTOMERID
+                      LEFT JOIN (
+                            SELECT Phone.Value PhoneNumber ,
+                                   PolSum.customerid ,
+                                   'AppOne' SOURCEDB
+                              FROM (
+                                    SELECT DISTINCT CustomerID
+                                      FROM retail_prod.sch_edw.ds_policysummary_v2
+                                     WHERE (Status_Standard = 'Active' OR (BIA_STATUS LIKE '%Cancelled%' AND BIA_STATUSDATE >= DATEADD(DAY, - 30, CURRENT_DATE ())))
+                                       AND SOURCEDB = 'AppOne'
+                                   ) PolSum
+                             INNER JOIN (
+                                    SELECT *
+                                      FROM "RETAIL_PROD"."SCH_DATA_VAULT"."S_AP1_CUSTOMERPHONE_MROC" QUALIFY ROW_NUMBER() OVER (PARTITION BY CustomerPhoneID ORDER BY DSS_VERSION DESC) = 1
+                                   ) CusPh
+                                ON CusPh.CustomerID = PolSum.CustomerID
+                             INNER JOIN (
+                                    SELECT *
+                                      FROM "RETAIL_PROD"."SCH_DATA_VAULT"."S_AP1_PHONE_MROC" QUALIFY ROW_NUMBER() OVER (PARTITION BY PhoneID ORDER BY DSS_VERSION DESC) = 1
+                                   ) Phone
+                                ON CusPh.phoneid = Phone.phoneid
+                              LEFT JOIN "RETAIL_PROD"."SCH_EDW"."DS_RETAIL_OFFICE" office
+                                ON REPLACE(REPLACE(REPLACE(REPLACE(office.phone, '('), ')'), '-'), ' ', '') = Phone.Value
+                             WHERE Phone.IsRowDeleted = 0
+                               AND LEN(Phone.Value) = 10
+                               AND office.phone IS NULL QUALIFY ROW_NUMBER() OVER (PARTITION BY Phone.Value ORDER BY Phone.LastUpdated DESC) = 1 -----------------------------------------------------------------------------------------------------------------
+
+                             UNION SELECT CIGH.PhoneNumber ,
+                                   PolSum.customerid ,
+                                   'CIGH' SOURCEDB
+                              FROM (
+                                    SELECT DISTINCT CustomerID
+                                      FROM retail_prod.sch_edw.ds_policysummary_v2
+                                     WHERE (Status_Standard = 'Active' OR (BIA_STATUS LIKE '%Cancelled%' AND BIA_STATUSDATE >= DATEADD(DAY, - 30, CURRENT_DATE ())))
+                                       AND SOURCEDB = 'CIGH'
+                                   ) PolSum
+                             INNER JOIN (
+                                    SELECT CustomerID ,
+                                           PhoneNumber
+                                      FROM (
+                                            SELECT CustId CustomerID ,
+                                                   ResFullPhone PhoneNumber ,
+                                                   Entereddate
+                                              FROM RETAIL_PROD.SCH_DATA_VAULT.S_AMS_CUSTOMER_MROC
+                                             WHERE ResFullPhone IS NOT NULL
+                                             UNION SELECT CustId ,
+                                                   BusFullPhone ,
+                                                   Entereddate
+                                              FROM RETAIL_PROD.SCH_DATA_VAULT.S_AMS_CUSTOMER_MROC
+                                             WHERE BusFullPhone IS NOT NULL
+                                             UNION SELECT CustId ,
+                                                   FaxFullPhone ,
+                                                   Entereddate
+                                              FROM RETAIL_PROD.SCH_DATA_VAULT.S_AMS_CUSTOMER_MROC
+                                             WHERE FaxFullPhone IS NOT NULL
+                                             UNION SELECT CustId ,
+                                                   MarineFullPhone ,
+                                                   Entereddate
+                                              FROM RETAIL_PROD.SCH_DATA_VAULT.S_AMS_CUSTOMER_MROC
+                                             WHERE MarineFullPhone IS NOT NULL
+                                             UNION SELECT CustId ,
+                                                   PagerFullPhone ,
+                                                   Entereddate
+                                              FROM RETAIL_PROD.SCH_DATA_VAULT.S_AMS_CUSTOMER_MROC
+                                             WHERE PagerFullPhone IS NOT NULL
+                                             UNION SELECT CustId ,
+                                                   OtherFullPhone ,
+                                                   Entereddate
+                                              FROM RETAIL_PROD.SCH_DATA_VAULT.S_AMS_CUSTOMER_MROC
+                                             WHERE OtherFullPhone IS NOT NULL
+                                           ) a QUALIFY ROW_NUMBER() OVER (PARTITION BY CustomerID ORDER BY Entereddate DESC) = 1
+                                   ) CIGH
+                                ON PolSum.CustomerID = CIGH.CustomerID
+                              LEFT JOIN "RETAIL_PROD"."SCH_EDW"."DS_RETAIL_OFFICE" office
+                                ON REPLACE(REPLACE(REPLACE(REPLACE(office.phone, '('), ')'), '-'), ' ', '') = CIGH.PhoneNumber
+                             WHERE office.phone IS NULL -----------------------------------------------------------------------------------------------------------------
+
+                             UNION SELECT SPLC.PhoneNumber ,
+                                   PolSum.customerid ,
+                                   'SPLC' SOURCEDB
+                              FROM (
+                                    SELECT DISTINCT CustomerID
+                                      FROM retail_prod.sch_edw.ds_policysummary_v2
+                                     WHERE (Status_Standard = 'Active' OR (BIA_STATUS LIKE '%Cancelled%' AND BIA_STATUSDATE >= DATEADD(DAY, - 30, CURRENT_DATE ())))
+                                       AND SOURCEDB = 'SPLC'
+                                   ) PolSum
+                             INNER JOIN (
+                                    SELECT CustomerID ,
+                                           PhoneNumber
+                                      FROM (
+                                            SELECT a.CUSTID CustomerID ,
+                                                   b.ResFullPhone PhoneNumber ,
+                                                   b.Entereddate
+                                              FROM "RETAIL_PROD"."SCH_DATA_VAULT"."H_SPLC_CUSTOMER" a
+                                             INNER JOIN "RETAIL_PROD"."SCH_DATA_VAULT"."S_SPLC_CUSTOMER" b
+                                                ON a.HK_H_CUSTOMER = b.HK_H_CUSTOMER
+                                             WHERE b.ResFullPhone IS NOT NULL
+                                             UNION SELECT a.CUSTID ,
+                                                   b.BusFullPhone ,
+                                                   b.Entereddate
+                                              FROM "RETAIL_PROD"."SCH_DATA_VAULT"."H_SPLC_CUSTOMER" a
+                                             INNER JOIN "RETAIL_PROD"."SCH_DATA_VAULT"."S_SPLC_CUSTOMER" b
+                                                ON a.HK_H_CUSTOMER = b.HK_H_CUSTOMER
+                                             WHERE b.BusFullPhone IS NOT NULL
+                                             UNION SELECT a.CUSTID ,
+                                                   b.FaxFullPhone ,
+                                                   b.Entereddate
+                                              FROM "RETAIL_PROD"."SCH_DATA_VAULT"."H_SPLC_CUSTOMER" a
+                                             INNER JOIN "RETAIL_PROD"."SCH_DATA_VAULT"."S_SPLC_CUSTOMER" b
+                                                ON a.HK_H_CUSTOMER = b.HK_H_CUSTOMER
+                                             WHERE b.FaxFullPhone IS NOT NULL
+                                             UNION SELECT a.CUSTID ,
+                                                   b.MarineFullPhone ,
+                                                   b.Entereddate
+                                              FROM "RETAIL_PROD"."SCH_DATA_VAULT"."H_SPLC_CUSTOMER" a
+                                             INNER JOIN "RETAIL_PROD"."SCH_DATA_VAULT"."S_SPLC_CUSTOMER" b
+                                                ON a.HK_H_CUSTOMER = b.HK_H_CUSTOMER
+                                             WHERE b.MarineFullPhone IS NOT NULL
+                                             UNION SELECT a.CUSTID ,
+                                                   b.PagerFullPhone ,
+                                                   b.Entereddate
+                                              FROM "RETAIL_PROD"."SCH_DATA_VAULT"."H_SPLC_CUSTOMER" a
+                                             INNER JOIN "RETAIL_PROD"."SCH_DATA_VAULT"."S_SPLC_CUSTOMER" b
+                                                ON a.HK_H_CUSTOMER = b.HK_H_CUSTOMER
+                                             WHERE b.PagerFullPhone IS NOT NULL
+                                             UNION SELECT a.CUSTID ,
+                                                   b.OtherFullPhone ,
+                                                   b.Entereddate
+                                              FROM "RETAIL_PROD"."SCH_DATA_VAULT"."H_SPLC_CUSTOMER" a
+                                             INNER JOIN "RETAIL_PROD"."SCH_DATA_VAULT"."S_SPLC_CUSTOMER" b
+                                                ON a.HK_H_CUSTOMER = b.HK_H_CUSTOMER
+                                             WHERE b.OtherFullPhone IS NOT NULL
+                                           ) a QUALIFY ROW_NUMBER() OVER (PARTITION BY CustomerID ORDER BY Entereddate DESC) = 1
+                                   ) SPLC
+                                ON PolSum.CustomerID = SPLC.CustomerID
+                              LEFT JOIN "RETAIL_PROD"."SCH_EDW"."DS_RETAIL_OFFICE" office
+                                ON REPLACE(REPLACE(REPLACE(REPLACE(office.phone, '('), ')'), '-'), ' ', '') = SPLC.PhoneNumber
+                             WHERE office.phone IS NULL
+                           ) S_AP1_CUSTOMERPHONE_MROC
+                        ON S_AP1_CUSTOMERPHONE_MROC.CUSTOMERID = ds_policysummary_v2.CUSTOMERID -- LEFT JOIN "RETAIL_PROD"."SCH_DATA_VAULT"."H_RETAIL_LOCATION" h_retail_location
+             -- ON h_retail_location.POLICYDEPARTMENT = CASE
+             -- WHEN ds_policysummary_v2.biaprimaryagentoffice LIKE '%IO-PNW%'
+             -- THEN LEFT(ds_policysummary_v2.biaprimaryagentoffice, position('-', ds_policysummary_v2.biaprimaryagentoffice, 7) - 1)
+             -- ELSE ds_policysummary_v2.biaprimaryagentoffice
+             -- END
+             -- LEFT JOIN "RETAIL_PROD"."SCH_BVSTAGE"."V_S_BOE_SPLC_RETAIL_LOCATION_CURRENT" v_s_boe_splc_retail_location_current
+             -- ON v_s_boe_splc_retail_location_current.HK_H_RETAIL_LOCATION = h_retail_location.HK_H_RETAIL_LOCATION
+             -- LEFT JOIN "RETAIL_PROD"."SCH_EDW"."DS_RETAIL_OFFICE" ds_retail_office3
+             -- ON v_s_boe_splc_retail_location_current.OFFICECODE = ds_retail_office3.officecode
+
+                      LEFT JOIN "RETAIL_PROD"."SCH_EDW"."DS_RETAIL_OFFICE" ds_retail_office2
+                        ON ds_policysummary_v2.biaprimaryagentoffice = ds_retail_office2.officecode
+                      LEFT JOIN "RETAIL_PROD"."SCH_EDW"."DS_MKT_CAMPAIGN" ds_mkt_campaign
+                        ON TO_VARCHAR(S_AP1_CUSTOMERPHONE_MROC.PhoneNumber) = TO_VARCHAR(ds_mkt_campaign.INBOUNDNUMBER)
+                     WHERE (ds_policysummary_v2.Status_Standard = 'Active' OR (ds_policysummary_v2.BIA_STATUS LIKE '%Cancelled%' AND ds_policysummary_v2.BIA_STATUSDATE >= DATEADD(DAY, - 30, CURRENT_DATE ())))
+                       AND ds_mkt_campaign.INBOUNDNUMBER IS NULL
+                       AND YEAR(ds_policysummary_v2.expirationdate) <= 2050 QUALIFY ROW_NUMBER() OVER (PARTITION BY S_AP1_CUSTOMERPHONE_MROC.PhoneNumber ORDER BY CASE WHEN ds_policysummary_v2.Status_Standard = 'Active' THEN 1 WHEN ds_policysummary_v2.LINEOFBUSINESSTYPE IN ('Auto' ,'Private Passenger Auto') THEN 2 ELSE 3 END) = 1
+                   ) a
+        dependencies: []
+        join:
+          joinCondition: None
+        name: V_PREB_CISCO_CUSTOMERACTIVE30DAYS_V2
+        noLinkRefs: []
+  name: V_PREB_CISCO_CUSTOMERACTIVE30DAYS_V2
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

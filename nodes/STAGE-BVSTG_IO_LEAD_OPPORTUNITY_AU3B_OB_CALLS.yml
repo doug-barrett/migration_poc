@@ -1,0 +1,169 @@
+fileVersion: 1
+id: 660441ac-d469-4cfc-bc77-62302eb1068c
+name: BVSTG_IO_LEAD_OPPORTUNITY_AU3B_OB_CALLS
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4e2a6f7f-6742-4af0-8892-27a12b6d98fd
+          stepCounter: 660441ac-d469-4cfc-bc77-62302eb1068c
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: TIMELINE_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: bvstg_io_lead_opportunity_au2c_deals.timeline_id
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 44be9cff-0b24-43b4-bb41-062d9461752a
+          stepCounter: 660441ac-d469-4cfc-bc77-62302eb1068c
+        config: {}
+        dataType: TIMESTAMP_TZ(9)
+        defaultValue: ""
+        description: ""
+        name: FIRST_OUTBOUND_CALL_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MIN(STARTDATETIME)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aef8bc73-468c-45d5-91da-6188fd101bdb
+          stepCounter: 660441ac-d469-4cfc-bc77-62302eb1068c
+        config: {}
+        dataType: TIMESTAMP_TZ(9)
+        defaultValue: ""
+        description: ""
+        name: LAST_OUTBOUND_CALL_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: MAX(STARTDATETIME)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6a71a9c0-707b-4e51-b6f3-ed452838bbd5
+          stepCounter: 660441ac-d469-4cfc-bc77-62302eb1068c
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: OUTBOUND_CALL_ATTEMPT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN ISOUTBOUND > 20 THEN 21 ELSE ISOUTBOUND END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d8e4450d-1cf5-4e42-ab91-cd55ef83b60a
+          stepCounter: 660441ac-d469-4cfc-bc77-62302eb1068c
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: OUTBOUND_CONVERSATION_90SEC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN TALKTIME >= 90 AND ISOUTBOUND <= 20 THEN ISOUTBOUND ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1f36361a-aa7c-4f6c-ba1d-1cd964f2174e
+          stepCounter: 660441ac-d469-4cfc-bc77-62302eb1068c
+        config: {}
+        dataType: TIMESTAMP(9)
+        defaultValue: ""
+        description: ""
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 19c17612-2c5c-4e61-9454-ded74ddacd27
+          stepCounter: 660441ac-d469-4cfc-bc77-62302eb1068c
+        config: {}
+        dataType: TIMESTAMP_NTZ(9)
+        defaultValue: ""
+        description: ""
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_IO_LEAD_OPPORTUNITY_AU2C_DEALS: 6f61b911-3355-4e9d-bcc2-52c6431496a8
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_IO_LEAD_OPPORTUNITY_AU2C_DEALS
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT a.TIMELINE_ID,
+                           a.MOVED_TO_BUCKET_AT,
+                           a.NEXT_MOVED_TO_BUCKET_AT,
+                           a.PREVIOUS_MOVED_TO_BUCKET_AT,
+                           id,
+                           STARTDATETIME,
+                           talktime,
+                           digitsdialed,
+                           DNIS,
+                           ANI,
+                           isinternalcall,
+                           ISINBOUND,
+                           ISOUTBOUND,
+                           PHONE,
+                           FIRST_AGENTSKILLTARGETID,
+                           LAST_AGENTSKILLTARGETID,
+                           LAST_AGENTNAME,
+                           FIRST_AGENTNAME,
+                           FIRST_AGENT,
+                           LAST_AGENT,
+                           LAST_AGENTOFFICE,
+                           FIRST_AGENTOFFICE
+                      FROM {{ ref('STAGE','BVSTG_IO_LEAD_OPPORTUNITY_AU2C_DEALS') }} a
+                      JOIN RETAIL_PROD.SCH_EDW.DS_PCCE_TERMINATION_CALL_SUMMARY_SESSION phone
+                        ON RIGHT(phone.ANI, 10) = a.Phone
+                        OR RIGHT(phone.DNIS, 10) = a.Phone
+                        OR RIGHT(phone.DIGITSDIALED, 10) = a.Phone
+                     WHERE DATE(STARTDATETIME) >= '2025-09-01'
+                       AND IFNULL(Phone, '') != ''
+                       AND ISOUTBOUND = 1
+                   ) AS bvstg_io_lead_opportunity_au2c_deals
+             WHERE DATE(STARTDATETIME) <= DATEADD(DAY,-1,CURRENT_DATE)
+               AND STARTDATETIME >= MOVED_TO_BUCKET_AT
+               AND STARTDATETIME <= IFNULL(NEXT_MOVED_TO_BUCKET_AT, CURRENT_TIMESTAMP)
+             GROUP BY TIMELINE_ID
+        name: BVSTG_IO_LEAD_OPPORTUNITY_AU3B_OB_CALLS
+        noLinkRefs: []
+  name: BVSTG_IO_LEAD_OPPORTUNITY_AU3B_OB_CALLS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

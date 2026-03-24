@@ -1,0 +1,66 @@
+fileVersion: 1
+id: c3874cb0-f3b9-4e81-8848-c57549e39669
+name: V_POSB_SPLC_CP_NEW_ONLY_OLD_ACTIVE_BEF_30DAY
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3bb8cb86-b0a0-46fb-b5f2-d8716f4778c4
+          stepCounter: c3874cb0-f3b9-4e81-8848-c57549e39669
+        config: {}
+        dataType: VARCHAR(36)
+        defaultValue: ""
+        description: ""
+        name: ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a2738244-b227-4f64-ac7d-6cc8a6d19445
+                stepCounter: 5d141078-d046-41e2-9718-10bf4a289f11
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_POSB_SPLC_CP_NEW_ONLY_OLD_ACTIVE_BEF_30DAY: c3874cb0-f3b9-4e81-8848-c57549e39669
+          DS_SPLC_POLICYTRANSACTION: 5d141078-d046-41e2-9718-10bf4a289f11
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_POSB_SPLC_CP_NEW_ONLY_OLD_ACTIVE_BEF_30DAY') }} AS SELECT DISTINCT DS_SPLC_POLICYTRANSACTION.ID
+              FROM {{ ref('EDW','DS_SPLC_POLICYTRANSACTION') }} DS_SPLC_POLICYTRANSACTION
+             INNER JOIN {{ ref('EDW','DS_SPLC_POLICYTRANSACTION') }} DS_SPLC_POLICYTRANSACTION_NEW_OLD_C_30D
+                ON DS_SPLC_POLICYTRANSACTION.CustomerID = DS_SPLC_POLICYTRANSACTION_NEW_OLD_C_30D.CustomerID
+               AND DS_SPLC_POLICYTRANSACTION_NEW_OLD_C_30D.TranType IN('NBS','RWL','REW')
+               AND DS_SPLC_POLICYTRANSACTION_NEW_OLD_C_30D.Status IN('Cancelled','Expired')
+               AND DS_SPLC_POLICYTRANSACTION_NEW_OLD_C_30D.STATUSDATE >= DATE(DATEADD(DAY,-30,DATE(DS_SPLC_POLICYTRANSACTION.EFFECTIVEDATE)))
+               AND DATE(DS_SPLC_POLICYTRANSACTION_NEW_OLD_C_30D.ReportDate) < DATE(DS_SPLC_POLICYTRANSACTION.ReportDate)
+               AND DS_SPLC_POLICYTRANSACTION.PolicyID != DS_SPLC_POLICYTRANSACTION_NEW_OLD_C_30D.PolicyID
+             WHERE DS_SPLC_POLICYTRANSACTION.TranType IN('NBS','REW')
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_SPLC_POLICYTRANSACTION
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('EDW','DS_SPLC_POLICYTRANSACTION') }}
+        name: V_POSB_SPLC_CP_NEW_ONLY_OLD_ACTIVE_BEF_30DAY
+        noLinkRefs: []
+  name: V_POSB_SPLC_CP_NEW_ONLY_OLD_ACTIVE_BEF_30DAY
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

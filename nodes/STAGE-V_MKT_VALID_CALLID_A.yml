@@ -1,0 +1,92 @@
+fileVersion: 1
+id: 04aa5909-e443-41db-92da-694bd6c86084
+name: V_MKT_VALID_CALLID_A
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f8fa80f1-4883-4d26-a8df-93cc4a1fcd4a
+          stepCounter: 04aa5909-e443-41db-92da-694bd6c86084
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: LEADID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3d18440e-ee1d-4bbb-8270-bf029fc7cc91
+          stepCounter: 04aa5909-e443-41db-92da-694bd6c86084
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CALLID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_MKT_VALID_CALLID_A: 04aa5909-e443-41db-92da-694bd6c86084
+          BVSTG_MKT_AU3C_LEADSOURCE: 38b15226-2ae6-4ccc-a58c-5dfc6926f960
+          V_MKT_VALID_LEADID_A: bfcbbf1a-6918-4892-9cf3-da8ab0e8d4b9
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_MKT_VALID_CALLID_A') }} AS SELECT LeadID,
+                   callid,
+                   TRUE isValid
+              FROM (
+                    SELECT LeadID,
+                           CallID,
+                           DATEDIFF(SECOND,CallDate,lead_Created),
+                           (Rank() OVER (PARTITION BY LeadID ORDER BY DATEDIFF(SECOND,CallDate,lead_Created) DESC)) ranking
+                      FROM {{ ref('STAGE','BVSTG_MKT_AU3C_LEADSOURCE') }}
+                     WHERE LeadSource='Phone AppOne'
+                       AND (PhoneNumber = HomePhone OR CellPhone = PhoneNumber OR ContactPhone = PhoneNumber)
+                       AND leadid NOT IN (
+                            SELECT LeadID
+                              FROM {{ ref('STAGE','V_MKT_VALID_LEADID_A') }}
+                           )
+                   )
+             WHERE ranking=1
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_MKT_AU3C_LEADSOURCE
+          - locationName: STAGE
+            nodeName: V_MKT_VALID_LEADID_A
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','BVSTG_MKT_AU3C_LEADSOURCE') }}
+            {{ ref('STAGE','V_MKT_VALID_LEADID_A') }}
+        name: V_MKT_VALID_CALLID_A
+        noLinkRefs: []
+  name: V_MKT_VALID_CALLID_A
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

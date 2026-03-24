@@ -1,0 +1,94 @@
+fileVersion: 1
+id: 45b62ec9-8102-4ed5-8813-a83cdcb54894
+name: BVSTG_PRED_LOB
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "bvstg for product/line of business dimension"
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3f67bc75-ff24-4d5a-bb14-75e5e7410948
+          stepCounter: 45b62ec9-8102-4ed5-8813-a83cdcb54894
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: LINEOFBUSINESS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f019c2db-fffd-42e1-b9e7-b0b5ca94d678
+                stepCounter: 1d363097-eb7f-4148-ba26-0cca003bb32d
+            transform: TRIM(v_s_ap1_lineofbusinesstype_mroc_current.name)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bf630e55-a983-4305-b99c-a4f32142f006
+          stepCounter: 45b62ec9-8102-4ed5-8813-a83cdcb54894
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8ff20e17-7080-455c-bbca-5e7262d2985b
+          stepCounter: 45b62ec9-8102-4ed5-8813-a83cdcb54894
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_S_AP1_LINEOFBUSINESSTYPE_MROC_CURRENT: 1d363097-eb7f-4148-ba26-0cca003bb32d
+          H_LOBSETUP: 87d343bc-156b-4be1-b474-15fdd2a1c19e
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_LINEOFBUSINESSTYPE_MROC_CURRENT
+          - locationName: DATA_VAULT
+            nodeName: H_LOBSETUP
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT UPPER(NAME) AS name
+                      FROM {{ ref('STAGE','V_S_AP1_LINEOFBUSINESSTYPE_MROC_CURRENT') }}
+                     WHERE isrowdeleted=0
+                     UNION SELECT UPPER(NAMELOBS) AS name
+                      FROM {{ ref('DATA_VAULT','H_LOBSETUP') }}
+                     UNION SELECT 'Unknown' AS name
+                   ) v_s_ap1_lineofbusinesstype_mroc_current
+        name: BVSTG_PRED_LOB
+        noLinkRefs: []
+  name: BVSTG_PRED_LOB
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

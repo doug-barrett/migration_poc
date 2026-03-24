@@ -1,0 +1,68 @@
+fileVersion: 1
+id: ece8db7b-f5a1-4eeb-8b04-72d1782a0aaa
+name: V_PREB_PCCE_TERMINATION_CALL_DIALER_PREVIEW
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 56bf225e-cf57-46d2-b68e-700acb18cedf
+          stepCounter: ece8db7b-f5a1-4eeb-8b04-72d1782a0aaa
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: SESSIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 66bbcc68-684f-4f8d-8842-29778bfe0224
+                stepCounter: 8fcbc686-468e-477e-812c-9372a4cafccf
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_PCCE_TERMINATION_CALL_DIALER_PREVIEW: ece8db7b-f5a1-4eeb-8b04-72d1782a0aaa
+          V_DLBV_PCCE_TERMINATION_CALL_DETAIL_CURRENT: 8fcbc686-468e-477e-812c-9372a4cafccf
+          DS_BVSTG_PCCE_CODEDEFINITION: 8e94d100-c4be-45b8-a3ad-8c6a7f1e6760
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PREB_PCCE_TERMINATION_CALL_DIALER_PREVIEW') }} AS SELECT DISTINCT CASE WHEN v_dlbv_pcce_termination_call_detail_current.RouterCallKey != 0 THEN v_dlbv_pcce_termination_call_detail_current.routercallkey || '-'|| v_dlbv_pcce_termination_call_detail_current.routercallkeyday
+                        ELSE cast(v_dlbv_pcce_termination_call_detail_current.recoverykey AS varchar(100))
+                         END SessionID
+              FROM {{ ref('STAGE','V_DLBV_PCCE_TERMINATION_CALL_DETAIL_CURRENT') }} v_dlbv_pcce_termination_call_detail_current
+              LEFT JOIN {{ ref('STAGE','DS_BVSTG_PCCE_CODEDEFINITION') }} ds_bvstg_pcce_codedefinition
+                ON v_dlbv_pcce_termination_call_detail_current.PeripheralCallType= ds_bvstg_pcce_codedefinition.id
+               AND ds_bvstg_pcce_codedefinition.CODEDEFINITION= 'PeripheralCallType'
+             WHERE ds_bvstg_pcce_codedefinition.codevalue='Reservation Preview Direct'
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_DLBV_PCCE_TERMINATION_CALL_DETAIL_CURRENT
+          - locationName: STAGE
+            nodeName: DS_BVSTG_PCCE_CODEDEFINITION
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_DLBV_PCCE_TERMINATION_CALL_DETAIL_CURRENT') }}
+            {{ ref('STAGE','DS_BVSTG_PCCE_CODEDEFINITION') }}
+        name: V_PREB_PCCE_TERMINATION_CALL_DIALER_PREVIEW
+        noLinkRefs: []
+  name: V_PREB_PCCE_TERMINATION_CALL_DIALER_PREVIEW
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

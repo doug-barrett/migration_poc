@@ -1,0 +1,136 @@
+fileVersion: 1
+id: d7cbf70d-76f5-4e68-ba83-a5b7e2e8baac
+name: BVSTG_HCI_PROSPECTS
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7b8f26b2-5075-4f22-87f9-58faee2a42f1
+          stepCounter: d7cbf70d-76f5-4e68-ba83-a5b7e2e8baac
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: ID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(ifnull(v_s_ap1_lead_mroc_current.EmployeeNumber, '0') || ifnull(v_s_ap1_lead_mroc_current.CUSTOMERID, '0'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9e1cba0c-bf0b-4781-ad54-f88c43be9e38
+          stepCounter: d7cbf70d-76f5-4e68-ba83-a5b7e2e8baac
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: CREATED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 16a18d1f-26e3-43c9-9eeb-6fd7c945e261
+                stepCounter: c5a432da-156b-460f-ba67-985b9517bedb
+            transform: DATE(ds_customersummary_v2.CREATED)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e1705336-a1b8-4214-bfab-53715843d61a
+          stepCounter: d7cbf70d-76f5-4e68-ba83-a5b7e2e8baac
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4ca4cb56-6525-4a9e-bf0c-a01f6f69457d
+                stepCounter: 378c735c-f683-4f03-a1dc-2767b68dc0ed
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 43043a6e-9c37-4fc0-8e52-0aa840636a6d
+          stepCounter: d7cbf70d-76f5-4e68-ba83-a5b7e2e8baac
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7116a643-dbc8-49dc-8590-264f5504ae05
+          stepCounter: d7cbf70d-76f5-4e68-ba83-a5b7e2e8baac
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEENAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ea363d90-3f8c-4f0c-a056-f8ec03aa0a51
+                stepCounter: e03830da-869e-4c69-8cc5-0b677f38927e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 89631454-80ac-4760-a63c-a75e0f777159
+          stepCounter: d7cbf70d-76f5-4e68-ba83-a5b7e2e8baac
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEECATEGORY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN v_s_boe_tj_employee_current.ultipronumber IS NOT NULL    THEN 'TJMX'
+                          WHEN v_dlbv_cfa_hci_agents_current.employeenumber IS NOT NULL THEN 'HCI'
+                          ELSE NULL
+                           END
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies: []
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM ( SELECT DISTINCT TO_NUMBER(a.CustomerID) CustomerID ,
+                   'Transfer' Category ,
+                   v_dlbv_cfa_hci_agents_current.employeenumber
+              FROM RETAIL_PROD.SCH_BVSTAGE.DS_BVSTG_AP1_ACTIVITY_2STEP a
+              LEFT JOIN RETAIL_PROD.SCH_BVSTAGE.V_S_AP1_EMPLOYEE_MROC_CURRENT b
+                ON a.createdby = b.userid
+             INNER JOIN (SELECT DISTINCT EMPLOYEENUMBER
+              FROM RETAIL_PROD.SCH_BVSTAGE.V_DLBV_CFA_HCI_AGENTS_CURRENT --WHERE isactivehealthcare = 1   ) v_dlbv_cfa_hci_agents_current      ON b.employeenumber = v_dlbv_cfa_hci_agents_current.employeenumber           WHERE ACTIVITYTYPENAME = 'HCI - Transfer Rejected'      AND DATE (a.CREATED) BETWEEN '2024-01-01' AND CURRENT_DATE() -->= DATE_TRUNC('MONTH', DATEADD(MONTH, - 12, CURRENT_DATE ()))          UNION          SELECT DISTINCT TO_NUMBER(a.CustomerID) CustomerID      ,'Lead' Category      ,a.employeenumber     FROM (      SELECT a.customeriD CustomerID       ,c.employeenumber      FROM RETAIL_PROD.SCH_BVSTAGE.V_S_AP1_LEAD_MROC_CURRENT a      LEFT JOIN RETAIL_PROD.SCH_BVSTAGE.V_S_AP1_EMPLOYEE_MROC_CURRENT c       ON a.PRIMARYASSISTANTID = c.userid             INNER JOIN (SELECT DISTINCT EMPLOYEENUMBER FROM RETAIL_PROD.SCH_BVSTAGE.V_DLBV_CFA_HCI_AGENTS_CURRENT      --WHERE isactivehealthcare = 1    ) v_dlbv_cfa_hci_agents_current       ON c.employeenumber = v_dlbv_cfa_hci_agents_current.employeenumber             WHERE a.lineofbusinesstypeid = 423       AND DATE (a.CREATED) BETWEEN '2024-01-01' AND CURRENT_DATE() -->= DATE_TRUNC('MONTH', DATEADD(MONTH, - 12, CURRENT_DATE ()))      ) a          UNION          SELECT DISTINCT TO_NUMBER(a.customerid) CustomerID      ,'NB HealthCare' Category      ,v_dlbv_cfa_hci_agents_current.employeenumber     FROM "RETAIL_PROD"."SCH_EDW"."DS_RAM_RETAIL_REPOSITORY" a          INNER JOIN (SELECT DISTINCT EMPLOYEENUMBER FROM RETAIL_PROD.SCH_BVSTAGE.V_DLBV_CFA_HCI_AGENTS_CURRENT      --WHERE isactivehealthcare = 1    ) v_dlbv_cfa_hci_agents_current       ON a.PRIMARYAGENTULTIPRO_BROKER = TO_VARCHAR(v_dlbv_cfa_hci_agents_current.employeenumber)           WHERE a.lineofbusinesstype LIKE '%Health Care%'      AND a.isvoid = 'False'      AND label = 'New Business Complementary'      AND DATE (a.CREATEDDATE) BETWEEN '2024-01-01' AND CURRENT_DATE() -->= DATE_TRUNC('MONTH', DATEADD(MONTH, - 12, CURRENT_DATE ()))          UNION          SELECT DISTINCT TO_NUMBER(a.CustomerID) CustomerID      ,'GN Opportunities' Category      ,a.employeenumber     FROM (      SELECT a.CustomerID       ,v_dlbv_cfa_hci_agents_current.employeenumber                ,DATE(a.created) Created      FROM RETAIL_PROD.SCH_BVSTAGE.V_S_AP1_LEAD_MROC_CURRENT a      LEFT JOIN RETAIL_PROD.SCH_BVSTAGE.V_S_AP1_EMPLOYEE_MROC_CURRENT c       ON a.PRIMARYASSISTANTID = c.userid             INNER JOIN (SELECT DISTINCT EMPLOYEENUMBER FROM RETAIL_PROD.SCH_BVSTAGE.V_DLBV_CFA_HCI_AGENTS_CURRENT      --WHERE isactivehealthcare = 1    ) v_dlbv_cfa_hci_agents_current       ON c.employeenumber = v_dlbv_cfa_hci_agents_current.employeenumber             WHERE a.lineofbusinesstypeid = 423      ) a     INNER JOIN RETAIL_PROD.SCH_EDW.DS_LEAD_OPORTUNITY_CONVERSION c      ON c.employeenumber = a.employeenumber       AND c.created = DATE (a.created)       AND c.sourcedb = 'AppOne'     WHERE DATE (c.CREATED) BETWEEN '2024-01-01' AND CURRENT_DATE() -->= DATE_TRUNC('MONTH', DATEADD(MONTH, - 12, CURRENT_DATE ()))     ) v_s_ap1_lead_mroc_current         LEFT JOIN RETAIL_PROD.SCH_EDW.DS_CUSTOMERSUMMARY_V2 ds_customersummary_v2     ON ds_customersummary_v2.CustomerID = TO_VARCHAR(v_s_ap1_lead_mroc_current.CustomerID)      AND ds_customersummary_v2.sourcedb = 'AppOne'          INNER JOIN RETAIL_PROD.SCH_EDW.DS_AGENT_KEY ds_agent_key     ON DS_AGENT_KEY.employeenumber = v_s_ap1_lead_mroc_current.employeenumber      AND ds_agent_key.RANK_EMPLOYEENUMBER = 1           INNER JOIN (SELECT DISTINCT EMPLOYEENUMBER FROM RETAIL_PROD.SCH_BVSTAGE.V_DLBV_CFA_HCI_AGENTS_CURRENT    --WHERE isactivehealthcare = 1    ) v_dlbv_cfa_h
+        name: BVSTG_HCI_PROSPECTS
+        noLinkRefs: []
+  name: BVSTG_HCI_PROSPECTS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

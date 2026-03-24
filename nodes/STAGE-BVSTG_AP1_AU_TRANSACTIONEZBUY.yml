@@ -1,0 +1,125 @@
+fileVersion: 1
+id: 5a9fac5d-c4b5-4f50-9153-5ebfd4d08a7e
+name: BVSTG_AP1_AU_TRANSACTIONEZBUY
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: "identify EZBuy transaction"
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 68875f64-d02f-4489-9300-fb0dd7310781
+          stepCounter: 5a9fac5d-c4b5-4f50-9153-5ebfd4d08a7e
+        config: {}
+        dataType: CHAR(32)
+        defaultValue: ""
+        description: ""
+        name: HK_H_TRANSACTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 430f34ff-e761-4a83-91a4-800c04318034
+                stepCounter: 0207b829-a16f-444c-b278-51ea9135a346
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eef78763-500e-44a9-a6cd-e445204e4018
+          stepCounter: 5a9fac5d-c4b5-4f50-9153-5ebfd4d08a7e
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4d53c8f2-2c9c-4997-a780-cb5693388494
+                stepCounter: 0b096dae-15d9-4288-b608-66cbd0e9bec9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3d688ccb-7fff-4809-b187-7cbb4bb354e9
+          stepCounter: 5a9fac5d-c4b5-4f50-9153-5ebfd4d08a7e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: paymentreceiptid
+        name: PAYMENTRECEIPTID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e665c045-f05d-489d-a860-2a18bdd04662
+                stepCounter: 8f9a86c3-1aa0-4e50-b9fe-f365703ad6dc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a98e59f8-ffbc-4361-a6d6-5468a2043803
+          stepCounter: 5a9fac5d-c4b5-4f50-9153-5ebfd4d08a7e
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: paymenttypename
+        name: PAYMENTTYPENAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d61912b4-d2f0-4a06-b001-44abb8f186c7
+                stepCounter: d51354b8-5feb-4af3-9da8-f606c17cffab
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_S_AP1_PAYMENT_MROC_CURRENT: 8f9a86c3-1aa0-4e50-b9fe-f365703ad6dc
+          V_S_AP1_PAYMENTRECEIPT_MROC_CURRENT: 0b096dae-15d9-4288-b608-66cbd0e9bec9
+          H_TRANSACTION: 0207b829-a16f-444c-b278-51ea9135a346
+          V_S_AP1_ORGANIZATIONPAYMENTTYPE_MROC_CURRENT: d51354b8-5feb-4af3-9da8-f606c17cffab
+          BVSTG_AP1_TRANSACTION_REFRESH: eccb40c9-8d41-4044-b9ea-23d04db3e7bc
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DATA_VAULT
+            nodeName: H_TRANSACTION
+          - locationName: STAGE
+            nodeName: V_S_AP1_PAYMENT_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AP1_PAYMENTRECEIPT_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AP1_ORGANIZATIONPAYMENTTYPE_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: BVSTG_AP1_TRANSACTION_REFRESH
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_S_AP1_PAYMENT_MROC_CURRENT') }} v_s_ap1_payment_mroc_current
+              JOIN {{ ref('STAGE','V_S_AP1_PAYMENTRECEIPT_MROC_CURRENT') }} v_s_ap1_paymentreceipt_mroc_current
+                ON v_s_ap1_payment_mroc_current.paymentreceiptid = v_s_ap1_paymentreceipt_mroc_current.paymentreceiptid
+               AND v_s_ap1_payment_mroc_current.isrowdeleted=0
+               AND v_s_ap1_paymentreceipt_mroc_current.isrowdeleted=0
+              JOIN {{ ref('DATA_VAULT','H_TRANSACTION') }} h_transaction
+                ON h_transaction.transactionid = TO_CHAR(v_s_ap1_paymentreceipt_mroc_current.transactionid)
+              JOIN {{ ref('STAGE','V_S_AP1_ORGANIZATIONPAYMENTTYPE_MROC_CURRENT') }} v_s_ap1_organizationpaymenttype_mroc_current
+                ON v_s_ap1_organizationpaymenttype_mroc_current.organizationpaymenttypeid = v_s_ap1_payment_mroc_current.organizationpaymenttypeid
+               AND v_s_ap1_organizationpaymenttype_mroc_current.isrowdeleted=0
+              JOIN {{ ref('STAGE','BVSTG_AP1_TRANSACTION_REFRESH') }} bvstg_ap1_transaction_refresh
+                ON h_transaction.transactionid = TO_CHAR(bvstg_ap1_transaction_refresh.transactionid)
+             WHERE v_s_ap1_organizationpaymenttype_mroc_current.paymenttypename IN ('Ezbuy CC',' Ezbuy CK')
+        name: BVSTG_AP1_AU_TRANSACTIONEZBUY
+        noLinkRefs: []
+  name: BVSTG_AP1_AU_TRANSACTIONEZBUY
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

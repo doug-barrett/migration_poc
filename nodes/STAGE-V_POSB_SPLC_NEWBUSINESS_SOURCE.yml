@@ -1,0 +1,123 @@
+fileVersion: 1
+id: 6a2e2961-4d6d-41ac-9002-d0194ea5f8e0
+name: V_POSB_SPLC_NEWBUSINESS_SOURCE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 32a45369-6928-4650-8ada-bd832d7dff51
+          stepCounter: 6a2e2961-4d6d-41ac-9002-d0194ea5f8e0
+        config: {}
+        dataType: VARCHAR(36)
+        defaultValue: ""
+        description: ""
+        name: POLID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9d2b8406-fa64-428e-8a64-a7c3435356f3
+                stepCounter: 5dc2e08e-2546-436c-b786-415675045f41
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e9805412-b240-4458-8323-7ed201d72d43
+          stepCounter: 6a2e2961-4d6d-41ac-9002-d0194ea5f8e0
+        config: {}
+        dataType: NUMBER(19,4)
+        defaultValue: ""
+        description: ""
+        name: PREMIUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 37e5c0f0-f2ed-4357-a63a-170de0dc7692
+                stepCounter: b83c4ada-d518-41a9-9963-26ed01abeb9e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f4c62f09-d8ac-41ae-9f99-1e612677b4c5
+          stepCounter: 6a2e2961-4d6d-41ac-9002-d0194ea5f8e0
+        config: {}
+        dataType: VARCHAR(52)
+        defaultValue: ""
+        description: ""
+        name: POLTYPELOB
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: aeb78baa-b663-41a7-bfa1-9e2f9c83deea
+                stepCounter: 53be11e0-3474-41bb-9671-54424f4a8c0e
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_POSB_SPLC_NEWBUSINESS_SOURCE: 6a2e2961-4d6d-41ac-9002-d0194ea5f8e0
+          H_SPLC_POLICYTRANSACTION: a61fb006-463a-4218-9f0a-ae39c53a8709
+          V_S_SPLC_POLICYTRANSACTION_CURRENT: 4a61ab86-225b-4c1c-9a03-aebc818bcf6c
+          H_SPLC_BASICPOLINFO: d3602d03-9dc4-44bf-917f-2564fe575d24
+          V_S_SPLC_BASICPOLINFO_CURRENT: 53be11e0-3474-41bb-9671-54424f4a8c0e
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_POSB_SPLC_NEWBUSINESS_SOURCE') }} AS SELECT h_splc_policytransaction.polid,
+                   v_s_splc_basicpolinfo_current.poltypelob,
+                   H_SPLC_BASICPOLINFO_NEW.PolID NBPolicyID
+              FROM {{ ref('DATA_VAULT','H_SPLC_POLICYTRANSACTION') }} h_splc_policytransaction
+             INNER JOIN {{ ref('STAGE','V_S_SPLC_POLICYTRANSACTION_CURRENT') }} v_s_splc_policytransaction_current
+                ON v_s_splc_policytransaction_current.HK_H_POLICYTRANSACTION = h_splc_policytransaction.HK_H_POLICYTRANSACTION
+             INNER JOIN {{ ref('DATA_VAULT','H_SPLC_BASICPOLINFO') }} H_SPLC_BASICPOLINFO
+                ON H_SPLC_BASICPOLINFO.POLID = h_splc_policytransaction.polid
+             INNER JOIN {{ ref('STAGE','V_S_SPLC_BASICPOLINFO_CURRENT') }} V_S_SPLC_BASICPOLINFO_CURRENT
+                ON V_S_SPLC_BASICPOLINFO_CURRENT.HK_H_BASICPOLINFO = H_SPLC_BASICPOLINFO.HK_H_BASICPOLINFO
+             INNER JOIN {{ ref('STAGE','V_S_SPLC_BASICPOLINFO_CURRENT') }} V_S_SPLC_BASICPOLINFO_CURRENT_NEW
+                ON V_S_SPLC_BASICPOLINFO_CURRENT_NEW.CUSTID = V_S_SPLC_BASICPOLINFO_CURRENT.CUSTID
+               AND V_S_SPLC_BASICPOLINFO_CURRENT_NEW.POLTYPELOB = V_S_SPLC_BASICPOLINFO_CURRENT.POLTYPELOB
+               AND V_S_SPLC_BASICPOLINFO_CURRENT_NEW.cocode = V_S_SPLC_BASICPOLINFO_CURRENT.cocode
+               AND DATE(V_S_SPLC_BASICPOLINFO_CURRENT_NEW.ENTEREDDATE) <= DATE(V_S_SPLC_BASICPOLINFO_CURRENT_NEW.ENTEREDDATE)
+             INNER JOIN {{ ref('DATA_VAULT','H_SPLC_BASICPOLINFO') }} H_SPLC_BASICPOLINFO_NEW
+                ON V_S_SPLC_BASICPOLINFO_CURRENT_NEW.HK_H_BASICPOLINFO = H_SPLC_BASICPOLINFO_NEW.HK_H_BASICPOLINFO
+             INNER JOIN {{ ref('DATA_VAULT','H_SPLC_POLICYTRANSACTION') }} H_SPLC_POLICYTRANSACTION_NEW
+                ON H_SPLC_POLICYTRANSACTION_NEW.POLID = H_SPLC_BASICPOLINFO_NEW.POLID
+             INNER JOIN {{ ref('STAGE','V_S_SPLC_POLICYTRANSACTION_CURRENT') }} V_S_SPLC_POLICYTRANSACTION_CURRENT_NEW
+                ON V_S_SPLC_POLICYTRANSACTION_CURRENT_NEW.HK_H_POLICYTRANSACTION = H_SPLC_POLICYTRANSACTION_NEW.HK_H_POLICYTRANSACTION
+               AND V_S_SPLC_POLICYTRANSACTION_CURRENT_NEW.TRANTYPE = 'NBS' QUALIFY ROW_NUMBER() OVER (PARTITION BY h_splc_policytransaction.polid,v_s_splc_basicpolinfo_current.poltypelob ORDER BY V_S_SPLC_BASICPOLINFO_CURRENT_NEW.ENTEREDDATE DESC, h_splc_policytransaction.effdate DESC, v_s_splc_policytransaction_current.entereddate DESC) = 1
+        dependencies:
+          - locationName: DATA_VAULT
+            nodeName: H_SPLC_POLICYTRANPREMIUM
+          - locationName: DATA_VAULT
+            nodeName: H_SPLC_POLICYTRANSACTION
+          - locationName: STAGE
+            nodeName: V_S_SPLC_POLICYTRANSACTION_CURRENT
+          - locationName: DATA_VAULT
+            nodeName: H_SPLC_BASICPOLINFO
+          - locationName: STAGE
+            nodeName: V_S_SPLC_BASICPOLINFO_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('DATA_VAULT','H_SPLC_POLICYTRANPREMIUM') }}
+            {{ ref('DATA_VAULT','H_SPLC_POLICYTRANSACTION') }}
+            {{ ref('STAGE','V_S_SPLC_POLICYTRANSACTION_CURRENT') }}
+            {{ ref('DATA_VAULT','H_SPLC_BASICPOLINFO') }}
+            {{ ref('STAGE','V_S_SPLC_BASICPOLINFO_CURRENT') }}
+        name: V_POSB_SPLC_NEWBUSINESS_SOURCE
+        noLinkRefs: []
+  name: V_POSB_SPLC_NEWBUSINESS_SOURCE
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

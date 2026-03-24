@@ -1,0 +1,144 @@
+fileVersion: 1
+id: 890b0541-dd29-4c46-ad70-b6a33ac1b373
+name: V_PREB_REPORTING_MAPPING
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1b1381f2-4c28-4b51-94e0-2c8ded5a88a2
+          stepCounter: 890b0541-dd29-4c46-ad70-b6a33ac1b373
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: TRANSACTIONTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c3491244-c1f8-4041-9471-762a69c6ede0
+                stepCounter: 56611388-38d2-42bc-b762-30033a66694c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 506e3e47-2acb-4c07-99ce-3274014af038
+          stepCounter: 890b0541-dd29-4c46-ad70-b6a33ac1b373
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: FEETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 13dcae51-0119-430f-98f6-8e776733cdaa
+                stepCounter: 56611388-38d2-42bc-b762-30033a66694c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f987198c-c73a-422f-a0d4-592aa992bfa0
+          stepCounter: 890b0541-dd29-4c46-ad70-b6a33ac1b373
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: FEENAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1aeab06a-7663-4873-bded-43ff3b8641b7
+                stepCounter: 56611388-38d2-42bc-b762-30033a66694c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ac0b3932-57ec-49de-974a-74d0f259e92a
+          stepCounter: 890b0541-dd29-4c46-ad70-b6a33ac1b373
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: ""
+        name: ADDITIONALPRODUCTNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a3c7546d-2b1f-4799-85de-1428d8b7f84f
+                stepCounter: 56611388-38d2-42bc-b762-30033a66694c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b0fdb32b-e2d6-4723-af8b-8f2f021579d3
+          stepCounter: 890b0541-dd29-4c46-ad70-b6a33ac1b373
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: FEEREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: acc9290b-c18e-4cde-9ecb-fce07a388e73
+                stepCounter: d213097c-938c-43ff-b449-89f334cf818b
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6626b618-9641-4b20-86e0-954f7c2615ea
+          stepCounter: 890b0541-dd29-4c46-ad70-b6a33ac1b373
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: CLASSIFICATIONGROUP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e41f6def-976a-45f7-a6e8-54d111e2faed
+                stepCounter: d213097c-938c-43ff-b449-89f334cf818b
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_PREB_REPORTING_MAPPING: 890b0541-dd29-4c46-ad70-b6a33ac1b373
+          V_DLBV_RAM_TRANSACTIONREPORTMAPPING_CURRENT: 56611388-38d2-42bc-b762-30033a66694c
+          V_DLBV_RAM_REPORTINGTRANSLATION_CURRENT: d213097c-938c-43ff-b449-89f334cf818b
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_PREB_REPORTING_MAPPING') }} (transactiontype, feetype, feename, additionalproductname, classificationgroup, feerevenue) AS SELECT DISTINCT v_dlbv_ram_transactionreportmapping_current.transactiontype,
+                   v_dlbv_ram_transactionreportmapping_current.feetype,
+                   v_dlbv_ram_transactionreportmapping_current.feename,
+                   v_dlbv_ram_transactionreportmapping_current.additionalproductname,
+                   v_dlbv_ram_reportingtranslation_current.classificationgroup,
+                   v_dlbv_ram_reportingtranslation_current.feerevenue
+              FROM {{ ref('STAGE','V_DLBV_RAM_TRANSACTIONREPORTMAPPING_CURRENT') }} v_dlbv_ram_transactionreportmapping_current
+              LEFT JOIN {{ ref('STAGE','V_DLBV_RAM_REPORTINGTRANSLATION_CURRENT') }} v_dlbv_ram_reportingtranslation_current
+                ON v_dlbv_ram_transactionreportmapping_current.ACCOUNTINGREVENUETYPE= v_dlbv_ram_reportingtranslation_current.reportingtranslationid
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_DLBV_RAM_TRANSACTIONREPORTMAPPING_CURRENT
+          - locationName: STAGE
+            nodeName: V_DLBV_RAM_REPORTINGTRANSLATION_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_DLBV_RAM_TRANSACTIONREPORTMAPPING_CURRENT') }}
+            {{ ref('STAGE','V_DLBV_RAM_REPORTINGTRANSLATION_CURRENT') }}
+        name: V_PREB_REPORTING_MAPPING
+        noLinkRefs: []
+  name: V_PREB_REPORTING_MAPPING
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

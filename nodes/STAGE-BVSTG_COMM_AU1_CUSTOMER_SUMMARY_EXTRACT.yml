@@ -1,0 +1,156 @@
+fileVersion: 1
+id: 9a17f0c4-9c5a-42f4-b167-7172d1afb91e
+name: BVSTG_COMM_AU1_CUSTOMER_SUMMARY_EXTRACT
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 01b416ca-ea47-4619-b073-d6f5eabda386
+          stepCounter: 9a17f0c4-9c5a-42f4-b167-7172d1afb91e
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: BVSTG_COMM_AU1_CUSTOMER_SUMMARY_EXTRACT_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: md5(ifnull(to_varchar(asofmonth), '-') || ifnull(customerid, '-'))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a4431b98-615c-4295-9975-aad193f7653b
+          stepCounter: 9a17f0c4-9c5a-42f4-b167-7172d1afb91e
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMER_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 39f32a4d-c68f-43b9-9d1e-3367176381cf
+                stepCounter: 4b167131-73f4-442b-9d87-46ebf7c92976
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 74c57e05-4472-4fc3-b1c1-55874e2be6e0
+          stepCounter: 9a17f0c4-9c5a-42f4-b167-7172d1afb91e
+        config: {}
+        dataType: NUMBER(1,0)
+        defaultValue: ""
+        description: ""
+        name: EXPIRINGRENEWALFLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ifnull(CASE WHEN ds_comm_eom_extract_allsources.bompolicycount<=ds_comm_eom_extract_allsources.isrenewalmonth AND ds_comm_eom_extract_allsources.bompolicycount<>0 THEN 1 ELSE 0 END,0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 246846ea-87c0-41a1-aa35-4464afeb79b6
+          stepCounter: 9a17f0c4-9c5a-42f4-b167-7172d1afb91e
+        config: {}
+        dataType: NUMBER(1,0)
+        defaultValue: ""
+        description: ""
+        name: RENEWALFLAG0
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ifnull(CASE WHEN ds_comm_eom_extract_allsources.bompolicycount=ds_comm_eom_extract_allsources.renewalflag0 AND ds_comm_eom_extract_allsources.bompolicycount<>0 THEN 1 ELSE 0 END,0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f77a4c75-4e64-46ab-8326-c9c72b07a759
+          stepCounter: 9a17f0c4-9c5a-42f4-b167-7172d1afb91e
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: ASOFMONTH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2f88ac2f-c5fe-4694-97c3-2e76b1239a5d
+                stepCounter: 4b167131-73f4-442b-9d87-46ebf7c92976
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 07402171-aa49-4ced-af40-70bf797b9a6b
+          stepCounter: 9a17f0c4-9c5a-42f4-b167-7172d1afb91e
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fb418518-6f8b-4626-bb2a-65a72484033a
+          stepCounter: 9a17f0c4-9c5a-42f4-b167-7172d1afb91e
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          DS_COMM_EOM_EXTRACT_ALLSOURCES: 4b167131-73f4-442b-9d87-46ebf7c92976
+          BVSTG_COMM_AU1_CUSTOMER_PERSISTENCY_EXTRACT: 78ffc6ef-3e72-46fc-a19b-058807125a27
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: EDW
+            nodeName: DS_COMM_EOM_EXTRACT_ALLSOURCES
+          - locationName: STAGE
+            nodeName: BVSTG_COMM_AU1_CUSTOMER_PERSISTENCY_EXTRACT
+        join:
+          joinCondition: |-
+            FROM (SELECT ds_comm_eom_extract_allsources.customerid,
+                   ds_comm_eom_extract_allsources.asofmonth,
+                   ifnull(bvstg_comm_au1_customer_persistency_extract.bompolicycount,0) AS bompolicycount,
+                   sum(ds_comm_eom_extract_allsources.isrenewalmonth) isrenewalmonth,
+                   sum(ds_comm_eom_extract_allsources.isexpired) isexpired,
+                   sum(ds_comm_eom_extract_allsources.renewalflag0) renewalflag0
+              FROM (
+                    SELECT DISTINCT ds_comm_eom_extract_allsources.policynumberformatted,
+                           ds_comm_eom_extract_allsources.customerid,
+                           ds_comm_eom_extract_allsources.carrier,
+                           ds_comm_eom_extract_allsources.asofmonth,
+                           ds_comm_eom_extract_allsources.isexpired,
+                           ifnull(CASE WHEN ds_comm_eom_extract_allsources.isrenewalmonth=1 AND ds_comm_eom_extract_allsources.COMBINEDSTATUS_EOM='Active' THEN 1 ELSE 0 END,0) AS renewalflag0,
+                           ifnull(CASE WHEN ds_comm_eom_extract_allsources.isrenewalmonth=1 AND (ds_comm_eom_extract_allsources.combinedstatus_eom='Active' OR ds_comm_eom_extract_allsources.combinedstatus_bom='Active') THEN 1 ELSE 0 END,0) AS isrenewalmonth
+                      FROM {{ ref('EDW','DS_COMM_EOM_EXTRACT_ALLSOURCES') }}
+                   ) ds_comm_eom_extract_allsources -- from "DATA_LAKE"."BIA_ANALYTICS"."DS_COMM_EOM_EXTRACT_ALLSOURCES") ds_comm_eom_extract_allsources        left join         (select distinct bvstg_comm_au1_customer_persistency_extract.customer_id,                         bvstg_comm_au1_customer_persistency_extract.asofmonth,                         ifnull(count(distinct bvstg_comm_au1_customer_persistency_extract.policynumberformatted,bvstg_comm_au1_customer_persistency_extract.carrier),0) bompolicycount          from (select bvstg_comm_au1_customer_persistency_extract.customer_id,                   bvstg_comm_au1_customer_persistency_extract.asofmonth,                   bvstg_comm_au1_customer_persistency_extract.policynumberformatted,                   bvstg_comm_au1_customer_persistency_extract.carrier,                   case when bvstg_comm_au1_customer_persistency_extract.cust_start_date<'2019-01-01' and bvstg_comm_au1_customer_persistency_extract.combinedstatus_eom='Active'     and bvstg_comm_au1_customer_persistency_extract.asofmonth='2019-01-01' then 'Active'                        else bvstg_comm_au1_customer_persistency_extract.combinedstatus_bom end as combinedstatus_bom                 from {{ ref('STAGE','BVSTG_COMM_AU1_CUSTOMER_PERSISTENCY_EXTRACT') }} ) bvstg_comm_au1_customer_persistency_extract        -- from "DATA_LAKE"."BIA_ANALYTICS"."BVSTG_COMM_AU1_CUSTOMER_PERSISTENCY_EXTRACT" ) bvstg_comm_au1_customer_persistency_extract                 where bvstg_comm_au1_customer_persistency_extract.combinedstatus_bom='Active'                 group by bvstg_comm_au1_customer_persistency_extract.customer_id,                          bvstg_comm_au1_customer_persistency_extract.asofmonth ) bvstg_comm_au1_customer_persistency_extract          on ds_comm_eom_extract_allsources.customerid=bvstg_comm_au1_customer_persistency_extract.customer_id             and ds_comm_eom_extract_allsources.asofmonth=bvstg_comm_au1_customer_persistency_extract.asofmonth          group by ds_comm_eom_extract_allsources.customerid,                   ds_comm_eom_extract_allsources.asofmonth,                   ifnull(bvstg_comm_au1_customer_persistency_extract.bompolicycount,0))ds_comm_eom_extract_allsources
+        name: BVSTG_COMM_AU1_CUSTOMER_SUMMARY_EXTRACT
+        noLinkRefs: []
+  name: BVSTG_COMM_AU1_CUSTOMER_SUMMARY_EXTRACT
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

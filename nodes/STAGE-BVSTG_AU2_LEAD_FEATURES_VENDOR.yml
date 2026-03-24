@@ -1,0 +1,147 @@
+fileVersion: 1
+id: 0b5bd32e-c8a8-425f-b5a5-61cd2548fb77
+name: BVSTG_AU2_LEAD_FEATURES_VENDOR
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a4972e75-bd2f-45c1-a4cf-225b889b1fad
+          stepCounter: 0b5bd32e-c8a8-425f-b5a5-61cd2548fb77
+        config: {}
+        dataType: VARCHAR(70)
+        defaultValue: ""
+        description: ""
+        name: L_LEADID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8e8744a8-954c-44db-b7ae-cbf1d3e97ed3
+                stepCounter: f885e7fa-3f60-4661-a067-a278e04b8a2b
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8efedaac-b604-4368-a982-7eee5d914a8c
+          stepCounter: 0b5bd32e-c8a8-425f-b5a5-61cd2548fb77
+        config: {}
+        dataType: VARCHAR(70)
+        defaultValue: ""
+        description: ""
+        name: SOURCEDB
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8b262164-0859-454c-ba09-7921f0e25779
+                stepCounter: f885e7fa-3f60-4661-a067-a278e04b8a2b
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: efa2c957-5950-4173-b098-89bdb4956749
+          stepCounter: 0b5bd32e-c8a8-425f-b5a5-61cd2548fb77
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: VENDOR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 446216c0-5d90-499d-a6e8-22081569f6f3
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ef3d2847-5f36-46a7-8dbb-4091ffab6e18
+          stepCounter: 0b5bd32e-c8a8-425f-b5a5-61cd2548fb77
+        config: {}
+        dataType: NUMBER(10,0)
+        defaultValue: ""
+        description: ""
+        name: RANKING
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: DENSE_RANK() OVER (PARTITION BY FIRST_GROUP_LEADID ORDER BY VENDOR)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: adfbe4cd-1694-4fbd-b792-9146b0e799cb
+          stepCounter: 0b5bd32e-c8a8-425f-b5a5-61cd2548fb77
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7469902e-afc4-46d7-8c34-faae0f1187b0
+          stepCounter: 0b5bd32e-c8a8-425f-b5a5-61cd2548fb77
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          BVSTG_AU2_GROUP_LEAD: f885e7fa-3f60-4661-a067-a278e04b8a2b
+          DS_CUSTOMERSUMMARY_V2: c5a432da-156b-460f-ba67-985b9517bedb
+          DS_MKT_LEAD_SOURCE: 0aaa279e-0731-4ba4-882c-75dc6cf7d3c9
+          DS_MKT_CAMPAIGN: 6db20009-e5c5-4a63-9950-65a73fc49802
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_AU2_GROUP_LEAD
+          - locationName: EDW
+            nodeName: DS_CUSTOMERSUMMARY_V2
+          - locationName: EDW
+            nodeName: DS_MKT_LEAD_SOURCE
+          - locationName: EDW
+            nodeName: DS_MKT_CAMPAIGN
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','BVSTG_AU2_GROUP_LEAD') }} BVSTG_AU2_GROUP_LEAD
+              LEFT JOIN {{ ref('EDW','DS_CUSTOMERSUMMARY_V2') }} DS_CUSTOMERSUMMARY_V2
+                ON DS_CUSTOMERSUMMARY_V2.CustomerID = BVSTG_AU2_GROUP_LEAD.C_CUSTOMERID
+               AND DS_CUSTOMERSUMMARY_V2.SOURCEDB = BVSTG_AU2_GROUP_LEAD.SOURCEDB
+              LEFT JOIN {{ ref('EDW','DS_MKT_LEAD_SOURCE') }} DS_MKT_LEAD_SOURCE
+                ON CASE WHEN BVSTG_AU2_GROUP_LEAD.SourceDb ='CIGH' THEN DS_CUSTOMERSUMMARY_V2.CUSTOMERNO
+                        ELSE BVSTG_AU2_GROUP_LEAD.L_LEADID
+                         END = DS_MKT_LEAD_SOURCE.LEADID
+               AND BVSTG_AU2_GROUP_LEAD.SourceDb = DS_MKT_LEAD_SOURCE.SourceDb
+              LEFT JOIN {{ ref('EDW','DS_MKT_CAMPAIGN') }} DS_MKT_CAMPAIGN
+                ON DS_MKT_LEAD_SOURCE.CAMPAIGNID=DS_MKT_CAMPAIGN.CAMPAIGNID
+             WHERE VENDOR IS NOT NULL
+        name: BVSTG_AU2_LEAD_FEATURES_VENDOR
+        noLinkRefs: []
+  name: BVSTG_AU2_LEAD_FEATURES_VENDOR
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

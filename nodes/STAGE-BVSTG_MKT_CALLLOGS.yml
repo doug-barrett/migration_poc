@@ -1,0 +1,1487 @@
+fileVersion: 1
+id: 2991ad35-d88d-4049-9226-645834c21b38
+name: BVSTG_MKT_CALLLOGS
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: true
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c4ef4f1c-6698-469f-abb4-53a195c0265a
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: CALLID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 95b8da47-cb86-406d-a1a4-2b11d21d37f3
+                stepCounter: da92f466-d34f-44ee-a09b-183fabba827a
+            transform: ""
+          - columnReferences:
+              - columnCounter: 6a4ab3a8-ed83-4b5f-a2a8-f56fb5cbb10b
+                stepCounter: 4fca6f32-72b6-4b8f-bcfe-df16e03e1df5
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 54c2958a-039d-4a1a-98a9-6249052edaf1
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: ISNONUNIQUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 95b8da47-cb86-406d-a1a4-2b11d21d37f3
+                stepCounter: da92f466-d34f-44ee-a09b-183fabba827a
+            transform: |-
+              CASE WHEN (STATIONCAMPAIGNNAME IN ('Non-Marketing', 'Collections') OR STATIONCAMPAIGNNAME like 'CARS TEST DNI%' OR STATIONCAMPAIGNNAME IS NULL OR Source_Name ='Non-Mrkt') THEN 0
+                          ELSE CASE WHEN RANK() OVER (PARTITION BY s_i3_routingcallresults.interactionidkey ORDER BY CASE WHEN CASE WHEN s_i3_routingcallresults.routingresult='Internal Transfer - Attendant' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NOT NULL THEN 'SYSTEM CONNECT' WHEN s_i3_routingcallresults.routingresult='Attendant - Overflow' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NOT NULL THEN 'SYSTEM CONNECT' WHEN s_i3_routingcallresults.routingresult='Internal Transfer - Attendant' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NULL THEN 'NOANSWER' WHEN s_i3_routingcallresults.routingresult='External Transfer' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NOT NULL THEN 'SYSTEM CONNECT' WHEN s_i3_routingcallresults.routingresult='External Transfer' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NULL THEN 'NOANSWER' WHEN s_i3_routingcallresults.routingresult='Attendant - Overflow' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NULL THEN 'NOANSWER' WHEN s_i3_routingcallresults.routingresult IN ('true', 'false') THEN 'SYSTEM CONNECT' ELSE 'CANCEL' END ='SYSTEM CONNECT' THEN 1 ELSE 2 END, s_i3_routingcallresults.initiateddatetime,h_routingcallresults.id) = 1 THEN 1 ELSE 0 END
+                           END
+          - columnReferences: []
+            transform: |-
+              CASE WHEN (STATIONCAMPAIGNNAME IN ('Non-Marketing', 'Collections') OR STATIONCAMPAIGNNAME like 'CARS TEST DNI%' OR STATIONCAMPAIGNNAME IS NULL OR Source_Name ='Non-Mrkt') THEN 0
+                          ELSE 1
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 10eec016-0240-4c58-8703-f2cc043333b9
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: ISDAILYUNIQUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 95b8da47-cb86-406d-a1a4-2b11d21d37f3
+                stepCounter: da92f466-d34f-44ee-a09b-183fabba827a
+            transform: |-
+              CASE WHEN (STATIONCAMPAIGNNAME IN ('Non-Marketing', 'Collections') OR STATIONCAMPAIGNNAME like 'CARS TEST DNI%' OR STATIONCAMPAIGNNAME IS NULL OR Source_Name ='Non-Mrkt') THEN 0
+                          ELSE CASE WHEN RANK() OVER (PARTITION BY DATE(s_i3_routingcallresults.initiateddatetime),s_i3_routingcallresults.ani ORDER BY CASE WHEN CASE WHEN s_i3_routingcallresults.routingresult='Internal Transfer - Attendant' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NOT NULL THEN 'SYSTEM CONNECT' WHEN s_i3_routingcallresults.routingresult='Attendant - Overflow' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NOT NULL THEN 'SYSTEM CONNECT' WHEN s_i3_routingcallresults.routingresult='Internal Transfer - Attendant' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NULL THEN 'NOANSWER' WHEN s_i3_routingcallresults.routingresult='External Transfer' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NOT NULL THEN 'SYSTEM CONNECT' WHEN s_i3_routingcallresults.routingresult='External Transfer' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NULL THEN 'NOANSWER' WHEN s_i3_routingcallresults.routingresult='Attendant - Overflow' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NULL THEN 'NOANSWER' WHEN s_i3_routingcallresults.routingresult IN ('true', 'false') THEN 'SYSTEM CONNECT' ELSE 'CANCEL' END ='SYSTEM CONNECT' THEN 1 ELSE 2 END, s_i3_routingcallresults.initiateddatetime,h_routingcallresults.id) = 1 THEN 1 ELSE 0 END
+                           END
+          - columnReferences: []
+            transform: |-
+              CASE WHEN (STATIONCAMPAIGNNAME IN ('Non-Marketing', 'Collections') OR STATIONCAMPAIGNNAME like 'CARS TEST DNI%' OR STATIONCAMPAIGNNAME IS NULL OR Source_Name ='Non-Mrkt') THEN 0
+                          ELSE CASE WHEN RANK() OVER (PARTITION BY DATE((convert_timezone('UTC','America/Los_Angeles',(CAST(v_dlbv_api_marchex_current.CALL_START AS DATETIME))::timestamp_ntz))),v_dlbv_api_marchex_current.caller_number ORDER BY CASE WHEN v_dlbv_api_marchex_current.call_status = 'ANSWER' THEN 1 ELSE 2 END, CAST(v_dlbv_api_marchex_current.CALL_START AS DATETIME),v_dlbv_api_marchex_current.Call_Id) = 1 THEN 1 ELSE 0 END
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: de87c423-8e13-44c4-8419-75e71f827ae0
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: ISWEEKLYUNIQUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 95b8da47-cb86-406d-a1a4-2b11d21d37f3
+                stepCounter: da92f466-d34f-44ee-a09b-183fabba827a
+            transform: |-
+              CASE WHEN (STATIONCAMPAIGNNAME IN ('Non-Marketing', 'Collections') OR STATIONCAMPAIGNNAME like 'CARS TEST DNI%' OR STATIONCAMPAIGNNAME IS NULL OR Source_Name ='Non-Mrkt') THEN 0
+                          ELSE CASE WHEN RANK() OVER (PARTITION BY v_s_mkt_broadcast_calendar_current.year_number,v_s_mkt_broadcast_calendar_current.week_number,s_i3_routingcallresults.ani ORDER BY CASE WHEN CASE WHEN s_i3_routingcallresults.routingresult='Internal Transfer - Attendant' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NOT NULL THEN 'SYSTEM CONNECT' WHEN s_i3_routingcallresults.routingresult='Attendant - Overflow' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NOT NULL THEN 'SYSTEM CONNECT' WHEN s_i3_routingcallresults.routingresult='Internal Transfer - Attendant' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NULL THEN 'NOANSWER' WHEN s_i3_routingcallresults.routingresult='External Transfer' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NOT NULL THEN 'SYSTEM CONNECT' WHEN s_i3_routingcallresults.routingresult='External Transfer' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NULL THEN 'NOANSWER' WHEN s_i3_routingcallresults.routingresult='Attendant - Overflow' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NULL THEN 'NOANSWER' WHEN s_i3_routingcallresults.routingresult IN ('true', 'false') THEN 'SYSTEM CONNECT' ELSE 'CANCEL' END ='SYSTEM CONNECT' THEN 1 ELSE 2 END, s_i3_routingcallresults.initiateddatetime,h_routingcallresults.id) = 1 THEN 1 ELSE 0 END
+                           END
+          - columnReferences: []
+            transform: |-
+              CASE WHEN (STATIONCAMPAIGNNAME IN ('Non-Marketing', 'Collections') OR STATIONCAMPAIGNNAME like 'CARS TEST DNI%' OR STATIONCAMPAIGNNAME IS NULL OR Source_Name ='Non-Mrkt') THEN 0
+                          ELSE CASE WHEN RANK() OVER (PARTITION BY v_s_mkt_broadcast_calendar_current.year_number,v_s_mkt_broadcast_calendar_current.week_number,v_dlbv_api_marchex_current.caller_number ORDER BY CASE WHEN v_dlbv_api_marchex_current.call_status = 'ANSWER' THEN 1 ELSE 2 END, CAST(v_dlbv_api_marchex_current.CALL_START AS DATETIME),v_dlbv_api_marchex_current.Call_Id) = 1 THEN 1 ELSE 0 END
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fa67d09d-04c1-432a-b467-1c72f6cdebfd
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: SOURCESYSTEM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 74d610a5-9e51-4efc-9828-fe5abc769a3b
+                stepCounter: 49b1d62e-61a0-4491-b7c0-2526e4e0497f
+            transform: "'CARS'"
+          - columnReferences: []
+            transform: "'MCX'"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7ad76cc8-9d1e-48e7-bf23-c565e19ab3b0
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(18)
+        defaultValue: ""
+        description: ""
+        name: INTERACTIONIDKEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4fc83421-75d0-4035-85ae-dd6c89b9a6fe
+                stepCounter: 49b1d62e-61a0-4491-b7c0-2526e4e0497f
+            transform: ""
+          - columnReferences:
+              - columnCounter: 8cef1581-b4f7-434d-9864-dd7b52803ad9
+                stepCounter: e1751fec-5c3b-4a31-a764-d3b471a0944b
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f2615623-3985-4ed4-b525-f28d5e8aae76
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CALLERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 517cdb16-29b1-4836-87d0-f476e36352ef
+                stepCounter: 49b1d62e-61a0-4491-b7c0-2526e4e0497f
+            transform: ""
+          - columnReferences:
+              - columnCounter: 2f2f53ba-7fac-4faa-9f44-02402f9124ed
+                stepCounter: 4fca6f32-72b6-4b8f-bcfe-df16e03e1df5
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7804f54b-60e6-49f3-8020-230f0f4bb503
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: ""
+        name: CALLERNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9f13752d-fc48-4479-a1e9-bb3a09354edc
+                stepCounter: e1751fec-5c3b-4a31-a764-d3b471a0944b
+            transform: ""
+          - columnReferences:
+              - columnCounter: 626191fa-5a96-4c81-bfad-1b05c2d4eccd
+                stepCounter: 4fca6f32-72b6-4b8f-bcfe-df16e03e1df5
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e5ae67de-719c-4fbb-a982-a4e666b70eed
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: CALL_STATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 032e8500-993d-4270-ad76-bc8a942d5f6b
+                stepCounter: 49b1d62e-61a0-4491-b7c0-2526e4e0497f
+            transform: |-
+              CASE WHEN s_i3_routingcallresults.routingresult='Internal Transfer - Attendant' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NOT NULL THEN 'SYSTEM CONNECT'
+                          WHEN s_i3_routingcallresults.routingresult='Attendant - Overflow' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NOT NULL          THEN 'SYSTEM CONNECT'
+                          WHEN s_i3_routingcallresults.routingresult='Internal Transfer - Attendant' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NULL     THEN 'NOANSWER'
+                          WHEN s_i3_routingcallresults.routingresult='External Transfer' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NOT NULL             THEN 'SYSTEM CONNECT'
+                          WHEN s_i3_routingcallresults.routingresult='External Transfer' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NULL                 THEN 'NOANSWER'
+                          WHEN s_i3_routingcallresults.routingresult='Attendant - Overflow' AND (CASE WHEN s_i3_routingcallresults.routingresult='External Transfer' THEN s_i3_routingcallresults.OfficeCode ELSE ds_interactionsummary.FirstAgentOffice END) IS NULL              THEN 'NOANSWER'
+                          WHEN s_i3_routingcallresults.routingresult IN ('true', 'false')                                                                                                                                                                                          THEN 'SYSTEM CONNECT'
+                          ELSE 'CANCEL'
+                           END
+          - columnReferences:
+              - columnCounter: 8312f079-021d-423d-96d2-308f869e9bf4
+                stepCounter: 4fca6f32-72b6-4b8f-bcfe-df16e03e1df5
+            transform: |-
+              CASE WHEN v_dlbv_api_marchex_current.call_status IN ('ANSWER') THEN 'SYSTEM CONNECT'
+                          ELSE 'NOANSWER'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2959651a-e342-42ab-afa4-95dadd530417
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: TIMESTAMP(3)
+        defaultValue: ""
+        description: ""
+        name: CALLDATETIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: eb70be60-93a8-4751-a53b-f3c9ce3fe537
+                stepCounter: e1751fec-5c3b-4a31-a764-d3b471a0944b
+            transform: ""
+          - columnReferences: []
+            transform: (convert_timezone('UTC','America/Los_Angeles',(CAST(v_dlbv_api_marchex_current.CALL_START AS DATETIME))::timestamp_ntz))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f5e8f6bd-95ab-491c-ba08-25fec3ca1556
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: TIMESTAMP(3)
+        defaultValue: ""
+        description: ""
+        name: CALLSTART
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: eb70be60-93a8-4751-a53b-f3c9ce3fe537
+                stepCounter: e1751fec-5c3b-4a31-a764-d3b471a0944b
+            transform: ""
+          - columnReferences: []
+            transform: (convert_timezone('UTC','America/Los_Angeles',(CAST(v_dlbv_api_marchex_current.CALL_START AS DATETIME))::timestamp_ntz))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9c5980e2-77f7-4f31-8e95-cca34a332c22
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: TIMESTAMP(7)
+        defaultValue: ""
+        description: ""
+        name: CALLEND
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fd8ad187-8f59-483d-9e91-743c1c5c25b7
+                stepCounter: e1751fec-5c3b-4a31-a764-d3b471a0944b
+            transform: ""
+          - columnReferences: []
+            transform: (convert_timezone('UTC','America/Los_Angeles',(CAST(v_dlbv_api_marchex_current.call_end AS DATETIME))::timestamp_ntz))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c77ba512-de28-4ea8-83fd-17111c8db64b
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: CALLDURATION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fc89ac6c-67c4-4fb9-8dec-ae5c74da6102
+                stepCounter: e1751fec-5c3b-4a31-a764-d3b471a0944b
+            transform: ""
+          - columnReferences: []
+            transform: DATEDIFF(SECOND,CAST(v_dlbv_api_marchex_current.CALL_START AS DATETIME),CAST(v_dlbv_api_marchex_current.call_end AS DATETIME))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3b2268c3-0e6c-4f19-a70c-79faa35702a9
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: TIME
+        defaultValue: ""
+        description: ""
+        name: CALLDURATIONTIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fc89ac6c-67c4-4fb9-8dec-ae5c74da6102
+                stepCounter: e1751fec-5c3b-4a31-a764-d3b471a0944b
+            transform: to_time(to_timestamp(ds_interactionsummary.lineduration))
+          - columnReferences: []
+            transform: to_time(to_timestamp(DATEDIFF(SECOND,CAST(v_dlbv_api_marchex_current.CALL_START AS DATETIME),CAST(v_dlbv_api_marchex_current.call_end AS DATETIME))))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 247d7a3a-de4f-4f0b-a903-5000a140a3c9
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: FORWARDNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 74d610a5-9e51-4efc-9828-fe5abc769a3b
+                stepCounter: 49b1d62e-61a0-4491-b7c0-2526e4e0497f
+            transform: ""
+          - columnReferences:
+              - columnCounter: 520ad080-4629-447c-a81f-2db477534901
+                stepCounter: 4fca6f32-72b6-4b8f-bcfe-df16e03e1df5
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 36cb81bc-55c5-4911-b38b-7dfc50836a49
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: INBOUNDNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 032e8500-993d-4270-ad76-bc8a942d5f6b
+                stepCounter: 49b1d62e-61a0-4491-b7c0-2526e4e0497f
+            transform: ""
+          - columnReferences:
+              - columnCounter: ebd11f8e-2edc-4b17-8eab-1f808bd6edb4
+                stepCounter: 4fca6f32-72b6-4b8f-bcfe-df16e03e1df5
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 904018d8-dda3-4804-8cbe-6b656fbf459a
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: TIMESTAMP(7)
+        defaultValue: ""
+        description: ""
+        name: SOURCESYSTEMDATETIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: eb70be60-93a8-4751-a53b-f3c9ce3fe537
+                stepCounter: e1751fec-5c3b-4a31-a764-d3b471a0944b
+            transform: ""
+          - columnReferences: []
+            transform: CAST(v_dlbv_api_marchex_current.CALL_START AS DATETIME)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4b02d65a-9fbd-4ed9-ba37-79e7a28249a5
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: BROADCAST_YEAR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 35da2d61-9c89-47e9-b751-d97517f6ad9a
+                stepCounter: a13ba7a8-909e-4ba8-a37a-057e9eccbd63
+            transform: ""
+          - columnReferences:
+              - columnCounter: 35da2d61-9c89-47e9-b751-d97517f6ad9a
+                stepCounter: a13ba7a8-909e-4ba8-a37a-057e9eccbd63
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f1343f2a-18ea-4b7d-8b8c-f8969ef2f75d
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: BROADCAST_QTR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 378d4fa6-73c2-42cb-9159-4dce3c99932c
+                stepCounter: a13ba7a8-909e-4ba8-a37a-057e9eccbd63
+            transform: ""
+          - columnReferences:
+              - columnCounter: 378d4fa6-73c2-42cb-9159-4dce3c99932c
+                stepCounter: a13ba7a8-909e-4ba8-a37a-057e9eccbd63
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bcf23536-2835-4bd3-8ad3-a28c5581c86d
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: BROADCAST_MONTH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 61f693f2-ff7c-4155-bafb-0ee3cadfb832
+                stepCounter: a13ba7a8-909e-4ba8-a37a-057e9eccbd63
+            transform: ""
+          - columnReferences:
+              - columnCounter: 61f693f2-ff7c-4155-bafb-0ee3cadfb832
+                stepCounter: a13ba7a8-909e-4ba8-a37a-057e9eccbd63
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ec70636f-a138-4a6d-a178-2a9ca8574b61
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: BROADCAST_WEEK
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d6a061d0-db61-47bb-aa41-f1561b74e9f6
+                stepCounter: a13ba7a8-909e-4ba8-a37a-057e9eccbd63
+            transform: ""
+          - columnReferences:
+              - columnCounter: d6a061d0-db61-47bb-aa41-f1561b74e9f6
+                stepCounter: a13ba7a8-909e-4ba8-a37a-057e9eccbd63
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d5ce4ae9-ef98-4626-8eb3-6d3991b7ff2f
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f8cb8cd6-9775-45bf-9216-542e176bb657
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: f8cb8cd6-9775-45bf-9216-542e176bb657
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5197db71-deab-43b8-81f8-2b3f6875113b
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: STATIONCAMPAIGNNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 542a7597-61df-412c-a750-56a2dbc6cea6
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 542a7597-61df-412c-a750-56a2dbc6cea6
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 355cd19b-a227-4537-9390-49e01bd6d229
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: C_NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8a64be00-9a0e-4dad-9c3e-d91b850d4ff1
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 8a64be00-9a0e-4dad-9c3e-d91b850d4ff1
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 40096891-0255-4a0f-8076-610bdfd242f9
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_LANGUAGE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4721d569-68f9-49ca-a32d-729a84c91f55
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 4721d569-68f9-49ca-a32d-729a84c91f55
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b2416c2e-1693-4755-a29a-5d8452036295
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_TIMEZONENAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1cdabaec-a68d-447a-810d-d7f996411235
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 1cdabaec-a68d-447a-810d-d7f996411235
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5cd1cc3b-1df2-4acc-8747-abaed36678b9
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_BRAND_NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 24f33b75-8de6-400c-b4c7-186c31bbeccd
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 24f33b75-8de6-400c-b4c7-186c31bbeccd
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4c2e5636-2885-4831-97ca-860c206eb630
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_SOURCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6738d875-0c9c-485f-992a-e12482b7d57e
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 6738d875-0c9c-485f-992a-e12482b7d57e
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5ef70802-c8c6-4a46-a951-dabcb4510d6f
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_STATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d06937d1-d0e7-40e1-99ba-cf03e777bcac
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: d06937d1-d0e7-40e1-99ba-cf03e777bcac
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ce8cb8b5-11ee-419e-87e0-a19f6012b389
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_TARGETAREA_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 135762e1-a50f-4877-b4be-f865031df503
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 135762e1-a50f-4877-b4be-f865031df503
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 76a6eec5-0a76-4617-947e-e286799d1229
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_TARGETAREA_NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a21b470d-d097-4051-9c58-b7c5e7e7b36d
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: a21b470d-d097-4051-9c58-b7c5e7e7b36d
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 81a264fc-aba7-4d4b-8689-e6c8524e15bf
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_BUDGETMKTGORG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cb7510e7-16a4-4710-930c-b9710ddf87ed
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: cb7510e7-16a4-4710-930c-b9710ddf87ed
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6430daa0-f0ec-485b-8fa8-b8d9bda88311
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_BUDGETMKTGSTATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c31b3ac0-eda7-471e-a959-53616ba84ed4
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: c31b3ac0-eda7-471e-a959-53616ba84ed4
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fdd19f4a-4195-432e-887f-6b1c6975b915
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_MARCHEX_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b917c6a9-28cf-4185-9fd8-3ba07b750ade
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: b917c6a9-28cf-4185-9fd8-3ba07b750ade
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e530d7ca-63ff-4972-8464-275934e0c8ed
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_CARS_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5e1ae0f8-4575-41d8-8017-ec2fd09a35a7
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 5e1ae0f8-4575-41d8-8017-ec2fd09a35a7
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f151cc32-ebf3-4f93-8a16-19b237334da2
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_DMAIDENTIFIER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c4254f4d-a870-4554-8e6e-9955013bd256
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: c4254f4d-a870-4554-8e6e-9955013bd256
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ba20bcb9-d932-440a-82c6-9a0a07afdae2
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_DMA
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f43fc92a-ae0d-49cb-899e-0722078dad31
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: f43fc92a-ae0d-49cb-899e-0722078dad31
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 244fe2bd-0a9a-434b-ae42-ae3d8b5c22be
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_BUYERINITIALS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7598217b-6d67-4ffd-8d8c-ed88d97bedfa
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 7598217b-6d67-4ffd-8d8c-ed88d97bedfa
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 199cb21f-5161-4801-ba23-eab1370ec1c2
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_CAMPAIGNDMA
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c7cacfb9-5d2a-4142-a9a4-49e34cae6e7a
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: c7cacfb9-5d2a-4142-a9a4-49e34cae6e7a
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d35200ec-f48f-4286-88de-d88ae3a753d3
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_BUYER_NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 07af2404-82d1-4194-a81b-dd1234dd2681
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 07af2404-82d1-4194-a81b-dd1234dd2681
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 46941473-bad9-46b6-870d-4376518cd5b8
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_TIMEZONEHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6c1f3e1c-1cec-46e8-866f-859850dbcc53
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 6c1f3e1c-1cec-46e8-866f-859850dbcc53
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7148b8f2-acfb-483e-857d-725fe8e086d0
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_FREQUENCY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1b5d7086-c40c-4af8-bac8-40be2d31ee1f
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 1b5d7086-c40c-4af8-bac8-40be2d31ee1f
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8e443f40-f5c7-4a94-83fc-aedeb0fadb95
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_PRODUCTTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: daa27688-3d46-4668-93a0-12e8ef2288db
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: daa27688-3d46-4668-93a0-12e8ef2288db
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ad63eba1-1834-45ee-ade8-78a97257622c
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_PLACEMENTLEVEL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3b646038-8e56-4d22-9a2b-185c023de423
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 3b646038-8e56-4d22-9a2b-185c023de423
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1a51c77b-e396-4314-a18c-24f13f7b58cc
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_DIGITALCATEGORY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e2aba897-a374-4788-9a27-827c9eac4813
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: e2aba897-a374-4788-9a27-827c9eac4813
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ebfb0c10-f822-48eb-87e3-824bb0c985b9
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_MEDIAPROVIDER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8d8ea34f-9583-47bd-b1d7-fd8c55d172f1
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 8d8ea34f-9583-47bd-b1d7-fd8c55d172f1
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4bf433c9-af21-41e4-a485-f9e0cbcc37e5
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_LEADCAPTURETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5a694ce4-f8fb-4463-a247-55e5f7807559
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 5a694ce4-f8fb-4463-a247-55e5f7807559
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0c5c3782-8b96-4a09-afc2-9b2977c86ba7
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_DEVICETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3835f93f-191c-497a-b4ce-96c4888c2cb2
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 3835f93f-191c-497a-b4ce-96c4888c2cb2
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0c84d87d-10f8-4698-8938-14f934542b6c
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_PROJECTSTART
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2e5c27d0-01d7-4dd3-9e6a-b9cfea9db48a
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 2e5c27d0-01d7-4dd3-9e6a-b9cfea9db48a
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 313e99a4-0ee2-4093-abb9-034d640eba0c
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_PROJECTEND
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 77330c9c-20e3-4724-b793-e2b08e3efa8d
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 77330c9c-20e3-4724-b793-e2b08e3efa8d
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 19ec5b5d-051f-4c39-8ed2-74f814f15df2
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_ORIGIN
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 326afb5c-6201-4c74-b4d1-344e5229e6dc
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 326afb5c-6201-4c74-b4d1-344e5229e6dc
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 783f32ce-58e7-40a8-a2ed-178badbebafd
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_CATEGORY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1f87d726-1d6b-4c31-a174-50a8d875d027
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 1f87d726-1d6b-4c31-a174-50a8d875d027
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bd236d5d-a3ef-4d56-82ef-c7e8d393a1ce
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_SUBCATEGORY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 29675cdd-18e5-4186-a733-03e683b0a26c
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 29675cdd-18e5-4186-a733-03e683b0a26c
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4c016653-1a48-4496-81de-a423c47b6c91
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_GENRE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bd98f883-b29b-4893-a6a3-132d88a01d92
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: bd98f883-b29b-4893-a6a3-132d88a01d92
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 062bc633-f764-4396-930f-16d386ac71d8
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_VENDOR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 446216c0-5d90-499d-a6e8-22081569f6f3
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 446216c0-5d90-499d-a6e8-22081569f6f3
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a9b0dd3e-9fd3-43c2-b887-64c72144146e
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_BROADCASTGROUP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 932919f3-d5c6-40de-9cd0-5d5e302fe275
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 932919f3-d5c6-40de-9cd0-5d5e302fe275
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ada8f1d9-dd72-4749-919b-af4c55e03a11
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: CAMPAIGN_PROVISIONDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8daffa95-fae4-47e4-8e79-a990df5fcab6
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+          - columnReferences:
+              - columnCounter: 8daffa95-fae4-47e4-8e79-a990df5fcab6
+                stepCounter: 6db20009-e5c5-4a63-9950-65a73fc49802
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2e78f800-bf37-4c4d-976e-4fe29d3b66f3
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: NUMBER(38)
+        defaultValue: ""
+        description: ""
+        name: CALLER_AREACODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8301060b-ee33-426d-9a42-e5ac298adf34
+                stepCounter: cf54b6c2-7204-4a3b-939e-80867974a741
+            transform: |-
+              CASE WHEN LEN(IFNULL(try_to_number(LEFT(RIGHT(s_i3_routingcallresults.ani,10),3)),'858'))<3 THEN '858'
+                          ELSE IFNULL(try_to_number(LEFT(RIGHT(s_i3_routingcallresults.ani,10),3)),'858')
+                           END
+          - columnReferences:
+              - columnCounter: 8301060b-ee33-426d-9a42-e5ac298adf34
+                stepCounter: cf54b6c2-7204-4a3b-939e-80867974a741
+            transform: |-
+              CASE WHEN LEN(IFNULL(try_to_number(LEFT(RIGHT(v_dlbv_api_marchex_current.caller_number,10),3)),'858'))<3 THEN '858'
+                          ELSE IFNULL(try_to_number(LEFT(RIGHT(v_dlbv_api_marchex_current.caller_number,10),3)),'858')
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 213f8429-d623-42c4-a49c-ce9dd9b88884
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: CALLER_AREACODETIMEZONE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 98816ec0-e065-4073-9992-a2156ffc261b
+                stepCounter: 258f53af-d2d1-4714-99a4-95a39f79c05e
+            transform: ""
+          - columnReferences:
+              - columnCounter: 98816ec0-e065-4073-9992-a2156ffc261b
+                stepCounter: 258f53af-d2d1-4714-99a4-95a39f79c05e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5a3e60a1-dd56-4f88-a9e8-7f83de4c1d83
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: CALLER_AREACODESTATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 27f0e482-678f-45c3-92c7-e036c6a90d84
+                stepCounter: cf54b6c2-7204-4a3b-939e-80867974a741
+            transform: ""
+          - columnReferences:
+              - columnCounter: 27f0e482-678f-45c3-92c7-e036c6a90d84
+                stepCounter: cf54b6c2-7204-4a3b-939e-80867974a741
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bea33609-d46b-4a9e-85d3-cbfd91343afb
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: CALLER_AREACODESTATEABBREV
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a219ec41-1d3b-43ec-a8f5-a8a7849d0e51
+                stepCounter: cf54b6c2-7204-4a3b-939e-80867974a741
+            transform: ""
+          - columnReferences:
+              - columnCounter: a219ec41-1d3b-43ec-a8f5-a8a7849d0e51
+                stepCounter: cf54b6c2-7204-4a3b-939e-80867974a741
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d8afe730-dab1-4998-bcf2-afa6bfac4a6f
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: OFFICE_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9cf6489b-d534-40fc-8694-e5fc70b9aa92
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+          - columnReferences:
+              - columnCounter: 9cf6489b-d534-40fc-8694-e5fc70b9aa92
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c19668da-8e04-4acb-a201-4bbf13e4ba79
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(765)
+        defaultValue: ""
+        description: ""
+        name: OFFICE_NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4db4ad64-f5ed-4208-bc69-f067fade11f0
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+          - columnReferences:
+              - columnCounter: 4db4ad64-f5ed-4208-bc69-f067fade11f0
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 448e9e92-f660-4b8e-b0b8-5092ba4a9735
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: CORPORATEOFFICENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 66099d95-d490-440f-8c3b-0455d12a6293
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+          - columnReferences:
+              - columnCounter: 66099d95-d490-440f-8c3b-0455d12a6293
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e6742fc3-49db-4f26-8292-771e22b283b3
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(120)
+        defaultValue: ""
+        description: ""
+        name: OFFICE_TYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: afd06f11-7ab2-4833-8af1-93b3e73ac59b
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+          - columnReferences:
+              - columnCounter: afd06f11-7ab2-4833-8af1-93b3e73ac59b
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 82acf96a-760a-4a2c-a28c-1862fbbc96a5
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(765)
+        defaultValue: ""
+        description: ""
+        name: BMO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 13fee6c1-05d3-4c29-adf2-2841525e08c3
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+          - columnReferences:
+              - columnCounter: 13fee6c1-05d3-4c29-adf2-2841525e08c3
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 277ee22b-3c6b-4f6c-96b6-6c00f1936f40
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: VARCHAR(36)
+        defaultValue: ""
+        description: ""
+        name: NAT_CAMP_BILLING_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 535982b7-eeeb-416e-b16f-9d29f7c715a1
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+          - columnReferences:
+              - columnCounter: 535982b7-eeeb-416e-b16f-9d29f7c715a1
+                stepCounter: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a6eb54d1-feb6-4b2c-91e5-c460041efb97
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        isSystemCreateDate: true
+        name: DSS_CREATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 05ccc84b-f14c-46d5-b22e-65a2f1f5c7b5
+          stepCounter: 2991ad35-d88d-4049-9226-645834c21b38
+        config: {}
+        dataType: TIMESTAMP_NTZ
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        isSystemUpdateDate: true
+        name: DSS_UPDATE_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          S_I3_ROUTINGCALLRESULTS: 49b1d62e-61a0-4491-b7c0-2526e4e0497f
+          H_ROUTINGCALLRESULTS: da92f466-d34f-44ee-a09b-183fabba827a
+          V_S_I3_CAMPAIGNDNIS_CURRENT: bdcf2b87-1075-450a-b3a7-75cc8ab57e2d
+          H_CAMPAIGNDNIS: 44ef41b8-2468-4aec-beec-8ea6bfb63952
+          DS_INTERACTIONSUMMARY: e1751fec-5c3b-4a31-a764-d3b471a0944b
+          DS_MKT_CAMPAIGN: 6db20009-e5c5-4a63-9950-65a73fc49802
+          DS_RETAIL_OFFICE: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+          V_S_MKT_BROADCAST_CALENDAR_CURRENT: a13ba7a8-909e-4ba8-a37a-057e9eccbd63
+          V_S_MKT_AREA_CODES_CURRENT: cf54b6c2-7204-4a3b-939e-80867974a741
+          V_DLBV_MKT_TIMEZONES: 258f53af-d2d1-4714-99a4-95a39f79c05e
+          DS_MKT_CALLLOGS: 259616fa-a3e4-42bc-8241-ee6c1bd21955
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: DATA_VAULT
+            nodeName: H_ROUTINGCALLRESULTS
+          - locationName: DATA_VAULT
+            nodeName: S_I3_ROUTINGCALLRESULTS
+          - locationName: EDW
+            nodeName: DS_INTERACTIONSUMMARY
+          - locationName: STAGE
+            nodeName: V_S_MKT_BROADCAST_CALENDAR_CURRENT
+          - locationName: EDW
+            nodeName: DS_MKT_CAMPAIGN
+          - locationName: STAGE
+            nodeName: V_S_MKT_AREA_CODES_CURRENT
+          - locationName: STAGE
+            nodeName: V_DLBV_MKT_TIMEZONES
+          - locationName: EDW
+            nodeName: DS_RETAIL_OFFICE
+          - locationName: STAGE
+            nodeName: V_S_I3_CAMPAIGNDNIS_CURRENT
+          - locationName: DATA_VAULT
+            nodeName: H_CAMPAIGNDNIS
+          - locationName: EDW
+            nodeName: DS_MKT_CALLLOGS
+        join:
+          joinCondition: |-
+            FROM {{ ref('DATA_VAULT','S_I3_ROUTINGCALLRESULTS') }} s_i3_routingcallresults
+              LEFT JOIN {{ ref('DATA_VAULT','H_ROUTINGCALLRESULTS') }} h_routingcallresults
+                ON s_i3_routingcallresults.hk_h_routingcallresults = h_routingcallresults.hk_h_routingcallresults
+              LEFT JOIN {{ ref('STAGE','V_S_I3_CAMPAIGNDNIS_CURRENT') }} v_s_i3_campaigndnis_current
+                ON s_i3_routingcallresults.dnis = v_s_i3_campaigndnis_current.dnis
+               AND s_i3_routingcallresults.CampaignId= v_s_i3_campaigndnis_current.Campaign_Id
+              LEFT JOIN {{ ref('DATA_VAULT','H_CAMPAIGNDNIS') }} h_campaigndnis
+                ON v_s_i3_campaigndnis_current.hk_h_campaigndnis = h_campaigndnis.hk_h_campaigndnis
+              LEFT JOIN {{ ref('EDW','DS_INTERACTIONSUMMARY') }} ds_interactionsummary
+                ON s_i3_routingcallresults.interactionidkey = ds_interactionsummary.interactionidkey
+              LEFT JOIN {{ ref('EDW','DS_MKT_CAMPAIGN') }} ds_mkt_campaign
+                ON h_campaigndnis.id = ds_mkt_campaign.cars_id
+              LEFT JOIN {{ ref('EDW','DS_RETAIL_OFFICE') }} ds_retail_office
+                ON s_i3_routingcallresults.officecode = ds_retail_office.OfficeCode
+              LEFT JOIN {{ ref('STAGE','V_S_MKT_BROADCAST_CALENDAR_CURRENT') }} v_s_mkt_broadcast_calendar_current
+                ON DATE(s_i3_routingcallresults.initiateddatetime) = v_s_mkt_broadcast_calendar_current.date
+              LEFT JOIN {{ ref('STAGE','V_S_MKT_AREA_CODES_CURRENT') }} v_s_mkt_area_codes_current
+                ON CASE WHEN LEN(IFNULL(try_to_number(LEFT(RIGHT(s_i3_routingcallresults.ani,10),3)),'858'))<3 THEN '858'
+                        ELSE IFNULL(try_to_number(LEFT(RIGHT(s_i3_routingcallresults.ani,10),3)),'858')
+                         END = try_to_number(v_s_mkt_area_codes_current.area_code)
+              LEFT JOIN {{ ref('STAGE','V_DLBV_MKT_TIMEZONES') }} v_dlbv_mkt_timezones
+                ON v_s_mkt_area_codes_current.Time_Zone = v_dlbv_mkt_timezones.TimeZonesID
+             WHERE (('{{ parameters.HWM_BVSTG_Mkt_Refresh_flag }}' = 0) OR ('{{ parameters.HWM_BVSTG_Mkt_Refresh_flag }}' = 1 AND HOUR(current_timestamp()) <= '{{ parameters.HWM_BVSTG_Hour }}' AND s_i3_routingcallresults.DSS_CREATE_TIME >= DATE_TRUNC(WEEK, DATEADD(DAY,-'{{ parameters.HWM_BVSTG_Mkt_Refresh_Days }}',CURRENT_DATE()) ::DATE)) OR ('{{ parameters.HWM_BVSTG_Mkt_Refresh_flag }}' = 1 AND HOUR(current_timestamp()) > '{{ parameters.HWM_BVSTG_Hour }}' AND s_i3_routingcallresults.DSS_CREATE_TIME > (SELECT DATEADD(HOUR,-2,MAX(DSS_UPDATE_TIME)) FROM {{ ref('EDW','DS_MKT_CALLLOGS') }} WHERE SourceSystem='CARS'))) QUALIFY ROW_NUMBER() OVER (PARTITION BY h_routingcallresults.id ORDER BY s_i3_routingcallresults.initiateddatetime) = 1
+        name: SRC_bvstg_mkt_calllogs_1_cars
+        noLinkRefs: []
+      - aliases:
+          V_DLBV_API_MARCHEX_CURRENT: 4fca6f32-72b6-4b8f-bcfe-df16e03e1df5
+          DS_MKT_CAMPAIGN: 6db20009-e5c5-4a63-9950-65a73fc49802
+          V_S_MKT_OFFICEDESTINATIONNO_CURRENT: f9a72288-5f39-4d99-8a40-e10be687ac96
+          DS_RETAIL_OFFICE: 7fd20bc2-12f3-4073-aaf4-8c712d0208af
+          V_S_MKT_BROADCAST_CALENDAR_CURRENT: a13ba7a8-909e-4ba8-a37a-057e9eccbd63
+          V_S_MKT_AREA_CODES_CURRENT: cf54b6c2-7204-4a3b-939e-80867974a741
+          DS_INTERACTIONSUMMARY: e1751fec-5c3b-4a31-a764-d3b471a0944b
+          S_I3_ROUTINGCALLRESULTS: 49b1d62e-61a0-4491-b7c0-2526e4e0497f
+          V_DLBV_MKT_TIMEZONES: 258f53af-d2d1-4714-99a4-95a39f79c05e
+          DS_MKT_CALLLOGS: 259616fa-a3e4-42bc-8241-ee6c1bd21955
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_DLBV_API_MARCHEX_CURRENT
+          - locationName: EDW
+            nodeName: DS_MKT_CAMPAIGN
+          - locationName: STAGE
+            nodeName: V_S_MKT_OFFICEDESTINATIONNO_CURRENT
+          - locationName: EDW
+            nodeName: DS_RETAIL_OFFICE
+          - locationName: STAGE
+            nodeName: V_S_MKT_BROADCAST_CALENDAR_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_MKT_AREA_CODES_CURRENT
+          - locationName: EDW
+            nodeName: DS_INTERACTIONSUMMARY
+          - locationName: DATA_VAULT
+            nodeName: S_I3_ROUTINGCALLRESULTS
+          - locationName: STAGE
+            nodeName: V_DLBV_MKT_TIMEZONES
+          - locationName: EDW
+            nodeName: DS_MKT_CALLLOGS
+        join:
+          joinCondition: |-
+            EXTENDED
+              FROM {{ ref('STAGE','V_DLBV_API_MARCHEX_CURRENT') }} v_dlbv_api_marchex_current
+              LEFT JOIN {{ ref('EDW','DS_MKT_CAMPAIGN') }} ds_mkt_campaign
+                ON v_dlbv_api_marchex_current.cmpid = CAST(ds_mkt_campaign.Marchex_Id AS VARCHAR(50))
+              LEFT JOIN {{ ref('STAGE','V_S_MKT_OFFICEDESTINATIONNO_CURRENT') }} v_s_mkt_officedestinationno_current
+                ON v_dlbv_api_marchex_current.forwardno = v_s_mkt_officedestinationno_current.DestinationNo
+               AND DATE(v_dlbv_api_marchex_current.call_start) >= v_s_mkt_officedestinationno_current.EffectiveDate
+               AND DATE(v_dlbv_api_marchex_current.call_start) <= v_s_mkt_officedestinationno_current.TerminationDate
+              LEFT JOIN {{ ref('EDW','DS_RETAIL_OFFICE') }} ds_retail_office
+                ON v_s_mkt_officedestinationno_current.officecode = ds_retail_office.OfficeCode
+              LEFT JOIN {{ ref('STAGE','V_S_MKT_BROADCAST_CALENDAR_CURRENT') }} v_s_mkt_broadcast_calendar_current
+                ON DATE((convert_timezone('UTC','America/Los_Angeles',(CAST(v_dlbv_api_marchex_current.CALL_START AS DATETIME))::timestamp_ntz))) = v_s_mkt_broadcast_calendar_current.date
+              LEFT JOIN {{ ref('STAGE','V_S_MKT_AREA_CODES_CURRENT') }} v_s_mkt_area_codes_current
+                ON CASE WHEN LEN(IFNULL(try_to_number(LEFT(RIGHT(v_dlbv_api_marchex_current.caller_number,10),3)),'858'))<3 THEN '858'
+                        ELSE IFNULL(try_to_number(LEFT(RIGHT(v_dlbv_api_marchex_current.caller_number,10),3)),'858')
+                         END = v_s_mkt_area_codes_current.area_code
+              LEFT JOIN (
+                    SELECT ds_interactionsummary.interactionidkey ,
+                           ds_interactionsummary.startdatetime ,
+                           ds_interactionsummary.DNIS_LOCALID ,
+                           ds_interactionsummary.digitsdialed ,
+                           REPLACE(ds_interactionsummary.REMOTENUMBERCALLID,'+1','') AS REMOTENUMBERCALLID
+                      FROM {{ ref('EDW','DS_INTERACTIONSUMMARY') }} ds_interactionsummary
+                      LEFT JOIN {{ ref('DATA_VAULT','S_I3_ROUTINGCALLRESULTS') }} s_i3_routingcallresults
+                        ON s_i3_routingcallresults.interactionidkey = ds_interactionsummary.interactionidkey
+                     WHERE s_i3_routingcallresults.interactionidkey IS NULL
+                   ) ds_interactionsummary
+                ON v_dlbv_api_marchex_current.caller_number = REMOTENUMBERCALLID
+               AND DATE(convert_timezone('UTC','America/Los_Angeles',(CAST(v_dlbv_api_marchex_current.CALL_START AS DATETIME))::timestamp_ntz)) BETWEEN DATE(ds_interactionsummary.startdatetime) AND DATE(ds_interactionsummary.startdatetime)
+               AND (v_dlbv_api_marchex_current.forwardno = REPLACE(ds_interactionsummary.DNIS_LOCALID,'+1','') OR v_dlbv_api_marchex_current.inboundno = REPLACE(ds_interactionsummary.DNIS_LOCALID,'+1','') OR v_dlbv_api_marchex_current.forwardno = REPLACE(ds_interactionsummary.digitsdialed,'+1','') OR v_dlbv_api_marchex_current.inboundno = REPLACE(ds_interactionsummary.digitsdialed,'+1',''))
+              LEFT JOIN {{ ref('STAGE','V_DLBV_MKT_TIMEZONES') }} v_dlbv_mkt_timezones
+                ON v_s_mkt_area_codes_current.Time_Zone = v_dlbv_mkt_timezones.TimeZonesID
+             WHERE (('{{ parameters.HWM_BVSTG_Mkt_Refresh_flag }}' = 0) OR ('{{ parameters.HWM_BVSTG_Mkt_Refresh_flag }}' = 1 AND HOUR(current_timestamp()) <= '{{ parameters.HWM_BVSTG_Hour }}' AND v_dlbv_api_marchex_current.DSS_CREATE_TIME >= DATE_TRUNC(WEEK, DATEADD(DAY,-'{{ parameters.HWM_BVSTG_Mkt_Refresh_Days }}',CURRENT_DATE()) ::DATE)) OR ('{{ parameters.HWM_BVSTG_Mkt_Refresh_flag }}' = 1 AND HOUR(current_timestamp()) > '{{ parameters.HWM_BVSTG_Hour }}' AND v_dlbv_api_marchex_current.DSS_CREATE_TIME > (SELECT DATEADD(HOUR,-1,MAX(DSS_UPDATE_TIME)) FROM {{ ref('EDW','DS_MKT_CALLLOGS') }} WHERE SourceSystem='MCX'))) QUALIFY ROW_NUMBER() OVER (
+            PARTITION BY v_dlbv_api_marchex_current.Call_Id
+             ORDER BY CAST(v_dlbv_api_marchex_current.call_start AS DATETIME),
+                      ds_i
+        name: SRC_bvstg_mkt_calllogs_2_mcx
+        noLinkRefs: []
+  name: BVSTG_MKT_CALLLOGS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

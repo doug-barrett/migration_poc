@@ -1,0 +1,84 @@
+fileVersion: 1
+id: f8dcaead-4df1-4386-8708-16df8e8de40b
+name: BVSTG_IO_RWL_ZERO_METRICS
+operation:
+  config:
+    distinct: true
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 03df98d3-d1b1-41e9-bbd5-0a12f3206fa7
+          stepCounter: f8dcaead-4df1-4386-8708-16df8e8de40b
+        config: {}
+        dataType: VARCHAR
+        defaultValue: ""
+        description: ""
+        name: METRIC
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 79dcf626-5437-4498-a765-930d6ce65323
+          stepCounter: f8dcaead-4df1-4386-8708-16df8e8de40b
+        config: {}
+        dataType: FLOAT
+        defaultValue: ""
+        description: ""
+        name: METRIC_VALUE
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: BVSTG_IO_RWL_ZERO_DATA_TRAIN
+        join:
+          joinCondition: |-
+            FROM (
+                    SELECT TIMELINE_ID,
+                           CONVERT_TIMEZONE('America/Los_Angeles', createat)::TIMESTAMP_NTZ AS moved_to_bucket_at,
+                           LAG(CONVERT_TIMEZONE('America/Los_Angeles', createat)::TIMESTAMP_NTZ) OVER(PARTITION BY DEAL_ID ORDER BY createat) AS previous_moved_to_bucket_at,
+                           LEAD(CONVERT_TIMEZONE('America/Los_Angeles', createat)::TIMESTAMP_NTZ) OVER(PARTITION BY DEAL_ID ORDER BY createat) AS Next_moved_to_bucket_at,
+                           'IM Automation Lead' GNL_Lead_type,
+                           DEAL_ID
+                      FROM RETAIL_PROD.SCH_EDW.DS_IM_DEALS_TIMELINES DS_IM_DEALS_TIMELINES
+                     WHERE DATE(CREATEAT) >= '2025-09-04'
+                       AND TIMELINEINFO = 'Card Moved Back To Bucket'
+                 UNION ALL SELECT IM_LEADID TIMELINE_ID,
+                           PROCESSED_DATETIME AS moved_to_bucket_at,
+                           LAG(PROCESSED_DATETIME) OVER(PARTITION BY IM_LEADID ORDER BY PROCESSED_DATETIME) AS previous_moved_to_bucket_at,
+                           LEAD(PROCESSED_DATETIME) OVER(PARTITION BY IM_LEADID ORDER BY PROCESSED_DATETIME)AS Next_moved_to_bucket_at,
+                           'ML Scored Lead' GNL_Lead_type,
+                           LEAD_ID DEAL_ID
+                      FROM DATA_LAKE.BIA_ANALYTICS.INSUREDMINE_RESPONSES_GNLAPI
+                     WHERE MESSAGE = 'Lead successfully submitted to Insuredmine!'
+                   ) DS_IM_DEALS_TIMELINES
+        name: BVSTG_IO_RWL_ZERO_METRICS
+        noLinkRefs: []
+  name: BVSTG_IO_RWL_ZERO_METRICS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

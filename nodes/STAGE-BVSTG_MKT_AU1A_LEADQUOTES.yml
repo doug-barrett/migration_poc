@@ -1,0 +1,93 @@
+fileVersion: 1
+id: 0c1d0775-3fae-400a-8eb7-921fdaed9696
+name: BVSTG_MKT_AU1A_LEADQUOTES
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f64570df-a966-43db-98db-e08295399946
+          stepCounter: 0c1d0775-3fae-400a-8eb7-921fdaed9696
+        config: {}
+        dataType: BIGINT
+        defaultValue: ""
+        description: leadid
+        name: LEADID
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ba7dcea3-a13a-4093-9aaa-82d5c2348ae4
+                stepCounter: 378c735c-f683-4f03-a1dc-2767b68dc0ed
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c6e71c84-c00d-457d-9ba2-72c53cb571c5
+          stepCounter: 0c1d0775-3fae-400a-8eb7-921fdaed9696
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: created
+        name: CREATED
+        nullable: false
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0dcb3108-6ba3-4b82-aa40-820a9cf49776
+                stepCounter: 378c735c-f683-4f03-a1dc-2767b68dc0ed
+            transform: TO_DATE(v_s_ap1_lead_mroc_current.created)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 50e535c3-41fc-4c7e-a4c4-d0b1633b8abc
+          stepCounter: 0c1d0775-3fae-400a-8eb7-921fdaed9696
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: num_quotes
+        name: NUM_QUOTES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: count(1)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_S_AP1_LEAD_MROC_CURRENT: 378c735c-f683-4f03-a1dc-2767b68dc0ed
+          V_S_AP1_LEADBRIDGEDQUOTE_MROC_CURRENT: 5fe7a0ab-caf8-4e30-b2a2-4380951b705e
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_S_AP1_LEAD_MROC_CURRENT
+          - locationName: STAGE
+            nodeName: V_S_AP1_LEADBRIDGEDQUOTE_MROC_CURRENT
+        join:
+          joinCondition: |-
+            FROM {{ ref('STAGE','V_S_AP1_LEAD_MROC_CURRENT') }} v_s_ap1_Lead_mroc_current
+              JOIN {{ ref('STAGE','V_S_AP1_LEADBRIDGEDQUOTE_MROC_CURRENT') }} v_s_ap1_leadbridgedquote_mroc_current
+                ON v_s_ap1_Lead_mroc_current.leadid=v_s_ap1_leadbridgedquote_mroc_current.leadid
+               AND v_s_ap1_Lead_mroc_current.isrowdeleted=0
+               AND v_s_ap1_leadbridgedquote_mroc_current.isrowdeleted=0
+             WHERE v_s_ap1_leadbridgedquote_mroc_current.IsOutgoingBridge=1
+             GROUP BY v_s_ap1_lead_mroc_current.leadid,
+                      TO_DATE(v_s_ap1_lead_mroc_current.created)
+        name: BVSTG_MKT_AU1A_LEADQUOTES
+        noLinkRefs: []
+  name: BVSTG_MKT_AU1A_LEADQUOTES
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

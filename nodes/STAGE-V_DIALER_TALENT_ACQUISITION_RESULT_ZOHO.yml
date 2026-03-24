@@ -1,0 +1,218 @@
+fileVersion: 1
+id: a3177ad2-24d8-497b-a678-b257bbcd76a5
+name: V_DIALER_TALENT_ACQUISITION_RESULT_ZOHO
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a3e5d772-ef3a-464c-95bf-ad4c85a39682
+          stepCounter: a3177ad2-24d8-497b-a678-b257bbcd76a5
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: RECOVERYKEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 319a9369-1127-4a34-86d9-01fb9d2085e3
+                stepCounter: 82384ccf-a6a9-456d-af92-3a04b354dc29
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9598b043-83b0-4a40-a531-1fe9073dab39
+          stepCounter: a3177ad2-24d8-497b-a678-b257bbcd76a5
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: DANDIDATEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 10c1df09-e976-4521-a056-f1144528c7da
+          stepCounter: a3177ad2-24d8-497b-a678-b257bbcd76a5
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: DATETIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d20b5558-105c-454f-b4b2-17e27aacbd53
+                stepCounter: 82384ccf-a6a9-456d-af92-3a04b354dc29
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b9c05a9a-d663-4fa4-aba8-abd8fc9a2d2e
+          stepCounter: a3177ad2-24d8-497b-a678-b257bbcd76a5
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CALLRESULT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9fe50ebe-f722-4147-90d1-1a7e18b542a3
+          stepCounter: a3177ad2-24d8-497b-a678-b257bbcd76a5
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CALLRESULTDETAIL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d65ab822-b1bc-4adb-ac72-8ed971db65f4
+          stepCounter: a3177ad2-24d8-497b-a678-b257bbcd76a5
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: CALLSTATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cc0d1bc5-2453-41b4-bfb3-a82f7cf470e3
+          stepCounter: a3177ad2-24d8-497b-a678-b257bbcd76a5
+        config: {}
+        dataType: VARCHAR(150)
+        defaultValue: ""
+        description: ""
+        name: WRAPUPDATA
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          V_DIALER_TALENT_ACQUISITION_RESULT_ZOHO: a3177ad2-24d8-497b-a678-b257bbcd76a5
+          V_DLBV_PCCE_DIALER_DETAIL_CURRENT: 82384ccf-a6a9-456d-af92-3a04b354dc29
+          V_DLBV_PCCE_AGENT_CURRENT: f2a77250-00eb-450c-903e-12fc914d568d
+          V_DLBV_PCCE_PERSON_CURRENT: 07b38603-aacb-48ad-8f5f-d06c22b232b0
+          V_DLBV_PCCE_DL_5025_5025_CURRENT: c3f37bd4-3d1d-46c7-be9a-36a19d13a6cb
+        customSQL:
+          customSQL: |-
+            {{ stage('SQL Override') }}
+            CREATE OR REPLACE VIEW {{ ref_no_link('STAGE','V_DIALER_TALENT_ACQUISITION_RESULT_ZOHO') }} AS SELECT V_DLBV_PCCE_DIALER_DETAIL_CURRENT.RECOVERYKEY PK ,
+                   V_DLBV_PCCE_DIALER_DETAIL_CURRENT.CALLDURATION Call_Duration ,
+                   ROUND(V_DLBV_PCCE_DIALER_DETAIL_CURRENT.CALLDURATION/1000) Call_Suration_Sec ,
+                   V_DLBV_PCCE_PERSON_CURRENT.LOGINNAME Call_Owner ,
+                   V_DLBV_PCCE_DIALER_DETAIL_CURRENT.WrapupData Call_Result ,
+                   V_DLBV_PCCE_DIALER_DETAIL_CURRENT.DATETIME Call_Start_Time ,
+                   'ZR_' || V_DLBV_PCCE_DL_5025_5025_CURRENT.AccountNumber || '_CAND' AS Contact_Name ,
+                   CASE V_DLBV_PCCE_DIALER_DETAIL_CURRENT.CallResult
+                        WHEN '0'                                     THEN 'Dialer has not yet attempted to contact that customer record'
+                        WHEN '2'                                     THEN 'Error condition while dialing'
+                        WHEN '3'                                     THEN 'Number reported not in service by network'
+                        WHEN '4'                                     THEN 'No ringback from network when dial attempted'
+                        WHEN '5'                                     THEN 'Operator intercept returned from network when dial attempted'
+                        WHEN '6'                                     THEN 'No dial tone when dialer port went off hook'
+                        WHEN '7'                                     THEN 'Number reported as invalid by the network'
+                        WHEN '8'                                     THEN 'Customer phone did not answer'
+                        WHEN '9'                                     THEN 'Customer phone was busy'
+                        WHEN '10'                                    THEN 'Customer answered and was connected to agent'
+                        WHEN '11'                                    THEN 'Fax machine detected'
+                        WHEN '12'                                    THEN 'Answering machine detected'
+                        WHEN '13'                                    THEN 'Dialer stopped dialing customer due to lack of agents or network stopped dialing before it was complete'
+                        WHEN '14'                                    THEN 'Customer requested callback'
+                        WHEN '15'                                    THEN 'Answering machine requested callback'
+                        WHEN '16'                                    THEN 'Call was abandoned by the dialer due to lack of agents'
+                        WHEN '17'                                    THEN 'Failed to reserve agent for personal callback.'
+                        WHEN '18'                                    THEN 'Agent rejected a preview call or personal callback call.'
+                        WHEN '19'                                    THEN 'Agent rejected a preview call with the close option.'
+                        WHEN '20'                                    THEN 'Customer has been abandoned to an IVR'
+                        WHEN '21'                                    THEN 'Customer dropped call within configured abandoned time'
+                        WHEN '22'                                    THEN 'Mostly used with TDM switches - network answering machine, such as a network voicemail'
+                        WHEN '23'                                    THEN 'Number successfully contacted but wrong number'
+                        WHEN '24'                                    THEN 'Number successfully contacted but reached the wrong person'
+                        WHEN '25'                                    THEN '1 The campaign is disabled. 2 The outbound percentage for the campaign skill group is set to zero in an admin script. 3 With personal callback in certain situations.'
+                        WHEN '26'                                    THEN 'The number was on the do not call list'
+                        WHEN '27'                                    THEN 'Call disconnected by the carrier or the network while ringing'
+                        WHEN '28'                                    THEN 'Dead air or low voice volume call'
+                        WHEN '29'                                    THEN 'SIP message received from dialer is not supported by voice gateway.'
+                        WHEN '30'                                    THEN 'SIP message received from dialer is not authorized by voice gateway.'
+                        WHEN '31'                                    THEN 'Invalid sip message sent by dialer to voice gateway.'
+                        WHEN '32'                                    THEN 'Call cancelled because the dialer lost connection with the Campaign Manager.'
+                        WHEN '33'                                    THEN 'Agent timed-out accepting preview or personal callback call.'
+                        ELSE 'Unknown'
+                         END || ' - ' || CASE V_DLBV_PCCE_DIALER_DETAIL_CURRENT.CallStatusZone1
+                        WHEN 'A'                                          THEN 'Active'
+                        WHEN 'B'                                          THEN 'Callback'
+                        WHEN 'C'                                          THEN 'Closed'
+                        WHEN 'D'                                          THEN 'Dialed'
+                        WHEN 'F'                                          THEN 'Fax Machine'
+                        WHEN 'L'                                          THEN 'Not Allocated'
+                        WHEN 'J'                                          THEN 'Agent rejected'
+                        WHEN 'M'                                          THEN 'Maximum number of attempts has been reached'
+                        WHEN 'P'                                          THEN 'Pending'
+                        WHEN 'R'                                          THEN 'Retry'
+                        WHEN 'S'                                          THEN 'callback was requested'
+                        WHEN 'U'                                          THEN 'Unknown'
+                        WHEN 'X'                                          THEN 'agent is not available'
+                        ELSE 'Unknown'
+                         END AS Description ,
+                   'Dialer Call Disposition' Subject
+              FROM {{ ref('STAGE','V_DLBV_PCCE_DIALER_DETAIL_CURRENT') }} V_DLBV_PCCE_DIALER_DETAIL_CURRENT
+              LEFT JOIN {{ ref('STAGE','V_DLBV_PCCE_AGENT_CURRENT') }} V_DLBV_PCCE_AGENT_CURRENT
+                ON V_DLBV_PCCE_AGENT_CURRENT.PERIPHERALNUMBER = V_DLBV_PCCE_DIALER_DETAIL_CURRENT.AGENTPERIPHERALNUMBER
+              LEFT JOIN {{ ref('STAGE','V_DLBV_PCCE_PERSON_CURRENT') }} V_DLBV_PCCE_PERSON_CURRENT
+                ON V_DLBV_PCCE_PERSON_CURRENT.PERSONID = V_DLBV_PCCE_AGENT_CURRENT.PERSONID
+             INNER JOIN {{ ref('STAGE','V_DLBV_PCCE_DL_5025_5025_CURRENT') }} V_DLBV_PCCE_DL_5025_5025_CURRENT
+                ON V_DLBV_PCCE_DL_5025_5025_CURRENT.DialingListID = V_DLBV_PCCE_DIALER_DETAIL_CURRENT.DialingListID
+             WHERE V_DLBV_PCCE_DIALER_DETAIL_CURRENT.QueryRuleID=5025
+             ORDER BY V_DLBV_PCCE_DIALER_DETAIL_CURRENT.DATETIME
+        dependencies:
+          - locationName: STAGE
+            nodeName: V_DLBV_PCCE_DIALER_DETAIL_CURRENT
+          - locationName: STAGE
+            nodeName: V_DLBV_PCCE_AGENT_CURRENT
+          - locationName: STAGE
+            nodeName: V_DLBV_PCCE_PERSON_CURRENT
+          - locationName: STAGE
+            nodeName: V_DLBV_PCCE_DL_5025_5025_CURRENT
+        join:
+          joinCondition: |-
+            -- Nodes used in the SQL override:
+            {{ ref('STAGE','V_DLBV_PCCE_DIALER_DETAIL_CURRENT') }}
+            {{ ref('STAGE','V_DLBV_PCCE_AGENT_CURRENT') }}
+            {{ ref('STAGE','V_DLBV_PCCE_PERSON_CURRENT') }}
+            {{ ref('STAGE','V_DLBV_PCCE_DL_5025_5025_CURRENT') }}
+        name: V_DIALER_TALENT_ACQUISITION_RESULT_ZOHO
+        noLinkRefs: []
+  name: V_DIALER_TALENT_ACQUISITION_RESULT_ZOHO
+  overrideSQL: true
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node
