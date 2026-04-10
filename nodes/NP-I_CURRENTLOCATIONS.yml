@@ -1,0 +1,109 @@
+fileVersion: 1
+id: 4639e4e9-fec3-457d-8a19-e8cf23618dcd
+name: I_CURRENTLOCATIONS
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Looks for locations that have current employees at them"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b9a8659b-3b55-42a6-9c31-80624f31c8e4
+          stepCounter: 4639e4e9-fec3-457d-8a19-e8cf23618dcd
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Number of current employees at this location
+        name: CURRENTEMPLOYEECOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e3d16700-778a-486c-b966-baa3633d2430
+                stepCounter: f632aecb-64b4-4e3b-a657-bfb8cb9085b5
+            transform: SUM(F_EMPLOYEECOUNT.EMPLOYEECOUNT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eb305e5c-18d8-44a4-aafd-2163a0f1976d
+          stepCounter: 4639e4e9-fec3-457d-8a19-e8cf23618dcd
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: The employees location as stored in PayGlobal
+        name: LOCATIONCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 69d03ec4-dda5-4453-ad40-43074e0b9825
+                stepCounter: 35a2a8d4-a46d-410e-8a72-1dcb78f9f49a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1895fa21-e967-40ba-98b4-b9788fbedaec
+          stepCounter: 4639e4e9-fec3-457d-8a19-e8cf23618dcd
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: Unique identifier for the Business Unit. This is the field recorded against every posted GL ledger transaction.
+        name: BUSINESSUNITCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: MIN(EMPLLOCATIONBU.BUSINESSUNITCODE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ddbd71dd-eb35-47d7-b83b-d9929001e136
+          stepCounter: 4639e4e9-fec3-457d-8a19-e8cf23618dcd
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_BUSINESSUNIT: 90a265b9-7c25-4e08-8dc3-9f6ac60dc7df
+          D_DATE: fe515f2f-fb3f-48b6-b43c-510e32deb334
+          D_LOCATION: 35a2a8d4-a46d-410e-8a72-1dcb78f9f49a
+          F_EMPLOYEECOUNT: f632aecb-64b4-4e3b-a657-bfb8cb9085b5
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: F_EMPLOYEECOUNT
+          - locationName: NP
+            nodeName: D_BUSINESSUNIT
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: D_LOCATION
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_BUSINESSUNIT') }}
+              JOIN {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_LOCATION') }}
+              JOIN {{ ref('NP','F_EMPLOYEECOUNT') }}
+        name: I_CURRENTLOCATIONS
+        noLinkRefs: []
+  name: I_CURRENTLOCATIONS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

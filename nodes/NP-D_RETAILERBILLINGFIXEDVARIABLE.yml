@@ -1,0 +1,113 @@
+fileVersion: 1
+id: 02c9355d-a6e5-4184-a250-5d0fbac82f18
+name: D_RETAILERBILLINGFIXEDVARIABLE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Fixed or Variable from the Retailer Billing detail records"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b6a32d73-2a17-4f5f-b654-d948fccc3640
+          stepCounter: 02c9355d-a6e5-4184-a250-5d0fbac82f18
+        config: {}
+        dataType: INTEGER IDENTITY(1,1)
+        defaultValue: ""
+        description: Generated artificial key
+        isSurrogateKey: true
+        name: D_RETAILERBILLINGFIXED_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f2221c72-57f4-497c-af38-fd1d5bd661cb
+          stepCounter: 02c9355d-a6e5-4184-a250-5d0fbac82f18
+        config: {}
+        dataType: VARCHAR(56)
+        defaultValue: ""
+        description: F (Fixed) or V (Variable). Mandatory unless as billed file and 'meter read status' equals UB
+        name: FIXEDVARIABLE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c12a4b62-ecf3-43ed-ae9c-4cdb6c76b9ca
+                stepCounter: 51e21f47-95db-493a-a0b9-d904b101fd13
+            transform: |-
+              CASE WHEN FIXEDVARIABLE = 'F' THEN 'FIXED'
+                          WHEN FIXEDVARIABLE = 'V' THEN 'VARIABLE'
+                          ELSE 'UNKNOWN'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 238377e3-810c-4d2f-9932-9b09110a5312
+          stepCounter: 02c9355d-a6e5-4184-a250-5d0fbac82f18
+        config: {}
+        dataType: VARCHAR(56)
+        defaultValue: ""
+        description: F (Fixed) or V (Variable). Mandatory unless as billed file and 'meter read status' equals UB
+        isBusinessKey: true
+        name: FIXEDVARIABLECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c12a4b62-ecf3-43ed-ae9c-4cdb6c76b9ca
+                stepCounter: 51e21f47-95db-493a-a0b9-d904b101fd13
+            transform: ISNULL(I_EIEP_RETAILERBILLING.FIXEDVARIABLE,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a34a728e-bcb1-4749-a053-6f2acca8a8d6
+          stepCounter: 02c9355d-a6e5-4184-a250-5d0fbac82f18
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fd5e9316-63b7-40ad-868b-a2ec10f41e12
+          stepCounter: 02c9355d-a6e5-4184-a250-5d0fbac82f18
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_EIEP_RETAILERBILLING: 51e21f47-95db-493a-a0b9-d904b101fd13
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_EIEP_RETAILERBILLING
+        join:
+          joinCondition: FROM {{ ref('NP','I_EIEP_RETAILERBILLING') }} I_EIEP_RETAILERBILLING
+        name: D_RETAILERBILLINGFIXEDVARIABLE
+        noLinkRefs: []
+  name: D_RETAILERBILLINGFIXEDVARIABLE
+  overrideSQL: false
+  schema: ""
+  sqlType: Dimension
+  type: sql
+  version: 1
+type: Node

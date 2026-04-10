@@ -1,0 +1,110 @@
+fileVersion: 1
+id: d41e0cda-4206-4a90-be9f-1b308bac0fcc
+name: I_EMPLOYEEDIRECTREPORTS
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Record for every employee with the number of direct reports. No reports, then Direct Reports will be zero."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3bc9853b-c4a7-4536-8491-43920095dea3
+          stepCounter: d41e0cda-4206-4a90-be9f-1b308bac0fcc
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: 4 digit employee number
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f520898f-fde7-431d-b1af-d168d194e03f
+                stepCounter: 97681867-a60e-4013-b094-37bd6f76d995
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 478d37fe-5bf2-4a37-b563-3499bb23fd86
+          stepCounter: d41e0cda-4206-4a90-be9f-1b308bac0fcc
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: The manager field is sourced from WAP relationships within PayGlobal, but is also stored in this field for ease of reporting within the PayGlobal system. We pull this into the data warehouse to enable us to check that it is correct, and update if not.
+        name: MANAGERCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 43d47b23-bab2-4d2d-b959-7c972727c0c7
+                stepCounter: 97681867-a60e-4013-b094-37bd6f76d995
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dc04f18d-b13f-4b73-95fa-a0b0854e5e51
+          stepCounter: d41e0cda-4206-4a90-be9f-1b308bac0fcc
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Number of people directly reporting to this person, every employee has a record, even if the number of reports is zero.
+        name: DIRECTREPORTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(CASE WHEN EMPLOYEE.CORRECTMANAGERCODE IS NULL THEN 0 ELSE 1 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 07ed126b-882d-4f59-84bf-14d015e2fde6
+          stepCounter: d41e0cda-4206-4a90-be9f-1b308bac0fcc
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4ece23f1-29cc-4607-b8ed-d626cd7cd97d
+          stepCounter: d41e0cda-4206-4a90-be9f-1b308bac0fcc
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_PG_EMPLOYEE: 97681867-a60e-4013-b094-37bd6f76d995
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_PG_EMPLOYEE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_PG_EMPLOYEE') }} I_PG_EMPLOYEE
+              LEFT OUTER JOIN {{ ref('NP','I_PG_EMPLOYEE') }} EMPLOYEE
+                ON I_PG_EMPLOYEE.EMPLOYEECODE = EMPLOYEE.CORRECTMANAGERCODE --CURRENT EMPLOYEES   AND EMPLOYEE.TERMINATED = 0   -- DO NOT COUNT CONTRACTORS   AND ISNULL(EMPLOYEE.PAYPERIODCODE,'NP') NOT IN ('NP','MD')    --CURRENT EMPLOYEES  WHERE I_PG_EMPLOYEE.TERMINATED = 0  --EXCLUDE CONTRACTORS UNLESS THEY HAVE PEOPLE REPORTING TO THEM  AND (ISNULL(I_PG_EMPLOYEE.PAYPERIODCODE,'NP') NOT IN ('NP','MD') OR I_PG_EMPLOYEE.EMPLOYEECODE IN (SELECT DISTINCT CORRECTMANAGERCODE FROM I_PG_EMPLOYEE WHERE TERMINATED = 0))  --EXCLUDE ANYONE WHO HAS NOT STARTED YET, NOTE JOB RUNS AFTER MIDNIGHT  AND CONVERT(DATE,I_PG_EMPLOYEE.STARTDATE) <= CONVERT(DATE,GETDATE())  --AT SOME STAGE WE NEED TO SIMPLIFY WHEN OUR SNAPSHOT IS TAKEN SO WE CAN DEFINITELY GET THE SNAPSHOT AS AT THE EVENING OF THE LAST DAY OF THE MONTH  --THE ACTUAL JOB RUNS AFTER MIDNIGHT AND SHOULD CONTINUE TO DO SO, SO SNAPSHOT WILL ALWAYS BE TAKEN AT THE BEGINNING OF THE MONTH  -- THIS CLAUSE WILL ENSURE THE JOB DOES NOT FAIL FOR THE MAJORITY OF THE MONTH  -- BUT DURING THE SNAPSHOT LOCKING IN PERIOD, IF THERE ARE ISSUES, IT WILL FAIL AND WE CAN CHECK WITH PAYROLL AS TO THE CORRECT STATE  AND (DAY(GETDATE()) <= 3 OR CONVERT(DATE,ISNULL(I_PG_EMPLOYEE.PLANNEDTERMINATIONDATE, GETDATE())) >= CONVERT(DATE,GETDATE()))  GROUP BY I_PG_EMPLOYEE.EMPLOYEECODE, I_PG_EMPLOYEE.CORRECTMANAGERCODE
+        name: I_EMPLOYEEDIRECTREPORTS
+        noLinkRefs: []
+  name: I_EMPLOYEEDIRECTREPORTS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,142 @@
+fileVersion: 1
+id: ae40498b-98ed-43da-a502-2acbb11ff44d
+name: I_QP_DEPARTMENTMAP
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Table to map the QPulse department to the old F1 cost centre and the new JDE Business unit.  Note. All of the QPulse departments should now (Oct 2015) make to a JDE cost centre."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eae781d9-564d-4e59-865d-8017691b3503
+          stepCounter: ae40498b-98ed-43da-a502-2acbb11ff44d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3e0fc3a7-4daf-43b0-874f-568bbbade5ed
+          stepCounter: ae40498b-98ed-43da-a502-2acbb11ff44d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PARENTID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6e593562-f85b-4f17-93bb-a03d4322769a
+          stepCounter: ae40498b-98ed-43da-a502-2acbb11ff44d
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: ""
+        name: DEPARTMENTNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f1b70bc3-145b-41eb-ae49-f72e9782023e
+          stepCounter: ae40498b-98ed-43da-a502-2acbb11ff44d
+        config: {}
+        dataType: VARCHAR(2000)
+        defaultValue: ""
+        description: ""
+        name: CALCULATEDPATH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ee87026b-05aa-40d1-a4e8-8eac6e74ede8
+          stepCounter: ae40498b-98ed-43da-a502-2acbb11ff44d
+        config: {}
+        dataType: BIT
+        defaultValue: ""
+        description: ""
+        name: ISVISIBLE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 192e6801-8fa2-41f4-b051-8e3dc3562a69
+          stepCounter: ae40498b-98ed-43da-a502-2acbb11ff44d
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: Relies on the departments being set up in a consistent manner in QPulse. Where the first three letters are the JDE cost centre code.
+        name: JDEBUSINESSUNIT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: CASE -- CHECK FOR BOTH TYPES OF DASKES...     WHEN SUBSTRING(LTRIM(RTRIM(L_QP_YDEPARTMENT.NAME)), 5,1) = '-' OR SUBSTRING(LTRIM(RTRIM(L_QP_YDEPARTMENT.NAME)), 5,1) = NCHAR(8211)     -- CORPORATE (A), NETWORK (B) AND SOLUTIONS (O) DO NOT USE 6 DIGIT BUSINESS UNITS     THEN SUBSTRING(LTRIM(RTRIM(L_QP_YDEPARTMENT.NAME)), 1,3) + CASE WHEN LEFT(LTRIM(RTRIM(L_QP_YDEPARTMENT.NAME)),1) IN ('A','B','O') THEN '' ELSE '905' END     -- IT COULD BE POSSIBLE TO MAP THE COMPANY LEVEL ENTRIES AS WELL, BUT I THINK I WILL LEAVE THESE AS UNKNOWN, AND LEAVE IT TO THE QPULSE USER TO CHOOSE A DEFAULT IF APPLICABLE     -- IF WE DID MAP THIS, CONTRACTING WOULD GO TO _CC905, CORPORATE TO AWB AND NETWORK TO BNM     ELSE 'UNKNOWN' END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 32a828c3-b0ab-4dde-a1b5-9a970a28b799
+          stepCounter: ae40498b-98ed-43da-a502-2acbb11ff44d
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_QP_YDEPARTMENT
+          - locationName: UNKNOWN
+            nodeName: L_QP_YDEPARTMENT
+        join:
+          joinCondition: FROM {{ ref('UNKNOWN','L_QP_YDEPARTMENT') }}
+        name: I_QP_DEPARTMENTMAP
+        noLinkRefs: []
+  name: I_QP_DEPARTMENTMAP
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

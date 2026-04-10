@@ -1,0 +1,137 @@
+fileVersion: 1
+id: 54099ef9-db0d-43ad-a83d-f4b00cb33168
+name: I_FTPRLASTTRANSACTIONDATE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Records the lastest period where there has been a transaction for the job. Compares the current transactions with any existing information against the JobNumber"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 217d033b-668f-4d44-a4ec-95e1145ea2bb
+          stepCounter: 54099ef9-db0d-43ad-a83d-f4b00cb33168
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: JOBNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 484fa4c6-8e2c-4c46-8422-f54629a9d77c
+                stepCounter: 0cd853d3-a3d2-4c29-81f7-cd3a205561cf
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: efb6ef48-6039-4f3c-95bd-faee8bc103a2
+          stepCounter: 54099ef9-db0d-43ad-a83d-f4b00cb33168
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: A seperate number if assigned to each period used in the ODS. A period is a financial month.
+        name: BMPLOADPERIODNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: dc6e9041-dd4a-4a29-9406-bb2d53a425b3
+                stepCounter: 0cd853d3-a3d2-4c29-81f7-cd3a205561cf
+            transform: MAX(I_FTPRTRANSACTIONS_20.BMPLOADPERIODNO)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fd219b71-e546-4c37-822c-e8776dbbcd7a
+          stepCounter: 54099ef9-db0d-43ad-a83d-f4b00cb33168
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: 'The last period that this job has had transactions posted into. Format: three digit abbreviation for month plus four digit calander year.'
+        name: PREVIOUSLASTESTPERIOD
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2ad244ca-851f-4e01-83d5-a76dbee9a827
+                stepCounter: 7d0e9287-c046-4b5a-ab38-f6622652d273
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 074a3432-0a54-4ee1-bf1f-257f5f1e4ddd
+          stepCounter: 54099ef9-db0d-43ad-a83d-f4b00cb33168
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: A seperate number if assigned to each period used in the ODS. A period is a financial month.
+        name: PREVIOUSLASTESTPERIODNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b4b8ebe4-a755-48c6-b734-4824e41f45c5
+                stepCounter: 60b25e7a-8120-409c-ac7f-e7762038525b
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c6084525-1f4c-46cc-9d93-f59c5066c760
+          stepCounter: 54099ef9-db0d-43ad-a83d-f4b00cb33168
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Compare previous latest Period with the latest transactions to check for further updates.
+        name: LASTTRANSACTIONPERIODNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN I_BMPLOADPERIOD.BMPLOADPERIODNO IS NULL                                       THEN MAX(I_FTPRTRANSACTIONS_20.BMPLOADPERIODNO)
+                          WHEN I_BMPLOADPERIOD.BMPLOADPERIODNO >= MAX(I_FTPRTRANSACTIONS_20.BMPLOADPERIODNO) THEN I_BMPLOADPERIOD.BMPLOADPERIODNO
+                          ELSE MAX(I_FTPRTRANSACTIONS_20.BMPLOADPERIODNO)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fd04b224-dba7-477b-8340-bd6f4c23b338
+          stepCounter: 54099ef9-db0d-43ad-a83d-f4b00cb33168
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_JOBNUMBER: 7d0e9287-c046-4b5a-ab38-f6622652d273
+          I_BMPLOADPERIOD: 60b25e7a-8120-409c-ac7f-e7762038525b
+          I_FTPRTRANSACTIONS_20: 0cd853d3-a3d2-4c29-81f7-cd3a205561cf
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_FTPRTRANSACTIONS_20
+          - locationName: NP
+            nodeName: D_JOBNUMBER
+          - locationName: NP
+            nodeName: I_BMPLOADPERIOD
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_JOBNUMBER') }}
+              JOIN {{ ref('NP','I_BMPLOADPERIOD') }}
+              JOIN {{ ref('NP','I_FTPRTRANSACTIONS_20') }}
+        name: I_FTPRLASTTRANSACTIONDATE
+        noLinkRefs: []
+  name: I_FTPRLASTTRANSACTIONDATE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

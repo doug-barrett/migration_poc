@@ -1,0 +1,129 @@
+fileVersion: 1
+id: 62b91a69-6d87-4597-acbf-894afc0e837f
+name: I_PG_HRSOFWORKLASTDAYOFF
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Joins the base data to the Days Off so we can count the number of days since the last day off"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c78a9f22-9d9b-423b-a961-faedf9f1941d
+          stepCounter: 62b91a69-6d87-4597-acbf-894afc0e837f
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: CALENDARDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2e490ad9-d989-4a03-b0e9-90f0cd61aca2
+                stepCounter: 00a82270-16ed-4fe3-bc88-13472bb35391
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 34bfc5dd-9192-4f21-beb8-dac682dd5956
+          stepCounter: 62b91a69-6d87-4597-acbf-894afc0e837f
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Four digit employee number
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b8ff7d20-31ba-4edc-9e1c-be0dee76fea0
+                stepCounter: 00a82270-16ed-4fe3-bc88-13472bb35391
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8083c01d-8e64-4922-8355-11fc63362f6c
+          stepCounter: 62b91a69-6d87-4597-acbf-894afc0e837f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: How many days since the last day off. Being on standby does not count as a day off.
+        name: DAYSSINCEDAYOFF
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8dc228ae-4522-4688-b5e3-4aa487e65173
+                stepCounter: 34fb1c9f-9c5c-4090-b163-5b459c6a6728
+            transform: DATEDIFF(DAY,MAX(I_PG_HRSOFWORKDAYSOFF.DAYOFF),I_PG_HRSOFWORKBASEDATA.CALENDARDATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b7ab2bc6-a99c-4216-9558-9d028dc70d8c
+          stepCounter: 62b91a69-6d87-4597-acbf-894afc0e837f
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: The date of the last day off up to and including this calendar date
+        name: LASTDAYOFF
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8dc228ae-4522-4688-b5e3-4aa487e65173
+                stepCounter: 34fb1c9f-9c5c-4090-b163-5b459c6a6728
+            transform: MAX(I_PG_HRSOFWORKDAYSOFF.DAYOFF)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8b270157-8475-4869-a1c1-21a645903fd0
+          stepCounter: 62b91a69-6d87-4597-acbf-894afc0e837f
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1a9f02a4-5078-4490-99cb-ea9f171155ca
+          stepCounter: 62b91a69-6d87-4597-acbf-894afc0e837f
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_PG_HRSOFWORKBASEDATA: 00a82270-16ed-4fe3-bc88-13472bb35391
+          I_PG_HRSOFWORKDAYSOFF: 34fb1c9f-9c5c-4090-b163-5b459c6a6728
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_PG_HRSOFWORKBASEDATA
+          - locationName: NP
+            nodeName: I_PG_HRSOFWORKDAYSOFF
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_PG_HRSOFWORKBASEDATA') }}
+              JOIN {{ ref('NP','I_PG_HRSOFWORKDAYSOFF') }}
+        name: I_PG_HRSOFWORKLASTDAYOFF
+        noLinkRefs: []
+  name: I_PG_HRSOFWORKLASTDAYOFF
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

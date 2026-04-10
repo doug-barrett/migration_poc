@@ -1,0 +1,148 @@
+fileVersion: 1
+id: ae58bd67-da14-40fe-b029-64d293c1c8af
+name: F_EXPOSUREHOURS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "View of the Payroll Transactions that allow us to limit the history to the same periods as displayed for the QPulse event data."
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ec4eb05b-d5c1-4fb4-9a54-566160d1ab86
+          stepCounter: ae58bd67-da14-40fe-b029-64d293c1c8af
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_PayrollTransactions.Date=D_Date.CalendarDate
+        name: D_DATE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c56b595b-67bf-43c0-a7d3-94a77372f8db
+                stepCounter: 81dffe6a-524f-4b85-aecf-2d4959449aca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 97a6e28d-7049-4932-b130-c7b4d39c917c
+          stepCounter: ae58bd67-da14-40fe-b029-64d293c1c8af
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_PayrollTransactions.EmployeeCode=D_Employee.EmployeeCode
+        name: D_EMPLOYEE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 56af4a19-e917-497e-8e90-a45bef59e03d
+                stepCounter: 81dffe6a-524f-4b85-aecf-2d4959449aca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6647d5db-f2d6-40b9-a72d-aa051c6be5bc
+          stepCounter: ae58bd67-da14-40fe-b029-64d293c1c8af
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_PayrollTransactions.TransactionPeriod=D_Period.PeriodNumber
+        name: D_PERIOD_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9f7a7a81-d8c1-4363-882c-b5ed1ff642d5
+                stepCounter: 81dffe6a-524f-4b85-aecf-2d4959449aca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 755bdace-7854-4b50-96b2-6863d2237e9f
+          stepCounter: ae58bd67-da14-40fe-b029-64d293c1c8af
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_PayrollTransactions.BusinessUnitCode=D_BusinessUnit.BusinessUnitCode
+        name: D_BUSINESSUNIT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a7cd0bd7-bdef-4153-a241-82dbfb1da311
+                stepCounter: 81dffe6a-524f-4b85-aecf-2d4959449aca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5601a003-492d-41ac-b49d-06c52f98e815
+          stepCounter: ae58bd67-da14-40fe-b029-64d293c1c8af
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_PayrollTransactions.CustomerNetworkCode=D_CustomerNetwork.CustomerNetworkCode  S_PayrollTransactions.CustomerNetworkCode=D_CustomerNetwork.OtherCustomerCode
+        name: D_CUSTOMERNETWORK_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b90f8646-706d-42dd-9801-c474e532df6b
+                stepCounter: 81dffe6a-524f-4b85-aecf-2d4959449aca
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 87285b50-6670-4752-8498-c0ced13c2605
+          stepCounter: ae58bd67-da14-40fe-b029-64d293c1c8af
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: Work related hours for employees (both paid and unpaid) during which work related injuries or illnesses would be considered recordable.
+        name: EXPOSUREHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f1d5d680-b7ba-4390-bf51-81e8aace0b5f
+                stepCounter: 81dffe6a-524f-4b85-aecf-2d4959449aca
+            transform: SUM(F_PAYROLLTRANSACTIONS.EXPOSUREHOURS)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_BUSINESSUNIT: 90a265b9-7c25-4e08-8dc3-9f6ac60dc7df
+          D_CUSTOMERNETWORK: ac5cd9bd-8748-4be8-8fa9-9765acacbe00
+          D_DATE: fe515f2f-fb3f-48b6-b43c-510e32deb334
+          D_EMPLOYEE: af4a2eff-247d-4e9e-b6d6-0d13dfead713
+          D_PERIOD: 0bebf0ab-2077-4acc-8200-0c4419698f26
+          F_PAYROLLTRANSACTIONS: 81dffe6a-524f-4b85-aecf-2d4959449aca
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: F_PAYROLLTRANSACTIONS
+          - locationName: NP
+            nodeName: D_BUSINESSUNIT
+          - locationName: NP
+            nodeName: D_CUSTOMERNETWORK
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: D_EMPLOYEE
+          - locationName: NP
+            nodeName: D_PERIOD
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_BUSINESSUNIT') }}
+              JOIN {{ ref('NP','D_CUSTOMERNETWORK') }}
+              JOIN {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_EMPLOYEE') }}
+              JOIN {{ ref('NP','D_PERIOD') }}
+              JOIN {{ ref('NP','F_PAYROLLTRANSACTIONS') }}
+        name: F_EXPOSUREHOURS
+        noLinkRefs: []
+  name: F_EXPOSUREHOURS
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

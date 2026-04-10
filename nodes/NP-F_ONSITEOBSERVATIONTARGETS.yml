@@ -1,0 +1,227 @@
+fileVersion: 1
+id: 521152cd-384e-460b-94b0-add9979b8128
+name: F_ONSITEOBSERVATIONTARGETS
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2da98c21-4a09-4bd5-ac56-728e2f9fcb40
+          stepCounter: 521152cd-384e-460b-94b0-add9979b8128
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_OnSiteObservationTargets.EmployeeCode=D_Employee.EmployeeCode
+        name: D_EMPLOYEE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 95e7f868-b60b-4d41-a76c-22a972d8d328
+                stepCounter: af4a2eff-247d-4e9e-b6d6-0d13dfead713
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4f5bfc13-876a-4c83-aefb-3ac897c7ba91
+          stepCounter: 521152cd-384e-460b-94b0-add9979b8128
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_OnSiteObservationTargets.BusinessUnitCode=D_BusinessUnit.BusinessUnitCode
+        name: D_BUSINESSUNIT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d0d36fb6-1357-477b-affc-07616f2af9e8
+                stepCounter: 90a265b9-7c25-4e08-8dc3-9f6ac60dc7df
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 09ba1534-684f-4cd0-9d25-b098a69e7822
+          stepCounter: 521152cd-384e-460b-94b0-add9979b8128
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_OnSiteObservationTargets.CalendarDate=D_Date.CalendarDate
+        name: D_DATE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9c68f638-3054-415b-b2c0-b7df72fb4d84
+                stepCounter: fe515f2f-fb3f-48b6-b43c-510e32deb334
+            transform: --ENSURE ALL THE AUDITS ARE GROUPED TOGETHER IN ONE RECORD FOR THE MONTH  CONVERT(INTEGER,CONVERT(VARCHAR(12),EOMONTH(CONVERT(DATE,CONVERT(VARCHAR(12),F_AUDITS.D_DUEDATE_KEY),112)),112))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dc6b84b3-77be-4e99-b6ad-ed2748280bb7
+          stepCounter: 521152cd-384e-460b-94b0-add9979b8128
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_OnSiteObservationTargets.VerificationType=D_VerificationType.VerificationType  S_OnSiteObservationTargets.VerificationSubject=D_VerificationType.VerificationSubject
+        name: D_VERIFICATIONTYPE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ce0dad8e-edcf-48f8-8878-4e1d5183e8b8
+                stepCounter: d40a29b1-cee0-4d9b-b500-a3b1253f303b
+            transform: 1 --HARD CODE TO ONSITE OBSERVATION AND CRITICAL CONTROL
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c68f0bbf-1c1f-4fbc-ab72-a9e45e89d189
+          stepCounter: 521152cd-384e-460b-94b0-add9979b8128
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Number of Observations the ELT member is expected to perform per month.
+        name: TARGET
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a6dff093-77eb-4d7c-93e0-6cef86aecf08
+                stepCounter: dde00c2d-9e68-4775-b921-004bc86b460a
+            transform: SUM(F_AUDITS.AUDITCOUNT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2b66fa29-cba8-4662-9224-2d12fabbb899
+          stepCounter: 521152cd-384e-460b-94b0-add9979b8128
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Number of Observations completed in the month grouped by the Employee Business Unit so it can be compared to the target set for the employee
+        name: COMPLETEDOBSERVATIONS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 175390f7-6297-4d3e-9ee9-526d65bea07f
+                stepCounter: dde00c2d-9e68-4775-b921-004bc86b460a
+            transform: SUM(F_AUDITS.PERFORMED)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8515285c-ca92-492e-a300-8c7512d4bd33
+          stepCounter: 521152cd-384e-460b-94b0-add9979b8128
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Indicates there has been a target set for this employee, month and business unit.
+        name: TARGETSET
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '1'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 43c4ea89-0884-4ac1-ba32-3388355e098a
+          stepCounter: 521152cd-384e-460b-94b0-add9979b8128
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Indicates if this person has meet their monthly target.
+        name: TARGETMET
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 175390f7-6297-4d3e-9ee9-526d65bea07f
+                stepCounter: dde00c2d-9e68-4775-b921-004bc86b460a
+            transform: |-
+              CASE WHEN SUM(F_AUDITS.AUDITCOUNT) <= SUM(F_AUDITS.PERFORMED) THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1135bf9e-4944-4ba8-b889-47f7f1ee2974
+          stepCounter: 521152cd-384e-460b-94b0-add9979b8128
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Indicates if this person has not meet their monthly target.
+        name: TARGETNOTMET
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 175390f7-6297-4d3e-9ee9-526d65bea07f
+                stepCounter: dde00c2d-9e68-4775-b921-004bc86b460a
+            transform: |-
+              CASE WHEN SUM(F_AUDITS.AUDITCOUNT) > SUM(F_AUDITS.PERFORMED) THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4e7557cd-edfd-4f67-be4f-b0ee131663bc
+          stepCounter: 521152cd-384e-460b-94b0-add9979b8128
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: row count column
+        name: ODSINSTANCECOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '1'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9b0b759f-e6a2-45a1-a97b-663fd7aa5138
+          stepCounter: 521152cd-384e-460b-94b0-add9979b8128
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9c96bc2f-c95f-47ed-8313-21674fdf456a
+          stepCounter: 521152cd-384e-460b-94b0-add9979b8128
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          F_AUDITS: dde00c2d-9e68-4775-b921-004bc86b460a
+          D_AUDITDETAILS: a7ab2d87-98cc-43ec-8014-bcd24accded1
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: D_EMPLOYEE
+          - locationName: NP
+            nodeName: F_AUDITS
+          - locationName: NP
+            nodeName: D_AUDITDETAILS
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','F_AUDITS') }} F_AUDITS
+              LEFT OUTER JOIN {{ ref('NP','D_AUDITDETAILS') }} D_AUDITDETAILS
+                ON F_AUDITS.D_AUDITDETAILS_KEY = D_AUDITDETAILS.D_AUDITDETAILS_KEY
+             WHERE F_AUDITS.D_DUEDATE_KEY >= 20230301
+               AND D_AUDITDETAILS.AUDITTYPE = 'ONSITE OBSERVATION'
+               AND F_AUDITS.D_EMPLOYEE_KEY <> 0 --EXCLUDE ANY THAT HAVE NOT BEEN IDENTIFIED WITH AN EMPLOYEE    GROUP BY F_AUDITS.D_EMPLOYEE_KEY  , F_AUDITS.D_BUSINESSUNIT_KEY  , CONVERT(INTEGER,CONVERT(VARCHAR(12),EOMONTH(CONVERT(DATE,CONVERT(VARCHAR(12),F_AUDITS.D_DUEDATE_KEY),112)),112))
+        name: F_ONSITEOBSERVATIONTARGETS
+        noLinkRefs: []
+  name: F_ONSITEOBSERVATIONTARGETS
+  overrideSQL: false
+  schema: ""
+  sqlType: Fact Table
+  type: sql
+  version: 1
+type: Node

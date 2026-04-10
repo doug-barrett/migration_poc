@@ -1,0 +1,141 @@
+fileVersion: 1
+id: 869a459d-bdb8-4645-9e23-c87dd74fc28f
+name: I_PG_STANDBYSPAID
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "All the stand-by allowances paid in Payroll. To be joined with the data from Daily View"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b2e9a842-aa27-45e9-bfd2-1205c6f18c93
+          stepCounter: 869a459d-bdb8-4645-9e23-c87dd74fc28f
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Four digit employee number
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: afbe6377-88cf-41eb-b2de-56606f379e73
+                stepCounter: af4a2eff-247d-4e9e-b6d6-0d13dfead713
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f646d754-3b23-4730-9254-eba4efdd1fe0
+          stepCounter: 869a459d-bdb8-4645-9e23-c87dd74fc28f
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c345fd42-c2c9-458e-b6cd-165764572024
+                stepCounter: fe515f2f-fb3f-48b6-b43c-510e32deb334
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bb36ba74-43ca-485d-86b2-572009fafa8f
+          stepCounter: 869a459d-bdb8-4645-9e23-c87dd74fc28f
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: Number of standby allowances
+        name: QUANTITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 155879a9-72ca-4f73-941f-f9b2224b8dd3
+                stepCounter: 81dffe6a-524f-4b85-aecf-2d4959449aca
+            transform: SUM(F_PAYROLLTRANSACTIONS.ALLOWANCEQUANTITY)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 69f366fd-e944-424f-9a30-cb1a83f3b575
+          stepCounter: 869a459d-bdb8-4645-9e23-c87dd74fc28f
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: Just For Track Back
+        name: JUSTFORTRACKBACK
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9b45e606-aab8-41fb-9a3e-830a0813c1ed
+                stepCounter: 28969f44-696c-4ffb-bfb2-4260ee6bbd7f
+            transform: SUM(F_PAYROLLTRANSACTIONS.ALLOWANCEQUANTITY)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bca5fac2-bf9d-467d-903f-de1acbde0937
+          stepCounter: 869a459d-bdb8-4645-9e23-c87dd74fc28f
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9570a6f9-384a-4b5b-91ad-46c2c2a186df
+          stepCounter: 869a459d-bdb8-4645-9e23-c87dd74fc28f
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_DATE: fe515f2f-fb3f-48b6-b43c-510e32deb334
+          D_EMPLOYEE: af4a2eff-247d-4e9e-b6d6-0d13dfead713
+          D_PAYROLLALLOWANCE: 21dad467-16a0-4521-a80b-8dcb7ef19ebc
+          F_PAYROLLTRANSACTIONS: 81dffe6a-524f-4b85-aecf-2d4959449aca
+          L_PG_CURRENTACTUALTIMEBAND: 28969f44-696c-4ffb-bfb2-4260ee6bbd7f
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: D_EMPLOYEE
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: D_PAYROLLALLOWANCE
+          - locationName: NP
+            nodeName: F_PAYROLLTRANSACTIONS
+          - locationName: NP
+            nodeName: L_PG_CURRENTACTUALTIMEBAND
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_EMPLOYEE') }}
+              JOIN {{ ref('NP','D_PAYROLLALLOWANCE') }}
+              JOIN {{ ref('NP','F_PAYROLLTRANSACTIONS') }}
+              JOIN {{ ref('NP','L_PG_CURRENTACTUALTIMEBAND') }}
+        name: I_PG_STANDBYSPAID
+        noLinkRefs: []
+  name: I_PG_STANDBYSPAID
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

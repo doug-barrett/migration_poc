@@ -1,0 +1,122 @@
+fileVersion: 1
+id: 7c4f780e-efca-4f02-b17d-072899bebc9c
+name: I_PG_STANDBYSALL
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Join the standbys from Daily View and Payroll"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ea2fa3d1-14f7-41b0-ab05-78301306ff78
+          stepCounter: 7c4f780e-efca-4f02-b17d-072899bebc9c
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Four digit employee number
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b2e9a842-aa27-45e9-bfd2-1205c6f18c93
+                stepCounter: 869a459d-bdb8-4645-9e23-c87dd74fc28f
+            transform: ISNULL(I_PG_STANDBYSPAID.EMPLOYEECODE, I_PG_STANDBYSCURRENT.EMPLOYEECODE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8ebfe550-d1a4-4a20-958c-07584ee257f6
+          stepCounter: 7c4f780e-efca-4f02-b17d-072899bebc9c
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 96ae971c-e4d5-47fc-aff2-ee8677094172
+                stepCounter: cbb94367-3f72-46df-b2ec-d196a71c2c7d
+            transform: ISNULL(I_PG_STANDBYSPAID.DATE, I_PG_STANDBYSCURRENT.DATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: af2ba327-d688-4d6d-8795-d78040bd98ee
+          stepCounter: 7c4f780e-efca-4f02-b17d-072899bebc9c
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: Number of standby allowances
+        name: QUANTITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bb36ba74-43ca-485d-86b2-572009fafa8f
+                stepCounter: 869a459d-bdb8-4645-9e23-c87dd74fc28f
+            transform: ISNULL(I_PG_STANDBYSPAID.QUANTITY,I_PG_STANDBYSCURRENT.QUANTITY)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 180c03b6-bd9d-4b56-833a-332aac0db52d
+          stepCounter: 7c4f780e-efca-4f02-b17d-072899bebc9c
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 828c2038-4892-435e-ac6a-635bed4193b4
+          stepCounter: 7c4f780e-efca-4f02-b17d-072899bebc9c
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_DATE: fe515f2f-fb3f-48b6-b43c-510e32deb334
+          D_EMPLOYEE: af4a2eff-247d-4e9e-b6d6-0d13dfead713
+          I_PG_STANDBYSCURRENT: cbb94367-3f72-46df-b2ec-d196a71c2c7d
+          I_PG_STANDBYSPAID: 869a459d-bdb8-4645-9e23-c87dd74fc28f
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_PG_STANDBYSPAID
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: D_EMPLOYEE
+          - locationName: NP
+            nodeName: I_PG_STANDBYSCURRENT
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_EMPLOYEE') }}
+              JOIN {{ ref('NP','I_PG_STANDBYSCURRENT') }}
+              JOIN {{ ref('NP','I_PG_STANDBYSPAID') }}
+        name: I_PG_STANDBYSALL
+        noLinkRefs: []
+  name: I_PG_STANDBYSALL
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

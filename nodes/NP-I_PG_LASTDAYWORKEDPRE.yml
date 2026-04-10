@@ -1,0 +1,152 @@
+fileVersion: 1
+id: 02bb4c2f-1f50-45a8-8b6e-1165a5b66270
+name: I_PG_LASTDAYWORKEDPRE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Displays the last day per employee that has exposure hours. From this we can detemine that all weekends prior to this have not been worked (ie we are not missing timesheets for them). We exclude leave as this can be forward dated."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 31ca1cb4-043d-4211-aaa4-76725d2cde73
+          stepCounter: 02bb4c2f-1f50-45a8-8b6e-1165a5b66270
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Four digit employee number
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: afbe6377-88cf-41eb-b2de-56606f379e73
+                stepCounter: af4a2eff-247d-4e9e-b6d6-0d13dfead713
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c89b692a-4efd-4f07-ad68-6e320203e44f
+          stepCounter: 02bb4c2f-1f50-45a8-8b6e-1165a5b66270
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: CALENDARDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c345fd42-c2c9-458e-b6cd-165764572024
+                stepCounter: fe515f2f-fb3f-48b6-b43c-510e32deb334
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 00b0b0e6-4ae4-439a-ad63-934977bfe1de
+          stepCounter: 02bb4c2f-1f50-45a8-8b6e-1165a5b66270
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: 'The day of the week. Format DDD. Example: mon, tue, wed.'
+        name: DAYABBREVIATION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f524095e-0fa0-49b0-a3e5-c86cc763f484
+                stepCounter: fe515f2f-fb3f-48b6-b43c-510e32deb334
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 58cc38d7-8ecc-4944-9027-4cbca47a8e7e
+          stepCounter: 02bb4c2f-1f50-45a8-8b6e-1165a5b66270
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: Exposure Hours
+        name: EXPOSUREHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6ee5206f-de17-4077-ba93-8ddc1cebb121
+                stepCounter: 76286e7e-543e-4b75-90b2-908b7cf43663
+            transform: SUM(F_PRODUCTIVITY.PRODUCTIVITYEXPOSUREHOURS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 34cf03d9-1bd3-42f4-84bd-adefb0f7eab8
+          stepCounter: 02bb4c2f-1f50-45a8-8b6e-1165a5b66270
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: Just used to show correct track back
+        name: JUSTFORTRACKBACK2
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9b45e606-aab8-41fb-9a3e-830a0813c1ed
+                stepCounter: 28969f44-696c-4ffb-bfb2-4260ee6bbd7f
+            transform: SUM(F_PRODUCTIVITY.PRODUCTIVITYEXPOSUREHOURS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0b200160-ce6f-445a-997d-9c363bfb23ed
+          stepCounter: 02bb4c2f-1f50-45a8-8b6e-1165a5b66270
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 863ab513-e02c-4079-b744-1f3670f41cb7
+          stepCounter: 02bb4c2f-1f50-45a8-8b6e-1165a5b66270
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_DATE: fe515f2f-fb3f-48b6-b43c-510e32deb334
+          D_EMPLOYEE: af4a2eff-247d-4e9e-b6d6-0d13dfead713
+          F_PRODUCTIVITY: 76286e7e-543e-4b75-90b2-908b7cf43663
+          L_PG_CURRENTACTUALTIMEBAND: 28969f44-696c-4ffb-bfb2-4260ee6bbd7f
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: D_EMPLOYEE
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: F_PRODUCTIVITY
+          - locationName: NP
+            nodeName: L_PG_CURRENTACTUALTIMEBAND
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_EMPLOYEE') }}
+              JOIN {{ ref('NP','F_PRODUCTIVITY') }}
+              JOIN {{ ref('NP','L_PG_CURRENTACTUALTIMEBAND') }}
+        name: I_PG_LASTDAYWORKEDPRE
+        noLinkRefs: []
+  name: I_PG_LASTDAYWORKEDPRE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

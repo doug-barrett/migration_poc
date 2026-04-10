@@ -1,0 +1,169 @@
+fileVersion: 1
+id: 108c39dd-9055-4fd3-a6bc-bfb9d9746f65
+name: I_PG_HRSDAYNOTOFF
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "If an employee works past midnight yesterday (and the hours are recorded against yesterday), then has no other hours today, but starts work early tomorrow they may not have had 24 hours break. This query identtifies any that meet this criteria."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 113eb227-3549-4baa-b1a2-b5aaa0387b8b
+          stepCounter: 108c39dd-9055-4fd3-a6bc-bfb9d9746f65
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5dc20ce7-a061-44f6-b15b-6be978447bea
+                stepCounter: 3ec216be-fd4c-435d-84cd-a7209628f431
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f94e06b0-502b-4387-825d-a56202b569ac
+          stepCounter: 108c39dd-9055-4fd3-a6bc-bfb9d9746f65
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 774426ef-1a9e-4802-ad4f-c332458ddd62
+                stepCounter: 3ec216be-fd4c-435d-84cd-a7209628f431
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 20e4bf69-673b-42b4-9932-14b50a6b6ac7
+          stepCounter: 108c39dd-9055-4fd3-a6bc-bfb9d9746f65
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: There were hours worked on this day and it needs to not be excluded as the employee has not had a 24Hr break.
+        name: COUNTASWORKEDDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 774426ef-1a9e-4802-ad4f-c332458ddd62
+                stepCounter: 3ec216be-fd4c-435d-84cd-a7209628f431
+            transform: DATEADD(DAY,1,I_PG_HRSMINMAXTIMESPERDAY.DATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 574d93d5-609e-4fc8-a50b-0a76c2fbb6b3
+          stepCounter: 108c39dd-9055-4fd3-a6bc-bfb9d9746f65
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: ENDTIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ce24c6e7-6dea-436f-bef6-70c21093aa22
+                stepCounter: 3ec216be-fd4c-435d-84cd-a7209628f431
+            transform: MAX(I_PG_HRSMINMAXTIMESPERDAY.ENDTIME)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7bc1a84e-68bb-45c8-9a7a-3c6c531ac36f
+          stepCounter: 108c39dd-9055-4fd3-a6bc-bfb9d9746f65
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Minutes worked past midnight into the next day
+        name: CURRENTDAYENDTIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ce24c6e7-6dea-436f-bef6-70c21093aa22
+                stepCounter: 3ec216be-fd4c-435d-84cd-a7209628f431
+            transform: MAX(I_PG_HRSMINMAXTIMESPERDAY.ENDTIME) - 1440 --MINUTES TO MIDNIGHT
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c17a78d7-9813-43ba-8869-9c4ae92cc3a1
+          stepCounter: 108c39dd-9055-4fd3-a6bc-bfb9d9746f65
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: The date of the third date where the employee started early in the morning and therefore has not had a 24Hr break.
+        name: THIRDDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4d594e6d-2a0f-412a-98e9-ad0ec5c6a809
+          stepCounter: 108c39dd-9055-4fd3-a6bc-bfb9d9746f65
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Start time of the third day where this is less than the end time past midnight
+        name: STARTTIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: MIN(THIRDDAY.STARTTIME)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 579ecfbf-ba74-494b-a05b-cfa0c57877c2
+          stepCounter: 108c39dd-9055-4fd3-a6bc-bfb9d9746f65
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8fab0e64-494e-4fd1-aedd-576243d7ce4f
+          stepCounter: 108c39dd-9055-4fd3-a6bc-bfb9d9746f65
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_PG_HRSMINMAXTIMESPERDAY: 3ec216be-fd4c-435d-84cd-a7209628f431
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_PG_HRSMINMAXTIMESPERDAY
+        join:
+          joinCondition: FROM {{ ref('NP','I_PG_HRSMINMAXTIMESPERDAY') }}
+        name: I_PG_HRSDAYNOTOFF
+        noLinkRefs: []
+  name: I_PG_HRSDAYNOTOFF
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,91 @@
+fileVersion: 1
+id: b721b253-1fbb-4319-aa07-ee794f4e9438
+name: I_FOOT_PENALTY
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Penalty details when SLA not meet"
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 78988184-525c-4776-a7bd-ed1600d4b822
+          stepCounter: b721b253-1fbb-4319-aa07-ee794f4e9438
+        config: {}
+        dataType: VARCHAR(254)
+        defaultValue: ""
+        description: Cause of Penalty
+        name: PENALTYCAUSE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8703bbd8-2952-4067-982f-5fddde3c112f
+                stepCounter: acdc06f9-a771-47bf-bbf9-20a508544bf1
+            transform: ISNULL(DBO.NP_FUNC_FPUNESCAPEDVALUE(L_FOOT_MASTER39.CAUSE__BOF__BMISSING__BAPPOINTMENT), '')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6824cf26-beb0-4244-ab41-36b2251f5e98
+          stepCounter: b721b253-1fbb-4319-aa07-ee794f4e9438
+        config: {}
+        dataType: VARCHAR(254)
+        defaultValue: ""
+        description: Description for penalty
+        name: PENALTYREASON
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b1985e79-2dfc-47d0-bb44-46aaefa2d4ca
+                stepCounter: acdc06f9-a771-47bf-bbf9-20a508544bf1
+            transform: ISNULL(LEFT(CONVERT(VARCHAR(MAX),L_FOOT_MASTER39.SLA__BNOTES),254),'')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e9a1389b-f04c-47af-af55-aafdd80d1c4a
+          stepCounter: b721b253-1fbb-4319-aa07-ee794f4e9438
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Penalty Incurred
+        name: PENALTYINCURRED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN SUB__BCONTRACTOR__B__U__BTIME__BCOMPLETED IS NULL                                          THEN 0
+                          WHEN SLA__BDATE IS NULL                                                                         THEN 0
+                          WHEN ISNULL(CAUSE__BOF__BMISSING__BAPPOINTMENT, 'CUSTOMER') IN ('CUSTOMER', 'RSP')              THEN 0
+                          WHEN DATEDIFF(HOUR, DATEADD(DAY, 1, SLA__BDATE), SUB__BCONTRACTOR__B__U__BTIME__BCOMPLETED) > 0 THEN 1
+                          ELSE 0
+                           END
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_DATE: fe515f2f-fb3f-48b6-b43c-510e32deb334
+          L_FOOT_MASTER39: acdc06f9-a771-47bf-bbf9-20a508544bf1
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_FOOT_MASTER39
+          - locationName: NP
+            nodeName: D_DATE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','L_FOOT_MASTER39') }}
+        name: I_FOOT_PENALTY
+        noLinkRefs: []
+  name: I_FOOT_PENALTY
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

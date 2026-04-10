@@ -1,0 +1,160 @@
+fileVersion: 1
+id: 6752e088-4db3-4b64-bce8-a21ebce1c57d
+name: I_INVENTORYAGEINGGROUPING
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Grouping of OV (receipt) transaction to be used for ageing, only current data not historical data"
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 45f74944-f257-49f0-9a22-11041ffc62ec
+          stepCounter: 6752e088-4db3-4b64-bce8-a21ebce1c57d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_InventoryTransaction.BusinessUnitCode=D_BusinessUnit.BusinessUnitCode
+        name: D_BUSINESSUNIT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1e62fa1d-2b65-41ce-ae13-211182951172
+                stepCounter: 9dc4260c-1e79-4c07-9796-f8454876451e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 04c0cc4b-3d51-41de-b997-3459db8ea7a9
+          stepCounter: 6752e088-4db3-4b64-bce8-a21ebce1c57d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_InventoryTransaction.ShortItemNumber=D_Inventory.ItemCode
+        name: D_INVENTORY_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 70a0e305-bc5c-4e15-9a4d-7b3b16bed9b0
+                stepCounter: 9dc4260c-1e79-4c07-9796-f8454876451e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a93a0ff5-593a-4764-9254-ae4b5cc303fc
+          stepCounter: 6752e088-4db3-4b64-bce8-a21ebce1c57d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_InventoryTransaction.BranchPlantCode=D_BranchPlant.BranchPlantCode
+        name: D_BRANCHPLANT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9afe1c4e-50da-40cc-8754-e35aaf3132b4
+                stepCounter: 9dc4260c-1e79-4c07-9796-f8454876451e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 14f24520-c26d-46db-a084-249d56bac933
+          stepCounter: 6752e088-4db3-4b64-bce8-a21ebce1c57d
+        config: {}
+        dataType: NUMERIC(15,4)
+        defaultValue: ""
+        description: The quantity of primary unit of measures.
+        name: PRIMARYQUANTITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bde82be4-af5e-4eb7-82b0-64e6a1eb418f
+                stepCounter: 9dc4260c-1e79-4c07-9796-f8454876451e
+            transform: SUM(F_INVENTORYTRANSACTION.PRIMARYQUANTITY)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ab547885-52bb-4ce2-9112-537e315c413c
+          stepCounter: 6752e088-4db3-4b64-bce8-a21ebce1c57d
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: The transaction amount.
+        name: TRANSACTIONAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8c149676-efcf-46d5-b420-07f5b2e67e90
+                stepCounter: 9dc4260c-1e79-4c07-9796-f8454876451e
+            transform: SUM(F_INVENTORYTRANSACTION.TRANSACTIONAMOUNT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6b2803e4-fd92-4a93-a020-d64b4c15086f
+          stepCounter: 6752e088-4db3-4b64-bce8-a21ebce1c57d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Ageing Group Sort order
+        name: AGEINGGROUPSORT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN DATEDIFF(DAY, CALENDARDATE, GETDATE()) < 30  THEN 1
+                          WHEN DATEDIFF(DAY, CALENDARDATE, GETDATE()) < 60  THEN 2
+                          WHEN DATEDIFF(DAY, CALENDARDATE, GETDATE()) < 90  THEN 3
+                          WHEN DATEDIFF(DAY, CALENDARDATE, GETDATE()) < 120 THEN 4
+                          WHEN DATEDIFF(DAY, CALENDARDATE, GETDATE()) < 150 THEN 5
+                          WHEN DATEDIFF(DAY, CALENDARDATE, GETDATE()) < 180 THEN 6
+                          WHEN DATEDIFF(DAY, CALENDARDATE, GETDATE()) < 210 THEN 7
+                          WHEN DATEDIFF(DAY, CALENDARDATE, GETDATE()) < 240 THEN 8
+                          WHEN DATEDIFF(DAY, CALENDARDATE, GETDATE()) < 270 THEN 9
+                          WHEN DATEDIFF(DAY, CALENDARDATE, GETDATE()) < 300 THEN 10
+                          WHEN DATEDIFF(DAY, CALENDARDATE, GETDATE()) < 330 THEN 11
+                          WHEN DATEDIFF(DAY, CALENDARDATE, GETDATE()) < 360 THEN 12
+                          ELSE 13
+                           END AGEINGGROUPSORT
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_BRANCHPLANT: 79b12aed-fd8c-4539-8dac-141068ffbc10
+          D_BUSINESSUNIT: 90a265b9-7c25-4e08-8dc3-9f6ac60dc7df
+          D_DATE: fe515f2f-fb3f-48b6-b43c-510e32deb334
+          D_DOCUMENTTYPE: 91754c6b-64a0-4454-ac30-c5622c3f0d2b
+          D_INVENTORY: 3baf27a2-3fab-4b0d-a96e-30a2e7615705
+          F_INVENTORYTRANSACTION: 9dc4260c-1e79-4c07-9796-f8454876451e
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: F_INVENTORYTRANSACTION
+          - locationName: NP
+            nodeName: D_BRANCHPLANT
+          - locationName: NP
+            nodeName: D_BUSINESSUNIT
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: D_DOCUMENTTYPE
+          - locationName: NP
+            nodeName: D_INVENTORY
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_BRANCHPLANT') }}
+              JOIN {{ ref('NP','D_BUSINESSUNIT') }}
+              JOIN {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_DOCUMENTTYPE') }}
+              JOIN {{ ref('NP','D_INVENTORY') }}
+              JOIN {{ ref('NP','F_INVENTORYTRANSACTION') }}
+        name: I_INVENTORYAGEINGGROUPING
+        noLinkRefs: []
+  name: I_INVENTORYAGEINGGROUPING
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

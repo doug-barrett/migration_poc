@@ -1,0 +1,111 @@
+fileVersion: 1
+id: af4c798f-123d-4d68-9398-6d9a14ed2589
+name: I_JDE_ACCOUNTMASTER_SUMMARY
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "List of unique object accounts with their lowest posting level. Excludes anything lower than 7"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2f0db400-03d1-4f38-b0c0-1ec526814c74
+          stepCounter: af4c798f-123d-4d68-9398-6d9a14ed2589
+        config: {}
+        dataType: VARCHAR(6)
+        defaultValue: ""
+        description: ""
+        name: ACCOUNTOBJECT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: eb7d398d-81dd-4ff2-9518-ed6178b4280a
+                stepCounter: 1fe7739e-9f82-49b5-a8e0-799959cf24ea
+            transform: LTRIM(RTRIM(L_JDE_F0901_ACCOUNTMASTER.GMOBJ))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 95d5dada-c019-4582-ad5a-28165f68ec9a
+          stepCounter: af4c798f-123d-4d68-9398-6d9a14ed2589
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: ACCOUNTDESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e85c80b0-6086-42d6-9c20-250c98f53eba
+                stepCounter: 1fe7739e-9f82-49b5-a8e0-799959cf24ea
+            transform: --FORCE SUBSIDIARY ACCOUNTS TO BE UNUSED IF THERE ARE NON-SUBSIDIARY OBTIONS  --3/9/2018 DEBBIE LISTER  --ADDED LEFT STATEMENT AS THERE ARE FIBRE ACCOUNTS THAT ONLY HAVE  -- SUBSIDIARY ACCOUNTS AND THE DESCRIPTIONS ARE 30 CHARACTERS MAKING THE  -- FIELD 31 WITH THE SPACE. -- LOOK AT FIXING PROPERLY LATER.  LEFT(MAX(CASE   WHEN ISNULL(GMSUB,'') = ''   THEN LTRIM(RTRIM(GMDL01))   ELSE ' ' + LTRIM(RTRIM(GMDL01)) END),30)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 591e2c29-d452-4e1c-8cdc-00c8b8b09d41
+          stepCounter: af4c798f-123d-4d68-9398-6d9a14ed2589
+        config: {}
+        dataType: VARCHAR(1)
+        defaultValue: ""
+        description: ""
+        name: ACCOUNTLEVELCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8bb98dac-0a60-4763-8d1b-ecd10245d927
+                stepCounter: 1fe7739e-9f82-49b5-a8e0-799959cf24ea
+            transform: MAX(L_JDE_F0901_ACCOUNTMASTER.GMLDA)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3f06d587-1e07-4650-88c5-d38ea04afe08
+          stepCounter: af4c798f-123d-4d68-9398-6d9a14ed2589
+        config: {}
+        dataType: VARCHAR(1)
+        defaultValue: ""
+        description: ""
+        name: ACCOUNTPOSTINGFLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: edda19fe-f84b-46fc-ba9c-e51bf2baedce
+                stepCounter: 1fe7739e-9f82-49b5-a8e0-799959cf24ea
+            transform: MAX(CASE WHEN L_JDE_F0901_ACCOUNTMASTER.GMPEC IN ('N','I') THEN 0 ELSE 1 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 69c4c988-187e-430d-92b7-985fffdadb3e
+          stepCounter: af4c798f-123d-4d68-9398-6d9a14ed2589
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          L_JDE_F0901_ACCOUNTMASTER: 1fe7739e-9f82-49b5-a8e0-799959cf24ea
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_JDE_F0901_ACCOUNTMASTER
+        join:
+          joinCondition: FROM {{ ref('NP','L_JDE_F0901_ACCOUNTMASTER') }}
+        name: I_JDE_ACCOUNTMASTER_SUMMARY
+        noLinkRefs: []
+  name: I_JDE_ACCOUNTMASTER_SUMMARY
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

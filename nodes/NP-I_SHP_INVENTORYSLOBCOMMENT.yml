@@ -1,0 +1,187 @@
+fileVersion: 1
+id: aa6a3959-9558-4c49-a163-39f2bd336ca5
+name: I_SHP_INVENTORYSLOBCOMMENT
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Combines the columns we want from the inventory slob comment table."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fb0bc32c-8412-4181-a9ab-5e3ee8200122
+          stepCounter: aa6a3959-9558-4c49-a163-39f2bd336ca5
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: The SLOB branch plant code.
+        name: BRANCHPLANTCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c9fffbef-8d26-4344-8dad-24183ed0cf6d
+                stepCounter: 3127a1df-057f-4397-ab35-1d0d5bbf143c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4564b670-f3cd-4710-999a-d1a3bb612f84
+          stepCounter: aa6a3959-9558-4c49-a163-39f2bd336ca5
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: The SLOB short item number.
+        name: SHORTITEMNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b2eef3c2-273f-41f6-94ad-83a8b471b9e5
+                stepCounter: 3127a1df-057f-4397-ab35-1d0d5bbf143c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d0a166b9-6eb3-4dda-ad01-abb24fb5ffab
+          stepCounter: aa6a3959-9558-4c49-a163-39f2bd336ca5
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: SLOBPeriod of type DateTime
+        name: SLOBPERIOD
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b87dce1d-879d-4203-ac8e-fe4a9bae2707
+                stepCounter: 07ec7659-52b0-426c-92b6-49d5a4334738
+            transform: ISNULL(CONVERT(DATE,L_SHP_SLOB.SLOBPERIOD,120),'1900-01-01')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 85a8c3a5-e345-4d76-953f-e869d0a02012
+          stepCounter: aa6a3959-9558-4c49-a163-39f2bd336ca5
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: The SLOB comment date.
+        name: SLOBCOMMENTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d5bf6585-3cdd-4dd6-9104-80c1f992e188
+                stepCounter: 07ec7659-52b0-426c-92b6-49d5a4334738
+            transform: CONVERT(DATE,L_SHP_SLOB.SLOBCOMMENTDATE,120)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a14dcd54-4fb7-405b-91a3-036a55ca1b00
+          stepCounter: aa6a3959-9558-4c49-a163-39f2bd336ca5
+        config: {}
+        dataType: VARCHAR(256)
+        defaultValue: ""
+        description: The SLOB evaluation.
+        name: SLOBEVALUATION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c983e1a2-0641-4be0-b7c2-4836ac3ceac1
+                stepCounter: 07ec7659-52b0-426c-92b6-49d5a4334738
+            transform: ISNULL(CONVERT(VARCHAR(256),L_SHP_SLOB.SLOBEVALUATION),'')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 849ab573-24b8-46f3-9091-f25adc6231c9
+          stepCounter: aa6a3959-9558-4c49-a163-39f2bd336ca5
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: The SLOB item classification.
+        name: SLOBCLASSIFICATION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 82251e12-bab3-4e8d-a644-27894b5af795
+                stepCounter: 07ec7659-52b0-426c-92b6-49d5a4334738
+            transform: ISNULL(CONVERT(VARCHAR(30),L_SHP_SLOB.SLOBCLASSIFICATION),'')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: caa96d18-572e-44c2-9aae-29909304b7f5
+          stepCounter: aa6a3959-9558-4c49-a163-39f2bd336ca5
+        config: {}
+        dataType: VARCHAR(256)
+        defaultValue: ""
+        description: The SLOB comment.
+        name: SLOBCOMMENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7e19fe26-1c59-47da-ac83-0a2e40731f20
+                stepCounter: 07ec7659-52b0-426c-92b6-49d5a4334738
+            transform: ISNULL(CONVERT(VARCHAR(256),L_SHP_SLOB.SLOBCOMMENT),'NO COMMENT')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ebb02091-b800-4266-8e3b-d36248a5a2c9
+          stepCounter: aa6a3959-9558-4c49-a163-39f2bd336ca5
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Row number per branch plant and item number so that we can get a distinct count of the item branch plant even if there are multiple comments for the combination.
+        name: ROWNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ROW_NUMBER() OVER(PARTITION BY I_JDE_ITEMBRANCHPLANT.BRANCHPLANTCODE, I_JDE_ITEMBRANCHPLANT.SHORTITEMNUMBER ORDER BY ISNULL(L_SHP_SLOB.SLOBCOMMENTDATE,'1900-01-01')DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5cb1da37-f9fa-4ec9-9929-898ec6fdd07a
+          stepCounter: aa6a3959-9558-4c49-a163-39f2bd336ca5
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5484de1e-d732-42b3-be4f-6da89773ef09
+          stepCounter: aa6a3959-9558-4c49-a163-39f2bd336ca5
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_JDE_ITEMBRANCHPLANT: 3127a1df-057f-4397-ab35-1d0d5bbf143c
+          L_SHP_SLOB: 07ec7659-52b0-426c-92b6-49d5a4334738
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_JDE_ITEMBRANCHPLANT
+          - locationName: NP
+            nodeName: L_SHP_SLOB
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_JDE_ITEMBRANCHPLANT') }}
+              JOIN {{ ref('NP','L_SHP_SLOB') }}
+        name: I_SHP_INVENTORYSLOBCOMMENT
+        noLinkRefs: []
+  name: I_SHP_INVENTORYSLOBCOMMENT
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

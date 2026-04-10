@@ -1,0 +1,155 @@
+fileVersion: 1
+id: fd4d2e5d-d7cb-40d1-bc06-4d75ba8e6f88
+name: I_SELLRATELABOUR
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Agreed customer sell rates for labour"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1ce9ff94-0051-4ca3-9a35-1f57e67f6ae3
+          stepCounter: fd4d2e5d-d7cb-40d1-bc06-4d75ba8e6f88
+        config: {}
+        dataType: VARCHAR(2)
+        defaultValue: ""
+        description: 2 digit code representing the customer
+        name: CUSTOMERCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: --DF IS THE DEFAULT RATE FOR THE COST CENTRE  CASE WHEN LEN(EXTKEY) = 7 THEN RIGHT(EXTKEY,2) ELSE 'DF' END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f726db19-744e-4508-88c7-570615d3b74e
+          stepCounter: fd4d2e5d-d7cb-40d1-bc06-4d75ba8e6f88
+        config: {}
+        dataType: VARCHAR(1)
+        defaultValue: ""
+        description: Recovery rates are set up for an entity. Default rates can be created for each different entity
+        name: ENTITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: LEFT(EXTKEY,1)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9a3cc87c-540b-49a2-8283-48b409a54bff
+          stepCounter: fd4d2e5d-d7cb-40d1-bc06-4d75ba8e6f88
+        config: {}
+        dataType: VARCHAR(3)
+        defaultValue: ""
+        description: This code indicates what type of plant or employee the rate is for.
+        name: KEYCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUBSTRING(EXTKEY,2,2)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e9f15742-0ae5-475e-92a7-3dbd7d171c15
+          stepCounter: fd4d2e5d-d7cb-40d1-bc06-4d75ba8e6f88
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: Can be one of Labour, Plant or Other.
+        name: RATETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'LABOUR'"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3104409a-4c6a-4020-88d6-11b4f43a24eb
+          stepCounter: fd4d2e5d-d7cb-40d1-bc06-4d75ba8e6f88
+        config: {}
+        dataType: DECIMAL(6,2)
+        defaultValue: ""
+        description: The sell rate for this Plant or Labour item
+        name: RATE1
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: MAX(CASE WHEN SUBSTRING(EXTKEY,4,2) = '10' THEN COMPRATE * (1+(MARKUP/100)) ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c09a04e5-4f82-4582-b999-128cada58c00
+          stepCounter: fd4d2e5d-d7cb-40d1-bc06-4d75ba8e6f88
+        config: {}
+        dataType: DECIMAL(6,2)
+        defaultValue: ""
+        description: The time and a half sell rate for this Labour item
+        name: RATE2
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: MAX(CASE WHEN SUBSTRING(EXTKEY,4,2) = '15' THEN COMPRATE * (1+(MARKUP/100)) ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c32db474-1445-4fdc-a73c-4843bf0348c8
+          stepCounter: fd4d2e5d-d7cb-40d1-bc06-4d75ba8e6f88
+        config: {}
+        dataType: DECIMAL(6,2)
+        defaultValue: ""
+        description: The double time sell rate for this Labour item
+        name: RATE3
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: MAX(CASE WHEN SUBSTRING(EXTKEY,4,2) = '20' THEN COMPRATE * (1+(MARKUP/100)) ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9c53f097-ac7c-4ff5-aeef-7bac6c982746
+          stepCounter: fd4d2e5d-d7cb-40d1-bc06-4d75ba8e6f88
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: date and time the row was updated in the data warehouse
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_EMS_U_PAYCLASS
+          - locationName: UNKNOWN
+            nodeName: I_EMS_U_PAYCLASS
+        join:
+          joinCondition: FROM {{ ref('UNKNOWN','I_EMS_U_PAYCLASS') }}
+        name: I_SELLRATELABOUR
+        noLinkRefs: []
+  name: I_SELLRATELABOUR
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

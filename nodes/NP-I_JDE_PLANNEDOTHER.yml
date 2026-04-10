@@ -1,0 +1,472 @@
+fileVersion: 1
+id: 41045f44-6c61-4e8e-989c-7ec468d31891
+name: I_JDE_PLANNEDOTHER
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "List of planned items for work orders that have been recently updated"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 712ca461-020f-4d1a-ac86-10942b10e096
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: VARCHAR(2)
+        defaultValue: ""
+        description: ""
+        name: WORKORDERTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a02c6855-e315-4f57-9b37-1fe33dc675f6
+                stepCounter: 7f57f031-a7d3-4947-ac45-f9320e5ef913
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 77aae81b-a672-4913-a31d-8b5d4d6d9aa2
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: WORKORDERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e8467a93-ab70-4300-aa35-64fda760aeae
+                stepCounter: 7f57f031-a7d3-4947-ac45-f9320e5ef913
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 15ecf093-09e8-49d5-871a-630618065b27
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PERIODNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              (
+                      SELECT PERIODNUMBER
+                        FROM D_PERIOD
+                       WHERE MONTHNAMEYEAR = I_PLANNEDTASTATUS.REQUESTEDMONTH
+                     )
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 85af2071-6977-494f-8776-33bc1164271b
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Description from parts list used as a reference only if we can't use the keys to connect to a proper dimension record.
+        name: DESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e23d3ff5-4007-47aa-933c-cb9e83092374
+                stepCounter: 6abda1a9-615d-4687-8810-54a42e105d0e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 23491fd3-5474-414e-bdc7-0f98c9712b38
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: Calculated object account based on the value in the CPIT field.
+        name: OBJECTACCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9ef5825a-fe04-4fd7-851d-a350208221e0
+                stepCounter: 6abda1a9-615d-4687-8810-54a42e105d0e
+            transform: "CASE WHEN LTRIM(RTRIM(IMPRP8)) = 'NCC' THEN '4511' --CAPACITY CHARGE    -- FIA   -- AS THE ITEM CODE USED FOR FIA IS DIFFERENT BETWEEN TEST AND PRODUCTION   --  WE WILL USE THE SECOND ITEM CODE = FIA   -- PROD: ITEM CODE = 11647, TEST: ITEM CODE = 11121   WHEN I_JDE_WORKORDERPARTSLIST.ITEMCODE2 = 'FIA'    --EXTERNAL INCOME    THEN '4510'   --FOR FIXED PRICED WORK, THERE MAY NOT BE AN FIA LINE ITEM, JUST THE UR LINE ITEM   --WHEN I_JDE_WORKORDERPARTSLIST.LINETYPE = 'UR'   WHEN I_JDE_WORKORDERPARTSLIST.LINETYPE IN ('UR', 'J')    --AND ISNULL(L_JDE_F31171_PARTSLISTEXTENSION.WSMTHPR,'') = 'F'    --EXTERNAL INCOME    THEN '4510'   --STOCKED ITEMS - ALL EXCEPT NON-STOCK   WHEN ISNULL(D_INVENTORY.STOCKINGTYPECODE,'N') <> 'N'    THEN '5072'   --SPECIAL CASE WHILE ESTIMATING FROM WASP   -- UNSPECIFIED ITEM, INTERFACE CAN'T FIND THE STOCK ITEM, BUT IT SHOULD STILL BE MATERIALS   WHEN I_JDE_WORKORDERPARTSLIST.ITEMCODE = 749353    --STORE ISSUES    THEN '5072'   --SPECIAL CASE TO SPLIT OUT THE TYPES OF SUBCONTRACTORS:   WHEN I_JDE_WORKORDERPARTSLIST.ITEMCODE = 749276    --SUBCONTRACTORS - CIVIL    THEN '5093'   WHEN I_JDE_WORKORDERPARTSLIST.ITEMCODE = 749277    --SUBCONTRACTORS - TRAFFIC MANAGEMENT    THEN '5095'   -- ALL OTHER TYPES OF SUBCONTRACTORS   WHEN D_INVENTORY.ITEMCATEGORYCODE IN ('901','903','906')    --SUBCONTRACTORS - GENERAL    THEN '5092'   --ALL OTHER NON STOCK ITEMS WILL BE MATERIALS PURCHASES   ELSE '5074' END"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 270a9780-3e0b-417b-89d0-c5dbb310d273
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: ""
+        name: PLANTTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'NOT APPLICABLE'"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b420346c-caed-4ccb-b1d9-8da03888b1a9
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: ""
+        name: JOBFUNCTIONCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'NOT APPLICABLE'"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: db8f24f0-b4c0-4d71-9c64-e8e339474943
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: OVERTIMEFACTOR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '-1'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 369dee72-d7ce-4282-a5e8-3fe22f935d37
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: Component Item Number - Short
+        name: ITEMCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9ef5825a-fe04-4fd7-851d-a350208221e0
+                stepCounter: 6abda1a9-615d-4687-8810-54a42e105d0e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0a0efb24-da6d-440a-9e78-29363c168d62
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: Component Item Number - Short
+        name: INVENTORYCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9ef5825a-fe04-4fd7-851d-a350208221e0
+                stepCounter: 6abda1a9-615d-4687-8810-54a42e105d0e
+            transform: "--AS THESE ARE ALL VALID INVENTORY ITEMS, WILL LEAVE THE DATA LINKED TO IT.  I_JDE_WORKORDERPARTSLIST.ITEMCODE  --CASE   -- FIA   -- AS THE ITEM CODE USED FOR FIA IS DIFFERENT BETWEEN TEST AND PRODUCTION   --  WE WILL USE THE SECOND ITEM CODE = FIA   -- PROD: ITEM CODE = 11647, TEST: ITEM CODE = 11121  -- WHEN I_JDE_WORKORDERPARTSLIST.ITEMCODE2 = 'FIA'    --EXTERNAL INCOME, NOT APPLICABLE  --  THEN -1   --VOUCHER, NOT APPLICABLE   --LABOUR, PLANT, MATERIALS, OTHER OR WASP VOUCHER  -- WHEN I_JDE_WORKORDERPARTSLIST.ITEMCODE IN (11424,11425,11426,11427,749352)  --  THEN -1   --UNSPECIFIED ITEM, UNKNOWN  -- WHEN I_JDE_WORKORDERPARTSLIST.ITEMCODE = 749353  --  THEN 0    --EVERYTHING ELSE SHOULD BE A VALID STOCK ITEM  --ELSE I_JDE_WORKORDERPARTSLIST.ITEMCODE END"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 07cdaf2d-3365-4347-a289-92f9586ebace
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: BIT
+        defaultValue: ""
+        description: Always 0 for estimated and planned items
+        name: CURRENTPERIODFLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 85d0e848-6a11-49ba-9eda-32aa0c766503
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: DECIMAL(18,2)
+        defaultValue: ""
+        description: Unit Rate
+        name: RATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 071f217e-39a8-49e3-b9b9-35bb99348f7d
+                stepCounter: 6abda1a9-615d-4687-8810-54a42e105d0e
+            transform: --NO AMOUNT FOR CAPACITY CHARGE  CASE    WHEN LTRIM(RTRIM(IMPRP8)) = 'NCC' THEN 0    ELSE I_JDE_WORKORDERPARTSLIST.AMOUNT   END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 56547546-9203-4b0c-8205-d7f042926278
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ESTIMATEDREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c5c176d7-ac08-4d1b-beae-71aa50ac7aed
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ESTIMATEDCOSTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4db05fe4-8375-4f21-9fc8-4fb4a91e7abd
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ESTIMATEDQUANTITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 952ef0e5-bfc6-4157-88ae-581a9b11afba
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ESTIMATEDPLANTHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 135a0c0d-6f34-4ad7-94db-7dc704793d4f
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ESTIMATEDLABOURHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 354c4ec8-c90a-4e7c-8aa4-f9dc170a1ab8
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: Amount - Unaccounted Direct Labor
+        name: PLANNEDREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 45c6d23c-244b-4759-9219-142c7cd55756
+                stepCounter: 80205762-13c6-43e5-a662-70c4f5e6755a
+            transform: --PLANNED REVENUE WILL ONLY EXIST AT TA LEVEL EVEN WHEN ROLLED UP,   --03/11/2020 CW ALSO REMOVED ADDITIONAL CODE THAT WAS COMMENTED OUT FOR EASE OF READING  CASE      WHEN I_PLANNEDTASTATUS.WORKORDERTYPECODE = 'TA' AND     I_JDE_WORKORDERPARTSLIST.ITEMCODE2 = 'FIA' THEN CONVERT(NUMERIC(15, 2), L_JDE_F31171_PARTSLISTEXTENSION.WSEBILL) / 100        WHEN I_PLANNEDTASTATUS.WORKORDERTYPECODE = 'TA'-- AND TAROLLED = 'NO'     AND I_JDE_WORKORDERPARTSLIST.LINETYPE IN ('UR', 'J')  THEN CONVERT(NUMERIC(15, 2), L_JDE_F31171_PARTSLISTEXTENSION.WSEBILL) / 100  --NETWORK CAPACITY CHARGE REVERSED  WHEN I_PLANNEDTASTATUS.WORKORDERTYPECODE = 'TA' AND     LTRIM(RTRIM(IMPRP8)) = 'NCC'     THEN (I_JDE_WORKORDERPARTSLIST.AMOUNT * -1) * I_JDE_WORKORDERPARTSLIST.UNITSORDERED      ELSE 0   END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 26f17b9a-a99a-4089-a56a-b396b1e75711
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: Unit Rate
+        name: PLANNEDCOSTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 071f217e-39a8-49e3-b9b9-35bb99348f7d
+                stepCounter: 6abda1a9-615d-4687-8810-54a42e105d0e
+            transform: --CHANGED QUERY TO EXCLUDE ALL UR LINE TYPES  -- THE FIA LINES ARE A SUBSET OF THIS  --NO UR LINES TYPES HAVE COST AMOUNTS AGAINST THEM  -- SO THIS CHANGE WILL MAKE NO MATERIAL DIFFERENCE.  CASE  --REMOVE CAPACITY COST   WHEN LTRIM(RTRIM(IMPRP8)) = 'NCC' THEN 0    WHEN I_PLANNEDTASTATUS.WORKORDERTYPECODE = 'TC'    --AND I_JDE_WORKORDERPARTSLIST.ITEMCODE2 <> 'FIA'    AND I_JDE_WORKORDERPARTSLIST.LINETYPE <> 'UR'   THEN I_JDE_WORKORDERPARTSLIST.AMOUNT   WHEN I_PLANNEDTASTATUS.WORKORDERTYPECODE = 'TA' AND TAROLLED = 'NO'    --AND I_JDE_WORKORDERPARTSLIST.ITEMCODE2 <> 'FIA'    AND I_JDE_WORKORDERPARTSLIST.LINETYPE <> 'UR'   THEN I_JDE_WORKORDERPARTSLIST.AMOUNT   ELSE 0  END  * I_JDE_WORKORDERPARTSLIST.UNITSORDERED
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4e6637a0-4751-430e-93d1-8283b85cc0d5
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: Units - Order/Transaction Quantity
+        name: PLANNEDQUANTITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d8762c33-28b2-45ac-9b35-67955ebef067
+                stepCounter: 6abda1a9-615d-4687-8810-54a42e105d0e
+            transform: CASE --REMOVE CAPACITY QUANTITY FOR TC ONLY    WHEN I_PLANNEDTASTATUS.WORKORDERTYPECODE = 'TC' AND     LTRIM(RTRIM(IMPRP8)) = 'NCC' THEN 0       WHEN I_PLANNEDTASTATUS.WORKORDERTYPECODE = 'TC' AND    --LABOUR, PLANT, MATERIALS, OTHER AND WASP VOUCHERS     I_JDE_WORKORDERPARTSLIST.ITEMCODE NOT IN (11424, 11425, 11426, 11427, 749352) AND     I_JDE_WORKORDERPARTSLIST.LINETYPE NOT IN ('J', 'UR') THEN I_JDE_WORKORDERPARTSLIST.UNITSORDERED    WHEN I_PLANNEDTASTATUS.WORKORDERTYPECODE = 'TA' AND     (I_JDE_WORKORDERPARTSLIST.LINETYPE IN ('UR', 'J') OR     --INCLUDE NORTHERN CAPACITY CHARGE WITH REVENUE QUANTITY     LTRIM(RTRIM(IMPRP8)) = 'NCC') THEN I_JDE_WORKORDERPARTSLIST.UNITSORDERED      WHEN I_PLANNEDTASTATUS.WORKORDERTYPECODE = 'TA' AND     TAROLLED = 'NO' AND    --LABOUR, PLANT, MATERIALS, OTHER AND WASP VOUCHERS     I_JDE_WORKORDERPARTSLIST.ITEMCODE NOT IN (11424, 11425, 11426, 11427, 749352) THEN I_JDE_WORKORDERPARTSLIST.UNITSORDERED    WHEN I_PLANNEDTASTATUS.WORKORDERTYPECODE = 'TA' AND     TAROLLED = 'YES' THEN 0    ELSE 0   END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1fc21080-9ef7-4dfc-bf97-e83504969a4f
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: PLANNEDPLANTHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bbe29c8a-3cc8-4763-b78f-d856d5ec23dd
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: PLANNEDLABOURHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 11e7798a-51ed-41df-8a3d-5f2cef05c3f6
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ACTUALREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 504c967d-6460-4daf-bd8e-28d9fd893c2b
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ACTUALCOSTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c82bd3fc-35aa-400f-8720-0bd16475f856
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ACTUALQUANTITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d500905b-b8e7-4770-84ae-26273463b672
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ACTUALPLANTHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 768ab4c8-b1d3-4d1b-bd3f-2e426fc5b59c
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ACTUALLABOURHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1848d0f8-87bc-4480-a54b-4c465a37f806
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: Dummy field for set merge
+        name: UNDELIVEREDCOMMITMENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f331ad24-e5e8-4ea5-8e90-45f42e5bcadd
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: NCHAR(6)
+        defaultValue: ""
+        description: Warehouse Process Group 2 - Northern Capacity Charge
+        name: NORTHERNCAPACITYCHARGE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2d98d9e6-b0a3-479a-a32f-488ff4aaa4ca
+                stepCounter: 68ad1372-2e6b-4a89-9de7-e51bf1616261
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3aac702d-1ff1-476f-8ff8-66c3bb8ba09e
+          stepCounter: 41045f44-6c61-4e8e-989c-7ec468d31891
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_INVENTORY: 3baf27a2-3fab-4b0d-a96e-30a2e7615705
+          I_JDE_WORKORDERPARTSLIST: 6abda1a9-615d-4687-8810-54a42e105d0e
+          I_PLANNEDTASTATUS: 7f57f031-a7d3-4947-ac45-f9320e5ef913
+          L_JDE_F31171_PARTSLISTEXTENSION: 80205762-13c6-43e5-a662-70c4f5e6755a
+          L_JDE_F4101_ITEMMASTER: 68ad1372-2e6b-4a89-9de7-e51bf1616261
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_PLANNEDTASTATUS
+          - locationName: NP
+            nodeName: D_INVENTORY
+          - locationName: NP
+            nodeName: I_JDE_WORKORDERPARTSLIST
+          - locationName: NP
+            nodeName: L_JDE_F31171_PARTSLISTEXTENSION
+          - locationName: NP
+            nodeName: L_JDE_F4101_ITEMMASTER
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_INVENTORY') }}
+              JOIN {{ ref('NP','I_JDE_WORKORDERPARTSLIST') }}
+              JOIN {{ ref('NP','I_PLANNEDTASTATUS') }}
+              JOIN {{ ref('NP','L_JDE_F31171_PARTSLISTEXTENSION') }}
+              JOIN {{ ref('NP','L_JDE_F4101_ITEMMASTER') }}
+        name: I_JDE_PLANNEDOTHER
+        noLinkRefs: []
+  name: I_JDE_PLANNEDOTHER
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

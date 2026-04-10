@@ -1,0 +1,451 @@
+fileVersion: 1
+id: 0e0c042e-01fe-4676-ba93-34706c33a01a
+name: I_FIBREINSTANCE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Fibre connection counts"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fa88408b-0f11-46d7-91fa-d46baf02a526
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Count of lost orders
+        name: PRODUCTINSTANCELOSSCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: --COUNT WHERE CREDIT ORDER CREATED WITHIN A DAY OF RELINQUISHED DATE  CASE    WHEN ORDERTYPECODE = 'CO' AND     MIN(ORDERDATE) BETWEEN D_FIBREBSSORDER.RELINQUISHEDDATE AND DATEADD(DAY, 1, D_FIBREBSSORDER.RELINQUISHEDDATE) THEN 1  --COUNT SR WHEN RELINQUISHED ON THE LAST DAY OF THE MONTH    WHEN      ORDERTYPECODE = 'SR' AND EOMONTH(MAX(D_FIBRESALESORDER.ORDERDATE)) = D_FIBREBSSORDER.RELINQUISHEDDATE THEN 1    ELSE 0   END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aba6e09e-380b-4027-886a-db15c6dd5d3f
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Count of recurring orders
+        name: PRODUCTINSTANCECOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN ORDERTYPECODE = 'SR' AND FAR.BSSOFFERINSTANCEID IS NULL THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4b14da08-28e6-476c-a252-4c256c9d841a
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Count of lost orders
+        name: PRODUCTINSTANCEGAINCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: --COUNT WHERE SALES ORDER WITHIN A DAY OF ACTIVE DATE     CASE  WHEN ORDERTYPECODE = 'SR' AND     FAR.BSSOFFERINSTANCEID IS NOT NULL THEN 1  WHEN ORDERTYPECODE = 'SO' AND        MIN(ORDERDATE) BETWEEN D_FIBREBSSORDER.ACTIVEDATE AND DATEADD(DAY, 1, D_FIBREBSSORDER.ACTIVEDATE)  --DON'T COUNT WHEN CONNECTION ENDS ON THE LAST DAY OF ACCOUNT  AND ISNULL(D_FIBREBSSORDER.RELINQUISHEDDATE, '1900-01-01') <> EOMONTH(MIN(ORDERDATE))     THEN 1       ELSE 0      END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 503275c4-74a7-414d-98e2-174b02d2702a
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Total Count of orders (Recurring order minus reliquished order plus new orders)
+        name: TOTALPRODUCTINSTANCECOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: --COUNT TOTAL PRODUCT INSTANCES  CASE       WHEN ORDERTYPECODE = 'SR' AND     (FRR.BSSOFFERINSTANCEID IS NULL OR D_DATE.PERIODNUMBER <> FRR.PERIODNUMBER) THEN 1       WHEN ORDERTYPECODE = 'SO' AND        MIN(ORDERDATE) BETWEEN D_FIBREBSSORDER.ACTIVEDATE AND DATEADD(DAY, 1, D_FIBREBSSORDER.ACTIVEDATE) --DON'T COUNT WHEN CONNECTION ENDS ON THE LAST DAY OF ACCOUNT  AND ISNULL(D_FIBREBSSORDER.RELINQUISHEDDATE, '1900-01-01') <> EOMONTH(MIN(ORDERDATE)) THEN 1       WHEN ORDERTYPECODE = 'CO' AND        MIN(ORDERDATE) BETWEEN D_FIBREBSSORDER.RELINQUISHEDDATE AND DATEADD(DAY, 1, D_FIBREBSSORDER.RELINQUISHEDDATE) THEN -1       ELSE 0      END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 19b02f89-2fb4-4774-b3f5-1a1981aeb84d
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: Fibre Revenue
+        name: REVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: SUM(EXTENDEDPRICE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0f8bb4f1-8bab-4b19-a59b-2bfa9987f60d
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: A separate number is assigned to each period used in the ODS to be used as the business key. A period is a financial month.
+        name: PERIODNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a80e7328-b2cf-4029-975f-9bc38cfc2c94
+                stepCounter: fe515f2f-fb3f-48b6-b43c-510e32deb334
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c4166690-a347-4463-992c-571c32f99211
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: The calendar date for this row.
+        name: CALENDARDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c345fd42-c2c9-458e-b6cd-165764572024
+                stepCounter: fe515f2f-fb3f-48b6-b43c-510e32deb334
+            transform: MIN(D_DATE.CALENDARDATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9aa7b52d-3bc4-4489-b4b8-deb55b0ca3d9
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: FIbre Delivery Address ID
+        name: FIBREDELIVERYADDRESSID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 852137d2-f515-41d3-91e5-9b88f9afff1a
+                stepCounter: a645d6db-e41b-41d7-91f2-6682caf1370b
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 547753bc-230f-4a26-b3b6-e71464417b01
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Fibre Service Location Code
+        name: FIBRESERVICELOCATIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2c99f122-126f-42c6-840a-dce6bf0febb2
+                stepCounter: e1701298-f6f8-4522-a325-e9cd8ba1c8ab
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 24870ae5-4be8-49dd-a243-e3183e4cf7d4
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Fibre Service Instance
+        name: FIBRESERVICEINSTANCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 350d4dd3-281a-4559-b47a-bafb787f18ec
+                stepCounter: b8b1dda0-01f3-4b06-90b3-3c14be132da9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ecf6ae7a-3dd4-41f4-827c-08fd5eca8559
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Fibre Product Instance
+        name: FIBREPRODUCTINSTANCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 68d3a377-9771-488a-b9c2-0b0823aafea2
+                stepCounter: b9c0a3b1-7501-453f-9870-3316281592ae
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 763fda93-3f6c-4ab1-82cd-ae53eeff0b24
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: Six digit debtor code for old Finance1 NZ Debtors, 4 Digit numeric for the Finance1 Australian Debtors and the JDE address book number (numeric) for JDE Debtors. This is the identifier that the user will know them by in the relevant source system.  This field used to be unique before JDE was implemented.
+        name: DEBTORCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 11eec135-ac02-467e-8cc2-33396ffc8a4b
+                stepCounter: 1c668c1a-0591-4181-b39b-6e00236fb041
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fa0bb599-b13e-41d2-9c86-7ab192af394e
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: UFB phase of rollout
+        name: PHASE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN UFBREGIONCODE = 'UF1' THEN 'UFB'
+                          WHEN UFBREGIONCODE = 'UF2' THEN 'UFB2'
+                          ELSE 'UFB'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eec473c5-a965-4ed8-a759-304d88b9160b
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: Fibre Product
+        name: FIBREPRODUCT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5d68ca5b-b215-430a-bca4-ae633b0b3534
+                stepCounter: 89e0b857-76b0-4f22-9636-9c68ea3e3d78
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 28ece00a-6597-4c2e-b483-7048a4b968d9
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: NUMERIC(10)
+        defaultValue: ""
+        description: Brand Code
+        name: BRANDCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 71bc8a0e-fa80-452c-ad34-22f7e2d7b788
+                stepCounter: 2b7f4d18-7b0f-4e3c-92b7-4a5bce5a2a58
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6ba849eb-0716-45dc-9f21-384560a80420
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: Access Brand Name
+        name: BRANDNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a96f7576-d3c8-464c-b0e8-b0b37b6ff50a
+                stepCounter: 2b7f4d18-7b0f-4e3c-92b7-4a5bce5a2a58
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2451f733-af1c-41a6-a48f-ee0859ef497c
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: ""
+        name: CUSTOMERTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 71b9fa6e-818e-48b2-b835-f92f8ecf2a4b
+                stepCounter: 89e0b857-76b0-4f22-9636-9c68ea3e3d78
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cfe72d88-58e5-44f7-8943-8b444ec11d71
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: BSS Order Reference
+        name: BSSORDERREFERENCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7dc43cf0-7fe5-489e-8ce5-8380ca15b16a
+                stepCounter: fee35391-7d91-4962-a79b-d8a533b7a38f
+            transform: --WHEN RELINQUISHED USE THE MODIFIED ORDER NUMBER    CASE       WHEN D_FIBREBSSORDER.RELINQUISHEDDATE IS NULL THEN D_FIBREBSSORDER.BSSORDERREFERENCE       WHEN ORDERDATE BETWEEN D_FIBREBSSORDER.ACTIVEDATE AND DATEADD(DAY, 1, D_FIBREBSSORDER.ACTIVEDATE) THEN D_FIBREBSSORDER.BSSORDERREFERENCE       WHEN ORDERDATE BETWEEN D_FIBREBSSORDER.RELINQUISHEDDATE AND DATEADD(DAY, 1, D_FIBREBSSORDER.RELINQUISHEDDATE) THEN D_FIBREBSSORDER.MODIFYORDERREFERENCE       WHEN FRR.BSSOFFERINSTANCEID IS NOT NULL AND     ORDERTYPECODE = 'SR' THEN D_FIBREBSSORDER.MODIFYORDERREFERENCE       WHEN EOMONTH(ORDERDATE) = D_FIBREBSSORDER.RELINQUISHEDDATE THEN D_FIBREBSSORDER.MODIFYORDERREFERENCE       ELSE D_FIBREBSSORDER.BSSORDERREFERENCE      END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 649e78be-8539-49b8-84c2-7f76f3030ee1
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: BSS Order Reference Orignal
+        name: BSSORDERREFERENCEORIGINAL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7dc43cf0-7fe5-489e-8ce5-8380ca15b16a
+                stepCounter: fee35391-7d91-4962-a79b-d8a533b7a38f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 857fef07-cd22-4ccc-88ce-150db5eb97e1
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Order Company
+        name: ORDERCOMPANY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 95d896a4-0e36-46f2-9338-1297168bab32
+                stepCounter: fee35391-7d91-4962-a79b-d8a533b7a38f
+            transform: MIN(D_FIBRESALESORDER.ORDERCOMPANY)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4db29de0-7c25-4b1a-9a5f-3141e484725e
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Order Number
+        name: ORDERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: dff071c2-4fc9-4366-bb30-328e35d47c00
+                stepCounter: fee35391-7d91-4962-a79b-d8a533b7a38f
+            transform: MIN(D_FIBRESALESORDER.ORDERNUMBER)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 103cdc3e-f9ab-49a2-9b13-85b0783242b6
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Order Type Code
+        name: ORDERTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d5a6b9b3-eb8a-49e4-ab08-302fd32c9a84
+                stepCounter: fee35391-7d91-4962-a79b-d8a533b7a38f
+            transform: MIN(D_FIBRESALESORDER.ORDERTYPECODE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4acae73e-ace1-4356-9cf8-c4c2d3ec617b
+          stepCounter: 0e0c042e-01fe-4676-ba93-34706c33a01a
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: Order Date
+        name: ORDERDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0022051a-ecd5-4e6c-8358-9d18518e109a
+                stepCounter: fee35391-7d91-4962-a79b-d8a533b7a38f
+            transform: MIN(D_FIBRESALESORDER.ORDERDATE)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_DATE: fe515f2f-fb3f-48b6-b43c-510e32deb334
+          D_FIBREBSSORDER: 39a2aead-f4c0-43ab-aa57-55c4d2f88ee3
+          D_FIBREDEBTOR: 1c668c1a-0591-4181-b39b-6e00236fb041
+          D_FIBREDELIVERYADDRESS: a645d6db-e41b-41d7-91f2-6682caf1370b
+          D_FIBREPRODUCT: 5f4c171a-0ea6-4866-8472-b28753517426
+          D_FIBREPRODUCTINSTANCE: b9c0a3b1-7501-453f-9870-3316281592ae
+          D_FIBRERETAILSERVICEPROVIDER: 2b7f4d18-7b0f-4e3c-92b7-4a5bce5a2a58
+          D_FIBRESALESORDER: fee35391-7d91-4962-a79b-d8a533b7a38f
+          D_FIBRESERVICE: 20c88fed-2bc2-41f3-bb28-ff3e0b8c879d
+          D_FIBRESERVICEINSTANCE: b8b1dda0-01f3-4b06-90b3-3c14be132da9
+          D_FIBRESERVICELOCATION: e1701298-f6f8-4522-a325-e9cd8ba1c8ab
+          D_INVENTORY: 3baf27a2-3fab-4b0d-a96e-30a2e7615705
+          D_LASTACTIVITYSTATUS: 10ed0c86-e131-49a7-94c4-2f0ff7ee1326
+          D_ORDERTYPE: 0889b065-fb82-458b-a05a-895bcb3211d9
+          F_FIBRESALESORDER: b63002e2-bc6c-403a-9fc1-0e7243a91f5f
+          I_FIBREACTIVERECURRING: e8adfa29-c145-496f-a60e-a715e84ee369
+          I_FIBRERELINQUISHEDRECURRING: d158b28a-6e69-4509-8baa-ef90ffa3fe06
+          I_GIS_FIBRESERVICEACTIVITY: 89e0b857-76b0-4f22-9636-9c68ea3e3d78
+          L_FOOT_NP_MASTER39_ANCILLARYITEM: 0a368f03-047f-433a-9fe3-ff35b82e494f
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: D_FIBREBSSORDER
+          - locationName: NP
+            nodeName: D_FIBREDEBTOR
+          - locationName: NP
+            nodeName: D_FIBREDELIVERYADDRESS
+          - locationName: NP
+            nodeName: D_FIBREPRODUCT
+          - locationName: NP
+            nodeName: D_FIBREPRODUCTINSTANCE
+          - locationName: NP
+            nodeName: D_FIBRERETAILSERVICEPROVIDER
+          - locationName: NP
+            nodeName: D_FIBRESALESORDER
+          - locationName: NP
+            nodeName: D_FIBRESERVICE
+          - locationName: NP
+            nodeName: D_FIBRESERVICEINSTANCE
+          - locationName: NP
+            nodeName: D_FIBRESERVICELOCATION
+          - locationName: NP
+            nodeName: D_INVENTORY
+          - locationName: NP
+            nodeName: D_LASTACTIVITYSTATUS
+          - locationName: NP
+            nodeName: D_ORDERTYPE
+          - locationName: NP
+            nodeName: F_FIBRESALESORDER
+          - locationName: NP
+            nodeName: I_FIBREACTIVERECURRING
+          - locationName: NP
+            nodeName: I_FIBRERELINQUISHEDRECURRING
+          - locationName: NP
+            nodeName: I_GIS_FIBRESERVICEACTIVITY
+          - locationName: NP
+            nodeName: L_FOOT_NP_MASTER39_ANCILLARYITEM
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_FIBREBSSORDER') }}
+              JOIN {{ ref('NP','D_FIBREDEBTOR') }}
+              JOIN {{ ref('NP','D_FIBREDELIVERYADDRESS') }}
+              JOIN {{ ref('NP','D_FIBREPRODUCT') }}
+              JOIN {{ ref('NP','D_FIBREPRODUCTINSTANCE') }}
+              JOIN {{ ref('NP','D_FIBRERETAILSERVICEPROVIDER') }}
+              JOIN {{ ref('NP','D_FIBRESALESORDER') }}
+              JOIN {{ ref('NP','D_FIBRESERVICE') }}
+              JOIN {{ ref('NP','D_FIBRESERVICEINSTANCE') }}
+              JOIN {{ ref('NP','D_FIBRESERVICELOCATION') }}
+              JOIN {{ ref('NP','D_INVENTORY') }}
+              JOIN {{ ref('NP','D_LASTACTIVITYSTATUS') }}
+              JOIN {{ ref('NP','D_ORDERTYPE') }}
+              JOIN {{ ref('NP','F_FIBRESALESORDER') }}
+              JOIN {{ ref('NP','I_FIBREACTIVERECURRING') }}
+              JOIN {{ ref('NP','I_FIBRERELINQUISHEDRECURRING') }}
+              JOIN {{ ref('NP','I_GIS_FIBRESERVICEACTIVITY') }}
+              JOIN {{ ref('NP','L_FOOT_NP_MASTER39_ANCILLARYITEM') }}
+        name: I_FIBREINSTANCE
+        noLinkRefs: []
+  name: I_FIBREINSTANCE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

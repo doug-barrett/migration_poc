@@ -1,0 +1,106 @@
+fileVersion: 1
+id: 82c7f5fd-6e39-4da9-8205-7e95e03e516d
+name: I_TOPNONCHARGEABLEPAIDHOURSTYPES
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Temporary solution to reduce the noise on visuals. This should be done dynamically in cube. Finds the top 11 Non_Chargeable types over the last 3 to 4 months."
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0372da8d-4c43-41ca-b977-6d2c9f5911ff
+          stepCounter: 82c7f5fd-6e39-4da9-8205-7e95e03e516d
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Groups the hours paid into Chargeable, Non-Chargeable and Leave
+        name: PAIDHOURSCATEGORY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a8704797-fb0c-4af5-b1f2-1f2fbf316471
+                stepCounter: 7d71235d-4395-4505-9c53-439b59c11f87
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 686fd7ed-4aaa-40a4-95a2-cd3c06dec163
+          stepCounter: 82c7f5fd-6e39-4da9-8205-7e95e03e516d
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: Chargeable time is set to 1, Leave is set to the item code that it's costed to in Finance1, Non-chargeable time is set to the dummy Job numbers that are set up in PayGlobal.
+        name: PAIDHOURSTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5fb1af0c-1c85-4c42-848d-655791f66c50
+                stepCounter: 7d71235d-4395-4505-9c53-439b59c11f87
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b638d027-d527-47de-b2d1-0065f4c7ed9e
+          stepCounter: 82c7f5fd-6e39-4da9-8205-7e95e03e516d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Ranks the Paid Hours Type by the most used to least used over the last 3 to 4 months
+        name: ROWORDER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9e33d70b-62a0-4608-a930-2fda86e6a67a
+                stepCounter: 76286e7e-543e-4b75-90b2-908b7cf43663
+            transform: ROW_NUMBER() OVER (PARTITION BY PAIDHOURSCATEGORY ORDER BY SUM(PRODUCTIVITYNONCHARGEDHOURS) DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: af4f44e3-f345-4316-860b-b411ff8333bc
+          stepCounter: 82c7f5fd-6e39-4da9-8205-7e95e03e516d
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: Paid hours that have not been charged to a job (either in the fault, project or vehicle ledger). This includes leave and other non-chargeable time.
+        name: NONCHARGEDHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9e33d70b-62a0-4608-a930-2fda86e6a67a
+                stepCounter: 76286e7e-543e-4b75-90b2-908b7cf43663
+            transform: SUM(F_PRODUCTIVITY.PRODUCTIVITYNONCHARGEDHOURS)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_DATE: fe515f2f-fb3f-48b6-b43c-510e32deb334
+          D_PAIDHOURSTYPE: 7d71235d-4395-4505-9c53-439b59c11f87
+          F_PRODUCTIVITY: 76286e7e-543e-4b75-90b2-908b7cf43663
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: D_PAIDHOURSTYPE
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: F_PRODUCTIVITY
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_PAIDHOURSTYPE') }}
+              JOIN {{ ref('NP','F_PRODUCTIVITY') }}
+        name: I_TOPNONCHARGEABLEPAIDHOURSTYPES
+        noLinkRefs: []
+  name: I_TOPNONCHARGEABLEPAIDHOURSTYPES
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

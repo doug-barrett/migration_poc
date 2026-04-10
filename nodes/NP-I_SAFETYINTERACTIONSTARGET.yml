@@ -1,0 +1,186 @@
+fileVersion: 1
+id: a30cc512-9e90-44be-be4d-98361bbc2406
+name: I_SAFETYINTERACTIONSTARGET
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Do mapping to join with conformed dimensions. Note all K2 fields are text fields, there is no mapping tables available.  Load all interaction records for the last 5 months excluding records marked as deleted"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ba99e54d-885f-44ee-81ff-79309e08d7a4
+          stepCounter: a30cc512-9e90-44be-be4d-98361bbc2406
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Four digit employee number
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: afbe6377-88cf-41eb-b2de-56606f379e73
+                stepCounter: af4a2eff-247d-4e9e-b6d6-0d13dfead713
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dfd2baa1-8967-4bcc-a09d-a1346568b5f1
+          stepCounter: a30cc512-9e90-44be-be4d-98361bbc2406
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Unique identifier for the Business Unit. This is the field recorded against every posted GL ledger transaction.
+        name: BUSINESSUNITCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: adecf47e-c959-4eb1-98bd-e3cb14a164f8
+                stepCounter: e52a3e99-af98-4bd6-9cc9-e643adb07c68
+            transform: MIN(CASE -- IF THE TABLE DOES NOT SPECIFY A COST CENTRE, USE THE EMPLOYEE'S BUSINESS UNIT   WHEN L_SHP_LSINOMINEE.COSTCENTRE IS NULL THEN D_EMPLOYEE.BUSINESSUNITCODE     -- NETWORK AND CORPORATE BUSINESS UNITS ARE THE SAME AS THE COST CENTRE  WHEN LEFT(L_SHP_LSINOMINEE.COSTCENTRE,1) IN ('A','B') THEN L_SHP_LSINOMINEE.COSTCENTRE     -- CONTRACTING BUSINESS UNITS ARE 6 DIGITS, STARTING WITH THE COST CENTRE CODE, SO WE WILL ASSIGN THIS DATA TO ONE   ELSE L_SHP_LSINOMINEE.COSTCENTRE + '905'  END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4f649b43-b454-4fcd-88df-3dc09b858113
+          stepCounter: a30cc512-9e90-44be-be4d-98361bbc2406
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: Target date
+        name: CALENDARDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c345fd42-c2c9-458e-b6cd-165764572024
+                stepCounter: fe515f2f-fb3f-48b6-b43c-510e32deb334
+            transform: EOMONTH(CALENDARDATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bb8b2f4a-72dc-4c14-8b48-2f9a4f0f74ac
+          stepCounter: a30cc512-9e90-44be-be4d-98361bbc2406
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: A separate number is assigned to each period used in the ODS to be used as the business key. A period is a financial month.
+        name: PERIODNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a80e7328-b2cf-4029-975f-9bc38cfc2c94
+                stepCounter: fe515f2f-fb3f-48b6-b43c-510e32deb334
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 593134e7-4211-45b7-ade0-b66202c3014e
+          stepCounter: a30cc512-9e90-44be-be4d-98361bbc2406
+        config: {}
+        dataType: NVARCHAR(2000)
+        defaultValue: ""
+        description: User name of type Text
+        name: USER_NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 22a37f6c-f5da-47cd-9243-766513c68b70
+                stepCounter: af4a2eff-247d-4e9e-b6d6-0d13dfead713
+            transform: MIN(D_EMPLOYEE.COMPUTERLOGIN)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d5a06b2e-53ec-42dd-91f5-459a2e2ce321
+          stepCounter: a30cc512-9e90-44be-be4d-98361bbc2406
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Number of Observations the ELT member is expected to perform per month.
+        name: TARGET
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b176c67a-d195-4433-97d8-6d3906dc445f
+                stepCounter: e52a3e99-af98-4bd6-9cc9-e643adb07c68
+            transform: SUM(CONVERT(INTEGER,L_SHP_LSINOMINEE.TARGET))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a35758ca-5542-4246-aa41-347b0f802da6
+          stepCounter: a30cc512-9e90-44be-be4d-98361bbc2406
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: InterationType of type Choice
+        name: INTERATIONTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: edc5d46d-4898-4ae6-bcfb-417ced833eff
+                stepCounter: e52a3e99-af98-4bd6-9cc9-e643adb07c68
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e3e2e5cf-326a-4250-ad25-814a44376b55
+          stepCounter: a30cc512-9e90-44be-be4d-98361bbc2406
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: baf78eff-2cbe-47a6-9896-d4412d68f279
+          stepCounter: a30cc512-9e90-44be-be4d-98361bbc2406
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_EMPLOYEE: af4a2eff-247d-4e9e-b6d6-0d13dfead713
+          D_DATE: fe515f2f-fb3f-48b6-b43c-510e32deb334
+          L_SHP_LSINOMINEE: e52a3e99-af98-4bd6-9cc9-e643adb07c68
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: D_EMPLOYEE
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: L_SHP_LSINOMINEE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_EMPLOYEE') }} D_EMPLOYEE
+             INNER JOIN {{ ref('NP','D_DATE') }} D_DATE
+                ON CALENDARDATE = CONVERT(DATE,GETDATE())
+             INNER JOIN {{ ref('NP','L_SHP_LSINOMINEE') }} L_SHP_LSINOMINEE
+                ON USERPRINCIPALNAME = NOMINEE
+             WHERE D_EMPLOYEE.TERMINATED = 0
+               AND ISDELETED = 'FALSE'
+             GROUP BY D_EMPLOYEE.EMPLOYEECODE,
+                      EOMONTH(CALENDARDATE),
+                      D_DATE.PERIODNUMBER,
+                      L_SHP_LSINOMINEE.INTERATIONTYPE
+        name: I_SAFETYINTERACTIONSTARGET
+        noLinkRefs: []
+  name: I_SAFETYINTERACTIONSTARGET
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

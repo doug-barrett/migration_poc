@@ -1,0 +1,263 @@
+fileVersion: 1
+id: bca0b5ca-61ff-46e1-bf16-ad19e9ae49ec
+name: I_STMATTENDANCE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "One record per current employee to use as a starting point. Linked to the STM attendance records."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 256bb0f3-61ad-4ba2-b96c-7775f4100147
+          stepCounter: bca0b5ca-61ff-46e1-bf16-ad19e9ae49ec
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: 4 digit employee number
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f520898f-fde7-431d-b1af-d168d194e03f
+                stepCounter: 97681867-a60e-4013-b094-37bd6f76d995
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8f71c47c-aba2-4387-8e7c-c064bab1fd23
+          stepCounter: bca0b5ca-61ff-46e1-bf16-ad19e9ae49ec
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: Unique identifier for the Business Unit. This is the field recorded against every posted GL ledger transaction.
+        name: BUSINESSUNITCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 59b079d8-e69f-47a6-824c-934560dec85d
+                stepCounter: 97681867-a60e-4013-b094-37bd6f76d995
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9ebe0fc2-e7ef-43c4-8745-24f77a436eb5
+          stepCounter: bca0b5ca-61ff-46e1-bf16-ad19e9ae49ec
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ID of type Counter
+        name: MEETINGID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b9c51905-1ba1-4138-b8c9-fa7e9dcbd275
+                stepCounter: b88be02c-a24c-4132-aa95-34b2198ddaf7
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a653990c-239e-40e8-8800-2bef16776d19
+          stepCounter: bca0b5ca-61ff-46e1-bf16-ad19e9ae49ec
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: The Sharepoint List that the record came from
+        name: SOURCETABLE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2d944a40-80f5-4ede-8dd1-ece152f39cb8
+                stepCounter: b88be02c-a24c-4132-aa95-34b2198ddaf7
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 42351eed-63d4-47f2-a67a-6669cdfdcb19
+          stepCounter: bca0b5ca-61ff-46e1-bf16-ad19e9ae49ec
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date of STM of type DateTime
+        name: DATEOFSAFETEAMMEETING
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f1b99bf2-ccba-4d54-986b-740bc573d462
+                stepCounter: b88be02c-a24c-4132-aa95-34b2198ddaf7
+            transform: --IF THE EMPLOYEE HAS NOT ATTENDED A MEETING, HOOK THE TAREGT RECORD  -- TO THE LAST DAY OF THE MONTH  ISNULL(I_STMATTENDANCEMAPPED.DATEOFSAFETEAMMEETING  , EOMONTH(CONVERT(DATE,'1 ' + MONTHNAMEYEAR)))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 28465260-db78-4092-aec3-86aa56e6ac28
+          stepCounter: bca0b5ca-61ff-46e1-bf16-ad19e9ae49ec
+        config: {}
+        dataType: VARCHAR(2000)
+        defaultValue: ""
+        description: Title of type Computed
+        name: TITLE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 084d1d6c-06e7-4d45-888c-8c9b05d8f7ce
+                stepCounter: b88be02c-a24c-4132-aa95-34b2198ddaf7
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 65019ab4-a250-4f56-893d-95b89fd86baa
+          stepCounter: bca0b5ca-61ff-46e1-bf16-ad19e9ae49ec
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: A separate number is assigned to each period used in the ODS to be used as the business key. A period is a financial month.
+        name: PERIODNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 97c4c9d1-1e75-4a24-9f76-dce6df96a9e6
+                stepCounter: 0bebf0ab-2077-4acc-8200-0c4419698f26
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c11557d7-821c-487f-9793-6a9db89e24ff
+          stepCounter: bca0b5ca-61ff-46e1-bf16-ad19e9ae49ec
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Running count of Unique meetings so we can identify employees who have attended multiple STMs per month.
+        name: MEETINGORDER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b9c51905-1ba1-4138-b8c9-fa7e9dcbd275
+                stepCounter: b88be02c-a24c-4132-aa95-34b2198ddaf7
+            transform: ROW_NUMBER() OVER (PARTITION BY I_PG_EMPLOYEE.EMPLOYEECODE, PERIODNUMBER ORDER BY DATEOFSAFETEAMMEETING)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d48c1e42-2e0a-4351-a01a-7a1bc99bfdf3
+          stepCounter: bca0b5ca-61ff-46e1-bf16-ad19e9ae49ec
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Count if an employee attended at least one meeting per month. Do not count more than one otherwise we can't compare against target at a cost centre level.
+        name: MONTHLYEMPLOYEEATTENDANCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CASE --WHEN ITS THE FIRST RECORD FOR THE EMPLOYEE   -- DON'T COUNT EXTRAS IF THE EMPLOYEE ATTENDED MULTIPLE MEETINGS IN THE MONTH     WHEN ROW_NUMBER() OVER (PARTITION BY I_PG_EMPLOYEE.EMPLOYEECODE, PERIODNUMBER ORDER BY DATEOFSAFETEAMMEETING) = 1   AND   -- ONLY COUNT EMPLOYEES IF THEY HAVE ATTENDED A MEETING THAT MONTH.   MEETINGID IS NOT NULL  THEN 1  ELSE 0 END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0d07a466-f02b-46fc-926f-a240f2c747e7
+          stepCounter: bca0b5ca-61ff-46e1-bf16-ad19e9ae49ec
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Count of employees that have not attended a Safe Team Meeting in the month.
+        name: NONATTENDANCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN MEETINGID IS NULL THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0a0b2687-23ee-4012-ac07-e0848ae4739c
+          stepCounter: bca0b5ca-61ff-46e1-bf16-ad19e9ae49ec
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Hard code to one meeting per employee per month only counting current employees as at the end of the month.
+        name: TARGETATTENDANCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CASE --WHEN ITS THE FIRST RECORD FOR THE EMPLOYEE   -- DON'T COUNT EXTRAS IF THE EMPLOYEE ATTENDED MULTIPLE MEETINGS IN THE MONTH   WHEN ROW_NUMBER() OVER (PARTITION BY I_PG_EMPLOYEE.EMPLOYEECODE, PERIODNUMBER ORDER BY DATEOFSAFETEAMMEETING) = 1  THEN 1  ELSE 0 END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: feb204e7-c25f-43b2-a67b-4a7b84e580bb
+          stepCounter: bca0b5ca-61ff-46e1-bf16-ad19e9ae49ec
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Number of employees who have attended a Safe Team Meeting
+        name: ATTENDEECOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b9c51905-1ba1-4138-b8c9-fa7e9dcbd275
+                stepCounter: b88be02c-a24c-4132-aa95-34b2198ddaf7
+            transform: |-
+              CASE WHEN MEETINGID IS NOT NULL THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 92a82040-5168-4245-b7e9-23ac0131179f
+          stepCounter: bca0b5ca-61ff-46e1-bf16-ad19e9ae49ec
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e60d4462-ea97-41c1-9527-02534365c45a
+          stepCounter: bca0b5ca-61ff-46e1-bf16-ad19e9ae49ec
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_DATE: fe515f2f-fb3f-48b6-b43c-510e32deb334
+          D_EMPLOYEE: af4a2eff-247d-4e9e-b6d6-0d13dfead713
+          D_PERIOD: 0bebf0ab-2077-4acc-8200-0c4419698f26
+          I_PG_EMPLOYEE: 97681867-a60e-4013-b094-37bd6f76d995
+          I_STMATTENDANCE: bca0b5ca-61ff-46e1-bf16-ad19e9ae49ec
+          I_STMATTENDANCEMAPPED: b88be02c-a24c-4132-aa95-34b2198ddaf7
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_PG_EMPLOYEE
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: D_EMPLOYEE
+          - locationName: NP
+            nodeName: D_PERIOD
+          - locationName: NP
+            nodeName: I_STMATTENDANCEMAPPED
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_EMPLOYEE') }}
+              JOIN {{ ref('NP','D_PERIOD') }}
+              JOIN {{ ref('NP','I_PG_EMPLOYEE') }}
+              JOIN {{ ref_no_link('NP','I_STMATTENDANCE') }}
+              JOIN {{ ref('NP','I_STMATTENDANCEMAPPED') }}
+        name: I_STMATTENDANCE
+        noLinkRefs: []
+  name: I_STMATTENDANCE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

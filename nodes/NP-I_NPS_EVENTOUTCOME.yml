@@ -1,0 +1,145 @@
+fileVersion: 1
+id: 0f87c879-0984-47d8-a8f6-fdfd87491454
+name: I_NPS_EVENTOUTCOME
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Creates multiple records depending on the number of outcomes indicated against each event"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9c3b1adc-e1f7-4af9-9f8d-ffe3c8a6cf8d
+          stepCounter: 0f87c879-0984-47d8-a8f6-fdfd87491454
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: ""
+        name: ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a2c80159-a8c5-4784-a8a2-7d6819c9de80
+                stepCounter: cbe8b4fa-82ab-465a-b671-c55fe467b3b6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cb81fead-5c37-438a-b2ca-c60c6f4f8fcb
+          stepCounter: 0f87c879-0984-47d8-a8f6-fdfd87491454
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: ODSSOURCESYSTEMNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 07b508d1-4610-490d-b4b6-bca979ab257b
+                stepCounter: cbe8b4fa-82ab-465a-b671-c55fe467b3b6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 684e1ab8-e86e-4e53-923c-e92e844f3fe4
+          stepCounter: 0f87c879-0984-47d8-a8f6-fdfd87491454
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: ""
+        name: EVENTOUTCOME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 86a3c537-472b-4830-ba51-c137254356e9
+                stepCounter: cbe8b4fa-82ab-465a-b671-c55fe467b3b6
+            transform: VALUE
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 07f23da4-cd61-4b3e-a3c6-e7bb46adab55
+          stepCounter: 0f87c879-0984-47d8-a8f6-fdfd87491454
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Count of the number of events times the number of outcomes. This will not be used as a measure. Need a distinct count on the Event Key.
+        name: EVENTOUTCOMECOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '1'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0f807c1c-ce8a-4e80-bf38-27548d820429
+          stepCounter: 0f87c879-0984-47d8-a8f6-fdfd87491454
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Outcome Order of Priorty as supplied by the HSQE team
+        name: OUTCOMEPRIORITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9fa1dd94-e284-4eb1-87c9-84148b7ed9cf
+                stepCounter: 1b5d0758-05e3-49da-b40e-598c4d18f361
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b2eb3387-1614-47a6-80d6-bc46227c890c
+          stepCounter: 0f87c879-0984-47d8-a8f6-fdfd87491454
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Prioritised as per order provided by HSQE team
+        name: ROWORDER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9fa1dd94-e284-4eb1-87c9-84148b7ed9cf
+                stepCounter: 1b5d0758-05e3-49da-b40e-598c4d18f361
+            transform: ROW_NUMBER() OVER (PARTITION BY ID ORDER BY OUTCOMEPRIORITY)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1930a006-ded1-4652-aa9e-9fd628a410a8
+          stepCounter: 0f87c879-0984-47d8-a8f6-fdfd87491454
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          L_NPS_NPSELOCCURRENCEVIEW: cbe8b4fa-82ab-465a-b671-c55fe467b3b6
+          I_NPS_OUTCOME: 1b5d0758-05e3-49da-b40e-598c4d18f361
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_NPS_NPSELOCCURRENCEVIEW
+          - locationName: NP
+            nodeName: I_NPS_OUTCOME
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','L_NPS_NPSELOCCURRENCEVIEW') }} L_NPS_NPSELOCCURRENCEVIEW CROSS APPLY STRING_SPLIT(EVENTOUTCOME, ',')
+              LEFT OUTER JOIN {{ ref('NP','I_NPS_OUTCOME') }} I_NPS_OUTCOME
+                ON VALUE = I_NPS_OUTCOME.OUTCOME
+        name: I_NPS_EVENTOUTCOME
+        noLinkRefs: []
+  name: I_NPS_EVENTOUTCOME
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

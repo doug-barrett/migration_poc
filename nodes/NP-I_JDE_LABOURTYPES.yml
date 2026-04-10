@@ -1,0 +1,164 @@
+fileVersion: 1
+id: 04395402-b695-4983-8d2b-966ac1cb0ce2
+name: I_JDE_LABOURTYPES
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Combines the fields we want from the Business Unit Master with the appropriate look up fields"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0c632ce4-b279-4a72-a7f6-ff87f3b7674a
+          stepCounter: 04395402-b695-4983-8d2b-966ac1cb0ce2
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: Unique identifier for the Business Unit. This is the field that maps to the job functions from PayGlobal and the work types used for labour recoveries.
+        name: LABOURTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b35d4309-fbba-44a9-972d-41901c33bddd
+                stepCounter: 6719c0e9-e7d9-4689-bb92-84b50a867bae
+            transform: LTRIM(RTRIM(L_JDE_F0006_BUSINESSUNITMASTER.MCMCU))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2c7058ee-5183-46c1-8910-01e1378820ea
+          stepCounter: 04395402-b695-4983-8d2b-966ac1cb0ce2
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: The description for the labour type
+        name: LABOURTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f3be252e-9e20-489e-848f-b59f6810fd56
+                stepCounter: 6719c0e9-e7d9-4689-bb92-84b50a867bae
+            transform: LTRIM(RTRIM(L_JDE_F0006_BUSINESSUNITMASTER.MCDL01))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b1f73dc4-58cc-460a-82bc-2f65d218bb6a
+          stepCounter: 04395402-b695-4983-8d2b-966ac1cb0ce2
+        config: {}
+        dataType: VARCHAR(60)
+        defaultValue: ""
+        description: The code plus the long description for the labour type.
+        name: LABOURTYPECODEANDDESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f3be252e-9e20-489e-848f-b59f6810fd56
+                stepCounter: 6719c0e9-e7d9-4689-bb92-84b50a867bae
+            transform: LTRIM(RTRIM(L_JDE_F0006_BUSINESSUNITMASTER.MCMCU)) + '. ' + LTRIM(RTRIM(L_JDE_F0006_BUSINESSUNITMASTER.MCDL01))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 81203b60-acd4-4071-8a99-7edaec33d166
+          stepCounter: 04395402-b695-4983-8d2b-966ac1cb0ce2
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: A seperate business unit needs to be created for each combination of job function and overtime factor. This field seperates off the overtime factor only.
+        name: OVERTIMEFACTOR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ff147d45-a4e5-4c36-a5d4-a346c945a22f
+                stepCounter: 6719c0e9-e7d9-4689-bb92-84b50a867bae
+            transform: --NOW GETTING THIS FROM CAT CODE 32 ON BU  --CASE  -- WHEN L_JDE_F0006_BUSINESSUNITMASTER.MCMCU NOT LIKE '%-T%'  --  AND LEN(LTRIM(RTRIM(L_JDE_F0006_BUSINESSUNITMASTER.MCMCU))) = 2  -- THEN 1  -- WHEN L_JDE_F0006_BUSINESSUNITMASTER.MCMCU LIKE '%-T15%'  -- THEN 2  -- WHEN L_JDE_F0006_BUSINESSUNITMASTER.MCMCU LIKE '%-T2%'  -- THEN 3  --ELSE 0 END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 43a30fda-4e72-4865-849d-46031e2d8546
+          stepCounter: 04395402-b695-4983-8d2b-966ac1cb0ce2
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: Groups all the labour types by the associated Job Function
+        name: JOBFUNCTIONCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: --USING THE DISPATCHGROUP FROM WORK CENTER SETUP  --LEFT(LTRIM(RTRIM(L_JDE_F0006_BUSINESSUNITMASTER.MCMCU)),2)  ISNULL(WORKCENTREMASTER.DISPATCHGROUP, LEFT(LTRIM(RTRIM(L_JDE_F0006_BUSINESSUNITMASTER.MCMCU)), 2))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9d9298d3-780c-4749-ba89-db7be6c8a956
+          stepCounter: 04395402-b695-4983-8d2b-966ac1cb0ce2
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: The default record for each job function will be flagged and used in the where clause or the Job Function dimension.
+        name: USEFORDIMENSION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b35d4309-fbba-44a9-972d-41901c33bddd
+                stepCounter: 6719c0e9-e7d9-4689-bb92-84b50a867bae
+            transform: |-
+              CASE WHEN LEN(LTRIM(RTRIM(L_JDE_F0006_BUSINESSUNITMASTER.MCMCU))) = 2 THEN 'Y'
+                          ELSE 'N'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 90f59fa2-169c-40b0-8409-43932085fa06
+          stepCounter: 04395402-b695-4983-8d2b-966ac1cb0ce2
+        config: {}
+        dataType: NCHAR(10)
+        defaultValue: ""
+        description: Hourly conversion rate from hours, part-days, days or km to hours  Category Code - Business Unit 33
+        name: HOURLYCONVERSION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c19ad3a8-bfc8-46af-b765-8a90848add91
+                stepCounter: 6719c0e9-e7d9-4689-bb92-84b50a867bae
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ddbdb6bd-f158-4b18-9e74-e50ab38a3664
+          stepCounter: 04395402-b695-4983-8d2b-966ac1cb0ce2
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_JDE_WORKCENTREMASTERFILE: c2d86d8b-541d-40fc-99b0-8f607f37847f
+          L_JDE_F0006_BUSINESSUNITMASTER: 6719c0e9-e7d9-4689-bb92-84b50a867bae
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_JDE_F0006_BUSINESSUNITMASTER
+          - locationName: NP
+            nodeName: I_JDE_WORKCENTREMASTERFILE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_JDE_WORKCENTREMASTERFILE') }}
+              JOIN {{ ref('NP','L_JDE_F0006_BUSINESSUNITMASTER') }}
+        name: I_JDE_LABOURTYPES
+        noLinkRefs: []
+  name: I_JDE_LABOURTYPES
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

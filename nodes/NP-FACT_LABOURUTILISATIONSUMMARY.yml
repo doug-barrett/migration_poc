@@ -1,0 +1,269 @@
+fileVersion: 1
+id: 6faa8852-af83-4ec9-8404-18047f741a0a
+name: FACT_LABOURUTILISATIONSUMMARY
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Subset of Payroll transactions relating to hours paid and restricted to field staff. This table should more correctly be named Labour Recoveries. - Reduced granularity for summary."
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7fabba2b-7cc2-4474-829d-a044a1ab6e87
+          stepCounter: 6faa8852-af83-4ec9-8404-18047f741a0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_Productivity.WorkDate=D_Date.CalendarDate
+        name: D_DATE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 82af0c18-7191-4960-811c-e75796873b75
+                stepCounter: 76286e7e-543e-4b75-90b2-908b7cf43663
+            transform: |-
+              CASE WHEN D_DATE_KEY = 0 THEN 0
+                          ELSE CONVERT(INTEGER, CONVERT(VARCHAR(8), EOMONTH(CONVERT(DATE, CONVERT(VARCHAR(24), D_DATE_KEY), 112)), 112))
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 674f4e9a-6d11-4e84-9f7f-7619992000bc
+          stepCounter: 6faa8852-af83-4ec9-8404-18047f741a0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_PayrollTransactions.BusinessUnitCode=D_BusinessUnit.BusinessUnitCode
+        name: D_BUSINESSUNIT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6ace3047-ad29-4ab0-b84e-1ff423ad228b
+                stepCounter: 76286e7e-543e-4b75-90b2-908b7cf43663
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5444f059-b121-4d1f-a49b-6990e976a5b4
+          stepCounter: 6faa8852-af83-4ec9-8404-18047f741a0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_PayrollTransactions.ObjectAccount=D_ObjectAccount.ObjectAccountCode
+        name: D_OBJECTACCOUNT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3e1d507f-a645-42d0-9e1f-8d2e622318a6
+                stepCounter: 76286e7e-543e-4b75-90b2-908b7cf43663
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9535d302-a34a-4c49-b933-45e27053ee7a
+          stepCounter: 6faa8852-af83-4ec9-8404-18047f741a0a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_Productivity.OvertimeFactor=D_OvertimeFactor.OvertimeFactorRate
+        name: D_OVERTIMEFACTOR_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9e2d1ae2-d9d8-4112-905e-d77b0cc32b5a
+                stepCounter: 76286e7e-543e-4b75-90b2-908b7cf43663
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b4f2bc60-d980-4fdd-9a0f-65f4a90f43e5
+          stepCounter: 6faa8852-af83-4ec9-8404-18047f741a0a
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: Total Paid Hours
+        name: PAID_HOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4376a427-2e42-4692-9e43-8f16b5cf45f1
+                stepCounter: 76286e7e-543e-4b75-90b2-908b7cf43663
+            transform: SUM(F_PRODUCTIVITY.PRODUCTIVITYPAIDHOURS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ae2e8626-4a79-47ab-a84f-70d3b714cafa
+          stepCounter: 6faa8852-af83-4ec9-8404-18047f741a0a
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: Total Paid Hours Excluding Overtime. This should equate to the employee's profiled hours, but may differ for those on shift work and casual contracts.
+        name: PAID_ORDINARY_HOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5f72b8f7-6177-4d67-af85-847d7cde3e64
+                stepCounter: 76286e7e-543e-4b75-90b2-908b7cf43663
+            transform: SUM(F_PRODUCTIVITY.PRODUCTIVITYPAIDORDINARYHOURS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6f328ef3-dbdb-43ac-9ab9-aeecc52d4b93
+          stepCounter: 6faa8852-af83-4ec9-8404-18047f741a0a
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: Productive hours that have been charged to a job (either in the fault, project or vehicle ledger).
+        name: CHARGED_HOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 44c59417-5a1c-451a-9f01-cb84b8feff4d
+                stepCounter: 76286e7e-543e-4b75-90b2-908b7cf43663
+            transform: SUM(F_PRODUCTIVITY.PRODUCTIVITYCHARGEDHOURS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d921cc6d-9603-42e4-b957-da231c86a086
+          stepCounter: 6faa8852-af83-4ec9-8404-18047f741a0a
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: Paid hours that have not been charged to a job (either in the fault, project or vehicle ledger). This includes leave and other non-chargeable time.
+        name: NON_CHARGED_HOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9e33d70b-62a0-4608-a930-2fda86e6a67a
+                stepCounter: 76286e7e-543e-4b75-90b2-908b7cf43663
+            transform: SUM(F_PRODUCTIVITY.PRODUCTIVITYNONCHARGEDHOURS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ad771871-ee7e-467e-83e2-e9541eaa1677
+          stepCounter: 6faa8852-af83-4ec9-8404-18047f741a0a
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: 'All hours except unproductive hours of the following types:  Annual Leave  Sick Leave  Other Leave  Statutory Holiday'
+        name: AVAILABLE_HOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3ba97ef0-57ef-4678-b5b1-5a2b68dc8c4e
+                stepCounter: 76286e7e-543e-4b75-90b2-908b7cf43663
+            transform: SUM(F_PRODUCTIVITY.PRODUCTIVITYAVAILABLEHOURS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a324d596-6dbd-456e-9336-8a563ee04577
+          stepCounter: 6faa8852-af83-4ec9-8404-18047f741a0a
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: 'All Normal hours except leave of the following types:  Annual Leave  Sick Leave  Other Leave  Statutory Holiday'
+        name: AVAILABLE_ORDINARY_HOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6d76a12c-35ed-4cae-8290-32ccc65ee80d
+                stepCounter: 76286e7e-543e-4b75-90b2-908b7cf43663
+            transform: SUM(F_PRODUCTIVITY.PRODUCTIVITYAVAILABLEORDINARYHOURS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 14cca5e6-ba52-435f-bf16-8118524f54c1
+          stepCounter: 6faa8852-af83-4ec9-8404-18047f741a0a
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: All hours that are not paid at normal time rates.
+        name: OVERTIME_HOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 65a873b3-b79e-48ad-b89c-bc2e327b5918
+                stepCounter: 76286e7e-543e-4b75-90b2-908b7cf43663
+            transform: SUM(F_PRODUCTIVITY.PRODUCTIVITYOVERTIMEHOURS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fc430066-0dc9-4d94-ba30-1e0bb6d4ff16
+          stepCounter: 6faa8852-af83-4ec9-8404-18047f741a0a
+        config: {}
+        dataType: NUMERIC(11,2)
+        defaultValue: ""
+        description: The recoverd amount costed to the job by the labour costing interface to Finance1
+        name: RECOVERED_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9c99b0ce-d71f-4a41-84fa-9c8a5e3bef57
+                stepCounter: 76286e7e-543e-4b75-90b2-908b7cf43663
+            transform: SUM(F_PRODUCTIVITY.PRODUCTIVITYRECOVEREDLOCALCURRENCYAMOUNT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a1b42525-e877-4ddd-b569-4323ebc99636
+          stepCounter: 6faa8852-af83-4ec9-8404-18047f741a0a
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: Work related hours for employees (both paid and unpaid) during which work related injuries or illnesses would be considered recordable.
+        name: EXPOSURE_HOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6ee5206f-de17-4077-ba93-8ddc1cebb121
+                stepCounter: 76286e7e-543e-4b75-90b2-908b7cf43663
+            transform: SUM(F_PRODUCTIVITY.PRODUCTIVITYEXPOSUREHOURS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8eee78ad-a3eb-4640-8f63-0f5bb5bd8d98
+          stepCounter: 6faa8852-af83-4ec9-8404-18047f741a0a
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: The number of unpaid leave hours
+        name: UNPAID_LEAVE_HOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b0ac8509-8779-4c8f-be46-2574af628d50
+                stepCounter: 76286e7e-543e-4b75-90b2-908b7cf43663
+            transform: SUM(F_PRODUCTIVITY.PRODUCTIVITYUNPAIDLEAVEHOURS)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_BUSINESSUNIT: 90a265b9-7c25-4e08-8dc3-9f6ac60dc7df
+          D_DATE: fe515f2f-fb3f-48b6-b43c-510e32deb334
+          D_OBJECTACCOUNT: 387f5a71-db15-48e9-badf-5661b5152b3a
+          D_OVERTIMEFACTOR: e440e40e-b895-4eef-a6df-47667bc2519b
+          D_PERIOD: 0bebf0ab-2077-4acc-8200-0c4419698f26
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: F_PRODUCTIVITY
+          - locationName: NP
+            nodeName: D_BUSINESSUNIT
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: D_OBJECTACCOUNT
+          - locationName: NP
+            nodeName: D_OVERTIMEFACTOR
+          - locationName: NP
+            nodeName: D_PERIOD
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_BUSINESSUNIT') }}
+              JOIN {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_OBJECTACCOUNT') }}
+              JOIN {{ ref('NP','D_OVERTIMEFACTOR') }}
+              JOIN {{ ref('NP','D_PERIOD') }}
+        name: FACT_LABOURUTILISATIONSUMMARY
+        noLinkRefs: []
+  name: FACT_LABOURUTILISATIONSUMMARY
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

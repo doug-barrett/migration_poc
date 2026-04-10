@@ -1,0 +1,148 @@
+fileVersion: 1
+id: 7d71235d-4395-4505-9c53-439b59c11f87
+name: D_PAIDHOURSTYPE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "List of the different types of hours that can be paid to a waged worker. e.g. Chargeable, Non chargeable or Leave."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 10fe354d-1c62-41fe-bc4b-91b506bddd75
+          stepCounter: 7d71235d-4395-4505-9c53-439b59c11f87
+        config: {}
+        dataType: INTEGER IDENTITY(0,1)
+        defaultValue: ""
+        description: Generated artificial key
+        isSurrogateKey: true
+        name: D_PAIDHOURSTYPE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5fb1af0c-1c85-4c42-848d-655791f66c50
+          stepCounter: 7d71235d-4395-4505-9c53-439b59c11f87
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: Chargeable time is set to 1, Leave is set to the item code that it's costed to in Finance1, Non-chargeable time is set to the dummy Job numbers that are set up in PayGlobal.
+        isBusinessKey: true
+        name: PAIDHOURSTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0d9de9d0-5143-403e-a0b7-544358d90686
+                stepCounter: a36c0328-30a8-44b0-9c30-31c336c42134
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cb591dda-6564-4e0b-a51c-cb773ffafe0a
+          stepCounter: 7d71235d-4395-4505-9c53-439b59c11f87
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Breakdown of the Non-chargeable or Leave e.g. Training, Admin, Cleaning for non-chargeable and Sick, Annual for leave.
+        name: PAIDHOURSTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0d00d288-4921-4917-b793-0918c9177783
+                stepCounter: a36c0328-30a8-44b0-9c30-31c336c42134
+            transform: ISNULL(I_PAIDHOURSTYPE.PAIDHOURSTYPE,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a8704797-fb0c-4af5-b1f2-1f2fbf316471
+          stepCounter: 7d71235d-4395-4505-9c53-439b59c11f87
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Groups the hours paid into Chargeable, Non-Chargeable and Leave
+        name: PAIDHOURSCATEGORY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6b63c27d-cd1b-465d-b6ac-67d68a9aa908
+                stepCounter: a36c0328-30a8-44b0-9c30-31c336c42134
+            transform: ISNULL(I_PAIDHOURSTYPE.PAIDHOURSCATEGORY,0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b65c47b5-8a29-4ae0-8ad8-b5603e076012
+          stepCounter: 7d71235d-4395-4505-9c53-439b59c11f87
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Lists the top non-chargeable items and then groups the rest into "Other" to remove some noise from visuals.
+        name: TOPPAIDHOURSTYPES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b638d027-d527-47de-b2d1-0065f4c7ed9e
+                stepCounter: 82c7f5fd-6e39-4da9-8205-7e95e03e516d
+            transform: |-
+              CASE WHEN I_TOPNONCHARGEABLEPAIDHOURSTYPES.ROWORDER IS NULL          THEN ISNULL(I_PAIDHOURSTYPE.PAIDHOURSTYPE,'UNKNOWN')
+                          WHEN I_TOPNONCHARGEABLEPAIDHOURSTYPES.ROWORDER BETWEEN 1 AND 11 THEN I_PAIDHOURSTYPE.PAIDHOURSTYPE
+                          ELSE 'OTHER TYPE'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e54a6d3a-0617-4bdb-abab-90fe4d51c5a8
+          stepCounter: 7d71235d-4395-4505-9c53-439b59c11f87
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: date and time the row was created in the data warehouse
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ab8fdad0-181b-46cf-b4c2-67989ae24c0c
+          stepCounter: 7d71235d-4395-4505-9c53-439b59c11f87
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: date and time the row was updated in the data warehouse
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_PAIDHOURSTYPE: a36c0328-30a8-44b0-9c30-31c336c42134
+          I_TOPNONCHARGEABLEPAIDHOURSTYPES: 82c7f5fd-6e39-4da9-8205-7e95e03e516d
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_PAIDHOURSTYPE
+          - locationName: NP
+            nodeName: I_TOPNONCHARGEABLEPAIDHOURSTYPES
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_PAIDHOURSTYPE') }}
+              JOIN {{ ref('NP','I_TOPNONCHARGEABLEPAIDHOURSTYPES') }}
+        name: D_PAIDHOURSTYPE
+        noLinkRefs: []
+  name: D_PAIDHOURSTYPE
+  overrideSQL: false
+  schema: ""
+  sqlType: Dimension
+  type: sql
+  version: 1
+type: Node

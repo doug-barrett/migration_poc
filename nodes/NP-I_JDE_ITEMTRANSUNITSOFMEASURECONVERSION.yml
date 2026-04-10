@@ -1,0 +1,108 @@
+fileVersion: 1
+id: af8770f3-b7e6-4ab4-8560-2731d09279b4
+name: I_JDE_ITEMTRANSUNITSOFMEASURECONVERSION
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Unit of Measure conversion to primary"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d2478416-0316-4545-a449-39b663fcb791
+          stepCounter: af8770f3-b7e6-4ab4-8560-2731d09279b4
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Short Item Number
+        name: SHORTITEMNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: acba2e1a-3316-48e5-b27d-2c894dc8733b
+                stepCounter: 2de2ba4d-874c-401b-a638-50128e955964
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c8913873-4f7a-4658-aaf2-d96ab912f8dd
+          stepCounter: af8770f3-b7e6-4ab4-8560-2731d09279b4
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: The Transaction unit of measure code.
+        name: TRANSACTIONUNITOFMEASURECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7ab03f4a-8816-4714-bbf1-e278bb30149d
+                stepCounter: 2de2ba4d-874c-401b-a638-50128e955964
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4a12a649-3d85-4a25-aa22-c5aae0094555
+          stepCounter: af8770f3-b7e6-4ab4-8560-2731d09279b4
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: The Primary unit of measure code.
+        name: PRIMARYUNITOFMEASURECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 94f386eb-b94d-4cb8-935c-f14463d5c46c
+                stepCounter: 3baf27a2-3fab-4b0d-a96e-30a2e7615705
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cb332c1c-985c-439f-a8a1-5785f64772b8
+          stepCounter: af8770f3-b7e6-4ab4-8560-2731d09279b4
+        config: {}
+        dataType: NUMERIC(15,4)
+        defaultValue: ""
+        description: The conversion factor between unit and related unit of measures.
+        name: CONVERSIONFACTOR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 943f64dc-8fdd-4ece-8881-51bcad11996f
+                stepCounter: 2de2ba4d-874c-401b-a638-50128e955964
+            transform: |-
+              CASE WHEN I_JDE_ITEMUNITSOFMEASURECONVERSIONFACTORS.UNITOFMEASURECODE = D_INVENTORY.UNITOFMEASURECODE                                                                                                          THEN 1
+                          WHEN I_JDE_ITEMUNITSOFMEASURECONVERSIONFACTORS.RELATEDUNITOFMEASURECODE <> D_INVENTORY.UNITOFMEASURECODE AND I_JDE_ITEMUNITSOFMEASURECONVERSIONFACTORS.UNITOFMEASURECODE <> D_INVENTORY.UNITOFMEASURECODE THEN SECONDARYTOPRIMARYCONVERSIONFACTOR
+                          ELSE CONVERSIONFACTOR
+                           END
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_JDE_ITEMUNITSOFMEASURECONVERSIONFACTORS: 2de2ba4d-874c-401b-a638-50128e955964
+          D_INVENTORY: 3baf27a2-3fab-4b0d-a96e-30a2e7615705
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_JDE_ITEMUNITSOFMEASURECONVERSIONFACTORS
+          - locationName: NP
+            nodeName: D_INVENTORY
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_JDE_ITEMUNITSOFMEASURECONVERSIONFACTORS') }}
+              LEFT OUTER JOIN {{ ref('NP','D_INVENTORY') }}
+                ON I_JDE_ITEMUNITSOFMEASURECONVERSIONFACTORS.SHORTITEMNUMBER = D_INVENTORY.SHORTITEMNUMBER
+        name: I_JDE_ITEMTRANSUNITSOFMEASURECONVERSION
+        noLinkRefs: []
+  name: I_JDE_ITEMTRANSUNITSOFMEASURECONVERSION
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

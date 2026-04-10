@@ -1,0 +1,126 @@
+fileVersion: 1
+id: 85e7f560-a735-4ec0-bf60-219430253d0b
+name: I_LEASEAMORTIZATIONSCHEDULE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Lease Amortization Schedule Payment Amount"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 085d62e5-c505-4af9-a563-ed5c84004488
+          stepCounter: 85e7f560-a735-4ec0-bf60-219430253d0b
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: Lease Document Number
+        name: LEASEDOCUMENTNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5e763d03-216d-4444-99ac-9daa5a3144d3
+                stepCounter: b29422b4-bddf-409d-b3ea-8e65a0231938
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b3cda80c-38a0-4257-a6fb-1645740fbc83
+          stepCounter: 85e7f560-a735-4ec0-bf60-219430253d0b
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Asset Number
+        name: ASSETNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 573c3274-6c44-496e-aea1-9c8bdaf2774e
+                stepCounter: b29422b4-bddf-409d-b3ea-8e65a0231938
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4bc31a9b-f195-4fc2-99bf-6c388fef915a
+          stepCounter: 85e7f560-a735-4ec0-bf60-219430253d0b
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: Payment Amount
+        name: PAYMENTAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e213594d-c8b3-45e7-acd8-d6aee8d1d999
+                stepCounter: b29422b4-bddf-409d-b3ea-8e65a0231938
+            transform: SUM(L_JDE_F1517_LEASEAMORTIZATIONSCHEDULE.ASLEASPT)/100
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b8c60b2f-5944-4f38-8f3f-3ae48249a3f3
+          stepCounter: 85e7f560-a735-4ec0-bf60-219430253d0b
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: Schedule Begin Date
+        name: SCHEDULEBEGINDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: db374f1e-bd41-4d42-95eb-7127e8d91dc8
+                stepCounter: b29422b4-bddf-409d-b3ea-8e65a0231938
+            transform: DBO.NP_FUNC_JDEDATETOJULIAN(ASLESPBD)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 68a4da53-a0a9-4d68-bfa8-4d96c2ba4558
+          stepCounter: 85e7f560-a735-4ec0-bf60-219430253d0b
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9296d631-1dd0-4a89-9356-fba4786b37e7
+          stepCounter: 85e7f560-a735-4ec0-bf60-219430253d0b
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          L_JDE_F1517_LEASEAMORTIZATIONSCHEDULE: b29422b4-bddf-409d-b3ea-8e65a0231938
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_JDE_F1517_LEASEAMORTIZATIONSCHEDULE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','L_JDE_F1517_LEASEAMORTIZATIONSCHEDULE') }} L_JDE_F1517_LEASEAMORTIZATIONSCHEDULE
+             WHERE ASLEAST = 1 --LEASE LIABILITY  AND ASLELC = 2 --FINANCE LEASE  AND DBO.NP_FUNC_JDEDATETOJULIAN(ASLESPBD) < GETDATE() --ONLY WANT RECORDS UP TO CURRENT MONTH  GROUP BY ASDOCO    ,ASNUMB    ,DBO.NP_FUNC_JDEDATETOJULIAN(ASLESPBD)
+        name: I_LEASEAMORTIZATIONSCHEDULE
+        noLinkRefs: []
+  name: I_LEASEAMORTIZATIONSCHEDULE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,219 @@
+fileVersion: 1
+id: 661ff234-c6e3-4881-beae-46b16c470e1b
+name: D_JDEARTIFICIALKEYAR
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Table to generate an artificial unique key for each AR document e.g. for each invoice."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cce23763-db4a-4c27-8b9b-fb9621348667
+          stepCounter: 661ff234-c6e3-4881-beae-46b16c470e1b
+        config: {}
+        dataType: INTEGER IDENTITY(0,1)
+        defaultValue: ""
+        description: Generated artificial key
+        isSurrogateKey: true
+        name: D_JDEARTIFICIALKEYAR_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 97a95352-8b43-4fae-847a-61be0bf313db
+          stepCounter: 661ff234-c6e3-4881-beae-46b16c470e1b
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: DOCUMENTNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b33768f0-66fb-4a88-a652-f70bfdd28f50
+                stepCounter: ad247952-46b0-42ba-914f-dc5a6db9efba
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 18465b48-8efe-4224-b9a4-9bec77eda9e5
+          stepCounter: 661ff234-c6e3-4881-beae-46b16c470e1b
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: DOCUMENTCOMPANY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a7d0c081-46bf-473b-8748-7e3e53a3bd55
+                stepCounter: ad247952-46b0-42ba-914f-dc5a6db9efba
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8f482543-068b-444a-9c3a-5f018e97095a
+          stepCounter: 661ff234-c6e3-4881-beae-46b16c470e1b
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: BATCHTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c88b8c79-5cc2-4dc0-8f7a-0c10a801c0f5
+                stepCounter: ad247952-46b0-42ba-914f-dc5a6db9efba
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4186fa04-85af-4aea-9136-89bcc993bb43
+          stepCounter: 661ff234-c6e3-4881-beae-46b16c470e1b
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: BATCHNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 43a7d009-7ad1-4fe7-8a97-4dead4180e6f
+                stepCounter: ad247952-46b0-42ba-914f-dc5a6db9efba
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cdd50680-3bed-48fd-9abf-eff2eda49168
+          stepCounter: 661ff234-c6e3-4881-beae-46b16c470e1b
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: AMOUNTGROSS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 825b606b-a394-4204-9f9d-6fd775a5048f
+                stepCounter: ad247952-46b0-42ba-914f-dc5a6db9efba
+            transform: SUM(I_JDE_ACCOUNTSRECEIVABLE.AMOUNTGROSS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 98813ecb-164f-4338-bf89-5f016e58e66b
+          stepCounter: 661ff234-c6e3-4881-beae-46b16c470e1b
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: AMOUNTOPEN
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cde1cb15-2fec-496b-988a-a2f1b5b7e5a1
+                stepCounter: ad247952-46b0-42ba-914f-dc5a6db9efba
+            transform: SUM(I_JDE_ACCOUNTSRECEIVABLE.AMOUNTOPEN)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b080faea-ee48-4be4-b9dc-7ea2cb5bd9a5
+          stepCounter: 661ff234-c6e3-4881-beae-46b16c470e1b
+        config: {}
+        dataType: NUMERIC(15,10)
+        defaultValue: ""
+        description: If the amount due has been partially paid, this percentage will be used to allocate the open amount over the GL transactions that make up the invoice.
+        name: PERCENTUNPAID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cde1cb15-2fec-496b-988a-a2f1b5b7e5a1
+                stepCounter: ad247952-46b0-42ba-914f-dc5a6db9efba
+            transform: |-
+              CASE WHEN SUM(I_JDE_ACCOUNTSRECEIVABLE.AMOUNTGROSS) = 0
+                 AND SUM(I_JDE_ACCOUNTSRECEIVABLE.AMOUNTOPEN) = 0 THEN 0 -- IDENTIFY STAFF DEDUCTIONS. USED IN CONJUCTION WITH CALCULATION IN I_ARTRANSACTIONS_JDE   WHEN SUM(I_JDE_ACCOUNTSRECEIVABLE.AMOUNTGROSS) = 0   AND SUM(I_JDE_ACCOUNTSRECEIVABLE.AMOUNTOPEN) <> 0   THEN 2  ELSE SUM(I_JDE_ACCOUNTSRECEIVABLE.AMOUNTOPEN)   / SUM(I_JDE_ACCOUNTSRECEIVABLE.AMOUNTGROSS) END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e6218f97-39c3-41fb-aab2-60770212401d
+          stepCounter: 661ff234-c6e3-4881-beae-46b16c470e1b
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: AMOUNTTAX
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f2b63a9a-2d86-41b2-93e4-c6ed80f4ad5a
+                stepCounter: ad247952-46b0-42ba-914f-dc5a6db9efba
+            transform: SUM(I_JDE_ACCOUNTSRECEIVABLE.AMOUNTTAX)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9e324969-5e5a-472d-9136-23dad4293d86
+          stepCounter: 661ff234-c6e3-4881-beae-46b16c470e1b
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: Want the first Pay Item in order to join for the generic details
+        name: PAYITEM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d7e4a108-b84c-43db-bfcf-758cb7c7684d
+                stepCounter: ad247952-46b0-42ba-914f-dc5a6db9efba
+            transform: MIN(I_JDE_ACCOUNTSRECEIVABLE.PAYITEM)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3fb71c33-0341-4ac9-9621-9e0b243e1f30
+          stepCounter: 661ff234-c6e3-4881-beae-46b16c470e1b
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c80a02bd-8070-4977-b15b-c32fed4a3cd2
+          stepCounter: 661ff234-c6e3-4881-beae-46b16c470e1b
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_JDE_ACCOUNTSRECEIVABLE: ad247952-46b0-42ba-914f-dc5a6db9efba
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_JDE_ACCOUNTSRECEIVABLE
+        join:
+          joinCondition: FROM {{ ref('NP','I_JDE_ACCOUNTSRECEIVABLE') }}
+        name: D_JDEARTIFICIALKEYAR
+        noLinkRefs: []
+  name: D_JDEARTIFICIALKEYAR
+  overrideSQL: false
+  schema: ""
+  sqlType: Dimension
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,99 @@
+fileVersion: 1
+id: 8faef3f6-5c70-4d5c-aa1a-70c61b5e40ed
+name: I_OBLIGATIONREFERENCE_CERTIFICATIONRATIOACTUAL
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "List of existing certifications that match the obligation criteria by location and cost group"
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eb8c5332-80f9-4d22-af91-6a533effd75f
+          stepCounter: 8faef3f6-5c70-4d5c-aa1a-70c61b5e40ed
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Total number of expected competencies includes both certifications, people in training and the pathways for given postions. Excludes potential records for employees that have just started.
+        name: COMPETENCYCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5772418d-130f-4c09-b972-fa3183e65f33
+                stepCounter: 76547aa2-23ff-4c94-8214-6f645bb07c48
+            transform: SUM(F_COMPETENCY.COMPETENCYCOUNT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 24292608-b9d6-4baa-bbc9-68ec46c70380
+          stepCounter: 8faef3f6-5c70-4d5c-aa1a-70c61b5e40ed
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: The employees location as stored in PayGlobal
+        name: LOCATIONCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4654a8b9-8f86-463d-bff5-4ad190537d65
+                stepCounter: af4a2eff-247d-4e9e-b6d6-0d13dfead713
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6b051564-5981-4c7c-bcf8-cdfea0fc6f63
+          stepCounter: 8faef3f6-5c70-4d5c-aa1a-70c61b5e40ed
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Obligation Code
+        name: OBLIGATIONCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ebf9334a-b5cf-4003-b31b-0e0bdb4daa2b
+                stepCounter: fda50436-ab44-4c33-bdcf-0536519738b0
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_COMPETENCY: 93f87312-493d-431e-bc95-623046c2eba5
+          D_EMPLOYEE: af4a2eff-247d-4e9e-b6d6-0d13dfead713
+          D_OBLIGATION: fda50436-ab44-4c33-bdcf-0536519738b0
+          F_COMPETENCY: 76547aa2-23ff-4c94-8214-6f645bb07c48
+          I_SHP_OBLIGATIONREFERENCE: 72a45107-05af-46e1-86bb-528e7731bc12
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: F_COMPETENCY
+          - locationName: NP
+            nodeName: D_COMPETENCY
+          - locationName: NP
+            nodeName: D_EMPLOYEE
+          - locationName: NP
+            nodeName: D_OBLIGATION
+          - locationName: NP
+            nodeName: I_SHP_OBLIGATIONREFERENCE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_COMPETENCY') }}
+              JOIN {{ ref('NP','D_EMPLOYEE') }}
+              JOIN {{ ref('NP','D_OBLIGATION') }}
+              JOIN {{ ref('NP','F_COMPETENCY') }}
+              JOIN {{ ref('NP','I_SHP_OBLIGATIONREFERENCE') }}
+        name: I_OBLIGATIONREFERENCE_CERTIFICATIONRATIOACTUAL
+        noLinkRefs: []
+  name: I_OBLIGATIONREFERENCE_CERTIFICATIONRATIOACTUAL
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,765 @@
+fileVersion: 1
+id: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+name: S_PAYROLLCOMMITMENTS
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Create labour commitments into staging table ready for set merge to F_Productivity table"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3ba3078b-eb91-4983-9b18-5765795ffa4d
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: 4 digit employee number
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9067ce36-ac64-4a57-b465-b3e3ba0af1e4
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aec4f6fb-17ac-4135-a576-20717216b500
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: 'INTEGER '
+        defaultValue: ""
+        description: S_PayrollCommitments.EmployeeCode=D_Employee.EmployeeCode
+        name: D_EMPLOYEE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 95e7f868-b60b-4d41-a76c-22a972d8d328
+                stepCounter: af4a2eff-247d-4e9e-b6d6-0d13dfead713
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d835fa57-0bc7-4e02-9734-03d143b39574
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: A seperate number if assigned to each period used in the ODS. A period is a financial month.
+        name: BMPLOADPERIODNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b4b8ebe4-a755-48c6-b734-4824e41f45c5
+                stepCounter: 60b25e7a-8120-409c-ac7f-e7762038525b
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0dfad8fc-2f35-4aa3-a787-66ddf2a00f23
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: 'INTEGER '
+        defaultValue: ""
+        description: S_PayrollCommitments.BMPLoadPeriodNo=D_Period.PeriodNumber
+        name: D_PERIOD_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e32c5478-835f-4222-991c-a16f830e7aab
+                stepCounter: 0bebf0ab-2077-4acc-8200-0c4419698f26
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6caac6a2-09f3-4e77-abfd-a661901efc88
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2bb0d54d-a815-4dc1-944a-fbe5c323a395
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 447a2078-2d0d-4e61-b831-9451a5d1aebb
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_PayrollCommitments.Date=D_Date.CalendarDate
+        name: D_DATE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9c68f638-3054-415b-b2c0-b7df72fb4d84
+                stepCounter: fe515f2f-fb3f-48b6-b43c-510e32deb334
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bd9ec4e6-2142-4c72-885e-e1771369465e
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Classification of the hours worked
+        name: PAIDHOURSTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0d9de9d0-5143-403e-a0b7-544358d90686
+                stepCounter: a36c0328-30a8-44b0-9c30-31c336c42134
+            transform: |-
+              CASE WHEN RIGHT(I_S_COMMITMENTSLABOUR.OBJECTACCOUNTCODE,2) IN (SELECT PAIDHOURSTYPECODE FROM I_PAIDHOURSTYPE WHERE PAIDHOURSCATEGORY = 'LEAVE') THEN RIGHT(I_S_COMMITMENTSLABOUR.OBJECTACCOUNTCODE,2)
+                          WHEN I_S_COMMITMENTSLABOUR.JOBCODE IN (SELECT PAIDHOURSTYPECODE FROM I_PAIDHOURSTYPE)                                                      THEN I_S_COMMITMENTSLABOUR.JOBCODE
+                          WHEN ISNULL(I_S_COMMITMENTSLABOUR.JOBCODE,'') = ''                                                                                         THEN 'UNKNOWN'
+                          ELSE '1'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7f8c2440-26ae-44c7-8bb9-03c0d9ba7353
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: 'INTEGER '
+        defaultValue: ""
+        description: S_PayrollCommitments.PaidHoursType=D_PaidHoursType.PaidHoursTypeCode
+        name: D_PAIDHOURSTYPE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 10fe354d-1c62-41fe-bc4b-91b506bddd75
+                stepCounter: 7d71235d-4395-4505-9c53-439b59c11f87
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cbc3b575-99b9-470a-ba74-0dd166935c32
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: 3 Digit Cost Centre code to match the code used in Finance1
+        name: COSTCENTRECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c5bccef6-749f-4920-88fe-821736034339
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c66c3ef5-226b-47b0-94ee-cf0bed0a0f1b
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: 'INTEGER '
+        defaultValue: ""
+        description: S_PayrollCommitments.CostCentreCode=D_CostCentre.CostCentreCode
+        name: D_COSTCENTRE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4a99141c-c071-4861-9b8b-df126be61225
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: OVERTIMEFACTOR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d791e19f-a39f-48aa-a12b-2754a6dc1f38
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b03a8fa9-2d64-4e5f-a5e5-4d8895de980c
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: 'INTEGER '
+        defaultValue: ""
+        description: S_PayrollCommitments.OvertimeFactor=D_OvertimeFactor.OvertimeFactorRate
+        name: D_OVERTIMEFACTOR_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0cd4657e-c251-4e7c-ba4b-b5295f7eef3b
+                stepCounter: e440e40e-b895-4eef-a6df-47667bc2519b
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7a807a71-5918-4f45-ad9e-708007399f4e
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: ""
+        name: JOBFUNCTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 184edec5-9255-47b7-b06d-0532af08c838
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d680a8c9-7f7d-4b64-b931-10149d8fa614
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: 'INTEGER '
+        defaultValue: ""
+        description: S_PayrollCommitments.JobFunction=D_JobFunction.JobFunctionCode
+        name: D_JOBFUNCTION_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 553e5286-d323-4a5a-a684-3c1dc51135d5
+                stepCounter: a640714e-763a-4e24-9cd4-7bda7588e74f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e10446e2-0ccd-4998-ba42-54c99387d050
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: CURRENCY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 32fd9cf5-fb76-4c5f-b416-b895ea4b577f
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2bb3354a-4b50-4276-9ef2-66993d2af72d
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: 'INTEGER '
+        defaultValue: ""
+        description: S_PayrollCommitments.Currency=D_Currency.Currency
+        name: D_CURRENCY_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: faef033d-e1e5-455e-9bd1-eeb1c0043992
+                stepCounter: cb0a1c66-0f90-465a-8717-5b34eb85e57d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9fafe36f-0dec-44b0-9bd6-7e1badaf4ffc
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: JOBCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fbea5fa4-7081-4d63-8187-2f988365a24f
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a6113344-9e8b-43fa-9914-867df6ce5344
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: 'INTEGER '
+        defaultValue: ""
+        description: S_PayrollCommitments.JobCode=D_JobNumber.JobNumber
+        name: D_JOBNUMBER_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8b4854a0-ece7-4d29-a661-a0066a2ba5e6
+                stepCounter: 7d0e9287-c046-4b5a-ab38-f6622652d273
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 121bf423-ab6c-4920-8f50-4ae4223b6b68
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: The JDE Work order number mapped from the payglobal job code.  If the Job code starts with WF, WG, TC, TF, CA then the following digits are the work order number.  WF - faults  WG - Whg Fibre Faults  TC - CLick Tasks  TF - Financial Tasks  CA - Capital tasks  If the Job code starts with Z then there is no work order (map to -1).
+        name: WORKORDER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4a03a193-3982-4fc1-8172-7b69db939a34
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0f778f1b-be76-4494-be10-fa2aeb64e723
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: 'INTEGER '
+        defaultValue: ""
+        description: S_PayrollCommitments.WorkOrder=D_WorkOrder.WorkOrderNumber
+        name: D_WORKORDER_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e3c2bf55-71c5-4d1e-8d40-09e447786a65
+                stepCounter: d385cb73-e1ae-42cb-98de-8ab0c62e910e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 03595620-170c-46b7-9b8b-ce69ba9fc11a
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: 4 Digit GL Item code to match the code used in Finance1
+        name: GLITEM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: db26ff2f-21b7-4f6c-bfbb-266b22de9242
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 91a46e9a-a211-4e2f-bd8b-0ecb0918e250
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: 'INTEGER '
+        defaultValue: ""
+        description: S_PayrollCommitments.GLItem=D_GLItem.GLItemCode
+        name: D_GLITEM_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3b20ae63-046f-4ac9-b459-db6dc8b7ec28
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: ALLOWANCECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 508dd868-0903-4fe1-a91c-d432eeb0b980
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 85f7e9ac-ff48-46f3-9b8f-b7ad06a3d7fd
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: 'INTEGER '
+        defaultValue: ""
+        description: S_PayrollCommitments.AllowanceCode=D_PayrollAllowance.AllowanceCode  S_PayrollCommitments.ODSSourceSystemName=D_PayrollAllowance.ODSSourceSystemName
+        name: D_PAYROLLALLOWANCE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a5ac981a-1310-4b6e-8b87-e3b12c123a63
+                stepCounter: 21dad467-16a0-4521-a80b-8dcb7ef19ebc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d457610a-153a-4a48-9fbc-15ba4f3fe947
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Payroll Pay Squence number. Set to 0 as this was the T&A pay sequence number.
+        name: PAYSEQUENCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 106f8fe5-094c-4e9b-a896-eafc868eefb1
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: 'INTEGER '
+        defaultValue: ""
+        description: S_PayrollCommitments.PaySequence=D_PaySequence.PaySequenceNumber  S_PayrollCommitments.ODSSourceSystemName=D_PaySequence.ODSSourceSystemName
+        name: D_PAYSEQUENCE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e1a10d12-710a-4eb8-b4c8-fb0c87090d51
+                stepCounter: 12702f37-12ce-47cd-8278-783900cd95da
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ff9189c0-66c1-40c1-8ced-7dec1de48c98
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: 'Flag to indicate whether this transaction will be included for productivity reporting. This is a subset of the transactions included in the Payroll data. Value will be one of: Include, Exclude'
+        name: INCLUDEFORPRODUCTIVITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9b37c07a-8c4f-41ac-877e-3ed60806b8d5
+                stepCounter: af4a2eff-247d-4e9e-b6d6-0d13dfead713
+            transform: --COPIED FROM THE I_PG_HISTORICALALLOWANCEMAPPED  -- WITH MOST RESTRICTIONS REMOVED AS THIS DATA IS COMING FROM  -- DAILY VIEW AND THEREFORE ALREADY EXCLUDING THEM ANYWAY.  --  AUSTRALIAN DATABASE NO LONGER BEING USED  --  NO SALARIED PAY PERIODS INCLUDED  --  ALLOWANCE TYPE FILTER IS APPLIED IN THE WHERE CLAUSE OF THIS TABLE.    CASE WHEN    --EXCLUDE WAGED WORKERS WHO DO NOT USE THE RECOVERY ACCOUNT E.G. CONTROL    D_EMPLOYEE.EMPLOYEECOSTGROUP = 'FIELD STAFF'  THEN 'INCLUDE'  ELSE 'EXCLUDE' END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9778d4bd-2331-4daf-947d-22f5ffd325b2
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: Hours of Unpaid Leave for example LWOP or non work related ACC.
+        name: PRODUCTIVITYUNPAIDLEAVEHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 61522a39-e0ae-47e0-9656-7541197a59e6
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: CASE --IF UNPAID LEAVE THEN WE WILL SPLIT THE HOURS OFF INTO THE UNPAID HOURS FIELD   WHEN ISNULL(D_PAIDHOURSTYPE.PAIDHOURSCATEGORY,'') = 'LEAVE' AND PAIDAMOUNT = 0 THEN HOURS   ELSE 0 END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 27a13e84-5373-43d1-a47b-892c33900fc4
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: ""
+        name: PRODUCTIVITYPAIDHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 61522a39-e0ae-47e0-9656-7541197a59e6
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: CASE --IF UNPAID LEAVE THEN WE WILL SPLIT THE HOURS OFF INTO THE UNPAID HOURS FIELD   WHEN ISNULL(D_PAIDHOURSTYPE.PAIDHOURSCATEGORY,'') <> 'LEAVE' THEN HOURS   WHEN PAIDAMOUNT = 0 THEN 0   ELSE HOURS END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 995ba59b-7899-48e1-a81f-ea0e2e1dd16d
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: ""
+        name: PRODUCTIVITYPAIDORDINARYHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 61522a39-e0ae-47e0-9656-7541197a59e6
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: |-
+              CASE WHEN OVERTIMECLASSIFICATION <> 'OVERTIME' THEN HOURS
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8beaa93a-0b51-4981-a642-5764b4f95e1f
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: ""
+        name: PRODUCTIVITYCHARGEDHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 61522a39-e0ae-47e0-9656-7541197a59e6
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: |-
+              CASE WHEN PAIDHOURSCATEGORY = 'CHARGEABLE' THEN HOURS
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b4328a68-b069-41ab-a908-bd7e329992b4
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: ""
+        name: PRODUCTIVITYNONCHARGEDHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 61522a39-e0ae-47e0-9656-7541197a59e6
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: |-
+              CASE WHEN PAIDHOURSCATEGORY <> 'CHARGEABLE' THEN HOURS
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c20de364-e5d0-42f8-b9c3-d352462218d2
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: ""
+        name: PRODUCTIVITYAVAILABLEHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 61522a39-e0ae-47e0-9656-7541197a59e6
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: |-
+              CASE WHEN PAIDHOURSCATEGORY <> 'LEAVE' THEN HOURS
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d4814f41-714f-4818-a7c9-5a2be413ac8b
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: ""
+        name: PRODUCTIVITYAVAILABLEORDINARYHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 61522a39-e0ae-47e0-9656-7541197a59e6
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: |-
+              CASE WHEN OVERTIMECLASSIFICATION = 'OVERTIME' THEN 0
+                          WHEN PAIDHOURSCATEGORY <> 'LEAVE'        THEN HOURS
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1c080461-ab67-4734-9a87-f700fa904226
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: ""
+        name: PRODUCTIVITYOVERTIMEHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 61522a39-e0ae-47e0-9656-7541197a59e6
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: |-
+              CASE WHEN I_S_COMMITMENTSLABOUR.FACTOR IN (2,3) THEN HOURS
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7bd14664-9c72-4bf4-87f5-06e4d9f51f63
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: NUMERIC(11,2)
+        defaultValue: ""
+        description: ""
+        name: PRODUCTIVITYPAIDLOCALCURRENCYAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7ae0b06f-423f-48c1-8ed1-228f27dae840
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cb413530-601d-46c8-8899-48ab7830e479
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: NUMERIC(11,2)
+        defaultValue: ""
+        description: ""
+        name: PRODUCTIVITYRECOVEREDLOCALCURRENCYAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0221c7aa-d01b-4a2b-bdaf-482c0b2c2c10
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f30cc390-4c40-4bf1-b958-0a8d7cc61725
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: Any hours we include for our health and safety figures
+        name: PRODUCTIVITYEXPOSUREHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 61522a39-e0ae-47e0-9656-7541197a59e6
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: --EXCLUDE LEAVE AND FATIGUE HOURS WHERE AN EMPLOYEE HAS BEEN ASKED TO STAY HOME.  CASE   WHEN D_PAIDHOURSTYPE.PAIDHOURSTYPECODE IN ('ZSTAND') THEN 0   WHEN D_PAIDHOURSTYPE.PAIDHOURSCATEGORY = 'LEAVE' THEN 0   --EXCLUDE 9 HR BREAK NOT WORKED FOR NZ AND DISCRETIONARY STANDDOWN. (NO SEPERATE ALLOWANCE CURRENTLY AVAILABLE FOR AUS)   WHEN D_PAYROLLALLOWANCE.ALLOWANCECODE IN ('001B','001H') AND D_PAYROLLALLOWANCE.ODSSOURCESYSTEMNAME = 'PAYGLOBAL' THEN 0  ELSE HOURS END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b3e5d10e-bb59-4176-bf5a-84a8cdb97003
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: BUSINESSUNITCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8c8941b9-aa08-44f9-ad05-0929cb3ea447
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fc1f4774-708d-444c-8861-93d26d9b7c2f
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: ""
+        name: OBJECTACCOUNTCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 80a4dd47-5ab9-498f-a342-8640f32cd5af
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8902e0b8-8818-486c-af4e-76000ea7aadf
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: 'INTEGER '
+        defaultValue: ""
+        description: S_PayrollCommitments.BusinessUnitCode=D_BusinessUnit.BusinessUnitCode
+        name: D_BUSINESSUNIT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d0d36fb6-1357-477b-affc-07616f2af9e8
+                stepCounter: 90a265b9-7c25-4e08-8dc3-9f6ac60dc7df
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 67346136-87d0-446f-bb1c-b594fd69d813
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: 'INTEGER '
+        defaultValue: ""
+        description: S_PayrollCommitments.ObjectAccountCode=D_ObjectAccount.ObjectAccountCode
+        name: D_OBJECTACCOUNT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e70b8e97-a596-4546-906c-d9148286c741
+                stepCounter: 387f5a71-db15-48e9-badf-5661b5152b3a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e1a3b77d-da6f-4ae6-9072-ea92d3e18672
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: 'Based on a number of factors (mainly the business unit), the Customer Code is hard coded to ones of the following Networks:  Northpower Network (code 13)  Vector (code 2)  Wellington Electricity (code 24)  Transpower (3)  All other data is assigned to the Unknown dimension (code 0)'
+        name: CUSTOMERNETWORKCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3ed38a4a-250b-45e4-8e9c-acaedd300788
+                stepCounter: 90a265b9-7c25-4e08-8dc3-9f6ac60dc7df
+            transform: CASE -- WHANGAREI CONTRACTING GO TO NORTHPOWER NETWORK   WHEN ISNULL(D_BUSINESSUNIT.COMPANYCODE,'0') = '00011' THEN 21   -- WELLINGTON CONTRACTING GO TO WELLINGTON ELECTRICITY   WHEN ISNULL(D_BUSINESSUNIT.COMPANYCODE,'0') = '00031' THEN 23   -- TRANSMISSION GO TO TRANSPOWER   WHEN ISNULL(D_BUSINESSUNIT.COMPANYCODE,'0') = '00022' THEN 20   -- AUCKLAND CONTRACTING GO TO VECTOR, BUT WE NEED TO EXCLUDE EXTERNAL WORK   WHEN ISNULL(D_BUSINESSUNIT.COMPANYCODE,'0') = '00016'     AND ISNULL(D_WORKORDER.SALESGROUPCODE,'0') <> 'SP'   THEN 17  ELSE 0 END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 379e32f7-42db-4612-acb8-b8990aade77f
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: ODSSOURCESYSTEMNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5399e302-4c10-4a63-af57-e110d958fce7
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8c40944d-925b-40d6-b7d8-582444596b04
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: 'INTEGER '
+        defaultValue: ""
+        description: I_S_CommitmentsLabour.ODSSourceSystemName=ODSSourceSystem.ODSSourceSystemName
+        name: ODSSOURCESYSTEMKEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 309d5f0e-d0a4-4bee-af06-86f7371ce253
+                stepCounter: adffb6aa-bb28-4451-8e81-a236274e08de
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0b2dd677-e22e-4cd4-b228-264d68507cf8
+          stepCounter: 14ce88dd-1922-467c-b136-9cda8f8cb67f
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_BMPLOADPERIOD: 60b25e7a-8120-409c-ac7f-e7762038525b
+          I_CURRENTPAYSEQUENCE: a91965a6-bf82-41b5-a5e5-e7fee347acb3
+          I_S_COMMITMENTSLABOUR: adffb6aa-bb28-4451-8e81-a236274e08de
+          L_PG_TRANSPERPAYSEQUENCE: 5d36946a-ab06-4af2-b6da-5418c1eb7395
+          L_PGA_TRANSPERPAYSEQUENCE: a44ca664-2c90-497f-852c-3fe08f8d84ea
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_S_COMMITMENTSLABOUR
+          - locationName: NP
+            nodeName: I_BMPLOADPERIOD
+          - locationName: NP
+            nodeName: I_CURRENTPAYSEQUENCE
+          - locationName: NP
+            nodeName: L_PG_TRANSPERPAYSEQUENCE
+          - locationName: NP
+            nodeName: L_PGA_TRANSPERPAYSEQUENCE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_BMPLOADPERIOD') }}
+              JOIN {{ ref('NP','I_CURRENTPAYSEQUENCE') }}
+              JOIN {{ ref('NP','I_S_COMMITMENTSLABOUR') }}
+              JOIN {{ ref('NP','L_PG_TRANSPERPAYSEQUENCE') }}
+              JOIN {{ ref('NP','L_PGA_TRANSPERPAYSEQUENCE') }}
+        name: S_PAYROLLCOMMITMENTS
+        noLinkRefs: []
+  name: S_PAYROLLCOMMITMENTS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

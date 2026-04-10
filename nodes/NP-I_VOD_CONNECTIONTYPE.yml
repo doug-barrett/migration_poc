@@ -1,0 +1,87 @@
+fileVersion: 1
+id: d1d0e094-4706-4350-b328-9c8c44d2baba
+name: I_VOD_CONNECTIONTYPE
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Table to map the service number to a particular connection type."
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1cdad5e8-2d45-4eaa-b6d0-db5219479f50
+          stepCounter: d1d0e094-4706-4350-b328-9c8c44d2baba
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: ""
+        name: SERVICENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7ffd59a8-1bda-41fc-9219-e04c2bbb0a7f
+                stepCounter: a28e722e-990c-4de7-b5a4-c25fc020869f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 71133773-e624-4f07-9a9b-93900163ca35
+          stepCounter: d1d0e094-4706-4350-b328-9c8c44d2baba
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: ""
+        name: CHARGEDESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d4695e2a-3cd3-4f94-80a6-c4fd8c106b18
+                stepCounter: a28e722e-990c-4de7-b5a4-c25fc020869f
+            transform: MIN(CHARGEDESCRIPTION)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f33c6cdb-555e-4ade-9903-efccf8781d06
+          stepCounter: d1d0e094-4706-4350-b328-9c8c44d2baba
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: Distinguish between our full voice and data connections and cheaper voice only connections.
+        name: CONNECTIONTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d4695e2a-3cd3-4f94-80a6-c4fd8c106b18
+                stepCounter: a28e722e-990c-4de7-b5a4-c25fc020869f
+            transform: |-
+              CASE MIN(L_VOD_RECURRING.CHARGEDESCRIPTION)
+                          WHEN 'CORPORATE SURE SPEND CONNECT IN NZ' THEN 'VOICE AND DATA CONNECTION'
+                          WHEN 'CORPORATE SURE SPEND MOBILE DATA'   THEN 'DATA ONLY CONNECTION'
+                          ELSE 'UNKNOWN'
+                           END
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          L_VOD_RECURRING: a28e722e-990c-4de7-b5a4-c25fc020869f
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_VOD_RECURRING
+        join:
+          joinCondition: FROM {{ ref('NP','L_VOD_RECURRING') }}
+        name: I_VOD_CONNECTIONTYPE
+        noLinkRefs: []
+  name: I_VOD_CONNECTIONTYPE
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

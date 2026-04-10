@@ -1,0 +1,144 @@
+fileVersion: 1
+id: af06194c-691c-43e6-b8b9-e64aa5e4ae44
+name: I_LASTWORKORDERTRANSACTION
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "The lastest transation GL Date by work order. This will be stored against the work order dimension. (But only at month granularity."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ea2fab23-9fde-49a5-a811-d9b3933b8cf5
+          stepCounter: af06194c-691c-43e6-b8b9-e64aa5e4ae44
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: 'Indicates Work Order No for Work Orders '
+        name: WORKORDERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e00553d5-b8da-4643-8af4-83ab67cc4020
+                stepCounter: d385cb73-e1ae-42cb-98de-8ab0c62e910e
+            transform: D_WORKORDER.PROJECTNUMBER
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7b0b8355-d3c2-4e03-8097-1ab19a0bd73c
+          stepCounter: af06194c-691c-43e6-b8b9-e64aa5e4ae44
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: FIRSTGLDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c345fd42-c2c9-458e-b6cd-165764572024
+                stepCounter: fe515f2f-fb3f-48b6-b43c-510e32deb334
+            transform: MIN(D_DATE.CALENDARDATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8a9637f8-a552-4864-9b1b-7379c6207a3d
+          stepCounter: af06194c-691c-43e6-b8b9-e64aa5e4ae44
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: GLDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c345fd42-c2c9-458e-b6cd-165764572024
+                stepCounter: fe515f2f-fb3f-48b6-b43c-510e32deb334
+            transform: MAX(D_DATE.CALENDARDATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 93e18f3f-357c-4e99-8792-3377438fec91
+          stepCounter: af06194c-691c-43e6-b8b9-e64aa5e4ae44
+        config: {}
+        dataType: VARCHAR(60)
+        defaultValue: ""
+        description: Varchar field holding the month and year of the last transaction for this work order in the format yyyy-mm.
+        name: MONTHOFLASTTRANSACTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: MAX(LEFT(CONVERT(VARCHAR(8),F_GLACTTRANSACTIONS.D_DATE_KEY),4) + '-' + SUBSTRING(CONVERT(VARCHAR(8),F_GLACTTRANSACTIONS.D_DATE_KEY),5,2))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7f7fd83a-90c4-4803-92d1-6dcc94196228
+          stepCounter: af06194c-691c-43e6-b8b9-e64aa5e4ae44
+        config: {}
+        dataType: VARCHAR(60)
+        defaultValue: ""
+        description: Varchar field holding the month and year of the first transaction for this work order in the format yyyy-mm.
+        name: MONTHOFFIRSTTRANSACTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: MIN(LEFT(CONVERT(VARCHAR(8),F_GLACTTRANSACTIONS.D_DATE_KEY),4) + '-' + SUBSTRING(CONVERT(VARCHAR(8),F_GLACTTRANSACTIONS.D_DATE_KEY),5,2))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6349e320-b52d-4809-99a8-a22d99e90741
+          stepCounter: af06194c-691c-43e6-b8b9-e64aa5e4ae44
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 67b96218-f743-453a-b83e-a8bb462de0bb
+          stepCounter: af06194c-691c-43e6-b8b9-e64aa5e4ae44
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_DATE: fe515f2f-fb3f-48b6-b43c-510e32deb334
+          D_WORKORDER: d385cb73-e1ae-42cb-98de-8ab0c62e910e
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: D_WORKORDER
+          - locationName: NP
+            nodeName: D_DATE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_WORKORDER') }}
+        name: I_LASTWORKORDERTRANSACTION
+        noLinkRefs: []
+  name: I_LASTWORKORDERTRANSACTION
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,159 @@
+fileVersion: 1
+id: a4cc6079-12a4-4625-8924-656c10531cb2
+name: D_PHONETYPE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "List of the different Phone number types"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fbf53992-ef91-4585-ba9d-8ead3543ef8f
+          stepCounter: a4cc6079-12a4-4625-8924-656c10531cb2
+        config: {}
+        dataType: INTEGER IDENTITY(0,1)
+        defaultValue: ""
+        description: Generated artificial key
+        isSurrogateKey: true
+        name: D_PHONETYPE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e97d38fd-d9be-479e-9e1d-3ea41709b2f7
+          stepCounter: a4cc6079-12a4-4625-8924-656c10531cb2
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: Description given to the hardware by our service provider
+        isBusinessKey: true
+        name: DEVICENAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bbc2a982-b315-4b60-937f-dc65131cb59a
+                stepCounter: d9808341-8d5f-4279-8d7d-aaeff3c25c66
+            transform: ISNULL(I_VOD_MAPPING.DEVICENAME,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bbdd7a17-3ac9-4d84-8acb-e38cc7d83f73
+          stepCounter: a4cc6079-12a4-4625-8924-656c10531cb2
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Choice of Mobile, Landline, Other
+        name: PHONETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f774120c-dcf0-41df-9f4e-68af15ffa585
+                stepCounter: d9808341-8d5f-4279-8d7d-aaeff3c25c66
+            transform: MIN(CASE WHEN SERVICENUMBER LIKE '642%' THEN 'MOBILE' ELSE 'LANDLINE' END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3c93e178-8978-4220-bc3f-7a296f209039
+          stepCounter: a4cc6079-12a4-4625-8924-656c10531cb2
+        config: {}
+        dataType: VARCHAR(250)
+        defaultValue: ""
+        description: 'Northpower defined list of devices based on the device type. Note: New devices may get coded to "Unknown" until case statements are updated.'
+        name: DEVICETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 434d69af-3db5-41a7-a939-e3faf3063667
+                stepCounter: 433fb428-32e1-41dc-89d5-f4c6aa839514
+            transform: ISNULL(MIN(L_REF_PHONEDEVICETOHARDWAREMAP.DEVICETYPE),'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6b10d78e-e885-44d3-898d-05e1b90c826a
+          stepCounter: a4cc6079-12a4-4625-8924-656c10531cb2
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Manufacturer as set up in the Mobile Iron system. This value will be unknown for devices that are not available via that system.
+        name: MANUFACTURER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8b9c2d62-6ac8-4496-96e4-ed7187f18b6d
+                stepCounter: d9808341-8d5f-4279-8d7d-aaeff3c25c66
+            transform: ISNULL(MAX(MANUFACTURER),'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b88b3550-7551-4cb7-b9b1-46f41e03f627
+          stepCounter: a4cc6079-12a4-4625-8924-656c10531cb2
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: Model as set up in the Mobile Iron system. This value will be unknown for devices that are not available via that system.
+        name: MODEL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 872639eb-3661-4e6e-9e3c-8410fb28d660
+                stepCounter: d9808341-8d5f-4279-8d7d-aaeff3c25c66
+            transform: ISNULL(MAX(I_VOD_MAPPING.MODEL),'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9d788044-8f8f-4868-8722-e72d08cc4897
+          stepCounter: a4cc6079-12a4-4625-8924-656c10531cb2
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: date and time the row was created in the data warehouse
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 34934cde-e3aa-40d4-89ba-55bfe7e13ebe
+          stepCounter: a4cc6079-12a4-4625-8924-656c10531cb2
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: date and time the row was updated in the data warehouse
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_VOD_MAPPING: d9808341-8d5f-4279-8d7d-aaeff3c25c66
+          L_REF_PHONEDEVICETOHARDWAREMAP: 433fb428-32e1-41dc-89d5-f4c6aa839514
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_VOD_MAPPING
+          - locationName: NP
+            nodeName: L_REF_PHONEDEVICETOHARDWAREMAP
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_VOD_MAPPING') }}
+              JOIN {{ ref('NP','L_REF_PHONEDEVICETOHARDWAREMAP') }}
+        name: D_PHONETYPE
+        noLinkRefs: []
+  name: D_PHONETYPE
+  overrideSQL: false
+  schema: ""
+  sqlType: Dimension
+  type: sql
+  version: 1
+type: Node

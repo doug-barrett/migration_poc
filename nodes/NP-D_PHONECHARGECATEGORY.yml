@@ -1,0 +1,145 @@
+fileVersion: 1
+id: 56e3dd1f-8dfd-4a6c-821a-0568a8f1c10d
+name: D_PHONECHARGECATEGORY
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Phone Charge and Usage Categories"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b73b90dd-77ea-49b5-bc83-ce33b146b8f8
+          stepCounter: 56e3dd1f-8dfd-4a6c-821a-0568a8f1c10d
+        config: {}
+        dataType: INTEGER IDENTITY(0,1)
+        defaultValue: ""
+        description: Generated artificial key
+        isSurrogateKey: true
+        name: D_PHONECHARGECATEGORY_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b288aecc-2174-4228-9c6a-a0c5c6af25d5
+          stepCounter: 56e3dd1f-8dfd-4a6c-821a-0568a8f1c10d
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: Can be one of three settings (Usage, Data, Recurring) and is set by the source of the data.
+        isBusinessKey: true
+        name: CHARGEGROUP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 371756f0-cdad-4243-b0a9-99d10a63fed3
+                stepCounter: 7e40f8d9-54e9-413f-baff-88dbb1835e52
+            transform: DISTINCT ISNULL(I_VOD_ALLDATA.CHARGEGROUP,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7594fe65-c2c5-4844-83ad-908a5a225d6d
+          stepCounter: 56e3dd1f-8dfd-4a6c-821a-0568a8f1c10d
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: Telephone Charge Type
+        isBusinessKey: true
+        name: CHARGETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f91f11b2-6d41-4171-a62b-24064b834a93
+                stepCounter: 7e40f8d9-54e9-413f-baff-88dbb1835e52
+            transform: ISNULL(I_VOD_ALLDATA.CHARGETYPE,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 621155ce-3aa8-4d96-b9f2-f947b8d23ad6
+          stepCounter: 56e3dd1f-8dfd-4a6c-821a-0568a8f1c10d
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: Second level of charge grouping (after the Type)
+        isBusinessKey: true
+        name: CHARGECATEGORY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 66e79cea-5c2f-4a12-8619-a6e8a79d4664
+                stepCounter: 7e40f8d9-54e9-413f-baff-88dbb1835e52
+            transform: ISNULL(I_VOD_ALLDATA.CHARGECATEGORY,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 83a1a315-bafd-467c-a7da-d8be3af2eb72
+          stepCounter: 56e3dd1f-8dfd-4a6c-821a-0568a8f1c10d
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: Separate Categorisation for Roaming Charges
+        name: ROAMING
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 66e79cea-5c2f-4a12-8619-a6e8a79d4664
+                stepCounter: 7e40f8d9-54e9-413f-baff-88dbb1835e52
+            transform: |-
+              CASE WHEN CHARGETYPE LIKE '%ROAMING%'     THEN 'ROAMING'
+                          WHEN CHARGECATEGORY LIKE '%ROAMING%' THEN 'ROAMING'
+                          ELSE 'NOT ROAMING'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b4ce5f84-fe6f-4f4a-97df-b807744a8933
+          stepCounter: 56e3dd1f-8dfd-4a6c-821a-0568a8f1c10d
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: date and time the row was created in the data warehouse
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c9f8d5a6-9aea-41d1-9b03-003618775103
+          stepCounter: 56e3dd1f-8dfd-4a6c-821a-0568a8f1c10d
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: date and time the row was updated in the data warehouse
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_VOD_ALLDATA: 7e40f8d9-54e9-413f-baff-88dbb1835e52
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_VOD_ALLDATA
+        join:
+          joinCondition: FROM {{ ref('NP','I_VOD_ALLDATA') }}
+        name: D_PHONECHARGECATEGORY
+        noLinkRefs: []
+  name: D_PHONECHARGECATEGORY
+  overrideSQL: false
+  schema: ""
+  sqlType: Dimension
+  type: sql
+  version: 1
+type: Node

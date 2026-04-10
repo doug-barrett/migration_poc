@@ -1,0 +1,453 @@
+fileVersion: 1
+id: 584861ce-7298-4f4b-a4c4-90c7160e0735
+name: I_VOD_RECURRING
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Converts data to correct formats and consistent field names, adds source system and billing period data.  Removes Roaming and Donation charges, as these are also in Data and Usage files"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f68a10cd-b7ef-449c-aefb-223d1a340a45
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: Northpower Phone Number
+        name: SERVICENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7ffd59a8-1bda-41fc-9219-e04c2bbb0a7f
+                stepCounter: a28e722e-990c-4de7-b5a4-c25fc020869f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 530549ac-2e48-40f7-90a2-7ff74fec8098
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: One of Mobile, Landline, Other.
+        name: PHONETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7ffd59a8-1bda-41fc-9219-e04c2bbb0a7f
+                stepCounter: a28e722e-990c-4de7-b5a4-c25fc020869f
+            transform: |-
+              CASE WHEN L_VOD_RECURRING.SERVICENUMBER = ACCOUNTNUMBER THEN 'OTHER'
+                          WHEN L_VOD_RECURRING.SERVICENUMBER LIKE '642%'     THEN 'MOBILE'
+                          ELSE 'LANDLINE'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4b64275f-8d4d-4a92-85cc-0cf290845840
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: ""
+        name: PLACECALLED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2ee5fcc9-2f2d-4501-8eff-e20a5b23265a
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: ""
+        name: NUMBERCALLED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 11fa2eba-3d46-467d-a853-2c28b7f635b3
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: ""
+        name: ORIGINATINGCOUNTRY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 83e23062-b295-473b-9c85-35e2dea390e0
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: ""
+        name: SERVICENAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 05887bc5-3352-42cf-ad87-ac44d0ed537c
+                stepCounter: a28e722e-990c-4de7-b5a4-c25fc020869f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cdbdd9fd-2a80-446d-a062-079ac55a9ff2
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: Vodafone account. There is data included in the source files that is for seperate accounts for which we do not receive the corresponding call details or recurring charges, so these accounts are excluded from the data set as well.
+        name: ACCOUNTNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3c2f96b1-50cc-453d-85a4-8cdc599cd8b4
+                stepCounter: a28e722e-990c-4de7-b5a4-c25fc020869f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 55351862-ac9e-4f9d-9263-f3f6e62f9141
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: Vodafone Invoice Number
+        name: INVOICENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0c583177-dd84-45a9-aa07-1eb261144cdf
+                stepCounter: a28e722e-990c-4de7-b5a4-c25fc020869f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6356a3ff-933e-4d03-be70-1efa8b8ef9f0
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: Invoice Date, all recurring charges are applied to one line per month.
+        name: INVOICEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c6280027-894a-496b-81ae-de567c7e102b
+                stepCounter: a28e722e-990c-4de7-b5a4-c25fc020869f
+            transform: CONVERT(DATE,L_VOD_RECURRING.INVOICEDATE,103)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3a4e8850-ca6a-48e8-8266-fc3bf81d6b45
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: TIME
+        defaultValue: ""
+        description: Not Relevant for Recurring Charges
+        name: TIMEOFCALL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'00:00'"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 26c2e34a-85f9-479c-a427-5af20bdec5c2
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: Can be one of three settings (Usage, Data, Recurring) and is set by the source of the data.
+        name: CHARGEGROUP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'RECURRING'"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dac39cf2-f3ff-4b1b-9406-59341c3c74ab
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: High Level grouping of the charges
+        name: CHARGETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b7aab27f-9502-4d74-96e5-0aab68b0d794
+                stepCounter: a28e722e-990c-4de7-b5a4-c25fc020869f
+            transform: --NEED TO INCLUDE DAILY ROAMING CHARGES AS VODAFONE CHANGED CHARGE TYPE FROM OTHER TO ROAMING DATA   CASE WHEN L_VOD_RECURRING.CHARGEDESCRIPTION = 'DAILY ROAMING CHARGE' THEN 'OTHER' ELSE L_VOD_RECURRING.CHARGETYPE   END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 386aefeb-1a59-405a-b0df-ecfb984d887e
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: Second level of charge grouping
+        name: CHARGECATEGORY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d4695e2a-3cd3-4f94-80a6-c4fd8c106b18
+                stepCounter: a28e722e-990c-4de7-b5a4-c25fc020869f
+            transform: LEFT(L_VOD_RECURRING.CHARGEDESCRIPTION,64)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6c84ac15-ac7a-4bcf-a2ab-83a18f2226dc
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: Dates for which these charges apply
+        name: FROMDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3a5bf030-69bc-42bf-ad41-bbce2bb1692b
+                stepCounter: a28e722e-990c-4de7-b5a4-c25fc020869f
+            transform: CONVERT(DATE,FROMDATE,103)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3c20edf0-9e89-43a4-8161-a917e18d602a
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: Charges end date. Most recuring charges will apply for a specific period.
+        name: DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f32f64ce-e53c-45f9-95aa-720d29051e36
+                stepCounter: a28e722e-990c-4de7-b5a4-c25fc020869f
+            transform: CONVERT(DATE,ISNULL(TODATE,L_VOD_RECURRING.INVOICEDATE),103)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 97658974-8743-4b08-93e5-28fe197402d3
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: Northpower Reference
+        name: YOURREFERENCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b492b30f-3296-4198-9de2-9614c9a9ec6f
+                stepCounter: a28e722e-990c-4de7-b5a4-c25fc020869f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 06925292-b095-418e-b2fa-369e69508a9f
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: DECIMAL(19,4)
+        defaultValue: ""
+        description: ""
+        name: CALLDURATION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9c0541a1-b964-4021-86da-e9fc6f2da6fe
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: DECIMAL(19,4)
+        defaultValue: ""
+        description: ""
+        name: DATAUSAGE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5ef41bf7-90dc-4c3a-b544-fdf7878f529d
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: DECIMAL(19,4)
+        defaultValue: ""
+        description: Charges specific to this line item.
+        name: CHARGE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b85ecbe7-c6db-4ec4-949d-de559b12f789
+                stepCounter: a28e722e-990c-4de7-b5a4-c25fc020869f
+            transform: --NEED TO REMOVE $ AND , CHARACTERS, AND REPLACE () WITH - SIGN  CONVERT(DECIMAL(9, 2), REPLACE(REPLACE(REPLACE(CHARGEAMOUNT, ')', ''), '(', '-'), '$', ''))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 305c20fb-74b9-4dab-99d5-7cce04de399c
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Number of records that have been sent to use from Vodafone
+        name: RECORDCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '1'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bd8f5d34-a04e-4170-a1c5-82d35d718daf
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Number of texts sent
+        name: TXTCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cfe554e9-8849-4c5d-bd92-d6d17e3bd48c
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Number of Pxts sent
+        name: PXTCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 58f09e10-5a33-49fc-b151-627d251e168f
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PHONECALLCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8b5262be-cc38-43e9-b550-5b20fbbef300
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: A seperate number if assigned to each period used in the ODS. A period is a financial month.
+        name: BMPLOADPERIODNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 093dbbb8-fabc-491a-adc8-d1583ca095ba
+                stepCounter: 2979b7a5-3ffe-4e3f-980d-2eab69ca6043
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4c9aad38-6623-4be4-884a-ee5b37f7ad07
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: VARCHAR(128)
+        defaultValue: ""
+        description: ""
+        name: DEVICENAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bbc2a982-b315-4b60-937f-dc65131cb59a
+                stepCounter: d9808341-8d5f-4279-8d7d-aaeff3c25c66
+            transform: --IF WE DON'T HAVE ANYTHING IN THE MAPPING FILE, THEN AT LEAST TRY  -- TO MAP TO THE OLD PHONE TYPE RECORDS.  CASE   WHEN I_VOD_MAPPING.DEVICENAME IS NOT NULL THEN I_VOD_MAPPING.DEVICENAME   WHEN L_VOD_RECURRING.SERVICENUMBER = ACCOUNTNUMBER THEN 'OTHER'   WHEN L_VOD_RECURRING.SERVICENUMBER LIKE '642%' THEN 'MOBILE'   ELSE 'LANDLINE'  END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3f3b1077-5d27-4cdc-af2d-387e60fd9a26
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: Distinguish between our full voice and data connections and cheaper voice only connections.
+        name: CONNECTIONTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f33c6cdb-555e-4ade-9903-efccf8781d06
+                stepCounter: d1d0e094-4706-4350-b328-9c8c44d2baba
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 20b2c3bf-b5ed-463f-b6e1-c4211de0dee0
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: ODSSOURCESYSTEM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'VODAFONE'"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bde9ddfb-3a84-4585-a6e1-e7a382a6255f
+          stepCounter: 584861ce-7298-4f4b-a4c4-90c7160e0735
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_PERIOD: 0bebf0ab-2077-4acc-8200-0c4419698f26
+          I_VOD_CONNECTIONTYPE: d1d0e094-4706-4350-b328-9c8c44d2baba
+          I_VOD_MAPPING: d9808341-8d5f-4279-8d7d-aaeff3c25c66
+          I_VOD_PERIOD: 2979b7a5-3ffe-4e3f-980d-2eab69ca6043
+          L_VOD_RECURRING: a28e722e-990c-4de7-b5a4-c25fc020869f
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_VOD_RECURRING
+          - locationName: NP
+            nodeName: D_PERIOD
+          - locationName: NP
+            nodeName: I_VOD_CONNECTIONTYPE
+          - locationName: NP
+            nodeName: I_VOD_MAPPING
+          - locationName: NP
+            nodeName: I_VOD_PERIOD
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_PERIOD') }}
+              JOIN {{ ref('NP','I_VOD_CONNECTIONTYPE') }}
+              JOIN {{ ref('NP','I_VOD_MAPPING') }}
+              JOIN {{ ref('NP','I_VOD_PERIOD') }}
+              JOIN {{ ref('NP','L_VOD_RECURRING') }}
+        name: I_VOD_RECURRING
+        noLinkRefs: []
+  name: I_VOD_RECURRING
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

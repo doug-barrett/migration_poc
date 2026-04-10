@@ -1,0 +1,351 @@
+fileVersion: 1
+id: 7609d394-2886-4279-ba5a-9d0cb08a4974
+name: I_JDE_POCOMMIT
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Only include Purchase order lines that have a Job Number Set and have an outstanding amount."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d9f85e18-5f8c-441a-b1ac-6bc39d3b501d
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: ""
+        name: JOBNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e3e1e211-d042-47f3-a183-fe85eddf8d9f
+                stepCounter: d385cb73-e1ae-42cb-98de-8ab0c62e910e
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aef2d9cf-f130-4a35-8de0-379c03673e58
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Subledger - G/L
+        name: WORKORDERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 29cbac1f-727d-48f0-8558-9bb77fe52231
+                stepCounter: f670b5c8-8905-4d4c-98b1-36fdf4063642
+            transform: COALESCE(CASE WHEN (ISNUMERIC(I_JDE_PURCHASEORDERLINE.WORKORDERNUMBER) = 1 AND I_JDE_PURCHASEORDERLINE.SUBLEDGERTYPECODE = 'W') THEN CONVERT(INTEGER, I_JDE_PURCHASEORDERLINE.WORKORDERNUMBER) ELSE NULL END, CONVERT(INT, RELATEDNUMBER))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ad3a8875-29c4-483b-8990-1f20933f1c40
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: Object Account
+        name: OBJECTACCOUNTCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 64c8ef54-4d2a-48b2-999b-4c4df5911a97
+                stepCounter: f670b5c8-8905-4d4c-98b1-36fdf4063642
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ef3bc892-07db-4585-93fd-c2eb6fb9d751
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: VARCHAR(2)
+        defaultValue: ""
+        description: Hardcode to PR as only PR or FT values are included in the PO commitments.
+        name: CHARTNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'PR'"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: de9dcca3-0ff9-4aaa-921b-b14b1d58510e
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: VARCHAR(5)
+        defaultValue: ""
+        description: Order Company (Order Number)
+        name: COMPANYCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b3d0870b-a347-47c2-953e-4a74b33fc64c
+                stepCounter: f670b5c8-8905-4d4c-98b1-36fdf4063642
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6fc5b7d6-974d-407a-9235-d4446ef24c19
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date - Order/Transaction
+        name: COMMITMENTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b36e1438-ca77-4495-bcac-5c282b700ee1
+                stepCounter: f670b5c8-8905-4d4c-98b1-36fdf4063642
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 99df4046-fb57-427e-bd81-1daf82f5e07f
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: VARCHAR(70)
+        defaultValue: ""
+        description: ""
+        name: TRANDESCR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN ISNULL(I_JDE_PURCHASEORDERLINE.SUPPLIERNAME,'') = '' THEN ''
+                          ELSE LEFT(I_JDE_PURCHASEORDERLINE.SUPPLIERNAME,29) + ' '
+                           END + LEFT(I_JDE_PURCHASEORDERLINE.PURCHASEDESCRIPTION1 + ' ' + I_JDE_PURCHASEORDERLINE.PURCHASEDESCRIPTION2,40)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dedf5873-930c-4a91-99fb-318d7b322316
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: NUMERIC(19,2)
+        defaultValue: ""
+        description: Hardcode to zero as once we move to JDE, the cost is accounted for once the PO is delivered, not when its paid (which is how Finance1 works).
+        name: COMMITMENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e7c77a3d-da75-4db4-a958-73037084ca27
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: NUMERIC(19,2)
+        defaultValue: ""
+        description: Commitments that have been ordered, but have not been delivered yet (as marked in the Finance1 system). In practice, quite a few of these will be delivered. Only delivered commitments are counted for end-of-month reporting.
+        name: UNDELIVEREDCOMMITMENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 202e7afa-289e-4374-869f-01b8d18e6bc3
+                stepCounter: f670b5c8-8905-4d4c-98b1-36fdf4063642
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5b3ce0ed-d430-41b6-a452-4e58e7f2e9a4
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: VARCHAR(16)
+        defaultValue: ""
+        description: PO Number for Purchasing commitments
+        name: COMMITMENTREFERENCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2e6cdf0d-7dad-4f1b-8e33-3bf3b0cde7ae
+                stepCounter: f670b5c8-8905-4d4c-98b1-36fdf4063642
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6c14f88a-ceff-43db-a881-f2d1d9cc95bc
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: VARCHAR(1)
+        defaultValue: ""
+        description: Status of the Purchase Order. It can be either Delivered (D) or Not Delivered (A).
+        name: POSTATUSCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN I_JDE_PURCHASEORDERLINE.OUTSTANDINGAMOUNT > 0.00 THEN 'A'
+                          ELSE 'D'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f826005f-906a-4847-9f1c-c49af7fd08ec
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: VARCHAR(4)
+        defaultValue: ""
+        description: ""
+        name: CURRENCY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'NZD'"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0e4fd720-0d7f-47a2-a929-99aeb3a57f53
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: The Finance1 system sets this date as 1/1/1900 if the PO has not yet been receipted, so similarly here in JDE.
+        name: RECEIPTEDDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ISNULL(I_JDE_PURCHASEORDERLINE.ACTUALDELIVERYDATE,'1900-01-01')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d0d1b7fc-ca0e-4319-a2ac-de66f7a1ded0
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Subledger Type Code
+        name: SUBLEDGERTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5ecf8f15-13e1-4afb-b564-061186efca1f
+                stepCounter: f670b5c8-8905-4d4c-98b1-36fdf4063642
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 325752a4-0060-4035-bc86-21a832305e67
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: VARCHAR(2)
+        defaultValue: ""
+        description: ""
+        name: ACTIVITYCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'43'"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c74dcd49-9a0e-4a8b-983e-7ea3d92d273b
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: VARCHAR(6)
+        defaultValue: ""
+        description: ""
+        name: VYNO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "''"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0beb9b2a-f0ed-4f03-ba7f-537060b0442b
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: VARCHAR(4)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEENO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "''"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d45fde12-06f5-46c3-9810-a44af6e62f36
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: NUMERIC(19,2)
+        defaultValue: ""
+        description: ""
+        name: COMMITTEDLABOURHRS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8e1322ba-756f-417e-a441-67451e220b46
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: NUMERIC(19,2)
+        defaultValue: ""
+        description: ""
+        name: COMMITTEDPLANTHRS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 11f2ac68-390a-4c21-9311-bb9fa6af8004
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: BMPPERIOD
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: CAST(DBO.WSPARAMETERREADF('CURRENTF1OPENPERIOD') AS INT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bae99a6b-cf28-48d8-8c3d-77da2b6c4395
+          stepCounter: 7609d394-2886-4279-ba5a-9d0cb08a4974
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_JDE_PURCHASEORDERLINE: f670b5c8-8905-4d4c-98b1-36fdf4063642
+          D_WORKORDER: d385cb73-e1ae-42cb-98de-8ab0c62e910e
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: D_WORKORDER
+          - locationName: NP
+            nodeName: I_JDE_PURCHASEORDERLINE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_JDE_PURCHASEORDERLINE') }} I_JDE_PURCHASEORDERLINE
+              LEFT JOIN {{ ref('NP','D_WORKORDER') }} D_WORKORDER
+                ON COALESCE(CASE WHEN (ISNUMERIC(I_JDE_PURCHASEORDERLINE.WORKORDERNUMBER) = 1 AND I_JDE_PURCHASEORDERLINE.SUBLEDGERTYPECODE = 'W') THEN CONVERT(INTEGER, I_JDE_PURCHASEORDERLINE.WORKORDERNUMBER) ELSE NULL END, CONVERT(INT, RELATEDNUMBER)) = D_WORKORDER.WORKORDERNUMBER
+             WHERE I_JDE_PURCHASEORDERLINE.OUTSTANDINGAMOUNT <> 0
+               AND ( --EITHER A WORK ORDER RELATED PO  I_JDE_PURCHASEORDERLINE.SUBLEDGERTYPECODE = 'W'  --OR A STORES PO THAT IS RELATED TO WO--  OR  (RELATEDNUMBER <> '' AND D_WORKORDER_KEY IS NOT NULL))
+        name: I_JDE_POCOMMIT
+        noLinkRefs: []
+  name: I_JDE_POCOMMIT
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node
