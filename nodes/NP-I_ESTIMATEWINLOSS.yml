@@ -1,0 +1,114 @@
+fileVersion: 1
+id: 19fb8b37-dd80-435e-9498-7d8ecc57b639
+name: I_ESTIMATEWINLOSS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Win/Loss count over the whole estimate"
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 77efeb96-daa4-4d6b-b553-9ac1233e6cc1
+          stepCounter: 19fb8b37-dd80-435e-9498-7d8ecc57b639
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: This is the business identifier. This is manually entered and should be unique for a customer. But this is not the system generated key, so uniqueness is not guarenteed.
+        name: ESTIMATEID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f462d5ef-a90c-4557-bd5e-045b598a68fa
+                stepCounter: d9165a95-886c-4e0f-8880-6b18a0c747d3
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 760d7681-98ca-4b82-babb-6d4b21ff5a3b
+          stepCounter: 19fb8b37-dd80-435e-9498-7d8ecc57b639
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Win Count
+        name: WINCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e6c82076-8ca5-4c05-a72d-43d3c17bffbd
+                stepCounter: d9165a95-886c-4e0f-8880-6b18a0c747d3
+            transform: |-
+              CASE WHEN SUM(I_ESTIMATESTATUSCHANGESUMMARY.WINCOUNT) > 0 THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b58c772a-9d2b-40b2-810c-fc52207c6091
+          stepCounter: 19fb8b37-dd80-435e-9498-7d8ecc57b639
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Loss Count
+        name: LOSSCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fde2f9a7-2887-4210-935b-35b2c7864c63
+                stepCounter: d9165a95-886c-4e0f-8880-6b18a0c747d3
+            transform: |-
+              CASE WHEN SUM(I_ESTIMATESTATUSCHANGESUMMARY.WINCOUNT) > 0  THEN 0
+                          WHEN SUM(I_ESTIMATESTATUSCHANGESUMMARY.LOSSCOUNT) > 0 THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0c3b5a03-6ab1-44f8-bfa9-34e00db676ba
+          stepCounter: 19fb8b37-dd80-435e-9498-7d8ecc57b639
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Count of estimates that are neither a win or a loss, but are still in progress.
+        name: INPROGRESSCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c4a52157-9d81-4691-b9ef-26262411b761
+                stepCounter: d9165a95-886c-4e0f-8880-6b18a0c747d3
+            transform: |-
+              CASE WHEN SUM(I_ESTIMATESTATUSCHANGESUMMARY.WINCOUNT) > 0        THEN 0
+                          WHEN SUM(I_ESTIMATESTATUSCHANGESUMMARY.LOSSCOUNT) > 0       THEN 0
+                          WHEN SUM(I_ESTIMATESTATUSCHANGESUMMARY.INPROGRESSCOUNT) > 0 THEN 1
+                          ELSE 0
+                           END
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_ESTIMATE: 87e5a7a0-47f4-4e02-8907-ab39d011f982
+          I_ESTIMATESTATUSCHANGESUMMARY: d9165a95-886c-4e0f-8880-6b18a0c747d3
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_ESTIMATESTATUSCHANGESUMMARY
+          - locationName: NP
+            nodeName: I_ESTIMATE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_ESTIMATE') }}
+              JOIN {{ ref('NP','I_ESTIMATESTATUSCHANGESUMMARY') }}
+        name: I_ESTIMATEWINLOSS
+        noLinkRefs: []
+  name: I_ESTIMATEWINLOSS
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

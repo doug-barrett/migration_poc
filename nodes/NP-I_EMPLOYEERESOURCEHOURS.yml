@@ -1,0 +1,144 @@
+fileVersion: 1
+id: 0eea5bb1-55ca-4ad5-a331-361501577b8a
+name: I_EMPLOYEERESOURCEHOURS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "One record per employee per day where the employee is expected to be at work. e.g. excludes non rostered days and leave.  Criteria code should be similar to I_EmployeePaidHours"
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 76a7592a-4de4-45fd-9350-76cbfd1d0741
+          stepCounter: 0eea5bb1-55ca-4ad5-a331-361501577b8a
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Available hours after leave, public holidays and training are removed
+        name: RESOURCEHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 685f6b47-a920-48e9-a3fc-f2028dfe987b
+                stepCounter: 06e02b2b-eb57-49e1-a282-7f567a0ec2f4
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bebbed01-c5b7-450a-899c-b61efe6568a3
+          stepCounter: 0eea5bb1-55ca-4ad5-a331-361501577b8a
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: The calendar date for this row.
+        name: CALENDARDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: efa09051-5e3a-4906-8feb-0e8ef0a75137
+                stepCounter: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 16410990-baaf-4363-a4df-b9d34a3a3fd3
+          stepCounter: 0eea5bb1-55ca-4ad5-a331-361501577b8a
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: A separate number is assigned to each period used in the ODS to be used as the business key. A period is a financial month.
+        name: PERIODNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cc6fdccc-1617-415a-95c2-48d341077bd9
+                stepCounter: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6dc477c3-e8ee-45cd-a6dc-0eede6644152
+          stepCounter: 0eea5bb1-55ca-4ad5-a331-361501577b8a
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Four digit employee number
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 39a7f726-964b-4027-8339-4508317dc1bb
+                stepCounter: e65d00f1-4487-4c70-a252-6eb1343a94bc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5839f25c-266b-4dd8-8d21-a8817fd87d27
+          stepCounter: 0eea5bb1-55ca-4ad5-a331-361501577b8a
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Unique identifier for the Business Unit. This is the field recorded against every posted GL ledger transaction.
+        name: BUSINESSUNITCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 09e4eb30-711b-40a6-8818-330395406e69
+                stepCounter: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+            transform: -- USE THE EMPLOYEE BUSINESS UNIT ON THE OFF CHANCE THE BU RECORD IS NOT SET   CASE   WHEN D_BUSINESSUNIT.BUSINESSUNITCODE = 'UNKNOWN'   THEN D_EMPLOYEE.BUSINESSUNITCODE   ELSE D_BUSINESSUNIT.BUSINESSUNITCODE   END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: beca43e9-1186-48e9-8af5-75accd818e88
+          stepCounter: 0eea5bb1-55ca-4ad5-a331-361501577b8a
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: Chargeable time is set to 1, Leave is set to the item code that it's costed to in Finance1, Non-chargeable time is set to the dummy Job numbers that are set up in PayGlobal.
+        name: PAIDHOURSTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c54fbbe2-33f5-4fcd-aa7e-df2dd684b3df
+                stepCounter: 9ed7e334-f397-45a5-916c-ec299f6c0208
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_BUSINESSUNIT: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+          D_DATE: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+          D_EMPLOYEE: e65d00f1-4487-4c70-a252-6eb1343a94bc
+          D_PAIDHOURSTYPE: 9ed7e334-f397-45a5-916c-ec299f6c0208
+          F_EMPLOYEERESOURCES: 06e02b2b-eb57-49e1-a282-7f567a0ec2f4
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: F_EMPLOYEERESOURCES
+          - locationName: NP
+            nodeName: D_BUSINESSUNIT
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: D_EMPLOYEE
+          - locationName: NP
+            nodeName: D_PAIDHOURSTYPE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_BUSINESSUNIT') }}
+              JOIN {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_EMPLOYEE') }}
+              JOIN {{ ref('NP','D_PAIDHOURSTYPE') }}
+              JOIN {{ ref('NP','F_EMPLOYEERESOURCES') }}
+        name: I_EMPLOYEERESOURCEHOURS
+        noLinkRefs: []
+  name: I_EMPLOYEERESOURCEHOURS
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

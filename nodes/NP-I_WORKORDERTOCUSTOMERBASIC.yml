@@ -1,0 +1,161 @@
+fileVersion: 1
+id: bec6e88a-2284-4b60-aca3-3ccd8b786b22
+name: I_WORKORDERTOCUSTOMERBASIC
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "This is the basic association of the work order to a customer using the customer code populated against the work order record. It also looks at Internal vs External revenue to associate customers with Northpower Network if appropriate."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b86bce16-2282-4123-8332-10cf199e8a50
+          stepCounter: bec6e88a-2284-4b60-aca3-3ccd8b786b22
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: TS or non hierarchical Work order number
+        name: TSPARENTWORKORDERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3ec63448-df31-4bce-a771-67392cc5ce94
+                stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+            transform: PARENTDETAILS.WORKORDERNUMBER
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ae67a8a9-a43a-45f8-8bf2-0c227dda2774
+          stepCounter: bec6e88a-2284-4b60-aca3-3ccd8b786b22
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: JDE address book number for the associated customer.
+        name: CUSTOMERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 79f4a22c-8bff-45bc-ae6c-8cdd79536ef4
+                stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+            transform: CASE --WHEN THE CUSTOMER FIELD IS SET AGAINST THE PARENT WORK ORDER --999 IS THE UNKNOWN VALUE   WHEN ISNULL(PARENTDETAILS.CUSTOMERNUMBER,999) <> 999    THEN 'J' + CONVERT(VARCHAR(14),PARENTDETAILS.CUSTOMERNUMBER)   -- NOT YET INVOICED, SO WE WON'T BE ABLE TO FIND A CUSTOMER FOR THIS YET   -- 999 IS NOT A VALID CUSTOMER SO WILL NOT CONNECT TO A DEBTOR RECORD   WHEN SUM(ISNULL(CMREVENUE,0)) = 0 THEN '999'   --251281 IS THE NORTHPOWER ADDRESS NUMBER   --THE UPDATE STATEMENT HAS A QUERY TO EXCLUDE ALL RECORDS WHERE THE EXTERNAL AMOUNT   -- IS GREATER THAN THE INTERNAL AMOUNT   --WHEN THAT HAPPENS, THEN WE WILL GO LOOK FOR THE DEBTOR THAT WAS INVOICED AGAINST THE JOB     ELSE 'J218974' END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9ff6f417-d3f3-4766-97b4-75049c0c9564
+          stepCounter: bec6e88a-2284-4b60-aca3-3ccd8b786b22
+        config: {}
+        dataType: NUMERIC(19,2)
+        defaultValue: ""
+        description: Just used for testing purposes and is the total amount of Internal plus External + Deposit revenue against this work order hierarchy.
+        name: TOTALREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(CMREVENUE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 99eb7ea9-7e8b-4f6e-94e6-d3f7a90bf191
+          stepCounter: bec6e88a-2284-4b60-aca3-3ccd8b786b22
+        config: {}
+        dataType: NUMERIC(19,2)
+        defaultValue: ""
+        description: Just used for testing purposes and is the total amount of Internal only revenue against this work order hierarchy.
+        name: INTERNALREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: --4518 - INTERNAL REVENUE  SUM(CASE WHEN OBJECTACCOUNTCODE = '4518' THEN CMREVENUE ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 25ccc350-c433-4c7f-9356-aee15757dd93
+          stepCounter: bec6e88a-2284-4b60-aca3-3ccd8b786b22
+        config: {}
+        dataType: NUMERIC(19,2)
+        defaultValue: ""
+        description: Just used for testing purposes and is the total amount of External revenue and deposits against this work order hierarchy.
+        name: EXTERNALREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: --4510 - -- 4510 - EXTERNAL REVENUE, 4516 - DEPOSITS  SUM(CASE WHEN OBJECTACCOUNTCODE IN ('4510','4516') THEN CMREVENUE ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0e3b348e-525c-4b3e-8580-fe30e699d672
+          stepCounter: bec6e88a-2284-4b60-aca3-3ccd8b786b22
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Dummy field used for set merge with the Invoiced data
+        name: ROWNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '1'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9bab13bf-0b9c-4791-8cbe-491161e2c720
+          stepCounter: bec6e88a-2284-4b60-aca3-3ccd8b786b22
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cbb7e49b-1b74-4842-9a54-3c5043e7e829
+          stepCounter: bec6e88a-2284-4b60-aca3-3ccd8b786b22
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_OBJECTACCOUNT: 4f5997cc-a1a8-451d-bd59-629dc8871fd5
+          D_WORKORDER: 492f8016-3e2e-4b3c-89ec-303878359ba2
+          I_JDE_WORKORDERDETAILS: 392055c7-3752-436b-9cec-c64eb9a11e00
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_JDE_WORKORDERDETAILS
+          - locationName: NP
+            nodeName: D_OBJECTACCOUNT
+          - locationName: NP
+            nodeName: D_WORKORDER
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_OBJECTACCOUNT') }}
+              JOIN {{ ref('NP','D_WORKORDER') }}
+              JOIN {{ ref('NP','I_JDE_WORKORDERDETAILS') }}
+        name: I_WORKORDERTOCUSTOMERBASIC
+        noLinkRefs: []
+  name: I_WORKORDERTOCUSTOMERBASIC
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

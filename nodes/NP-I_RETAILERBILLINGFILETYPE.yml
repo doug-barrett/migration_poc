@@ -1,0 +1,105 @@
+fileVersion: 1
+id: 1c198aba-18d3-441d-86ee-97de32416701
+name: I_RETAILERBILLINGFILETYPE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Description of the file type, direction and methodology used for each file"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a0b7376d-dce5-493c-942f-122e03851be5
+          stepCounter: 1c198aba-18d3-441d-86ee-97de32416701
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: from File type Column
+        name: FILEDIRECTIONCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5b722964-c77d-4123-a9c2-b58597db1fba
+                stepCounter: 26993515-dddd-425b-8be5-c7b45bb767a4
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: da31accc-0851-41bc-8b77-12caf7b1466d
+          stepCounter: 1c198aba-18d3-441d-86ee-97de32416701
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: FILEDIRECTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5b722964-c77d-4123-a9c2-b58597db1fba
+                stepCounter: 26993515-dddd-425b-8be5-c7b45bb767a4
+            transform: |-
+              CASE WHEN I_EIEP_ALLHEADERRECORDS.FILETYPE IN ('ICPMMAB', 'ICPHHAB', 'ICPMMNM', 'ICPMMRM', 'ICPMMSP') THEN 'TRADER TO DISTRIBUTOR'
+                          WHEN I_EIEP_ALLHEADERRECORDS.FILETYPE IN ('ICPHHR', 'ICPNHH', 'ICPALL')                          THEN 'DISTRIBUTOR TO TRADER'
+                          ELSE ''
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6fe3109e-5c2b-4a99-9364-b3f50d14689a
+          stepCounter: 1c198aba-18d3-441d-86ee-97de32416701
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Methodology used in this Billing File
+        name: METHODOLOGY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5b722964-c77d-4123-a9c2-b58597db1fba
+                stepCounter: 26993515-dddd-425b-8be5-c7b45bb767a4
+            transform: |-
+              CASE WHEN RIGHT(I_EIEP_ALLHEADERRECORDS.FILETYPE, 2) IN ('RM', 'NM') THEN RIGHT(I_EIEP_ALLHEADERRECORDS.FILETYPE, 2)
+                          ELSE ''
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4a627d03-d8dc-4c85-b6ab-f804a5d1b28c
+          stepCounter: 1c198aba-18d3-441d-86ee-97de32416701
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: File Type Description for Billing file
+        name: FILETYPEDESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5b722964-c77d-4123-a9c2-b58597db1fba
+                stepCounter: 26993515-dddd-425b-8be5-c7b45bb767a4
+            transform: CASE --WHEN I_EIEP_ALLHEADERRECORDS.FILETYPE IN ('ICPMMAB', 'ICPHHAB') THEN 'AS BILLED'    --WHEN I_EIEP_ALLHEADERRECORDS.FILETYPE IN ('ICPMMNM', 'ICPMMRM', 'ICPMMSP') THEN 'AS BILLED'    WHEN I_EIEP_ALLHEADERRECORDS.FILETYPE = ('ICPMMAB') THEN 'AS BILLED FOR NHH'    WHEN I_EIEP_ALLHEADERRECORDS.FILETYPE = ('ICPHHAB') THEN 'AS BILLED FOR HHR'    WHEN I_EIEP_ALLHEADERRECORDS.FILETYPE = ('ICPMMNM') THEN 'INCREMENTAL AS BILLED NORMALISED'    WHEN I_EIEP_ALLHEADERRECORDS.FILETYPE = ('ICPMMRM') THEN 'REPLACEMENT RM NORMALISED'    WHEN I_EIEP_ALLHEADERRECORDS.FILETYPE = ('ICPMMSP') THEN 'INCREMENTAL RM NORMALISED'    WHEN I_EIEP_ALLHEADERRECORDS.FILETYPE = ('ICPHHR') THEN 'SPLIT BILLING FILE FOR HHR ICPS'    WHEN I_EIEP_ALLHEADERRECORDS.FILETYPE = ('ICPNHH') THEN 'SPLIT BILLING FILE FOR NHH ICPS'    WHEN I_EIEP_ALLHEADERRECORDS.FILETYPE = ('ICPALL') THEN 'SINGLE BILLING FILE FOR BOTH HHR AND NHH ICPS'    ELSE ''   END
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_EIEP_ALLHEADERRECORDS: 26993515-dddd-425b-8be5-c7b45bb767a4
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_EIEP_ALLHEADERRECORDS
+        join:
+          joinCondition: FROM {{ ref('NP','I_EIEP_ALLHEADERRECORDS') }}
+        name: I_RETAILERBILLINGFILETYPE
+        noLinkRefs: []
+  name: I_RETAILERBILLINGFILETYPE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,152 @@
+fileVersion: 1
+id: d93f1407-28ac-4b10-aa15-837a8000a07f
+name: I_STMBUSINESSUNIT
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Take the meeting attendees and find their most common business unit. This is assumed to be the business unit for the meeting."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9128fde4-af08-4582-8edb-1ffdfbb437ce
+          stepCounter: d93f1407-28ac-4b10-aa15-837a8000a07f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ID of type Counter
+        name: MEETINGID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 904e5077-d53b-44d1-abf2-e008c747c1d2
+                stepCounter: 4e0cb025-41df-4343-a8cf-b7173ea56981
+            transform: SUMMARY.MEETINGID
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e63a5522-20ab-4cb3-b77a-15297a02c36d
+          stepCounter: d93f1407-28ac-4b10-aa15-837a8000a07f
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: The Sharepoint List that the record came from
+        name: SOURCETABLE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: dadaf2ee-3218-490f-a7ab-71f02d682359
+                stepCounter: 4e0cb025-41df-4343-a8cf-b7173ea56981
+            transform: SUMMARY.SOURCETABLE
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1ce68f0c-f621-4db1-86ab-25f16c0870f1
+          stepCounter: d93f1407-28ac-4b10-aa15-837a8000a07f
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: The business code code for the employeee
+        name: BUSINESSUNITCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 32149924-3cbf-41ed-b8cd-dc5184e69b5e
+                stepCounter: 4e0cb025-41df-4343-a8cf-b7173ea56981
+            transform: SUMMARY.BUSINESSUNITCODE
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7fcc6056-985e-4da2-942c-3dee2ac796aa
+          stepCounter: d93f1407-28ac-4b10-aa15-837a8000a07f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: The number of employees attending this meeting
+        name: MEETINGEMPLOYEECOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 15eaabcf-81ec-40cd-a066-f609c743076a
+                stepCounter: 4e0cb025-41df-4343-a8cf-b7173ea56981
+            transform: SUMMARY.EMPLOYEECOUNT
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b04a70dd-3e32-46e9-90d5-d848ed22f65a
+          stepCounter: d93f1407-28ac-4b10-aa15-837a8000a07f
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: The cost centre order based on the most empooyees associated with it
+        name: SORTORDER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 904e5077-d53b-44d1-abf2-e008c747c1d2
+                stepCounter: 4e0cb025-41df-4343-a8cf-b7173ea56981
+            transform: ROW_NUMBER() OVER(PARTITION BY SUMMARY.SOURCETABLE, SUMMARY.MEETINGID ORDER BY CASE WHEN SUMMARY.BUSINESSUNITCODE = 'UNKNOWN' THEN 1 ELSE 0 END, SUMMARY.EMPLOYEECOUNT DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9e515178-ce9b-4e14-9a1f-0e2f16ab81ae
+          stepCounter: d93f1407-28ac-4b10-aa15-837a8000a07f
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 55837593-2f48-4750-b563-28c50243a4c3
+          stepCounter: d93f1407-28ac-4b10-aa15-837a8000a07f
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_BUSINESSUNIT: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+          I_STMATTENDANCE: fe4b1ef3-e5e0-4e0e-bae8-23b445c13d76
+          I_STMATTENDANCEMAPPED: 4e0cb025-41df-4343-a8cf-b7173ea56981
+          S_EMPLOYEECOUNT: a737e56b-9e14-4b58-83d1-5501c3b534a9
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_STMATTENDANCEMAPPED
+          - locationName: NP
+            nodeName: D_BUSINESSUNIT
+          - locationName: NP
+            nodeName: I_STMATTENDANCE
+          - locationName: NP
+            nodeName: S_EMPLOYEECOUNT
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_BUSINESSUNIT') }}
+              JOIN {{ ref('NP','I_STMATTENDANCE') }}
+              JOIN {{ ref('NP','I_STMATTENDANCEMAPPED') }}
+              JOIN {{ ref('NP','S_EMPLOYEECOUNT') }}
+        name: I_STMBUSINESSUNIT
+        noLinkRefs: []
+  name: I_STMBUSINESSUNIT
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

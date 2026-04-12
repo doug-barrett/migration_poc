@@ -1,0 +1,153 @@
+fileVersion: 1
+id: 410d2024-0640-45de-b129-2b7df68adb67
+name: I_EMPLOYEECOUNTBYLOCATIONANDCOSTGROUP
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "The current number of employees at each location and for each cost group."
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ea3cff51-3ffd-4913-a646-0a28fd6667b2
+          stepCounter: 410d2024-0640-45de-b129-2b7df68adb67
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_EmployeeCount.LocationCode=D_Location.LocationCode
+        name: D_LOCATION_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6a9449b2-de6b-4591-9ba2-8367a368c4c1
+                stepCounter: e2b76d76-9070-4554-b5f7-d7649e7def37
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a0f043ef-2b60-4cdc-aad6-86ea5add71ea
+          stepCounter: 410d2024-0640-45de-b129-2b7df68adb67
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: LOCATIONCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3b6f77f5-a562-4049-ae53-d507555f6a89
+                stepCounter: e59a65bd-0dc9-4e16-97aa-70c5f635aaba
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 783296ca-f2d5-43cb-9ab0-8fe637436b02
+          stepCounter: 410d2024-0640-45de-b129-2b7df68adb67
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: LOCATION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6b36becc-dc9c-4e32-a5d1-ddfdbd30cebb
+                stepCounter: e59a65bd-0dc9-4e16-97aa-70c5f635aaba
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f4ae1adb-6d6d-40bb-b55d-20b514a2bd5c
+          stepCounter: 410d2024-0640-45de-b129-2b7df68adb67
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_EmployeeCount.EmployeeCostGroup=D_EmployeeCostGroup.EmployeeCostGroup
+        name: D_EMPLOYEECOSTGROUP_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bdeac8fd-ffaa-47c2-a58d-26079b2257dc
+                stepCounter: e2b76d76-9070-4554-b5f7-d7649e7def37
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aba245cd-eab6-4a1c-825c-99843a4cfaa5
+          stepCounter: 410d2024-0640-45de-b129-2b7df68adb67
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Employee costs are grouped into four categories. Field Staff, Admin/Management, Engineering/Construction and Control Operators
+        name: EMPLOYEECOSTGROUP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e702a026-1d98-4331-8561-66867eedb54b
+                stepCounter: f0a650d6-972c-43a8-8a18-fc829f99e28d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fdbd5cfb-eaac-4787-988c-8e3fd81c212b
+          stepCounter: 410d2024-0640-45de-b129-2b7df68adb67
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Number of Employees excluding Casual and Directors
+        name: EMPLOYEECOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d1bdc73c-34ac-4398-a082-db98aa561a34
+                stepCounter: e2b76d76-9070-4554-b5f7-d7649e7def37
+            transform: SUM(F_EMPLOYEECOUNT.EMPLOYEECOUNT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6ef7f7ec-bcd7-4bef-a433-da7ae2ac00a5
+          stepCounter: 410d2024-0640-45de-b129-2b7df68adb67
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: The Business Unit with the most employees at this location.
+        name: BUSINESSUNITCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8243f35d-4838-4298-ba5c-1672d5db7d41
+                stepCounter: e59a65bd-0dc9-4e16-97aa-70c5f635aaba
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          F_EMPLOYEECOUNT: e2b76d76-9070-4554-b5f7-d7649e7def37
+          D_LOCATION: e59a65bd-0dc9-4e16-97aa-70c5f635aaba
+          D_EMPLOYEECOSTGROUP: f0a650d6-972c-43a8-8a18-fc829f99e28d
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: F_EMPLOYEECOUNT
+          - locationName: NP
+            nodeName: D_LOCATION
+          - locationName: NP
+            nodeName: D_EMPLOYEECOSTGROUP
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','F_EMPLOYEECOUNT') }} F_EMPLOYEECOUNT
+              LEFT JOIN {{ ref('NP','D_LOCATION') }} D_LOCATION
+                ON F_EMPLOYEECOUNT.D_LOCATION_KEY = D_LOCATION.D_LOCATION_KEY
+              LEFT JOIN {{ ref('NP','D_EMPLOYEECOSTGROUP') }} D_EMPLOYEECOSTGROUP
+                ON F_EMPLOYEECOUNT.D_EMPLOYEECOSTGROUP_KEY = D_EMPLOYEECOSTGROUP.D_EMPLOYEECOSTGROUP_KEY --ONLY LOOKING AT THE CURRENT STATE  WHERE F_EMPLOYEECOUNT.D_DATE_KEY = (SELECT MAX(D_DATE_KEY) FROM F_EMPLOYEECOUNT)    GROUP BY F_EMPLOYEECOUNT.D_LOCATION_KEY  , F_EMPLOYEECOUNT.D_EMPLOYEECOSTGROUP_KEY  , D_LOCATION.LOCATION  , D_LOCATION.LOCATIONCODE  , D_LOCATION.BUSINESSUNITCODE  , D_EMPLOYEECOSTGROUP.EMPLOYEECOSTGROUP
+        name: I_EMPLOYEECOUNTBYLOCATIONANDCOSTGROUP
+        noLinkRefs: []
+  name: I_EMPLOYEECOUNTBYLOCATIONANDCOSTGROUP
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

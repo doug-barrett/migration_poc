@@ -1,0 +1,138 @@
+fileVersion: 1
+id: b5ba796a-3a9d-45f0-8dbd-2b857f56f78f
+name: I_CERTIFICATIONMASTERLIST
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 429c4800-1307-470c-ad09-72b5a7168c71
+          stepCounter: b5ba796a-3a9d-45f0-8dbd-2b857f56f78f
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Business Code for the Certification
+        name: CERTIFICATIONTITLE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0cba002d-0f58-4947-b9d2-0f8583cf071d
+                stepCounter: 0b68a79f-87f4-4759-9a73-4c0b72b8e2d4
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 56166d10-9ee2-42b1-906d-dbf953cb7ff5
+          stepCounter: b5ba796a-3a9d-45f0-8dbd-2b857f56f78f
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: Short description of the Certification
+        name: CERTIFICATIONDESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8d93787f-e5fe-4b29-84cf-b3535d0abfaa
+                stepCounter: 345f471b-2a9b-4ad2-b34b-96e4c052a96a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d42a022d-ceb6-47ee-8774-d51bd80f0cd4
+          stepCounter: b5ba796a-3a9d-45f0-8dbd-2b857f56f78f
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: A way of grouping the different type of certifications together
+        name: CERTIFICATIONFAMILY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0c278eca-3ac1-46c5-a64e-eb50dddba2c8
+                stepCounter: 345f471b-2a9b-4ad2-b34b-96e4c052a96a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 58f6ee8b-a94c-4832-b138-077a31bd81a6
+          stepCounter: b5ba796a-3a9d-45f0-8dbd-2b857f56f78f
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: A way of grouping certifications together
+        name: CERTIFICATIONCATEGORY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cbca6fa1-45db-4d8a-8802-420502df0946
+                stepCounter: 345f471b-2a9b-4ad2-b34b-96e4c052a96a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c58b1fab-f4ba-40b8-b94c-02c55bdc7fa2
+          stepCounter: b5ba796a-3a9d-45f0-8dbd-2b857f56f78f
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Some of the competencies have a theory only option. These are flagged here so we can easily filter out or include in the reporting
+        name: THEORYONLYFLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0cba002d-0f58-4947-b9d2-0f8583cf071d
+                stepCounter: 0b68a79f-87f4-4759-9a73-4c0b72b8e2d4
+            transform: |-
+              CASE WHEN I_CS_CERTMASTERLISTMAXVERSION.CERTIFICATIONTITLE LIKE '%LE% T' THEN 'THEORY ONLY'
+                          ELSE 'THEORY AND PRACTICAL'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c78ddc54-a882-4bc6-a503-81ad15186b7f
+          stepCounter: b5ba796a-3a9d-45f0-8dbd-2b857f56f78f
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Flag to indicate whether the competency code is still being used. Values are Current or Retired.
+        name: STATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0cba002d-0f58-4947-b9d2-0f8583cf071d
+                stepCounter: 0b68a79f-87f4-4759-9a73-4c0b72b8e2d4
+            transform: "'CURRENT'"
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_CS_CERTMASTERLISTMAXVERSION: 0b68a79f-87f4-4759-9a73-4c0b72b8e2d4
+          I_CS_CERTMASTERLIST: 345f471b-2a9b-4ad2-b34b-96e4c052a96a
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_CS_CERTMASTERLISTMAXVERSION
+          - locationName: NP
+            nodeName: I_CS_CERTMASTERLIST
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_CS_CERTMASTERLISTMAXVERSION') }}
+             INNER JOIN {{ ref('NP','I_CS_CERTMASTERLIST') }}
+                ON I_CS_CERTMASTERLISTMAXVERSION.CERTIFICATIONTITLE = I_CS_CERTMASTERLIST.CERTIFICATIONTITLE
+               AND I_CS_CERTMASTERLISTMAXVERSION.CERTIFICATIONID = I_CS_CERTMASTERLIST.CERTIFICATIONID
+            UNION ALL --FIND THE RECORDS THAT NEED TO HAVE THEIR STATUS UPDATED TO "RETIRED"  SELECT COMPETENCYCODE COMPETENCYTITLE  , COMPETENCY COMPETENCYDESCRIPTION  , COMPETENCYTYPE COMPETENCYFAMILY  , COMPETENCYGROUP COMPETENCYCATEGORY  , THEORYONLYFLAG  , 'RETIRED' [STATUS]  FROM D_COMPETENCY  WHERE COMPETENCYSTATUS <> 'RETIRED'  AND COMPETENCYCODE NOT IN (SELECT DISTINCT CERTIFICATIONTITLE FROM I_CS_CERTMASTERLISTMAXVERSION)  AND D_COMPETENCY_KEY <> 0
+        name: I_CERTIFICATIONMASTERLIST
+        noLinkRefs: []
+  name: I_CERTIFICATIONMASTERLIST
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

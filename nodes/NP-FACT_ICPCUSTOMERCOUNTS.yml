@@ -1,0 +1,98 @@
+fileVersion: 1
+id: 7f1128c5-66e0-453c-b585-572d71533f6d
+name: FACT_ICPCUSTOMERCOUNTS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "A daily customer icp count usiing monthly counts and start of year counts (31 March) to be used in customer average of SAIDI and SAIFI calc. Will be hidden in Data Model"
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d5eafdce-a017-4429-bd96-aea08ce66192
+          stepCounter: 7f1128c5-66e0-453c-b585-572d71533f6d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Generated key for the date dimension. Nominal format is YYYYMMDD, but DD equal to 0 and greater than 31 permitted for special date handling.
+        isSurrogateKey: true
+        name: D_DATE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7ad6f211-f07a-40a0-89df-3bc14afb8076
+                stepCounter: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 12ffe943-3c17-4d62-ac55-7c4483f862f1
+          stepCounter: 7f1128c5-66e0-453c-b585-572d71533f6d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: The number of ICPs that we report to the media as being connected to the Northpower network. This is based on the Northpower connection status and not only excludes the decommissioned ICPs and new connections, but also excludes long term disconnected ICPs and Distributor Only ICPs.
+        name: START_YEAR_ICP_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cd8a3426-cc13-4fe5-a017-7a9d30381134
+          stepCounter: 7f1128c5-66e0-453c-b585-572d71533f6d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: The number of ICPs that we report to the media as being connected to the Northpower network. record per day for month
+        name: MONTHLY_ICP_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3927a869-12a0-4350-a962-b041cc8fbf1d
+          stepCounter: 7f1128c5-66e0-453c-b585-572d71533f6d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: The number of ICPs that we report to the media as being connected to the Northpower network. record per day for month
+        name: AVERAGE_CUSTOMER_COUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: (ICPCOUNTSTARTYEAR.STARTYEARICPCOUNT + ICPCOUNTS.STANDARDICPCOUNTS) / 2
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_DATE: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: D_DATE
+        join:
+          joinCondition: FROM {{ ref('NP','D_DATE') }}
+        name: FACT_ICPCUSTOMERCOUNTS
+        noLinkRefs: []
+  name: FACT_ICPCUSTOMERCOUNTS
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

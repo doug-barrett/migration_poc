@@ -1,0 +1,137 @@
+fileVersion: 1
+id: a564e88b-8e23-4176-9b1d-b7e99f5f7613
+name: I_PG_HRSOFWORKDAYSOFFOLD
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "In case the employee has not had a day off in a long time (longer than we are incrementally loading), then we need to find the last day off from the Fact where we keep more history."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0c0839fe-527b-452b-8a4e-70d63f1cb83a
+          stepCounter: a564e88b-8e23-4176-9b1d-b7e99f5f7613
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Boolean field indicating if the employee worked this day (On standby counts has having worked whether or not they get called in).
+        name: WORKED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e72ef036-85bc-498a-a6d8-a40a06f84acd
+                stepCounter: b8466268-1268-4b32-97ce-a9da7d885be7
+            transform: --NOT USED, JUST HERE SO RED CAN CALCULATE THE CORRECT TRACK BACK  MAX(F_HOURSOFWORK.WORKED)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6f8f3c06-92dc-499b-a8b0-5d9d96314d07
+          stepCounter: a564e88b-8e23-4176-9b1d-b7e99f5f7613
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Four digit employee number
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 39a7f726-964b-4027-8339-4508317dc1bb
+                stepCounter: e65d00f1-4487-4c70-a252-6eb1343a94bc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2e812ed0-2713-4bec-a14a-3cdd159a26cf
+          stepCounter: a564e88b-8e23-4176-9b1d-b7e99f5f7613
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: DAYOFF
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: efa09051-5e3a-4906-8feb-0e8ef0a75137
+                stepCounter: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+            transform: MAX(D_DATE.CALENDARDATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a64dc442-3c6f-4a26-aa76-8a9b110059a0
+          stepCounter: a564e88b-8e23-4176-9b1d-b7e99f5f7613
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: JUSTFORTRACKBACK
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 19c04131-a3b1-4d09-a3ef-789104404f83
+                stepCounter: 672e51cb-5ec7-4a51-87ba-e2aa00db70d6
+            transform: "''"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b826e4fa-29ed-4ce3-ab19-dc978be9373d
+          stepCounter: a564e88b-8e23-4176-9b1d-b7e99f5f7613
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 05a53602-127f-4bc1-918c-0b4bbeb95d6a
+          stepCounter: a564e88b-8e23-4176-9b1d-b7e99f5f7613
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_DATE: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+          D_EMPLOYEE: e65d00f1-4487-4c70-a252-6eb1343a94bc
+          F_HOURSOFWORK: b8466268-1268-4b32-97ce-a9da7d885be7
+          I_PG_HRSOFWORKBASEDATA: 672e51cb-5ec7-4a51-87ba-e2aa00db70d6
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: F_HOURSOFWORK
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: D_EMPLOYEE
+          - locationName: NP
+            nodeName: I_PG_HRSOFWORKBASEDATA
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_EMPLOYEE') }}
+              JOIN {{ ref('NP','F_HOURSOFWORK') }}
+              JOIN {{ ref('NP','I_PG_HRSOFWORKBASEDATA') }}
+        name: I_PG_HRSOFWORKDAYSOFFOLD
+        noLinkRefs: []
+  name: I_PG_HRSOFWORKDAYSOFFOLD
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

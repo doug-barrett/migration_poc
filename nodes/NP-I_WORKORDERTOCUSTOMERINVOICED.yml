@@ -1,0 +1,145 @@
+fileVersion: 1
+id: d55d7264-a1f5-4f0f-a56e-2b4e511004a5
+name: I_WORKORDERTOCUSTOMERINVOICED
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Associate Work Order with Customer via invoices that have been raised if the customer number is not already set against the TS work order header."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6e0d028a-bf9e-4195-9ed3-ac96815f43f2
+          stepCounter: d55d7264-a1f5-4f0f-a56e-2b4e511004a5
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: The Parent work order number or the actual work order number if it has no parent.
+        name: TSPARENTWORKORDERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3ec63448-df31-4bce-a771-67392cc5ce94
+                stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+            transform: PARENTDETAILS.WORKORDERNUMBER
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5d7565b8-8f32-4785-987c-4e8f5b91743e
+          stepCounter: d55d7264-a1f5-4f0f-a56e-2b4e511004a5
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: JDE numbers are prefixed with J so they do not conflict with old F1 numbers
+        name: CUSTOMERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: aaecca6c-5398-4df8-8c32-8529b53255b9
+                stepCounter: 6eb2aec1-5d76-4c10-8cb5-7d525897bc9f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cbfe6bee-b934-4ab6-be80-53182a241d57
+          stepCounter: d55d7264-a1f5-4f0f-a56e-2b4e511004a5
+        config: {}
+        dataType: NUMERIC(14,2)
+        defaultValue: ""
+        description: 'The amount (in local currency) of the debtor transaction, where the transactions is either an invoice or receipt. Included are the following transactions: $ARCREDT, $ARINVCE, WARINVD, WARCRND, WARCREC, WARCRNRC'
+        name: INVOICEAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1b109a6a-49ea-459d-95b6-3fa77d4b1b28
+                stepCounter: 600e65bd-cede-4423-88f7-fb4d765556be
+            transform: SUM(F_ARTRANSACTIONS.INVOICEAMOUNT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b7fcdc88-baa9-4782-819b-a276d4fc8b02
+          stepCounter: d55d7264-a1f5-4f0f-a56e-2b4e511004a5
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Orders the Debtors in descending order of amount paid so the main debtor is always number 1.
+        name: ROWNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e5e1ea61-9056-46df-a2d4-b77c87145429
+                stepCounter: 492f8016-3e2e-4b3c-89ec-303878359ba2
+            transform: ROW_NUMBER() OVER (PARTITION BY PARENTDETAILS.WORKORDERNUMBER ORDER BY SUM(INVOICEAMOUNT)DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ed58b60c-a3db-42b8-9263-ad433ea53180
+          stepCounter: d55d7264-a1f5-4f0f-a56e-2b4e511004a5
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0ce00960-b2e9-4b45-a30c-534bf1000ae2
+          stepCounter: d55d7264-a1f5-4f0f-a56e-2b4e511004a5
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_DEBTOR: 6eb2aec1-5d76-4c10-8cb5-7d525897bc9f
+          D_WORKORDER: 492f8016-3e2e-4b3c-89ec-303878359ba2
+          F_ARTRANSACTIONS: 600e65bd-cede-4423-88f7-fb4d765556be
+          I_JDE_WORKORDERDETAILS: 392055c7-3752-436b-9cec-c64eb9a11e00
+          I_WORKORDERTOCUSTOMER: 4574e9b7-5afe-4317-91d9-36728992be8c
+          I_WORKORDERTOCUSTOMERBASIC: bec6e88a-2284-4b60-aca3-3ccd8b786b22
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_JDE_WORKORDERDETAILS
+          - locationName: NP
+            nodeName: D_DEBTOR
+          - locationName: NP
+            nodeName: D_WORKORDER
+          - locationName: NP
+            nodeName: F_ARTRANSACTIONS
+          - locationName: NP
+            nodeName: I_WORKORDERTOCUSTOMER
+          - locationName: NP
+            nodeName: I_WORKORDERTOCUSTOMERBASIC
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_DEBTOR') }}
+              JOIN {{ ref('NP','D_WORKORDER') }}
+              JOIN {{ ref('NP','F_ARTRANSACTIONS') }}
+              JOIN {{ ref('NP','I_JDE_WORKORDERDETAILS') }}
+              JOIN {{ ref('NP','I_WORKORDERTOCUSTOMER') }}
+              JOIN {{ ref('NP','I_WORKORDERTOCUSTOMERBASIC') }}
+        name: I_WORKORDERTOCUSTOMERINVOICED
+        noLinkRefs: []
+  name: I_WORKORDERTOCUSTOMERINVOICED
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

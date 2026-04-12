@@ -1,0 +1,160 @@
+fileVersion: 1
+id: bb896616-0d0f-418f-a254-5f7ed68b95ff
+name: I_INVENTORYMONTHLYRECORD
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "One record per month for life of inventory item"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: af29ec46-1895-4f98-a532-4f0aef6bb597
+          stepCounter: bb896616-0d0f-418f-a254-5f7ed68b95ff
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: D_DATE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7ad6f211-f07a-40a0-89df-3bc14afb8076
+                stepCounter: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0c75f0f4-dec6-444f-8565-f8e6e3ec45ab
+          stepCounter: bb896616-0d0f-418f-a254-5f7ed68b95ff
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: The calendar date for this row.
+        name: CALENDARDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: efa09051-5e3a-4906-8feb-0e8ef0a75137
+                stepCounter: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+            transform: D_DATE.CALENDARDATE
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ef5fac60-120a-4499-be20-b5257a1b6911
+          stepCounter: bb896616-0d0f-418f-a254-5f7ed68b95ff
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: 'The calendar month representation. Format MMM YYYY. Example: Jan 2010'
+        name: MONTHYEARNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ab514b67-bd2d-4984-a80a-430f0452ec63
+                stepCounter: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d663ab7c-f018-47be-ab83-940411310c5d
+          stepCounter: bb896616-0d0f-418f-a254-5f7ed68b95ff
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Unique identifier for the Business Unit. This is the field recorded against every posted GL ledger transaction.
+        name: BUSINESSUNITCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3dc81392-612a-4b0d-8628-ea8a1c26e00a
+                stepCounter: b8bcc3d7-2836-4c31-875e-944431e4418d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 59dac316-e646-4eef-a5fc-dbc0896b3e57
+          stepCounter: bb896616-0d0f-418f-a254-5f7ed68b95ff
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Item Number - Short
+        name: ITEMCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 74c83482-2013-44c3-a295-a4d64099444e
+                stepCounter: b8bcc3d7-2836-4c31-875e-944431e4418d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 106fae29-d0f6-43c2-b17a-62732fa24c81
+          stepCounter: bb896616-0d0f-418f-a254-5f7ed68b95ff
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Unique identifier for the Branch Plant.
+        name: BRANCHPLANTCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 44613e4c-f097-443f-af43-c082d3c2fdbb
+                stepCounter: b8bcc3d7-2836-4c31-875e-944431e4418d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bbad88d3-8db5-4351-81bd-5806dba61b60
+          stepCounter: bb896616-0d0f-418f-a254-5f7ed68b95ff
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f6fc6784-fd7a-440c-a35e-b1138590f8c9
+          stepCounter: bb896616-0d0f-418f-a254-5f7ed68b95ff
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_DATE: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+          I_INVENTORYLIFEOFITEM: b8bcc3d7-2836-4c31-875e-944431e4418d
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: I_INVENTORYLIFEOFITEM
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_DATE') }} D_DATE
+              LEFT JOIN {{ ref('NP','I_INVENTORYLIFEOFITEM') }} I_INVENTORYLIFEOFITEM
+                ON CALENDARDATE BETWEEN FIRSTTRANSACTIONDATE AND LASTTRANSACTIONDATE --ONLY WANT THE DATES THAT HAVE BEEN USED IN THE TRANSACTION TABLE  WHERE CALENDARDATE BETWEEN FIRSTTRANSACTIONDATE AND LASTTRANSACTIONDATE  --ONLY WANT THE LAST DAY OF THE MONTH  AND CALENDARDATE = EOMONTH(CALENDARDATE)
+        name: I_INVENTORYMONTHLYRECORD
+        noLinkRefs: []
+  name: I_INVENTORYMONTHLYRECORD
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

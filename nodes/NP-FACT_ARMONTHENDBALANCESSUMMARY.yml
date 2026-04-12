@@ -1,0 +1,227 @@
+fileVersion: 1
+id: eb82f424-04d6-4920-be11-3af62b831361
+name: FACT_ARMONTHENDBALANCESSUMMARY
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Current transactions from the debtor ledger, excluding Staff, Bad Debt Written Off, and those with Debt Collection. A snapshot of these transactions is taken just after each period is rolled. - Reduced granularity for summary "
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c7ea7879-114f-4580-959d-05bd39aa908f
+          stepCounter: eb82f424-04d6-4920-be11-3af62b831361
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_ARTransactions.BMPLoadPeriodNo=D_Period.PeriodNumber
+        name: D_DATE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8a06bc52-55f2-4b44-ba48-2157de740abb
+                stepCounter: 5b7d615d-0d5c-42c3-9d63-fc28c199b960
+            transform: DBO.[NP_FUNC_PERIODKEYTODATEKEY](F_ARTRANSACTIONS_SS.D_SNAPSHOTPERIOD_KEY)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b22ef83d-5482-4c9c-af44-73b918677186
+          stepCounter: eb82f424-04d6-4920-be11-3af62b831361
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_ARTransactions.ObjectAccountCode=D_ObjectAccount.ObjectAccountCode
+        name: D_OBJECTACCOUNT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9eadb1d1-1332-4b87-9437-912f7c648d7e
+                stepCounter: 5b7d615d-0d5c-42c3-9d63-fc28c199b960
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8fb3064d-d658-458d-a774-899b06b3e436
+          stepCounter: eb82f424-04d6-4920-be11-3af62b831361
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_ARTransactions.BusinessUnitCode=D_BusinessUnit.BusinessUnitCode
+        name: D_BUSINESSUNIT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 31ec1148-aaa7-48ab-8875-6474ebabc4d3
+                stepCounter: 5b7d615d-0d5c-42c3-9d63-fc28c199b960
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 99a3f305-54a9-4705-b5d7-8215fa527dbb
+          stepCounter: eb82f424-04d6-4920-be11-3af62b831361
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_ARTransactions.DocumentCompanyBusinessUnitCode=D_AlternateBusinessUnit.BusinessUnitCode
+        name: D_ALTERNATEBUSINESSUNIT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8526443b-7f0d-405b-9263-9dde0724b68f
+                stepCounter: 5b7d615d-0d5c-42c3-9d63-fc28c199b960
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 97dabdf2-9587-458f-be4f-976482256c5e
+          stepCounter: eb82f424-04d6-4920-be11-3af62b831361
+        config: {}
+        dataType: NUMERIC(14,4)
+        defaultValue: ""
+        description: The unpaid (or unallocated for debtor receipts) amount of the invoice (in local currency).
+        name: OUTSTANDING_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 35f67c83-98de-4cf0-b87e-2c78aae931f5
+                stepCounter: 5b7d615d-0d5c-42c3-9d63-fc28c199b960
+            transform: SUM(F_ARTRANSACTIONS_SS.OUTSTANDINGAMOUNT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 98243f99-1e86-4e74-b40c-a0e8567ac51f
+          stepCounter: eb82f424-04d6-4920-be11-3af62b831361
+        config: {}
+        dataType: NUMERIC(14,4)
+        defaultValue: ""
+        description: The unpaid (or unallocated for debtor receipts) amount of the invoice (in local currency) where it is past the due date for the invoice.
+        name: OVERDUE_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4e4946ec-7d50-4306-8d8f-bab2801ae002
+                stepCounter: 5b7d615d-0d5c-42c3-9d63-fc28c199b960
+            transform: SUM(F_ARTRANSACTIONS_SS.OVERDUEAMOUNT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a4e8aefc-dca9-4224-9948-ae902b6a69e7
+          stepCounter: eb82f424-04d6-4920-be11-3af62b831361
+        config: {}
+        dataType: NUMERIC(14,4)
+        defaultValue: ""
+        description: The unpaid (or unallocated for debtor receipts) amount of the invoice (in local currency).
+        name: OUTSTANDING_AMOUNT_CURRENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 35f67c83-98de-4cf0-b87e-2c78aae931f5
+                stepCounter: 5b7d615d-0d5c-42c3-9d63-fc28c199b960
+            transform: SUM(CASE WHEN AGEING90DAYS = 'CURRENT' THEN OUTSTANDINGAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d0d2bdaf-b032-4e26-ba76-c1fc1cb8911b
+          stepCounter: eb82f424-04d6-4920-be11-3af62b831361
+        config: {}
+        dataType: NUMERIC(14,4)
+        defaultValue: ""
+        description: The unpaid (or unallocated for debtor receipts) amount of the invoice (in local currency).
+        name: OUTSTANDING_AMOUNT_1_TO_30_DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 35f67c83-98de-4cf0-b87e-2c78aae931f5
+                stepCounter: 5b7d615d-0d5c-42c3-9d63-fc28c199b960
+            transform: SUM(CASE WHEN AGEING90DAYS = '1 - 30 DAYS' THEN OUTSTANDINGAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4b08f139-8af3-4dd7-840d-a2b2cffbf107
+          stepCounter: eb82f424-04d6-4920-be11-3af62b831361
+        config: {}
+        dataType: NUMERIC(14,4)
+        defaultValue: ""
+        description: The unpaid (or unallocated for debtor receipts) amount of the invoice (in local currency).
+        name: OUTSTANDING_AMOUNT_31_TO_60_DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 35f67c83-98de-4cf0-b87e-2c78aae931f5
+                stepCounter: 5b7d615d-0d5c-42c3-9d63-fc28c199b960
+            transform: SUM(CASE WHEN AGEING90DAYS = '31 - 60 DAYS' THEN OUTSTANDINGAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 37de8ca0-38b7-4e35-932f-b3b99fdc6cb7
+          stepCounter: eb82f424-04d6-4920-be11-3af62b831361
+        config: {}
+        dataType: NUMERIC(14,4)
+        defaultValue: ""
+        description: The unpaid (or unallocated for debtor receipts) amount of the invoice (in local currency).
+        name: OUTSTANDING_AMOUNT_61_TO_90_DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 35f67c83-98de-4cf0-b87e-2c78aae931f5
+                stepCounter: 5b7d615d-0d5c-42c3-9d63-fc28c199b960
+            transform: SUM(CASE WHEN AGEING90DAYS = '61 - 90 DAYS' THEN OUTSTANDINGAMOUNT ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 90eff318-e8ed-4f21-9f04-0c368bde62aa
+          stepCounter: eb82f424-04d6-4920-be11-3af62b831361
+        config: {}
+        dataType: NUMERIC(14,4)
+        defaultValue: ""
+        description: The unpaid (or unallocated for debtor receipts) amount of the invoice (in local currency).
+        name: OUTSTANDING_AMOUNT_91_PLUS_DAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 35f67c83-98de-4cf0-b87e-2c78aae931f5
+                stepCounter: 5b7d615d-0d5c-42c3-9d63-fc28c199b960
+            transform: SUM(CASE WHEN AGEING90DAYS = '91+ DAYS' THEN OUTSTANDINGAMOUNT ELSE 0 END)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_AGEINGBRACKETS: fd3c78b0-fc64-43a8-ab2b-aa3de4672689
+          D_ALTERNATEBUSINESSUNIT: 14cb4977-b91d-499e-87d0-a58a3e96042f
+          D_BUSINESSUNIT: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+          D_OBJECTACCOUNT: 4f5997cc-a1a8-451d-bd59-629dc8871fd5
+          D_PERIOD: 3d55749e-d184-4c9c-870c-2ddfa2ac8f28
+          F_ARTRANSACTIONS: 600e65bd-cede-4423-88f7-fb4d765556be
+          F_ARTRANSACTIONS_SS: 5b7d615d-0d5c-42c3-9d63-fc28c199b960
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: F_ARTRANSACTIONS_SS
+          - locationName: NP
+            nodeName: D_AGEINGBRACKETS
+          - locationName: NP
+            nodeName: D_ALTERNATEBUSINESSUNIT
+          - locationName: NP
+            nodeName: D_BUSINESSUNIT
+          - locationName: NP
+            nodeName: D_OBJECTACCOUNT
+          - locationName: NP
+            nodeName: D_PERIOD
+          - locationName: NP
+            nodeName: F_ARTRANSACTIONS
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_AGEINGBRACKETS') }}
+              JOIN {{ ref('NP','D_ALTERNATEBUSINESSUNIT') }}
+              JOIN {{ ref('NP','D_BUSINESSUNIT') }}
+              JOIN {{ ref('NP','D_OBJECTACCOUNT') }}
+              JOIN {{ ref('NP','D_PERIOD') }}
+              JOIN {{ ref('NP','F_ARTRANSACTIONS') }}
+              JOIN {{ ref('NP','F_ARTRANSACTIONS_SS') }}
+        name: FACT_ARMONTHENDBALANCESSUMMARY
+        noLinkRefs: []
+  name: FACT_ARMONTHENDBALANCESSUMMARY
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

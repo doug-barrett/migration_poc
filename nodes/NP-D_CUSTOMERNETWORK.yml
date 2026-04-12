@@ -1,0 +1,160 @@
+fileVersion: 1
+id: c2fd4926-dcb3-4e3b-9712-f5c152514a17
+name: D_CUSTOMERNETWORK
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "List of the main customer networks Northpower does work on."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d88daff4-adaf-484a-a74e-04e7e8a515ca
+          stepCounter: c2fd4926-dcb3-4e3b-9712-f5c152514a17
+        config: {}
+        dataType: INTEGER IDENTITY(1,1)
+        defaultValue: ""
+        description: Generated artificial key
+        isSurrogateKey: true
+        name: D_CUSTOMERNETWORK_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c7e90840-e2b2-429c-b85e-9a8e27e4f754
+          stepCounter: c2fd4926-dcb3-4e3b-9712-f5c152514a17
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: The database ID of the NPSafe record
+        isBusinessKey: true
+        name: CUSTOMERNETWORKCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d546636c-7c03-4ae6-83a5-d45bbd0dc364
+                stepCounter: fba2d62d-0bdb-45ca-8683-1d77dd05fb36
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cdbc9a2f-37c0-42e3-a48d-7b74105ad25d
+          stepCounter: c2fd4926-dcb3-4e3b-9712-f5c152514a17
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: Where Other Customer is specified, then we will drill down to the smaller less frequent netwoks using this key
+        isBusinessKey: true
+        name: OTHERCUSTOMERCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1e0a43f1-d560-42c5-9ead-2494122de317
+                stepCounter: c9f61e8a-d8ed-49aa-bf0e-7f9f61c4daec
+            transform: --WHEN OTHER NETWORK  CASE WHEN L_NPS_NPSELOCCURRENCEVIEW.CUSTOMERNETWORK = 28   THEN      CASE WHEN ISNULL(L_NPS_NPSELOCCURRENCEVIEW.OTHERNETWORK,'') = ''      THEN 'NOT SPECIFIED'      ELSE L_NPS_NPSELOCCURRENCEVIEW.OTHERNETWORK     END   --USE MAIN NETWORK CODE AGAIN RATHER THAN DESCRIPTION   ELSE CONVERT(VARCHAR(15),I_NPS_CUSTOMERNETWORK.CUSTOMERNETWORKCODE)  END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 53924e4c-dc1b-4516-ba54-7653aeafa9e5
+          stepCounter: c2fd4926-dcb3-4e3b-9712-f5c152514a17
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: List of Customer Networks as set up in the NPSafe database.
+        name: MAINNETWORK
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 12ae590a-0f1a-4014-b79e-c4be1bc4c287
+                stepCounter: fba2d62d-0bdb-45ca-8683-1d77dd05fb36
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 00f83e69-97f1-42b1-a8ed-2cda903e242e
+          stepCounter: c2fd4926-dcb3-4e3b-9712-f5c152514a17
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: This attribute splits out the smaller "Other" networks
+        name: ALLNETWORKS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1e0a43f1-d560-42c5-9ead-2494122de317
+                stepCounter: c9f61e8a-d8ed-49aa-bf0e-7f9f61c4daec
+            transform: -- WHEN OTHER NETWORK  CASE WHEN L_NPS_NPSELOCCURRENCEVIEW.CUSTOMERNETWORK = 28   THEN      CASE WHEN ISNULL(L_NPS_NPSELOCCURRENCEVIEW.OTHERNETWORK,'') = ''      THEN 'NOT SPECIFIED'      ELSE L_NPS_NPSELOCCURRENCEVIEW.OTHERNETWORK     END   -- REPORT THE DESCRIPTION OF THE MAIN CUSTOMER IF NOT AN "OTHER" CUSTOMER NETWORK   ELSE I_NPS_CUSTOMERNETWORK.CUSTOMERNETWORK  END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b452b427-3847-4212-a4ce-9ebd3ed0db85
+          stepCounter: c2fd4926-dcb3-4e3b-9712-f5c152514a17
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: This attribute holds the name of Networks for which we can calculate TRIFR. All other Networks are grouped into "Other".  In order to do this, we need to record both employee and contractor hours by this Network. Currently we can only do this for Northpower Network, Northpower Fibre, Vector, Wellington Electricity and Transpower.
+        name: TRIFRNETWORKS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d546636c-7c03-4ae6-83a5-d45bbd0dc364
+                stepCounter: fba2d62d-0bdb-45ca-8683-1d77dd05fb36
+            transform: -- NETWORKS OF INTEREST  CASE WHEN I_NPS_CUSTOMERNETWORK.CUSTOMERNETWORKCODE IN (17,20,21,23,27)  -- 17 VECTOR, 20 TRANSPOWER, 21 NORTHPOWER NETWORK, 23 WELLINGTON ELECTRICITY, 27 NORTHPOWER FIBRE   THEN      I_NPS_CUSTOMERNETWORK.CUSTOMERNETWORK   -- REPORT THE DESCRIPTION AS OTHER IF NOT ONE OF THE ONES WE CAN CALCULATE THE TRIFR FOR   ELSE 'OTHER'  END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 87e6451f-2007-486d-ac63-9cffe4e07141
+          stepCounter: c2fd4926-dcb3-4e3b-9712-f5c152514a17
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6f9fe14d-be5f-40b3-a1ba-c953d89c2ede
+          stepCounter: c2fd4926-dcb3-4e3b-9712-f5c152514a17
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_NPS_CUSTOMERNETWORK: fba2d62d-0bdb-45ca-8683-1d77dd05fb36
+          L_NPS_NPSELOCCURRENCEVIEW: c9f61e8a-d8ed-49aa-bf0e-7f9f61c4daec
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_NPS_CUSTOMERNETWORK
+          - locationName: NP
+            nodeName: L_NPS_NPSELOCCURRENCEVIEW
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_NPS_CUSTOMERNETWORK') }}
+              JOIN {{ ref('NP','L_NPS_NPSELOCCURRENCEVIEW') }}
+        name: D_CUSTOMERNETWORK
+        noLinkRefs: []
+  name: D_CUSTOMERNETWORK
+  overrideSQL: false
+  schema: ""
+  sqlType: Dimension
+  type: sql
+  version: 1
+type: Node

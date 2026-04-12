@@ -1,0 +1,139 @@
+fileVersion: 1
+id: 7ddf384f-e48d-4a41-bd00-e194f5a05536
+name: I_INTSUP_LASTTASKTIME
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Reduce the list of timesheets to those that have been completed."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2f8289f6-c6cb-426f-8942-5784813ce2a8
+          stepCounter: 7ddf384f-e48d-4a41-bd00-e194f5a05536
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: ""
+        name: TIMESHEETID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f912bd4b-0ce9-46f0-ade7-8397fb2bd21e
+                stepCounter: 36f19007-b58f-415b-8759-8fcc9198b0c3
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c62bdf66-0a39-4897-9959-9880de5b5f3e
+          stepCounter: 7ddf384f-e48d-4a41-bd00-e194f5a05536
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Used to connect to the list of employees and tasks, as the last version will be the most accurate.
+        name: LASTVERSION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5a82bfe5-95b5-4226-9cb4-a8abce994bd8
+                stepCounter: 36f19007-b58f-415b-8759-8fcc9198b0c3
+            transform: --ALWAYS THE SAME, SO DOESN'T MATTER WHAT WE USE  MAX(I_INTSUP_COMPLETEDTIMESHEETS.LASTVERSION)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9942d45e-47e4-423f-8733-e6e66d8473a6
+          stepCounter: 7ddf384f-e48d-4a41-bd00-e194f5a05536
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: The time the last task is finished. Used to determine whether the employee worked late and therefore should have an extension for doing their timesheet.
+        name: LASTTASKFINISHTIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c435efcc-360e-40e3-b99a-87424c622725
+                stepCounter: 827fda26-cd3a-4cc5-a9d8-f7a1cbb269b7
+            transform: |-
+              MAX(DATEADD(DAY,
+                     CASE --AS FULCRUM ONLY STORES THE FINISH TIME, WE NEED TO DETERMINE WHICH DATE THE  -- FINISH TIME IS ON.       WHEN WORKED_PASTMIDNIGHT = 'YES'       OR DAY_OF_FINISH_TIME = 'TODAYPLUSONE'       THEN 1       ELSE 0 END  ,CONVERT(DATETIME, DATE + ' ' + FINISH_TIME)))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e9aa90c3-0abb-4c84-99f7-b9b75ad4a937
+          stepCounter: 7ddf384f-e48d-4a41-bd00-e194f5a05536
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ODSSourceSystemName
+        name: ODSSOURCESYSTEMNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b8386042-94b1-4d02-8156-05a4eab6be95
+                stepCounter: 36f19007-b58f-415b-8759-8fcc9198b0c3
+            transform: --ALWAYS THE SAME, SO DOESN'T MATTER WHAT WE USE  MAX(I_INTSUP_COMPLETEDTIMESHEETS.ODSSOURCESYSTEMNAME)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 674cc050-47fe-4fb9-b5c2-b2f8de665491
+          stepCounter: 7ddf384f-e48d-4a41-bd00-e194f5a05536
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 28f8b42b-f514-4bd0-af55-8a68638cbd39
+          stepCounter: 7ddf384f-e48d-4a41-bd00-e194f5a05536
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_VERSION: bdf0caae-54dd-4a57-b474-96f8e5b0dff2
+          I_INTSUP_COMPLETEDTIMESHEETS: 36f19007-b58f-415b-8759-8fcc9198b0c3
+          L_INTSUP_FULCRUMTIMESHEET: 0483731a-77ea-4c3a-b7fd-cd75539dcc28
+          L_INTSUP_FULCRUMTIMESHEETTASKS: 827fda26-cd3a-4cc5-a9d8-f7a1cbb269b7
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_INTSUP_COMPLETEDTIMESHEETS
+          - locationName: NP
+            nodeName: D_VERSION
+          - locationName: NP
+            nodeName: L_INTSUP_FULCRUMTIMESHEET
+          - locationName: NP
+            nodeName: L_INTSUP_FULCRUMTIMESHEETTASKS
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_VERSION') }}
+              JOIN {{ ref('NP','I_INTSUP_COMPLETEDTIMESHEETS') }}
+              JOIN {{ ref('NP','L_INTSUP_FULCRUMTIMESHEET') }}
+              JOIN {{ ref('NP','L_INTSUP_FULCRUMTIMESHEETTASKS') }}
+        name: I_INTSUP_LASTTASKTIME
+        noLinkRefs: []
+  name: I_INTSUP_LASTTASKTIME
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

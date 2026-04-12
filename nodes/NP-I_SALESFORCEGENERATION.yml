@@ -1,0 +1,75 @@
+fileVersion: 1
+id: 4825de17-3ccf-49c8-9581-330b4989f37c
+name: I_SALESFORCEGENERATION
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Salesforce Generation details from work order and cases.  Multi select will be turned off for this field, but there is not harm in creating records for all values coming into here for now"
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 308901d6-2dc6-4014-9a07-f67a700fe6b3
+          stepCounter: 4825de17-3ccf-49c8-9581-330b4989f37c
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: Generation Type
+        name: GENERATIONTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 26fbbef0-48ef-47e9-aa7a-2a7efd1a5bf9
+                stepCounter: a64f34b7-65dd-47e9-830d-b94b7379949d
+            transform: COALESCE(I_SALESFORCECASES.GENERATIONTYPE, I_SALESFORCEWORKORDERS.GENERATIONTYPE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a27ee4ed-a12f-46f9-8fdc-79c91d7a14f7
+          stepCounter: 4825de17-3ccf-49c8-9581-330b4989f37c
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: Energy Storage Type
+        name: ENERGYSTORAGETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 37a665d6-4788-4d03-9912-d3e938acb9bb
+                stepCounter: a64f34b7-65dd-47e9-830d-b94b7379949d
+            transform: |-
+              CASE WHEN ISNULL(I_SALESFORCEWORKORDERS.ENERGYSTORAGETYPE, 'NOT APPLICABLE') = 'NOT APPLICABLE' THEN ISNULL(I_SALESFORCECASES.ENERGYSTORAGETYPE, 'NOT APPLICABLE')
+                          ELSE ISNULL(I_SALESFORCEWORKORDERS.ENERGYSTORAGETYPE, 'NOT APPLICABLE')
+                           END
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_SALESFORCECASES: a64f34b7-65dd-47e9-830d-b94b7379949d
+          I_SALESFORCEWORKORDERS: 9e69ba6b-13a5-4565-a8a3-65036be3efa4
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_SALESFORCECASES
+          - locationName: NP
+            nodeName: I_SALESFORCEWORKORDERS
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_SALESFORCECASES') }}
+              JOIN {{ ref('NP','I_SALESFORCEWORKORDERS') }}
+        name: I_SALESFORCEGENERATION
+        noLinkRefs: []
+  name: I_SALESFORCEGENERATION
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

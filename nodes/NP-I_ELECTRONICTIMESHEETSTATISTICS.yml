@@ -1,0 +1,286 @@
+fileVersion: 1
+id: 56ec558b-5e78-4516-a71c-56caaca1a10e
+name: I_ELECTRONICTIMESHEETSTATISTICS
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 212bc472-a0dc-4d68-9200-601efb4ecf46
+          stepCounter: 56ec558b-5e78-4516-a71c-56caaca1a10e
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Four digit employee number
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5c9685d5-d278-44f3-b7db-732242c4e42a
+                stepCounter: a3721a17-0390-4298-8042-4e905749897d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bcb32e85-f1a8-4dc8-9533-c264af98af8f
+          stepCounter: 56ec558b-5e78-4516-a71c-56caaca1a10e
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: CALENDARDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 61d4fbb6-96fc-42b5-bb5b-fad0283fc655
+                stepCounter: a3721a17-0390-4298-8042-4e905749897d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eacba558-aaec-4b7f-bc1e-9f5213762e74
+          stepCounter: 56ec558b-5e78-4516-a71c-56caaca1a10e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PERIODNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6584b5e1-336c-4f9f-99ff-226ef43aaf40
+                stepCounter: a3721a17-0390-4298-8042-4e905749897d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8f54584d-9625-4443-9d20-4d6ce45d3178
+          stepCounter: 56ec558b-5e78-4516-a71c-56caaca1a10e
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Business Unit of the Allowance if it exists, otherwise the home business unit of the employee.
+        name: BUSINESSUNITCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f25f96de-fd89-4193-a895-81eb95d31304
+                stepCounter: a3721a17-0390-4298-8042-4e905749897d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 606599e4-ce0d-41b9-95d7-17021eb9175f
+          stepCounter: 56ec558b-5e78-4516-a71c-56caaca1a10e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Number of Timesheets entered (both electronic and paper)
+        name: TIMESHEETCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 693042e0-b358-4332-986d-008b47bf7e21
+                stepCounter: a3721a17-0390-4298-8042-4e905749897d
+            transform: I_PG_TIMESHEETS.TIMESHEETCOUNT + I_PG_TIMESHEETS.NOTIMESHEET
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8a6ff5a7-31e8-48a6-833d-221bd0890204
+          stepCounter: 56ec558b-5e78-4516-a71c-56caaca1a10e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Count of the number of week days that do not have data entered for them.
+        name: MISSINGTIMESHEET
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f483dac2-5e28-4d9a-addc-e71e5418951c
+                stepCounter: a3721a17-0390-4298-8042-4e905749897d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 16fdb02a-ac0a-4dcf-b842-acf51c995189
+          stepCounter: 56ec558b-5e78-4516-a71c-56caaca1a10e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Number of Timesheets that we do not have an electronic record for
+        name: PAPERTIMESHEET
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0f2769c4-2dcd-4d4b-b096-452da9c18476
+                stepCounter: fc3e724d-d7c1-4128-b62d-eefd468c947f
+            transform: CASE -- NO RECORD IN THE ELECTRONIC TIMESHEETS DATASET   -- OR THE STATUS OF THE TIMESHEET IS NOT COMPLETED  WHEN (I_TIMESHEETAUDIT.EMPLOYEENUMBER IS NULL     OR I_TIMESHEETAUDIT.LASTSTATUS = 'IN PROGRESS')   -- BUT THERE WAS DATA IN THE PAYGLOBAL DATABASE    AND I_PG_TIMESHEETS.NOTIMESHEET = 0  THEN 1 ELSE 0 END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 20a5e7e1-4ced-400d-a153-317383aebee5
+          stepCounter: 56ec558b-5e78-4516-a71c-56caaca1a10e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Number of Timesheets that we have an electronic record for. Note, it's possible to have more than one per employee per day if their overtime is submitted separately.
+        name: ELECTRONICTIMESHEET
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0f2769c4-2dcd-4d4b-b096-452da9c18476
+                stepCounter: fc3e724d-d7c1-4128-b62d-eefd468c947f
+            transform: |-
+              CASE WHEN I_TIMESHEETAUDIT.EMPLOYEENUMBER IS NOT NULL AND I_TIMESHEETAUDIT.LASTSTATUS = 'COMPLETED' THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1d25d0bc-f567-46bf-9704-ae1016569902
+          stepCounter: 56ec558b-5e78-4516-a71c-56caaca1a10e
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the timesheet was first submitted
+        name: FIRSTSUBMIT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c7ea230d-3da0-4e03-a79b-dee6969243d4
+                stepCounter: fc3e724d-d7c1-4128-b62d-eefd468c947f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 353f59fb-907d-4cf5-bbc7-d4a2f46cd254
+          stepCounter: 56ec558b-5e78-4516-a71c-56caaca1a10e
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: FIRSTAPPROVAL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c825ef60-d4f0-42d2-a024-bad32238e877
+                stepCounter: fc3e724d-d7c1-4128-b62d-eefd468c947f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 122709a6-1029-48e5-800a-3dd0ae161aed
+          stepCounter: 56ec558b-5e78-4516-a71c-56caaca1a10e
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: TIMESHEETFINISHTIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 42095452-16df-47df-83c4-e2cec8920a50
+                stepCounter: fc3e724d-d7c1-4128-b62d-eefd468c947f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1b6517fd-97b9-4e5a-8a7a-54fd5ed5af99
+          stepCounter: 56ec558b-5e78-4516-a71c-56caaca1a10e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Indicates if the Timesheet is submitted on time. It works off the first submission in case its been rejected at some stage.
+        name: SUBMITONTIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c7ea230d-3da0-4e03-a79b-dee6969243d4
+                stepCounter: fc3e724d-d7c1-4128-b62d-eefd468c947f
+            transform: CASE --EXCLUDE PAPER TIMESHEETS   WHEN (I_TIMESHEETAUDIT.EMPLOYEENUMBER IS NULL     OR I_TIMESHEETAUDIT.LASTSTATUS = 'IN PROGRESS')   -- BUT THERE WAS DATA IN THE PAYGLOBAL DATABASE    AND I_PG_TIMESHEETS.NOTIMESHEET = 0   THEN 0   --SOMETIMES THE FULCRUM AUDIT DATE IS NULL, ASSUME THESE ARE SUBMITTED ON TIME   WHEN I_TIMESHEETAUDIT.EMPLOYEENUMBER IS NOT NULL    AND I_TIMESHEETAUDIT.LASTSTATUS = 'COMPLETED'    AND FIRSTSUBMIT IS NULL THEN 1   --SUBMITTED ON SAME DAY   WHEN CONVERT(DATE,FIRSTSUBMIT) = DATETIMESHEET THEN 1   --SUBMITTED BEFORE 8:00AM NEXT DAY   WHEN CALENDARDATE < '2020-09-03' AND DATEDIFF(DAY,CALENDARDATE,FIRSTSUBMIT) = 1 AND DATEPART(HOUR,FIRSTSUBMIT) < 8 THEN 1   --SUBMITTED BEFORE 9:00AM NEXT DAY   WHEN CALENDARDATE >= '2020-09-03' AND DATEDIFF(DAY,CALENDARDATE,FIRSTSUBMIT) = 1 AND DATEPART(HOUR,FIRSTSUBMIT) < 9 THEN 1   --FINISHED LATE   WHEN CONVERT(DATE,TIMESHEETFINISHTIME) = DATETIMESHEET AND DATEPART(HOUR,TIMESHEETFINISHTIME) >= 18    -- AND SUBMITTED BEFORE 1:00PM NEXT DAY    AND DATEDIFF(DAY,CALENDARDATE,FIRSTSUBMIT) = 1 AND DATEPART(HOUR,FIRSTSUBMIT) < 13 THEN 1   --FRIDAY AND SATURDAY WORK CAN WAIT UNTIL MONDAY FOR SUBMISSION   --FRIDAY OR SATURDAY AND SUBMITTED ON THE NEXT DAY   WHEN DATEPART(DW,CALENDARDATE) IN (6,7) AND DATEDIFF(DAY,CALENDARDATE,FIRSTSUBMIT) = 1 THEN 1   --FRIDAY AND SUBMITTED ON SUNDAY   WHEN DATEPART(DW,CALENDARDATE) = 6 AND DATEDIFF(DAY,CALENDARDATE,FIRSTSUBMIT) = 2 THEN 1   --SATURDAY AND SUBMITTED BEFORE 8:00AM MONDAY   WHEN CALENDARDATE < '2020-09-03' AND DATEPART(DW,CALENDARDATE) = 7 AND DATEDIFF(DAY,CALENDARDATE,FIRSTSUBMIT) = 2 AND DATEPART(HOUR,FIRSTSUBMIT) < 8 THEN 1   --SATURDAY AND SUBMITTED BEFORE 9:00AM MONDAY   WHEN CALENDARDATE >= '2020-09-03' AND DATEPART(DW,CALENDARDATE) = 7 AND DATEDIFF(DAY,CALENDARDATE,FIRSTSUBMIT) = 2 AND DATEPART(HOUR,FIRSTSUBMIT) < 9 THEN 1   --FRIDAY AND SUBMITTED BEFORE 8:00AM MONDAY   WHEN CALENDARDATE < '2020-09-03' AND DATEPART(DW,CALENDARDATE) = 6 AND DATEDIFF(DAY,CALENDARDATE,FIRSTSUBMIT) = 3 AND DATEPART(HOUR,FIRSTSUBMIT) < 8 THEN 1   --FRIDAY AND SUBMITTED BEFORE 9:00AM MONDAY   WHEN CALENDARDATE >= '2020-09-03' AND DATEPART(DW,CALENDARDATE) = 6 AND DATEDIFF(DAY,CALENDARDATE,FIRSTSUBMIT) = 3 AND DATEPART(HOUR,FIRSTSUBMIT) < 9 THEN 1  ELSE 0 END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 99ee5cdc-98f1-4561-becb-f1a95e06e4b5
+          stepCounter: 56ec558b-5e78-4516-a71c-56caaca1a10e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Indicates if the Timesheet has been approved on time. It works off the date and time of the first approval or rejection instance in case its been rejected at some stage.
+        name: APPROVEONTIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c825ef60-d4f0-42d2-a024-bad32238e877
+                stepCounter: fc3e724d-d7c1-4128-b62d-eefd468c947f
+            transform: CASE --EXCLUDE PAPER TIMESHEETS   WHEN (I_TIMESHEETAUDIT.EMPLOYEENUMBER IS NULL     OR I_TIMESHEETAUDIT.LASTSTATUS = 'IN PROGRESS')   -- BUT THERE WAS DATA IN THE PAYGLOBAL DATABASE    AND I_PG_TIMESHEETS.NOTIMESHEET = 0   THEN 0   --SOMETIMES THE FULCRUM SYSTEM DOES NOT RECORD THE UPDATE TIME FOR A RECORD CHANGE   -- ASSUME TIMESHEET WAS APPROVED ON TIME   WHEN I_TIMESHEETAUDIT.EMPLOYEENUMBER IS NOT NULL    AND I_TIMESHEETAUDIT.LASTSTATUS = 'COMPLETED'    AND (FIRSTSUBMIT IS NULL OR FIRSTAPPROVAL IS NULL) THEN 1   --IF EMPLOYEE SUBMITS THE TIMESHEET EARLY, THEN APPROVER STILL HAS UNTIL 11:00AM THE DAY FOLLOWING TO APPROVE    WHEN DATEDIFF(DAY,CALENDARDATE,FIRSTAPPROVAL) <= 1    AND DATEPART(HOUR,FIRSTAPPROVAL) < 11 THEN 1   --APPROVED ON SAME DAY, BUT TIMESHEET SUBMITTED AFTER SUBMISSION CUTOFF (NOW 9:00AM)   WHEN CONVERT(DATE,FIRSTSUBMIT) = CONVERT(DATE,FIRSTAPPROVAL)    --IF SUBMITTED BEFORE CUTOFF, THEN IT SHOULD BE PICKED UP BY NEXT CHECK    AND (CALENDARDATE < '2020-09-03' AND DATEPART(HOUR,FIRSTSUBMIT) >= 8     OR CALENDARDATE >= '2020-09-03' AND DATEPART(HOUR,FIRSTSUBMIT) >= 9)   THEN 1   --APPROVED SAME DAY, BUT TIMESHEET WAS SUBMITTED BEFORE SUBMISSION CUTOFF (PRIOR TO 4/9/2020 WAS 8:00AM, NOW 9:00)   WHEN CONVERT(DATE,FIRSTSUBMIT) = CONVERT(DATE,FIRSTAPPROVAL)    AND CALENDARDATE < '2020-09-03'    AND DATEPART(HOUR,FIRSTSUBMIT) < 8    -- AND APPROVED BEFORE 9:30AM CUTOFF    AND (DATEPART(HOUR,FIRSTAPPROVAL) < 9 OR (DATEPART(HOUR,FIRSTAPPROVAL) = 9 AND DATEPART(MINUTE,FIRSTAPPROVAL) <30))   THEN 1   WHEN CONVERT(DATE,FIRSTSUBMIT) = CONVERT(DATE,FIRSTAPPROVAL)    AND CALENDARDATE >= '2020-09-03'    AND DATEPART(HOUR,FIRSTSUBMIT) < 9    -- AND APPROVED BEFORE 11:00AM CUTOFF    AND DATEPART(HOUR,FIRSTAPPROVAL) < 11   THEN 1   --APPROVED NEXT DAY   WHEN DATEDIFF(DAY,FIRSTSUBMIT,FIRSTAPPROVAL) <= 1    --EMPLOYEE SUBMITTED AFTER CUTOFF TIME (PRIOR TO 4/9/2020 WAS 8:00AM)    AND CALENDARDATE < '2020-09-03'    AND DATEPART(HOUR,FIRSTSUBMIT) >= 8    -- AND APPROVED BEFORE 9:30AM CUTOFF    AND (DATEPART(HOUR,FIRSTAPPROVAL) < 9 OR (DATEPART(HOUR,FIRSTAPPROVAL) = 9 AND DATEPART(MINUTE,FIRSTAPPROVAL) <30))   THEN 1   WHEN DATEDIFF(DAY,FIRSTSUBMIT,FIRSTAPPROVAL) <= 1    --EMPLOYEE SUBMITTED AFTER THE CUTOFF TIME (NOW 9:00AM)    AND CALENDARDATE >= '2020-09-03'    AND DATEPART(HOUR,FIRSTSUBMIT) >= 9    -- AND APPROVED BEFORE 11:00AM CUTOFF    AND DATEPART(HOUR,FIRSTAPPROVAL) < 11   THEN 1     --TUESDAY SPECIAL RUN   WHEN DATEPART(DW,FIRSTAPPROVAL) = 3    --SUBMITTED SINCE 7:00AM THAT MORNING    AND DATEDIFF(HOUR,FIRSTSUBMIT,FIRSTAPPROVAL) < 7    --SUBMITTED PRIOR TO 2:00PM CUTOFF    AND DATEPART(HOUR,FIRSTAPPROVAL) < 14   THEN 1   --ON MONDAY MORNING THEY COULD BE SUBMITTING ANYTHING FROM FRIDAY ONWARDS   WHEN DATEPART(DW,FIRSTAPPROVAL) = 2    AND DATEDIFF(HOUR,FIRSTSUBMIT,FIRSTAPPROVAL) < 72    AND CALENDARDATE < '2020-09-03'    AND (DATEPART(HOUR,FIRSTAPPROVAL) < 9 OR (DATEPART(HOUR,FIRSTAPPROVAL) = 9 AND DATEPART(MINUTE,FIRSTAPPROVAL) <30))   THEN 1   --ON MONDAY MORNING THEY COULD BE SUBMITTING ANYTHING FROM FRIDAY ONWARDS   WHEN DATEPART(DW,FIRSTAPPROVAL) = 2    AND DATEDIFF(HOUR,FIRSTSUBMIT,FIRSTAPPROVAL) < 72    AND CALENDARDATE >= '2020-09-03'    AND DATEPART(HOUR,FIRSTAPPROVAL) < 11   THEN 1  ELSE 0 END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a3725657-66e9-49f6-9893-7f584a72e848
+          stepCounter: 56ec558b-5e78-4516-a71c-56caaca1a10e
+        config: {}
+        dataType: VARCHAR(256)
+        defaultValue: ""
+        description: ""
+        name: APPROVERCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7682ce95-9118-4dbf-bbaa-262537c036a0
+                stepCounter: fc3e724d-d7c1-4128-b62d-eefd468c947f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c404e256-801d-4a71-bafb-de769435fb09
+          stepCounter: 56ec558b-5e78-4516-a71c-56caaca1a10e
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dd9eca19-f6cc-455b-83b2-ab05681c3bc4
+          stepCounter: 56ec558b-5e78-4516-a71c-56caaca1a10e
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_EMPLOYEE: e65d00f1-4487-4c70-a252-6eb1343a94bc
+          I_PG_TIMESHEETS: a3721a17-0390-4298-8042-4e905749897d
+          I_TIMESHEETAUDIT: fc3e724d-d7c1-4128-b62d-eefd468c947f
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_PG_TIMESHEETS
+          - locationName: NP
+            nodeName: D_EMPLOYEE
+          - locationName: NP
+            nodeName: I_TIMESHEETAUDIT
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_EMPLOYEE') }}
+              JOIN {{ ref('NP','I_PG_TIMESHEETS') }}
+              JOIN {{ ref('NP','I_TIMESHEETAUDIT') }}
+        name: I_ELECTRONICTIMESHEETSTATISTICS
+        noLinkRefs: []
+  name: I_ELECTRONICTIMESHEETSTATISTICS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

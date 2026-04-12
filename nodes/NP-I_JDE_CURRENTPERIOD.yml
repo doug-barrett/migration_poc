@@ -1,0 +1,144 @@
+fileVersion: 1
+id: 4e3005f2-50e9-477f-a3c0-b80b9eacd779
+name: I_JDE_CURRENTPERIOD
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "JDE financial period based on the Accounts Receivable period from the Northpower Group company name."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c1da4e2f-05b5-4b9a-b2a7-a0750b9e4685
+          stepCounter: 4e3005f2-50e9-477f-a3c0-b80b9eacd779
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: Combination of the financial year and period
+        name: FINYEARPERIOD
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: --CONVERT(VARCHAR(4),2000+L_JDE_F0010_COMPANYCONSTANTS.CCDFF)  CONVERT(VARCHAR(4),YEAR(DBO.NP_FUNC_JDEDATETOJULIAN(CCARFJ)))  + '-'  + CONVERT(VARCHAR(2),L_JDE_F0010_COMPANYCONSTANTS.CCARPN)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d866e177-7f00-48d6-9513-c4a38b7bd450
+          stepCounter: 4e3005f2-50e9-477f-a3c0-b80b9eacd779
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: The year of the first calendar month of the financial year April to March.
+        name: FINYEAR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 11fb69b9-f142-4cc2-ad6e-5cc8314354d5
+                stepCounter: 29a2ccd8-6934-404b-b006-d7abdfe3db1a
+            transform: YEAR(DBO.NP_FUNC_JDEDATETOJULIAN(L_JDE_F0010_COMPANYCONSTANTS.CCARFJ))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 368cf34c-edb5-4646-a450-b0b0c14513a0
+          stepCounter: 4e3005f2-50e9-477f-a3c0-b80b9eacd779
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: The number of the AR financial period from April through to March.
+        name: ARFINPERIOD
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4a039d3a-f625-4e6a-818a-dcd75d92ae76
+                stepCounter: 29a2ccd8-6934-404b-b006-d7abdfe3db1a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 486055e1-5d94-4241-824b-3b9a5fd70507
+          stepCounter: 4e3005f2-50e9-477f-a3c0-b80b9eacd779
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: The number of the AP financial period from April through to March.
+        name: APFINPERIOD
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: eb352622-12e1-4d95-9065-b602def09ce1
+                stepCounter: 29a2ccd8-6934-404b-b006-d7abdfe3db1a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 409c8bc9-91e7-48f4-8623-18eef011bdf8
+          stepCounter: 4e3005f2-50e9-477f-a3c0-b80b9eacd779
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: The first day that this period is open within Finance1
+        name: FIRSTDAYOFPERIOD
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: CONVERT(DATETIME, CAST(DAY(GETDATE()) AS VARCHAR(2)) + '/' + CAST(MONTH(GETDATE()) AS VARCHAR(2)) + '/' + CAST(YEAR(GETDATE()) AS VARCHAR(4)), 103)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a2bcb19d-88b1-4691-b4d0-65ae6dc7b203
+          stepCounter: 4e3005f2-50e9-477f-a3c0-b80b9eacd779
+        config: {}
+        dataType: VARCHAR(5)
+        defaultValue: ""
+        description: Company
+        name: COMPANY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 857e667c-c8ba-4dac-a7aa-6ae86a9dcd87
+                stepCounter: 29a2ccd8-6934-404b-b006-d7abdfe3db1a
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 230ae46d-719c-4757-85cf-65c6d073d94e
+          stepCounter: 4e3005f2-50e9-477f-a3c0-b80b9eacd779
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_DATE: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+          L_JDE_F0010_COMPANYCONSTANTS: 29a2ccd8-6934-404b-b006-d7abdfe3db1a
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_JDE_F0010_COMPANYCONSTANTS
+          - locationName: NP
+            nodeName: D_DATE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','L_JDE_F0010_COMPANYCONSTANTS') }}
+        name: I_JDE_CURRENTPERIOD
+        noLinkRefs: []
+  name: I_JDE_CURRENTPERIOD
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

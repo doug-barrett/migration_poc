@@ -1,0 +1,136 @@
+fileVersion: 1
+id: 6858626c-9f51-4bea-aaac-6dd5fc9c049d
+name: I_NPS_AUDITWORKORDER_HIST
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Works out the most likely work order from the values provided in the free text field.As the check takes a while, we only want to do it for the ones that are new or changed."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 719b6e72-0242-4fe2-8de5-158cb200dc80
+          stepCounter: 6858626c-9f51-4bea-aaac-6dd5fc9c049d
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: AUDITID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 12345bbb-c716-4a89-b0bb-0b08fa3b2644
+                stepCounter: bea19e26-976a-4a50-9b72-83ee6e328806
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2decb2d1-6671-4863-8528-58436f1f65fb
+          stepCounter: 6858626c-9f51-4bea-aaac-6dd5fc9c049d
+        config: {}
+        dataType: NVARCHAR(MAX)
+        defaultValue: ""
+        description: ""
+        name: RESPONSE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 149d09a9-a3f8-4770-9b0a-8e119894e197
+                stepCounter: 582e96da-5e83-46ee-bcc6-58e5ae8a6195
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 519b641e-dc52-4e1f-bfa9-9d525f386198
+          stepCounter: 6858626c-9f51-4bea-aaac-6dd5fc9c049d
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: AUDITCHECKLISTID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 42c79e20-032e-4ed8-a2e5-cab22ea47054
+                stepCounter: 582e96da-5e83-46ee-bcc6-58e5ae8a6195
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 416f351b-d817-470b-8441-26f462913a25
+          stepCounter: 6858626c-9f51-4bea-aaac-6dd5fc9c049d
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: WORKORDERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 42c79e20-032e-4ed8-a2e5-cab22ea47054
+                stepCounter: 582e96da-5e83-46ee-bcc6-58e5ae8a6195
+            transform: DBO.NP_FUNC_VALIDWORKORDER(L_NPS_AUDITCHECKLISTQUESTION.RESPONSE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 174dd062-a51c-4768-b477-d2f0ff7d299a
+          stepCounter: 6858626c-9f51-4bea-aaac-6dd5fc9c049d
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 96530b3a-dacb-46e3-ad58-7e688bd0d6a2
+          stepCounter: 6858626c-9f51-4bea-aaac-6dd5fc9c049d
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          L_NPS_AUDITCHECKLIST: bea19e26-976a-4a50-9b72-83ee6e328806
+          L_NPS_AUDITCHECKLISTQUESTION: 582e96da-5e83-46ee-bcc6-58e5ae8a6195
+          I_NPS_AUDITWORKORDER_HIST: 6858626c-9f51-4bea-aaac-6dd5fc9c049d
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_NPS_AUDITCHECKLIST
+          - locationName: NP
+            nodeName: L_NPS_AUDITCHECKLISTQUESTION
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','L_NPS_AUDITCHECKLIST') }} L_NPS_AUDITCHECKLIST
+              JOIN {{ ref('NP','L_NPS_AUDITCHECKLISTQUESTION') }} L_NPS_AUDITCHECKLISTQUESTION
+                ON L_NPS_AUDITCHECKLIST.ID = L_NPS_AUDITCHECKLISTQUESTION.AUDITCHECKLISTID
+              LEFT OUTER JOIN {{ ref_no_link('NP','I_NPS_AUDITWORKORDER_HIST') }}
+                ON L_NPS_AUDITCHECKLIST.AUDITID = I_NPS_AUDITWORKORDER_HIST.AUDITID
+               AND L_NPS_AUDITCHECKLISTQUESTION.RESPONSE = I_NPS_AUDITWORKORDER_HIST.RESPONSE
+             WHERE L_NPS_AUDITCHECKLISTQUESTION.RESPONSE IS NOT NULL
+               AND L_NPS_AUDITCHECKLISTQUESTION.QUESTIONTEXT LIKE '%#72' --COMMON JOB NUMBER QUESTION  AND I_NPS_AUDITWORKORDER_HIST.AUDITID IS NULL -- ONLY FIND RECORDS FOR NEW OR UPDATED RESPONSES
+        name: I_NPS_AUDITWORKORDER_HIST
+        noLinkRefs: []
+  name: I_NPS_AUDITWORKORDER_HIST
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

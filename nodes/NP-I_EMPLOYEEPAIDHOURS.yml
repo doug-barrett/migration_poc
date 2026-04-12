@@ -1,0 +1,148 @@
+fileVersion: 1
+id: 050b7a06-390a-430c-9642-bc03e8086093
+name: I_EMPLOYEEPAIDHOURS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "This subset of the Productivity data has one record per employee per day where the employee would be expected to submit a timesheet. Excludes leave and non hourly based allowances like standby.  Criteria code should be similar to I_EmployeeResourceHours"
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c27bcd3d-b294-469b-99aa-31ede4f41d65
+          stepCounter: 050b7a06-390a-430c-9642-bc03e8086093
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: Total Paid Hours
+        name: PAIDHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ec3f4096-33a6-416b-b5c4-82acf50c7e23
+                stepCounter: 1e53fe9a-7ec2-4f6a-9bab-f6f4812ea86e
+            transform: SUM(F_PRODUCTIVITY.PRODUCTIVITYPAIDHOURS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aec055ca-54a8-4c85-8c3e-5f397a000aee
+          stepCounter: 050b7a06-390a-430c-9642-bc03e8086093
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Four digit employee number
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 39a7f726-964b-4027-8339-4508317dc1bb
+                stepCounter: e65d00f1-4487-4c70-a252-6eb1343a94bc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d49f7c3f-fedb-4064-bfc1-c9339798df39
+          stepCounter: 050b7a06-390a-430c-9642-bc03e8086093
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: The calendar date for this row.
+        name: CALENDARDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: efa09051-5e3a-4906-8feb-0e8ef0a75137
+                stepCounter: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a68fd45b-28b1-4aec-9ea7-c7d634c7215d
+          stepCounter: 050b7a06-390a-430c-9642-bc03e8086093
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: A separate number is assigned to each period used in the ODS to be used as the business key. A period is a financial month.
+        name: PERIODNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cc6fdccc-1617-415a-95c2-48d341077bd9
+                stepCounter: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+            transform: -- THERE WILL BE ONLY ONE  MIN(D_DATE.PERIODNUMBER)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: acafd84a-ba46-4da9-acc3-545b341dbf1b
+          stepCounter: 050b7a06-390a-430c-9642-bc03e8086093
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Unique identifier for the Business Unit. This is the field recorded against every posted GL ledger transaction.
+        name: BUSINESSUNITCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 09e4eb30-711b-40a6-8818-330395406e69
+                stepCounter: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+            transform: -- WE WANT ONLY ONE   -- USE THE EMPLOYEE BUSINESS UNIT ON THE OFF CHANCE THE BU RECORD IS NOT SET  MIN(   CASE   WHEN D_BUSINESSUNIT.BUSINESSUNITCODE = 'UNKNOWN'   THEN D_EMPLOYEE.BUSINESSUNITCODE   ELSE D_BUSINESSUNIT.BUSINESSUNITCODE   END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d9d488a5-599d-4027-96f6-468886d71597
+          stepCounter: 050b7a06-390a-430c-9642-bc03e8086093
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: Chargeable time is set to 1, Leave is set to the item code that it's costed to in Finance1, Non-chargeable time is set to the dummy Job numbers that are set up in PayGlobal.
+        name: PAIDHOURSTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c54fbbe2-33f5-4fcd-aa7e-df2dd684b3df
+                stepCounter: 9ed7e334-f397-45a5-916c-ec299f6c0208
+            transform: -- WE WANT ONLY ONE  MIN(D_PAIDHOURSTYPE.PAIDHOURSTYPECODE)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_BUSINESSUNIT: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+          D_DATE: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+          D_EMPLOYEE: e65d00f1-4487-4c70-a252-6eb1343a94bc
+          D_PAIDHOURSTYPE: 9ed7e334-f397-45a5-916c-ec299f6c0208
+          D_PAYROLLALLOWANCE: 925727a0-4193-4b25-91a7-9491c9652c95
+          F_PRODUCTIVITY: 1e53fe9a-7ec2-4f6a-9bab-f6f4812ea86e
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: F_PRODUCTIVITY
+          - locationName: NP
+            nodeName: D_BUSINESSUNIT
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: D_EMPLOYEE
+          - locationName: NP
+            nodeName: D_PAIDHOURSTYPE
+          - locationName: NP
+            nodeName: D_PAYROLLALLOWANCE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_BUSINESSUNIT') }}
+              JOIN {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_EMPLOYEE') }}
+              JOIN {{ ref('NP','D_PAIDHOURSTYPE') }}
+              JOIN {{ ref('NP','D_PAYROLLALLOWANCE') }}
+              JOIN {{ ref('NP','F_PRODUCTIVITY') }}
+        name: I_EMPLOYEEPAIDHOURS
+        noLinkRefs: []
+  name: I_EMPLOYEEPAIDHOURS
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

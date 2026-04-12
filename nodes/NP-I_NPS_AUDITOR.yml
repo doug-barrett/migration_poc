@@ -1,0 +1,96 @@
+fileVersion: 1
+id: 93c67ab0-e59e-4d1b-aac1-3ea59b4620c3
+name: I_NPS_AUDITOR
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "List of Auditors filtered to lead Auditors"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ef9ed325-4a66-450a-8aed-7bad86433bf8
+          stepCounter: 93c67ab0-e59e-4d1b-aac1-3ea59b4620c3
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: AUDITORPERSONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0dc2be2e-413d-4604-9bae-388945581d37
+                stepCounter: d9aa8e70-7c3e-44a2-87f6-b9483bac7a55
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2b975888-f916-424a-914f-6dfb1283fbed
+          stepCounter: 93c67ab0-e59e-4d1b-aac1-3ea59b4620c3
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: AUDITID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f9e450e5-e158-4cf2-a8dc-a0113b7a1d2c
+                stepCounter: d9aa8e70-7c3e-44a2-87f6-b9483bac7a55
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0061ba56-3de0-4e7a-a875-99b9a146f561
+          stepCounter: 93c67ab0-e59e-4d1b-aac1-3ea59b4620c3
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Order the records so that the one we want to use is in position 1, there may be more than one auditor per audit, and the there should only be one lead auditor, but there might be multiple or none.
+        name: ROWNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f9e450e5-e158-4cf2-a8dc-a0113b7a1d2c
+                stepCounter: d9aa8e70-7c3e-44a2-87f6-b9483bac7a55
+            transform: ROW_NUMBER () OVER (PARTITION BY AUDITID ORDER BY ISLEADAUDITOR DESC, PERSONID DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a63a6766-3e34-41fb-a582-38c8ad1a0102
+          stepCounter: 93c67ab0-e59e-4d1b-aac1-3ea59b4620c3
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          L_NPS_XAUDITOR: d9aa8e70-7c3e-44a2-87f6-b9483bac7a55
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_NPS_XAUDITOR
+        join:
+          joinCondition: FROM {{ ref('NP','L_NPS_XAUDITOR') }} L_NPS_XAUDITOR
+        name: I_NPS_AUDITOR
+        noLinkRefs: []
+  name: I_NPS_AUDITOR
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

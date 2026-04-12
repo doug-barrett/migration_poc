@@ -1,0 +1,109 @@
+fileVersion: 1
+id: f9731122-3492-4d33-821c-0dba8eb58500
+name: I_JDE_BUSINESSUNITUSAGE
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Business Unit Usage over the last 4 fiscal years"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7ba9f062-edcf-4d54-90ce-4cb829f6fa59
+          stepCounter: f9731122-3492-4d33-821c-0dba8eb58500
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_GLActTransactions.BusinessUnit=D_BusinessUnit.BusinessUnitCode
+        name: D_BUSINESSUNIT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 65af060b-e769-4d16-87c2-1212d472ee27
+          stepCounter: f9731122-3492-4d33-821c-0dba8eb58500
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: 'Current: Business Units with transactions (either actual, budget or forecast) in the current or previous fiscal years (or was created in the last two months)  Retired: Business units with transactions in the 3rd or 4th previous fiscal years (actuals only)  Not Used: Everything else'
+        name: USAGESTATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d0f13684-738d-4600-b578-24c19e69362b
+                stepCounter: 3d55749e-d184-4c9c-870c-2ddfa2ac8f28
+            transform: |-
+              CASE WHEN MOVINGFISCALYEARSORT IN (0,1) THEN 'CURRENT'
+                          ELSE 'RETIRED'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b16b19f3-d9e5-4a9c-85e7-50d1187f0cfc
+          stepCounter: f9731122-3492-4d33-821c-0dba8eb58500
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c9a5a559-59c4-482e-a162-c436d417effe
+          stepCounter: f9731122-3492-4d33-821c-0dba8eb58500
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_PERIOD: 3d55749e-d184-4c9c-870c-2ddfa2ac8f28
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: F_GLACTTRANSACTIONS
+          - locationName: UNKNOWN
+            nodeName: F_GLACTTRANSACTIONS
+          - locationName: NP
+            nodeName: D_PERIOD
+        join:
+          joinCondition: |-
+            FROM {{ ref('UNKNOWN','F_GLACTTRANSACTIONS') }} F_GLACTTRANSACTIONS
+              LEFT JOIN {{ ref('NP','D_PERIOD') }} D_PERIOD
+                ON F_GLACTTRANSACTIONS.D_PERIOD_KEY = D_PERIOD.D_PERIOD_KEY
+             WHERE MOVINGFISCALYEARSORT BETWEEN 0 AND 3
+             GROUP BY D_BUSINESSUNIT_KEY ,
+                      CASE WHEN MOVINGFISCALYEARSORT IN (0,1) THEN 'CURRENT'
+                           ELSE 'RETIRED'
+                            END
+        name: I_JDE_BUSINESSUNITUSAGE
+        noLinkRefs: []
+  name: I_JDE_BUSINESSUNITUSAGE
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,163 @@
+fileVersion: 1
+id: a3721a17-0390-4298-8042-4e905749897d
+name: I_PG_TIMESHEETS
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "One record per employee per day worked excluding leave for field staff only."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5c9685d5-d278-44f3-b7db-732242c4e42a
+          stepCounter: a3721a17-0390-4298-8042-4e905749897d
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Four digit employee number
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6dc477c3-e8ee-45cd-a6dc-0eede6644152
+                stepCounter: 0eea5bb1-55ca-4ad5-a331-361501577b8a
+            transform: ISNULL(I_EMPLOYEERESOURCEHOURS.EMPLOYEECODE , I_EMPLOYEEPAIDHOURS.EMPLOYEECODE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 61d4fbb6-96fc-42b5-bb5b-fad0283fc655
+          stepCounter: a3721a17-0390-4298-8042-4e905749897d
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: ""
+        name: CALENDARDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d49f7c3f-fedb-4064-bfc1-c9339798df39
+                stepCounter: 050b7a06-390a-430c-9642-bc03e8086093
+            transform: ISNULL(I_EMPLOYEEPAIDHOURS.CALENDARDATE , I_EMPLOYEERESOURCEHOURS.CALENDARDATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6584b5e1-336c-4f9f-99ff-226ef43aaf40
+          stepCounter: a3721a17-0390-4298-8042-4e905749897d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_PayrollTransactions.PeriodNumber=D_Period.PeriodNumber
+        name: PERIODNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 16410990-baaf-4363-a4df-b9d34a3a3fd3
+                stepCounter: 0eea5bb1-55ca-4ad5-a331-361501577b8a
+            transform: ISNULL(I_EMPLOYEEPAIDHOURS.PERIODNUMBER , I_EMPLOYEERESOURCEHOURS.PERIODNUMBER)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f25f96de-fd89-4193-a895-81eb95d31304
+          stepCounter: a3721a17-0390-4298-8042-4e905749897d
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Business unit for this timesheet
+        name: BUSINESSUNITCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5839f25c-266b-4dd8-8d21-a8817fd87d27
+                stepCounter: 0eea5bb1-55ca-4ad5-a331-361501577b8a
+            transform: ISNULL(I_EMPLOYEEPAIDHOURS.BUSINESSUNITCODE , I_EMPLOYEERESOURCEHOURS.BUSINESSUNITCODE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 693042e0-b358-4332-986d-008b47bf7e21
+          stepCounter: a3721a17-0390-4298-8042-4e905749897d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: row count column
+        name: TIMESHEETCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN I_EMPLOYEEPAIDHOURS.EMPLOYEECODE IS NULL THEN 0
+                          ELSE 1
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f483dac2-5e28-4d9a-addc-e71e5418951c
+          stepCounter: a3721a17-0390-4298-8042-4e905749897d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Flag to indicate whether there is no record for this employee and date as yet
+        name: NOTIMESHEET
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN I_EMPLOYEEPAIDHOURS.EMPLOYEECODE IS NULL THEN 1
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 666de11c-383d-408d-a3f3-ffee8e3859f2
+          stepCounter: a3721a17-0390-4298-8042-4e905749897d
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 45f7ad7d-da34-4b26-b358-7bfa9de6e02b
+          stepCounter: a3721a17-0390-4298-8042-4e905749897d
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_EMPLOYEERESOURCEHOURS: 0eea5bb1-55ca-4ad5-a331-361501577b8a
+          I_EMPLOYEEPAIDHOURS: 050b7a06-390a-430c-9642-bc03e8086093
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_EMPLOYEERESOURCEHOURS
+          - locationName: NP
+            nodeName: I_EMPLOYEEPAIDHOURS
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_EMPLOYEERESOURCEHOURS') }} I_EMPLOYEERESOURCEHOURS
+              FULL JOIN {{ ref('NP','I_EMPLOYEEPAIDHOURS') }} I_EMPLOYEEPAIDHOURS
+                ON I_EMPLOYEERESOURCEHOURS.CALENDARDATE = I_EMPLOYEEPAIDHOURS.CALENDARDATE
+               AND I_EMPLOYEERESOURCEHOURS.EMPLOYEECODE = I_EMPLOYEEPAIDHOURS.EMPLOYEECODE
+        name: I_PG_TIMESHEETS
+        noLinkRefs: []
+  name: I_PG_TIMESHEETS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

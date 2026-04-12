@@ -1,0 +1,77 @@
+fileVersion: 1
+id: fbf2cb93-e26e-4f85-9b85-9b5d258e1665
+name: I_ARTRANSSUMMARISED_SS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "AR transactions SS summarised and used to check loading gets completed in the snapshot"
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: de3c35b8-22f6-4c0f-977f-7f295ef2be0a
+          stepCounter: fbf2cb93-e26e-4f85-9b85-9b5d258e1665
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        isBusinessKey: true
+        name: TRANSACTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: debcd155-4b74-4731-839d-a1cc4783d4c4
+                stepCounter: 5b7d615d-0d5c-42c3-9d63-fc28c199b960
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cc454e06-3e64-4c47-b6a6-597869dba27c
+          stepCounter: fbf2cb93-e26e-4f85-9b85-9b5d258e1665
+        config: {}
+        dataType: NUMERIC(14,4)
+        defaultValue: ""
+        description: The unpaid (or unallocated for debtor receipts) amount of the invoice (in local currency).
+        name: OUTSTANDINGAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 35f67c83-98de-4cf0-b87e-2c78aae931f5
+                stepCounter: 5b7d615d-0d5c-42c3-9d63-fc28c199b960
+            transform: SUM(F_ARTRANSACTIONS_SS.OUTSTANDINGAMOUNT)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_SNAPSHOTPERIOD_VIEW: 1937d960-fe85-4abd-9542-62e758f5d611
+          F_ARTRANSACTIONS: 600e65bd-cede-4423-88f7-fb4d765556be
+          F_ARTRANSACTIONS_SS: 5b7d615d-0d5c-42c3-9d63-fc28c199b960
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: F_ARTRANSACTIONS_SS
+          - locationName: NP
+            nodeName: D_SNAPSHOTPERIOD_VIEW
+          - locationName: NP
+            nodeName: F_ARTRANSACTIONS
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_SNAPSHOTPERIOD_VIEW') }}
+              JOIN {{ ref('NP','F_ARTRANSACTIONS') }}
+              JOIN {{ ref('NP','F_ARTRANSACTIONS_SS') }}
+        name: I_ARTRANSSUMMARISED_SS
+        noLinkRefs: []
+  name: I_ARTRANSSUMMARISED_SS
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

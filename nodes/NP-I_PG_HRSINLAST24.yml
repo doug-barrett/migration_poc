@@ -1,0 +1,212 @@
+fileVersion: 1
+id: 007b32da-c5e9-49ca-bb5a-ba355dbddf88
+name: I_PG_HRSINLAST24
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Will join each timeband with the ones in the previous 24 hours to calculate the number of hours worked over that period. As there can be multiple timebands in a day, we will order by the one that has the most hours in the last 24. Exclude non worked time."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5bb9f430-5c6c-4447-94c8-e32aba5b7a0b
+          stepCounter: 007b32da-c5e9-49ca-bb5a-ba355dbddf88
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: CURRENTACTUALTIMEBANDID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 31ab84f4-8cbc-467d-9b7d-ae06195636f6
+                stepCounter: c3cf5035-d154-4717-8769-0fda1b93f86f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ff43ec49-e0f3-42c4-b7d6-aa83e006733a
+          stepCounter: 007b32da-c5e9-49ca-bb5a-ba355dbddf88
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 376a88de-589c-4ad7-8aa8-8d86d4b80b9e
+                stepCounter: c3cf5035-d154-4717-8769-0fda1b93f86f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b1a9baf3-8a34-48ea-a09c-fc70a61b5f1a
+          stepCounter: 007b32da-c5e9-49ca-bb5a-ba355dbddf88
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 059e2b14-53f3-42b8-b971-3c107f730c85
+                stepCounter: c3cf5035-d154-4717-8769-0fda1b93f86f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 21552f39-e967-453e-bedb-b21091c1db5d
+          stepCounter: 007b32da-c5e9-49ca-bb5a-ba355dbddf88
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: STARTTIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4c0e86aa-9b9a-4f3d-bd4d-10d7ae006f2f
+                stepCounter: c3cf5035-d154-4717-8769-0fda1b93f86f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d12d5057-d22c-4bc3-9adc-9a6bd3533e15
+          stepCounter: 007b32da-c5e9-49ca-bb5a-ba355dbddf88
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: ENDTIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 232eec83-ea7f-4325-8b5d-9f92eb22b252
+                stepCounter: c3cf5035-d154-4717-8769-0fda1b93f86f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4654c26c-6476-4725-9fac-cd4bff9b7e23
+          stepCounter: 007b32da-c5e9-49ca-bb5a-ba355dbddf88
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: BREAKAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ae3a0f28-b97c-4360-b517-bb337073124b
+                stepCounter: c3cf5035-d154-4717-8769-0fda1b93f86f
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 907a02f8-ddc6-47f3-9b82-dde43edd4bab
+          stepCounter: 007b32da-c5e9-49ca-bb5a-ba355dbddf88
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Difference between start and end time less break taken
+        name: MINUTESONTIMEBAND
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ae3a0f28-b97c-4360-b517-bb337073124b
+                stepCounter: c3cf5035-d154-4717-8769-0fda1b93f86f
+            transform: (L_PG_CURRENTACTUALTIMEBAND.ENDTIME-L_PG_CURRENTACTUALTIMEBAND.STARTTIME) - L_PG_CURRENTACTUALTIMEBAND.BREAKAMOUNT
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fbbb52a3-7195-46e2-b2e3-4bfd4810843b
+          stepCounter: 007b32da-c5e9-49ca-bb5a-ba355dbddf88
+        config: {}
+        dataType: NUMERIC(11,2)
+        defaultValue: ""
+        description: Sum of previous timebands worked over the last 24 hours
+        name: MINUTESINLAST24HRS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM((ISNULL(PREV.ENDTIME,0) - ISNULL(PREV.BREAKAMOUNT,0)) --IF THE FIRST TIMEBAND IS ON A PREVIOUS DAY, THEN WE ONLY WANT TO LOOK  -- BACK A MAXIMUM OF 24 HOURS, NOT NESESARILY TO THE START TIME OF THE FIRST TIMEBAND   - CASE      WHEN PREV.DATE <> L_PG_CURRENTACTUALTIMEBAND.DATE      AND PREV.STARTTIME < L_PG_CURRENTACTUALTIMEBAND.ENDTIME     THEN L_PG_CURRENTACTUALTIMEBAND.ENDTIME     ELSE ISNULL(PREV.STARTTIME,0)     END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 116b18cf-e245-4f01-a70e-476fb18f7b0c
+          stepCounter: 007b32da-c5e9-49ca-bb5a-ba355dbddf88
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: There can be multiple timebands per employee per day. We only want the one with the maximum worked hours in the last 24, so we will order by this and the record we want will be the 1st one.
+        name: ROWNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ae3a0f28-b97c-4360-b517-bb337073124b
+                stepCounter: c3cf5035-d154-4717-8769-0fda1b93f86f
+            transform: |-
+              ROW_NUMBER() OVER (
+              PARTITION BY L_PG_CURRENTACTUALTIMEBAND.EMPLOYEECODE,
+                     L_PG_CURRENTACTUALTIMEBAND.DATE
+               ORDER BY SUM((ISNULL(PREV.ENDTIME,0) - ISNULL(PREV.BREAKAMOUNT,0)) --IF THE FIRST TIMEBAND IS ON A PREVIOUS DAY, THEN WE ONLY WANT TO LOOK  -- BACK A MAXIMUM OF 24 HOURS, NOT NESESARILY TO THE START TIME OF THE FIRST TIMEBAND   - CASE      WHEN PREV.DATE <> L_PG_CURRENTACTUALTIMEBAND.DATE      AND PREV.STARTTIME < L_PG_CURRENTACTUALTIMEBAND.ENDTIME     THEN L_PG_CURRENTACTUALTIMEBAND.ENDTIME     ELSE ISNULL(PREV.STARTTIME,0)     END)   DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dd546e52-62d7-49cb-a11b-c9d2c064f6d0
+          stepCounter: 007b32da-c5e9-49ca-bb5a-ba355dbddf88
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 83ba25e2-9d49-49ea-863f-df511d516b98
+          stepCounter: 007b32da-c5e9-49ca-bb5a-ba355dbddf88
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_DATE: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+          D_EMPLOYEE: e65d00f1-4487-4c70-a252-6eb1343a94bc
+          L_PG_CURRENTACTUALTIMEBAND: c3cf5035-d154-4717-8769-0fda1b93f86f
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_PG_CURRENTACTUALTIMEBAND
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: D_EMPLOYEE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_EMPLOYEE') }}
+              JOIN {{ ref('NP','L_PG_CURRENTACTUALTIMEBAND') }}
+        name: I_PG_HRSINLAST24
+        noLinkRefs: []
+  name: I_PG_HRSINLAST24
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

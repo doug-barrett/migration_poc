@@ -1,0 +1,148 @@
+fileVersion: 1
+id: 9efe03d1-ebb4-42a9-b293-18ae89e83155
+name: I_JDE_PLANTTYPES
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Combines the fields we want from the Business Unit Master with the appropriate look up fields"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eadcad36-6eb9-445d-9b5c-2131d29c274b
+          stepCounter: 9efe03d1-ebb4-42a9-b293-18ae89e83155
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: Unique identifier for the Business Unit. This field maps to the Plant Types from the JDE asset register. And to the plant types used for estimating.
+        name: PLANTTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 134cb1f5-374e-4a75-848d-5a802feb899f
+                stepCounter: 7b35b776-852e-46f5-9a18-7e19f2844632
+            transform: LTRIM(RTRIM(L_JDE_F0006_BUSINESSUNITMASTER.MCMCU))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: df6f83d6-b8fd-4807-bbba-fde462afc8fb
+          stepCounter: 9efe03d1-ebb4-42a9-b293-18ae89e83155
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: The long description for the plant type
+        name: PLANTTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b7dec81a-7f56-4ca2-a70e-f9c46ffe74f9
+                stepCounter: 7b35b776-852e-46f5-9a18-7e19f2844632
+            transform: LTRIM(RTRIM(L_JDE_F0006_BUSINESSUNITMASTER.MCDL01))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aed868a6-e9d5-4061-8c0a-e9d030948466
+          stepCounter: 9efe03d1-ebb4-42a9-b293-18ae89e83155
+        config: {}
+        dataType: VARCHAR(60)
+        defaultValue: ""
+        description: The code plus the long description for the plant type.
+        name: PLANTTYPECODEANDDESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b7dec81a-7f56-4ca2-a70e-f9c46ffe74f9
+                stepCounter: 7b35b776-852e-46f5-9a18-7e19f2844632
+            transform: LTRIM(RTRIM(L_JDE_F0006_BUSINESSUNITMASTER.MCMCU)) + ' ' + LTRIM(RTRIM(L_JDE_F0006_BUSINESSUNITMASTER.MCDL01))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c5d7d6e4-437f-4743-8277-a91bdc8b6176
+          stepCounter: 9efe03d1-ebb4-42a9-b293-18ae89e83155
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: Use For Dimension
+        name: USEFORDIMENSION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: --EXCLUDE WHERE SUBGROUP OF PLANT TYPE  CASE WHEN L_JDE_F0006_BUSINESSUNITMASTER.MCMCU LIKE '%-%' THEN 'N'  ELSE 'Y'  END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d0addfd8-09ab-4a87-ac67-8d986e9748fc
+          stepCounter: 9efe03d1-ebb4-42a9-b293-18ae89e83155
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Dispatch Group plant type code belongs to
+        name: DISPATCHGROUP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ISNULL(WORKCENTREMASTER.DISPATCHGROUP, LTRIM(RTRIM(L_JDE_F0006_BUSINESSUNITMASTER.MCMCU)))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dd362aff-ac75-4532-92c2-7c4bea5d4e24
+          stepCounter: 9efe03d1-ebb4-42a9-b293-18ae89e83155
+        config: {}
+        dataType: NCHAR(10)
+        defaultValue: ""
+        description: Hourly conversion rate from hours, part-days, days or km to hours  Category Code - Business Unit 33
+        name: HOURLYCONVERSION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c6ee687d-5f9b-48d0-ad32-9b120b8c1622
+                stepCounter: 7b35b776-852e-46f5-9a18-7e19f2844632
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4e6c70e6-e55d-4e7f-a232-7d04a9f5947b
+          stepCounter: 9efe03d1-ebb4-42a9-b293-18ae89e83155
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_JDE_WORKCENTREMASTERFILE: d289b560-ef2a-4af9-af69-acdba2c986e1
+          L_JDE_F0005_CATEGORYCODES: da2a21b6-9004-49ba-9ebc-e733aa38aaa9
+          L_JDE_F0006_BUSINESSUNITMASTER: 7b35b776-852e-46f5-9a18-7e19f2844632
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_JDE_F0006_BUSINESSUNITMASTER
+          - locationName: NP
+            nodeName: I_JDE_WORKCENTREMASTERFILE
+          - locationName: NP
+            nodeName: L_JDE_F0005_CATEGORYCODES
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_JDE_WORKCENTREMASTERFILE') }}
+              JOIN {{ ref('NP','L_JDE_F0005_CATEGORYCODES') }}
+              JOIN {{ ref('NP','L_JDE_F0006_BUSINESSUNITMASTER') }}
+        name: I_JDE_PLANTTYPES
+        noLinkRefs: []
+  name: I_JDE_PLANTTYPES
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

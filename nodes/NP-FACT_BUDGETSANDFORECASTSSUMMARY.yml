@@ -1,0 +1,460 @@
+fileVersion: 1
+id: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+name: FACT_BUDGETSANDFORECASTSSUMMARY
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Budgets and Forecasts for between next year and previous 5 years. Reduced granularity for summary."
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: be8d7c15-9240-40b4-8524-226f474ae4d9
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_GLSummaryCM.AccountCode=D_Account.AccountCode
+        name: D_OBJECTACCOUNT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ddd6628b-4f83-40f0-8c98-6e0215da0526
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_GLSummaryPre.FirstDayOfPeriod=D_Date.CalendarDate
+        name: D_DATE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN D_DATE_KEY = 0 THEN 0
+                          ELSE CONVERT(INTEGER, CONVERT(VARCHAR(8), EOMONTH(CONVERT(DATE, CONVERT(VARCHAR(24), D_DATE_KEY), 112)), 112))
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 85a774a6-af48-42a6-a272-95f7c81e18f7
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_GLSummaryCM.SubAccountCode=D_Subsidiary.SubsidiaryCode
+        name: D_SUBSIDIARY_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 61c2af1f-b550-4c71-bb51-6fe350ec4f7b
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_GLSummaryCM.BusinessUnit=D_BusinessUnit.BusinessUnitCode
+        name: D_BUSINESSUNIT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 352bc18d-ffba-4790-a4ea-67218e53d2ff
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_GLSummaryPre.LedgerType=D_LedgerType.LedgerTypeCode
+        name: D_LEDGERTYPE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d2b9da0e-02a8-4ee2-80c8-636a8e713849
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: Total amount posted to the associated account for the specific period
+        name: BUDGET_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMBUDGETAMOUNT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4a760f1c-9199-4770-989d-8566d92f02c1
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Only includes amounts from the revenue accounts excluding Sundry Income, negated so the figure is positive. This is the figure used as the divisor for the GM and Adj GM percent calcuations. Actual calculation: Trial Balance Group = 4000, Financial Statement <> 4364.'
+        name: BUDGET_REVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMBUDGETREVENUE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f7caed81-a95a-49c4-967b-1ab6e9affac8
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Only includes amounts from the cost of sales accounts relating to labour. Actual calculation: Trial Balance Group = 5000 (COS) and Board Level Code = 5005.'
+        name: BUDGET_LABOUR_COS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMBUDGETLABOURCOS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c2e53739-eb05-41a5-bdb1-a2014ac77309
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Only includes amounts from the cost of sales accounts relating to transport. Actual calculation: Trial Balance Group = 5000 (COS) and Board Level Code = 5060.'
+        name: BUDGET_PLANT_COS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMBUDGETTRANSPORTCOS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dcf709f0-a133-4ba4-b7cd-8d65a25c3b5a
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Only includes amounts from the cost of sales accounts relating to materials. Actual calculation: Trial Balance Group = 5000 (COS) and Board Level Code = 5070.'
+        name: BUDGET_MATERIALS_COS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMBUDGETMATERIALSCOS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4e244e07-7cfa-458c-94f3-26bbc0b539cf
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Only includes amounts from the cost of sales accounts relating to subcontractors. Actual calculation: Trial Balance Group = 5000 (COS) and Board Level Code = 5090.'
+        name: BUDGET_SUBCONTRACTORS_COS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMBUDGETSUBCONTRACTORSCOS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a805aa1a-1af2-44d0-9ea3-2b8ce432e276
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Only includes amounts from the cost of sales accounts excluding anything for labour, plant, materials or subcontractors. Actual calculation: Trial Balance Group = 5000 (COS) and Board Level Code not in 5005, 5060, 5070, 5090.'
+        name: BUDGET_OTHER_COS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMBUDGETOTHERCOS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2ca91dc0-4c68-4c92-a911-223e2546c72b
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Includes amounts from the revenue (excluding Sundry Income) and cost of sales accounts, negated so income is positive. Actual calculation: Trial Balance Group in (4000, 5000) and Financial Statement <> 4364.'
+        name: BUDGET_GROSS_MARGIN
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMBUDGETGROSSMARGIN)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ea5ae2c3-10ed-4543-b173-aa17f30b0b09
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Includes amounts from the revenue (excluding sundry income) and cost of sales accounts, plus field staff labour costs. Negated so that income is positive. Actual calculation: Trial Balance Group in (4000, 5000) and Financial Statement <> 4364 or Board Level Code in 6501 (field staff training), 6600 (field staff ERE costs), 6696 (field staff ERE recoveries).'
+        name: BUDGET_ADJ_GROSS_MARGIN
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMBUDGETADJGROSSMARGIN)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 57b645a5-50dc-43ed-bda0-c8c59c48bbe6
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Earnings before interest and tax (negated so that income is positive). Actual Calculation: Trial Balance Group in 4000, 5000 or 6000 excluding Management Level 8610 (Interest) and Board Level 9000 (Tax).'
+        name: BUDGET_EBIT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMBUDGETEBIT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 539b401d-3771-49d3-beac-0796b1b0a613
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'NEt profit before tax (negated so that income is positive). Actual Calculation: Trial Balance Group in 4000, 5000 or 6000 excluding Board Level 9000 (Tax).'
+        name: BUDGET_NPBT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMBUDGETNPBT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1c0e5578-95ee-484a-b494-7a01e9e013e0
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: Total amount posted to the associated account for the specific period
+        name: FORECAST_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMFORECASTAMOUNT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9f5081a0-e2e0-4fca-b0c5-6ca297cf44e0
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Only includes amounts from the revenue accounts excluding Sundry Income, negated so the figure is positive. This is the figure used as the divisor for the GM and Adj GM percent calcuations. Actual calculation: Trial Balance Group = 4000, Financial Statement <> 4364.'
+        name: FORECAST_REVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMFORECASTREVENUE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 12a1cf5d-431a-4ce7-bd4e-f38d4d2bc6fc
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Only includes amounts from the cost of sales accounts relating to labour. Actual calculation: Trial Balance Group = 5000 (COS) and Board Level Code = 5005.'
+        name: FORECAST_LABOUR_COS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMFORECASTLABOURCOS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c5b48622-ca80-491e-a2cb-3c987900feb8
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Only includes amounts from the cost of sales accounts relating to transport. Actual calculation: Trial Balance Group = 5000 (COS) and Board Level Code = 5060.'
+        name: FORECAST_PLANT_COS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMFORECASTTRANSPORTCOS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f4f8ccab-f51a-4259-84e5-1d4a172ad742
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Only includes amounts from the cost of sales accounts relating to materials. Actual calculation: Trial Balance Group = 5000 (COS) and Board Level Code = 5070.'
+        name: FORECAST_MATERIALS_COS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMFORECASTMATERIALSCOS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d40083c8-bc0a-4394-9009-ec10d9dd8a6a
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Only includes amounts from the cost of sales accounts relating to subcontractors. Actual calculation: Trial Balance Group = 5000 (COS) and Board Level Code = 5090.'
+        name: FORECAST_SUBCONTRACTORS_COS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMFORECASTSUBCONTRACTORSCOS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aca6bb80-9588-4618-8cf3-781b7156da1c
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Only includes amounts from the cost of sales accounts excluding anything for labour, plant, materials or subcontractors. Actual calculation: Trial Balance Group = 5000 (COS) and Board Level Code not in 5005, 5060, 5070, 5090.'
+        name: FORECAST_OTHER_COS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMFORECASTOTHERCOS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 82221942-b8f2-4b71-b8e0-d811d00e5746
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Includes amounts from the revenue (excluding Sundry Income) and cost of sales accounts, negated so income is positive. Actual calculation: Trial Balance Group in (4000, 5000) and Financial Statement <> 4364.'
+        name: FORECAST_GROSS_MARGIN
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMFORECASTGROSSMARGIN)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f7756484-af1d-4455-ba71-24f3e9a79d59
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Includes amounts from the revenue (excluding sundry income) and cost of sales accounts, plus field staff labour costs. Negated so that income is positive. Actual calculation: Trial Balance Group in (4000, 5000) and Financial Statement <> 4364 or Board Level Code in 6501 (field staff training), 6600 (field staff ERE costs), 6696 (field staff ERE recoveries).'
+        name: FORECAST_ADJ_GROSS_MARGIN
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMFORECASTADJGROSSMARGIN)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1f82a71b-633d-428c-a0d6-789784ab44a1
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'Earnings before interest and tax (negated so that income is positive). Actual Calculation: Trial Balance Group in 4000, 5000 or 6000 excluding Management Level 8610 (Interest) and Board Level 9000 (Tax).'
+        name: FORECAST_EBIT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMFORECASTEBIT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3f5a9ad2-3e4b-4c93-ba84-f649bd54d1bc
+          stepCounter: 118de7ad-0d3d-470e-8c1a-ce118ecc3a9d
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: 'NEt profit before tax (negated so that income is positive). Actual Calculation: Trial Balance Group in 4000, 5000 or 6000 excluding Board Level 9000 (Tax).'
+        name: FORECAST_NPBT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(F_GLSUMMARYCMFORECASTS.CMFORECASTNPBT)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_BUSINESSUNIT: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+          D_DATE: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+          D_OBJECTACCOUNT: 4f5997cc-a1a8-451d-bd59-629dc8871fd5
+          D_PERIOD: 3d55749e-d184-4c9c-870c-2ddfa2ac8f28
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: F_GLSUMMARYCMFORECASTS
+          - locationName: NP
+            nodeName: D_BUSINESSUNIT
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: D_OBJECTACCOUNT
+          - locationName: NP
+            nodeName: D_PERIOD
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_BUSINESSUNIT') }}
+              JOIN {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_OBJECTACCOUNT') }}
+              JOIN {{ ref('NP','D_PERIOD') }}
+        name: FACT_BUDGETSANDFORECASTSSUMMARY
+        noLinkRefs: []
+  name: FACT_BUDGETSANDFORECASTSSUMMARY
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

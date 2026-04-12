@@ -1,0 +1,153 @@
+fileVersion: 1
+id: 1b0c1aa4-1215-4218-a247-c754e6c4ae7a
+name: I_PG_PAIDLEAVENOTTHROUGHLEAVEREQUEST
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Field staff can apply for leave via K2 timesheets especially sick leave. This table looks for any paid leave that does not have an associated leave request record. By sourcing from the Productivity table we can pick up both historical and current pays."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2ec76954-bd47-46e9-9645-429ed124c53e
+          stepCounter: 1b0c1aa4-1215-4218-a247-c754e6c4ae7a
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Four digit employee number
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 39a7f726-964b-4027-8339-4508317dc1bb
+                stepCounter: e65d00f1-4487-4c70-a252-6eb1343a94bc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2f2d7917-067d-4f43-a968-aeb4b5324396
+          stepCounter: 1b0c1aa4-1215-4218-a247-c754e6c4ae7a
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: The calendar date for this row.
+        name: CALENDARDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: efa09051-5e3a-4906-8feb-0e8ef0a75137
+                stepCounter: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0a5a0e0b-2e71-49f3-ae9f-63a6d784dd60
+          stepCounter: 1b0c1aa4-1215-4218-a247-c754e6c4ae7a
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: Chargeable time is set to 1, Leave is set to the item code that it's costed to in Finance1, Non-chargeable time is set to the dummy Job numbers that are set up in PayGlobal.
+        name: PAIDHOURSTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c54fbbe2-33f5-4fcd-aa7e-df2dd684b3df
+                stepCounter: 9ed7e334-f397-45a5-916c-ec299f6c0208
+            transform: MIN(D_PAIDHOURSTYPE.PAIDHOURSTYPECODE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f6a6f3fe-cda3-419f-9ce0-701d218659b5
+          stepCounter: 1b0c1aa4-1215-4218-a247-c754e6c4ae7a
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: The amount of Paid Leave Hours for this employee  on this day
+        name: PAIDLEAVEHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ec3f4096-33a6-416b-b5c4-82acf50c7e23
+                stepCounter: 1e53fe9a-7ec2-4f6a-9bab-f6f4812ea86e
+            transform: SUM(ISNULL(F_PRODUCTIVITY.PRODUCTIVITYPAIDHOURS,0) + ISNULL(F_PRODUCTIVITY.PRODUCTIVITYUNPAIDLEAVEHOURS,0))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dab4d36f-543d-490e-ad61-bc708d6cd9fe
+          stepCounter: 1b0c1aa4-1215-4218-a247-c754e6c4ae7a
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEECODEREDTRACINGONLY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c1fbe9c3-d2ed-4deb-abaa-1986b45fb12e
+                stepCounter: 2a5f7ac8-adbc-4b15-b587-da87459d21bd
+            transform: MIN(I_PG_EMPLOYEESHIFTS.EMPLOYEECODE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 920183a1-2680-42a3-8594-46409427da74
+          stepCounter: 1b0c1aa4-1215-4218-a247-c754e6c4ae7a
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: REQUESTDATEREDTRACINGONLY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6bf2b4c8-d50c-404b-a4ad-dd615a2ba02c
+                stepCounter: 40eb39fc-8aa9-4ba4-930d-92262828fa44
+            transform: MIN(I_PG_EMPLLEAVEREQUEST.REQUESTDATE)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_DATE: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+          D_EMPLOYEE: e65d00f1-4487-4c70-a252-6eb1343a94bc
+          D_PAIDHOURSTYPE: 9ed7e334-f397-45a5-916c-ec299f6c0208
+          F_PRODUCTIVITY: 1e53fe9a-7ec2-4f6a-9bab-f6f4812ea86e
+          I_PG_EMPLLEAVEREQUEST: 40eb39fc-8aa9-4ba4-930d-92262828fa44
+          I_PG_EMPLOYEE: aa1049ee-eb1e-4a5b-9f31-973de0dc16f9
+          I_PG_EMPLOYEESHIFTS: 2a5f7ac8-adbc-4b15-b587-da87459d21bd
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: D_EMPLOYEE
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: D_PAIDHOURSTYPE
+          - locationName: NP
+            nodeName: F_PRODUCTIVITY
+          - locationName: NP
+            nodeName: I_PG_EMPLLEAVEREQUEST
+          - locationName: NP
+            nodeName: I_PG_EMPLOYEE
+          - locationName: NP
+            nodeName: I_PG_EMPLOYEESHIFTS
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_EMPLOYEE') }}
+              JOIN {{ ref('NP','D_PAIDHOURSTYPE') }}
+              JOIN {{ ref('NP','F_PRODUCTIVITY') }}
+              JOIN {{ ref('NP','I_PG_EMPLLEAVEREQUEST') }}
+              JOIN {{ ref('NP','I_PG_EMPLOYEE') }}
+              JOIN {{ ref('NP','I_PG_EMPLOYEESHIFTS') }}
+        name: I_PG_PAIDLEAVENOTTHROUGHLEAVEREQUEST
+        noLinkRefs: []
+  name: I_PG_PAIDLEAVENOTTHROUGHLEAVEREQUEST
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

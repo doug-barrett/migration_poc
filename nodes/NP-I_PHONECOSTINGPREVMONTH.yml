@@ -1,0 +1,76 @@
+fileVersion: 1
+id: fb6ad5b8-fee6-4065-89e1-9bca2146aa70
+name: I_PHONECOSTINGPREVMONTH
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Find the cost centre of any data from the previous month to use again if we can't find a current correct mapping."
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cdcfb13f-35e2-4441-bc99-d0a8d01bb842
+          stepCounter: fb6ad5b8-fee6-4065-89e1-9bca2146aa70
+        config: {}
+        dataType: VARCHAR(64)
+        defaultValue: ""
+        description: Northpower phone number making the call
+        name: SERVICENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c75f7276-1535-49ed-9bf4-7c93d2bb5ed1
+                stepCounter: d0d91540-76d4-41e1-96ff-a5acbd624573
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2ce3bce5-f2f6-4bd2-9d7a-711200e0b9c4
+          stepCounter: fb6ad5b8-fee6-4065-89e1-9bca2146aa70
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Business Unit Code
+        name: BUSINESSUNITCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 09e4eb30-711b-40a6-8818-330395406e69
+                stepCounter: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+            transform: MAX(D_BUSINESSUNIT.BUSINESSUNITCODE)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_BUSINESSUNIT: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+          D_PERIOD: 3d55749e-d184-4c9c-870c-2ddfa2ac8f28
+          F_PHONESUMMARY: d0d91540-76d4-41e1-96ff-a5acbd624573
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: F_PHONESUMMARY
+          - locationName: NP
+            nodeName: D_BUSINESSUNIT
+          - locationName: NP
+            nodeName: D_PERIOD
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_BUSINESSUNIT') }}
+              JOIN {{ ref('NP','D_PERIOD') }}
+              JOIN {{ ref('NP','F_PHONESUMMARY') }}
+        name: I_PHONECOSTINGPREVMONTH
+        noLinkRefs: []
+  name: I_PHONECOSTINGPREVMONTH
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

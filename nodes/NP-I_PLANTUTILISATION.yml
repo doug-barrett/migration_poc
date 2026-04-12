@@ -1,0 +1,145 @@
+fileVersion: 1
+id: b782f62a-65b9-4913-8974-18bbb1bc12d4
+name: I_PLANTUTILISATION
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Plant Utilisation "
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 83d367ec-8775-4189-aedc-711ba3646f6e
+          stepCounter: b782f62a-65b9-4913-8974-18bbb1bc12d4
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: Vehicle number as set up in Finance1
+        name: VEHICLENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b9056b78-5736-4d67-863a-e45231b4d35d
+                stepCounter: 82ccaed9-4c7f-4532-840a-cede17250f42
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 24074bf7-c8fd-4eef-b2b9-f39581f5ccef
+          stepCounter: b782f62a-65b9-4913-8974-18bbb1bc12d4
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: The calendar date for this row.
+        name: CALENDARDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: efa09051-5e3a-4906-8feb-0e8ef0a75137
+                stepCounter: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d8e11632-5f49-4b8a-b8ea-9d9dae8a453a
+          stepCounter: b782f62a-65b9-4913-8974-18bbb1bc12d4
+        config: {}
+        dataType: NUMERIC(19,2)
+        defaultValue: ""
+        description: Dollar value of transactions from the project Actuals ledger
+        name: CHARGEDAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3b7bf338-50ac-4fd2-a095-bb1f18bfc759
+                stepCounter: 08000ce8-d0e9-4157-827c-239d44cba9ff
+            transform: SUM(F_PROJTRANS.PROJECTACTUALAMOUNT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fe72405a-2c80-46ea-b49d-195528a718cf
+          stepCounter: b782f62a-65b9-4913-8974-18bbb1bc12d4
+        config: {}
+        dataType: NUMERIC(19,2)
+        defaultValue: ""
+        description: Quantity of transactions from the project Actuals ledger
+        name: CHARGEDUNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fe3a5494-d9d9-47af-b27c-8b23fa7501cb
+                stepCounter: 08000ce8-d0e9-4157-827c-239d44cba9ff
+            transform: SUM(F_PROJTRANS.PROJECTACTUALUNITS)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 94023f9a-4da6-4ad5-bf98-5d8336ff63f7
+          stepCounter: b782f62a-65b9-4913-8974-18bbb1bc12d4
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: ""
+        name: AVAILABLEHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6c63367d-c2b5-4fd4-9161-c8adffda18f2
+          stepCounter: b782f62a-65b9-4913-8974-18bbb1bc12d4
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and Time the row was created in the data warehouse
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b9208f4c-52db-48c8-9861-24671bb4da07
+          stepCounter: b782f62a-65b9-4913-8974-18bbb1bc12d4
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          F_PROJTRANS: 08000ce8-d0e9-4157-827c-239d44cba9ff
+          D_VEHICLE: 82ccaed9-4c7f-4532-840a-cede17250f42
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: D_VEHICLE
+          - locationName: NP
+            nodeName: F_PROJTRANS
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','F_PROJTRANS') }}
+              LEFT OUTER JOIN {{ ref('NP','D_VEHICLE') }}
+                ON F_PROJTRANS.D_VEHICLE_KEY = D_VEHICLE.D_VEHICLE_KEY
+              LEFT OUTER JOIN D_DATE
+                ON F_PROJTRANS.D_TRANSACTIONDATE_KEY = D_DATE.D_DATE_KEY --NOT VEHICLE NOT APPLICABLE TRANSACTION  WHERE F_PROJTRANS.D_VEHICLE_KEY <> 0  --ONLY TRANSACTIONS FROM JDE  AND D_TRANSACTIONDATE_KEY > 20150501  --ONLY JDE REGISTER VEHICLE  AND D_VEHICLE.VEHICLEREGISTER = 'JDE'  GROUP BY D_TRANSACTIONDATE_KEY, VEHICLENUMBER, CALENDARDATE
+        name: I_PLANTUTILISATION
+        noLinkRefs: []
+  name: I_PLANTUTILISATION
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

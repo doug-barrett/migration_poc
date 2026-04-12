@@ -1,0 +1,76 @@
+fileVersion: 1
+id: 32a37311-3365-4e6b-a826-621e464bccae
+name: I_JDE_BUSINESSUNITUSAGESTATUS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Business Unit Usgae over the last 24 months."
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 460f8c7e-568e-4dab-9f29-58bfbe4f1dd7
+          stepCounter: 32a37311-3365-4e6b-a826-621e464bccae
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Unique identifier for the Business Unit. This is the field recorded against every posted GL ledger transaction.
+        name: BUSINESSUNITCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 09e4eb30-711b-40a6-8818-330395406e69
+                stepCounter: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 51aba4f3-48d1-4b79-a7bd-9852e1cd3fb1
+          stepCounter: 32a37311-3365-4e6b-a826-621e464bccae
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Calculated based on the GL posting information. If posted to in the last 12 months, then Current, in the last 24 months, then Retired else Not Used.
+        name: USAGESTATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: CASE --NEED TO ALSO INCLUDE NEW BUSINESS UNITS THAT WERE CREATED IN LAST 2 MONTHS AND ONLY POSTED TO THIS MONTH   WHEN D_BUSINESSUNIT.ODSCREATEDATE >= DATEADD(MONTH, -2,GETDATE())   THEN 'CURRENT'   ELSE COALESCE(      CURRENTUSAGE.USAGESTATUS    , I_JDE_BUSINESSUNITUSAGEFORECAST.USAGESTATUS    , OLDERUSAGE.USAGESTATUS    , 'NOT USED')  END
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_BUSINESSUNIT: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+          I_JDE_BUSINESSUNITUSAGE: f9731122-3492-4d33-821c-0dba8eb58500
+          I_JDE_BUSINESSUNITUSAGEFORECAST: de659b34-3cca-40cf-9280-260bf483da5c
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: D_BUSINESSUNIT
+          - locationName: NP
+            nodeName: I_JDE_BUSINESSUNITUSAGE
+          - locationName: NP
+            nodeName: I_JDE_BUSINESSUNITUSAGEFORECAST
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_BUSINESSUNIT') }}
+              JOIN {{ ref('NP','I_JDE_BUSINESSUNITUSAGE') }}
+              JOIN {{ ref('NP','I_JDE_BUSINESSUNITUSAGEFORECAST') }}
+        name: I_JDE_BUSINESSUNITUSAGESTATUS
+        noLinkRefs: []
+  name: I_JDE_BUSINESSUNITUSAGESTATUS
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

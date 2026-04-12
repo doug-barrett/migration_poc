@@ -1,0 +1,103 @@
+fileVersion: 1
+id: de659b34-3cca-40cf-9280-260bf483da5c
+name: I_JDE_BUSINESSUNITUSAGEFORECAST
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Business Unit Usage over the last 4 fiscal years"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 227d8790-6375-4e80-b401-9c6fcfb4462c
+          stepCounter: de659b34-3cca-40cf-9280-260bf483da5c
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_GLSummaryCMForecasts.BusinessUnit=D_BusinessUnit.BusinessUnitCode
+        name: D_BUSINESSUNIT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5fd66e01-aec7-4e9a-b045-c021961947e6
+          stepCounter: de659b34-3cca-40cf-9280-260bf483da5c
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: 'Current: Business Units with transactions (either actual, budget or forecast) in the current or previous fiscal years (or was created in the last two months)  Retired: Business units with transactions in the 3rd or 4th previous fiscal years (actuals only)  Not Used: Everything else'
+        name: USAGESTATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d0f13684-738d-4600-b578-24c19e69362b
+                stepCounter: 3d55749e-d184-4c9c-870c-2ddfa2ac8f28
+            transform: "'CURRENT'"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f6c2a943-6524-4c71-b16d-d98fbcfa585d
+          stepCounter: de659b34-3cca-40cf-9280-260bf483da5c
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6c27f8d9-5a3b-4abc-a884-e9ae93b3685a
+          stepCounter: de659b34-3cca-40cf-9280-260bf483da5c
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_PERIOD: 3d55749e-d184-4c9c-870c-2ddfa2ac8f28
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: F_GLSUMMARYCMFORECASTS
+          - locationName: UNKNOWN
+            nodeName: F_GLSUMMARYCMFORECASTS
+          - locationName: NP
+            nodeName: D_PERIOD
+        join:
+          joinCondition: |-
+            FROM {{ ref('UNKNOWN','F_GLSUMMARYCMFORECASTS') }} F_GLSUMMARYCMFORECASTS
+              JOIN {{ ref('NP','D_PERIOD') }} D_PERIOD
+                ON F_GLSUMMARYCMFORECASTS.D_PERIOD_KEY = D_PERIOD.D_PERIOD_KEY
+             WHERE MOVINGFISCALYEARSORT BETWEEN 0 AND 1
+             GROUP BY D_BUSINESSUNIT_KEY
+        name: I_JDE_BUSINESSUNITUSAGEFORECAST
+        noLinkRefs: []
+  name: I_JDE_BUSINESSUNITUSAGEFORECAST
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

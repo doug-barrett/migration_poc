@@ -1,0 +1,124 @@
+fileVersion: 1
+id: b79afaa3-b412-4847-ac09-b01a90fbf32c
+name: I_NPS_INJUREDBODYPARTSCOUNTS
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Creates multiple records depending on the number of outcomes indicated against each event"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ad73a122-f90e-4f02-9609-20fc39756810
+          stepCounter: b79afaa3-b412-4847-ac09-b01a90fbf32c
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: ""
+        name: ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 603c8306-0283-4640-b87e-8878d083c3f5
+                stepCounter: c9f61e8a-d8ed-49aa-bf0e-7f9f61c4daec
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: de7f3b3d-246d-43c9-96a3-f3e0cb527224
+          stepCounter: b79afaa3-b412-4847-ac09-b01a90fbf32c
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: ODSSOURCESYSTEMNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d215c4f8-f632-4bf9-b1d4-eda69352cfc3
+                stepCounter: c9f61e8a-d8ed-49aa-bf0e-7f9f61c4daec
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 66557cc4-84e1-439a-881a-d653f66160ea
+          stepCounter: b79afaa3-b412-4847-ac09-b01a90fbf32c
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: ""
+        name: INJUREDBODYPARTCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 61a36ba3-eeba-4580-b306-c896edf44872
+                stepCounter: c9f61e8a-d8ed-49aa-bf0e-7f9f61c4daec
+            transform: VALUE
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 83c5e0f0-1b9b-4fad-843d-b8bcac06711a
+          stepCounter: b79afaa3-b412-4847-ac09-b01a90fbf32c
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: ""
+        name: INJUREDBODYPART
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 61a36ba3-eeba-4580-b306-c896edf44872
+                stepCounter: c9f61e8a-d8ed-49aa-bf0e-7f9f61c4daec
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d56a0bc5-64b6-4c6b-bc3d-91549b7780ad
+          stepCounter: b79afaa3-b412-4847-ac09-b01a90fbf32c
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Count of the number of events times the number of injured body parts. This will not be used as a measure. Need a distinct count on the Event Key.
+        name: INJUREDBODYPARTCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '1'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aba6982b-2c3a-487e-b61d-135dba8a105a
+          stepCounter: b79afaa3-b412-4847-ac09-b01a90fbf32c
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          L_NPS_NPSELOCCURRENCEVIEW: c9f61e8a-d8ed-49aa-bf0e-7f9f61c4daec
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_NPS_NPSELOCCURRENCEVIEW
+        join:
+          joinCondition: FROM {{ ref('NP','L_NPS_NPSELOCCURRENCEVIEW') }} L_NPS_NPSELOCCURRENCEVIEW CROSS APPLY STRING_SPLIT(INJUREDBODYPART,',') --EXCLUDE ANY RECORDS THAT HAVE NOT BEEN FILLED IN OR HAVE BEEN SET TO N/A  WHERE ISNULL(L_NPS_NPSELOCCURRENCEVIEW.INJUREDBODYPART,'-1') <> '-1'  --EXCLUDE ANY EVENTS THAT HAVE BEEN REJECTED  AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID <> 3
+        name: I_NPS_INJUREDBODYPARTSCOUNTS
+        noLinkRefs: []
+  name: I_NPS_INJUREDBODYPARTSCOUNTS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,842 @@
+fileVersion: 1
+id: bc7b9cee-c123-42b4-b2fd-594ddd660edf
+name: I_OBLIGATIONSUMMARY
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Information from lots of different sources will be pulled together and summarised here to give an overview of whether Northpower is meeting it's legal obligations."
+  isMultisource: true
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 420cd62c-b9a1-4be3-b017-801b86b2a21c
+          stepCounter: bc7b9cee-c123-42b4-b2fd-594ddd660edf
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Unique ID identifying the obligation of interest
+        name: OBLIGATIONCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a6e078c6-32fd-4667-9b30-4c91b24c227e
+                stepCounter: 2fdee330-b073-4663-80b3-04fa31db25f3
+            transform: ""
+          - columnReferences:
+              - columnCounter: a6e078c6-32fd-4667-9b30-4c91b24c227e
+                stepCounter: 2fdee330-b073-4663-80b3-04fa31db25f3
+            transform: ""
+          - columnReferences:
+              - columnCounter: 86f0dfef-98b4-4d76-ba0e-288aa7315bca
+                stepCounter: 294046b8-fba0-4f4e-89bf-6e7d3180d324
+            transform: ""
+          - columnReferences:
+              - columnCounter: a6e078c6-32fd-4667-9b30-4c91b24c227e
+                stepCounter: 2fdee330-b073-4663-80b3-04fa31db25f3
+            transform: ""
+          - columnReferences:
+              - columnCounter: 9e3ab26f-eea4-4eb7-b068-4f45661d0595
+                stepCounter: cc78eed0-d8bc-42f9-adfc-5fee491eb073
+            transform: CONVERT(VARCHAR(50),L_SHP_OBLIGATIONS.OBLIGATIONID)
+          - columnReferences:
+              - columnCounter: 8d0a240a-d60f-4ccc-9a91-fe5bf3d2588e
+                stepCounter: 2f072049-94c7-4f37-9968-806184f36dc5
+            transform: ""
+          - columnReferences:
+              - columnCounter: 1483c9a8-679b-438e-96e3-6667c7a34ec1
+                stepCounter: 4437dc14-2eca-4e4a-a134-bd81fba7f438
+            transform: ""
+          - columnReferences:
+              - columnCounter: 8d101a89-79b9-4b9a-b803-47d8ad196a4d
+                stepCounter: 05c2f881-1d07-4402-96fa-49f8e86c7a44
+            transform: ""
+          - columnReferences:
+              - columnCounter: cdc25ba4-580e-4561-ab62-0e9cdf0aae6d
+                stepCounter: 7d60d0d6-f7f3-458a-9ff3-953af2eb7103
+            transform: ""
+          - columnReferences:
+              - columnCounter: ede4801b-e4cf-418b-b162-0b2e3c149050
+                stepCounter: fe6be933-f37c-4a1d-b3bf-2eb87538d071
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 157205ac-03c7-409e-a280-32c5851d2712
+          stepCounter: bc7b9cee-c123-42b4-b2fd-594ddd660edf
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Can be one of Compliant, Not Compliant, Not Verified, Partial
+        name: OBLIGATIONSTATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ebcfbc8a-a0f8-4780-a2e1-7f89666d693d
+                stepCounter: 4934b0af-ba91-4fd2-967a-56593896d456
+            transform: CASE WHEN F_QMSCONTROLLEDDOCUMENTREVIEW.UPTODATEDOCUMENTCOUNT= 1 THEN 'COMPLIANT' -- THE DOCUMENT IS STILL VALID, BUT SHOULD BE REVIEWED SHORTLY   WHEN F_QMSCONTROLLEDDOCUMENTREVIEW.DUEFORREVIEWDOCUMENTCOUNT = 1 THEN 'COMPLIANT'   -- DOCUMENT IS NO LONGER WITHIN THE REVIEW PERIOD   WHEN F_QMSCONTROLLEDDOCUMENTREVIEW.OVERDUEDOCUMENTCOUNT = 1 THEN 'NOT COMPLIANT'    ELSE 'UNKNOWN' END
+          - columnReferences:
+              - columnCounter: c7a03c78-0610-4e3a-bba6-50d041f6435d
+                stepCounter: 95d4fbaf-6c36-48a7-91e9-acc601e4fc70
+            transform: |-
+              CASE WHEN SUM(F_VEHICLECERTIFICATION.VEHICLECERTIFICATIONCOMPLIANT) IS NULL AND SUM(CASE WHEN F_VEHICLECERTIFICATION.D_VEHICLE_KEY IS NULL THEN 1 ELSE 0 END) >= 1                                                                          THEN 'NOT COMPLIANT'
+                          WHEN SUM(CASE WHEN F_VEHICLECERTIFICATION.D_VEHICLE_KEY IS NULL THEN 1 ELSE 0 END) >= 1 AND SUM(F_VEHICLECERTIFICATION.VEHICLECERTIFICATIONCOMPLIANT) < 1 AND SUM(F_VEHICLECERTIFICATION.VEHICLECERTIFICATIONOVERDUE) < 0              THEN 'NOT VERIFIED'
+                          WHEN SUM(F_VEHICLECERTIFICATION.VEHICLECERTIFICATIONCOMPLIANT) >= 1 AND (SUM(F_VEHICLECERTIFICATION.VEHICLECERTIFICATIONOVERDUE) = 0 AND SUM(CASE WHEN F_VEHICLECERTIFICATION.D_VEHICLE_KEY IS NULL THEN 1 ELSE 0 END) = 0)            THEN 'COMPLIANT'
+                          WHEN SUM(F_VEHICLECERTIFICATION.VEHICLECERTIFICATIONCOMPLIANT) >= 1 AND (SUM(F_VEHICLECERTIFICATION.VEHICLECERTIFICATIONOVERDUE) >= 1 OR SUM(CASE WHEN F_VEHICLECERTIFICATION.D_VEHICLE_KEY IS NULL THEN 1 ELSE 0 END) >= 1)           THEN 'PARTIAL'
+                          WHEN SUM(ISNULL(F_VEHICLECERTIFICATION.VEHICLECERTIFICATIONCOMPLIANT, 0)) = 0 AND (SUM(F_VEHICLECERTIFICATION.VEHICLECERTIFICATIONOVERDUE) >= 1 OR SUM(CASE WHEN F_VEHICLECERTIFICATION.D_VEHICLE_KEY IS NULL THEN 1 ELSE 0 END) >= 1) THEN 'NOT COMPLIANT'
+                          ELSE 'UNKNOWN'
+                           END
+          - columnReferences:
+              - columnCounter: 982dfbaa-b6c6-4795-91b0-122c14640292
+                stepCounter: 294046b8-fba0-4f4e-89bf-6e7d3180d324
+            transform: |-
+              CASE WHEN I_OBLIGATIONREFERENCE_AUDIT.COMPLIANCERATE > .95                                                     THEN 'COMPLIANT'
+                          WHEN I_OBLIGATIONREFERENCE_AUDIT.COMPLIANCERATE >.85 AND I_OBLIGATIONREFERENCE_AUDIT.COMPLIANCERATE <=.95 THEN 'PARTIAL'
+                          WHEN I_OBLIGATIONREFERENCE_AUDIT.COMPLIANCERATE <=.85                                                     THEN 'NOT COMPLIANT'
+                          ELSE 'UNKNOWN'
+                           END
+          - columnReferences:
+              - columnCounter: a6e078c6-32fd-4667-9b30-4c91b24c227e
+                stepCounter: 2fdee330-b073-4663-80b3-04fa31db25f3
+            transform: CASE --WHEN COMPETENCY CURRENT AND NO NOT CERTIFIED THEN COMPLIANT    WHEN SUM(F_COMPETENCY.COMPETENCYCURRENTCOUNT) >= 1 AND SUM(F_COMPETENCY.NOTCERTIFIEDCOUNT) = 0 THEN 'COMPLIANT'    --WHEN SOME ARE CURRENT AND SOME ARE NOT CERTIFIED THEN PARTIAL    WHEN SUM(F_COMPETENCY.NOTCERTIFIEDCOUNT) >= 1 AND SUM(F_COMPETENCY.COMPETENCYCURRENTCOUNT) >= 1 THEN 'PARTIAL'    --WHEN NONE ARE CURRENT AND SOME ARE NOT CERTIFIED THEN NOT COMPLIANT    WHEN SUM(F_COMPETENCY.NOTCERTIFIEDCOUNT) >= 1 AND SUM(F_COMPETENCY.COMPETENCYCURRENTCOUNT) = 0 THEN 'NOT COMPLIANT'    --WHEN NONE ARE CURRENT AND NONE ARE EXPIRED    ELSE 'UNKNOWN'   END
+          - columnReferences: []
+            transform: "'NOT MONITORED'"
+          - columnReferences: []
+            transform: "'NOT COMPLIANT'"
+          - columnReferences:
+              - columnCounter: dc56f8f7-b344-46d6-bfb7-7ffdf0d0d1c7
+                stepCounter: 4437dc14-2eca-4e4a-a134-bd81fba7f438
+            transform: |-
+              CASE WHEN OBLIGATIONRESULT = 1 THEN 'COMPLIANT'
+                          ELSE 'NOT COMPLIANT'
+                           END
+          - columnReferences: []
+            transform: CASE -- IF ALL NON COMPLIANT     WHEN MAX(I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS.COMPLIANCE) = 0 THEN 'NOT COMPLIANT'     --IF ALL COMPLIANT     WHEN MIN(I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS.COMPLIANCE) = 1 THEN 'COMPLIANT'     -- IF SOME ARE COMPLIANT AND SOME NOT     ELSE 'PARTIAL'     END
+          - columnReferences: []
+            transform: |-
+              CASE WHEN CAST (I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.OBLIGATIONRESULT AS DECIMAL(9,2)) / CAST(I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.DOCUMENTCOUNT AS DECIMAL(9,2)) > .95                                                                                                                                                                                      THEN 'COMPLIANT'
+                          WHEN CAST (I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.OBLIGATIONRESULT AS DECIMAL(9,2)) / CAST(I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.DOCUMENTCOUNT AS DECIMAL(9,2)) > .85 AND CAST (I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.OBLIGATIONRESULT AS DECIMAL(9,2)) / CAST(I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.DOCUMENTCOUNT AS DECIMAL(9,2)) <= .95 THEN 'PARTIAL'
+                          WHEN CAST (I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.OBLIGATIONRESULT AS DECIMAL(9,2)) / CAST(I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.DOCUMENTCOUNT AS DECIMAL(9,2)) <= .85                                                                                                                                                                                     THEN 'NOT COMPLIANT'
+                          ELSE 'UNKNOWN'
+                           END
+          - columnReferences: []
+            transform: |-
+              CASE WHEN OBLIGATIONRESULT = 1 THEN 'COMPLIANT'
+                          ELSE 'NOT COMPLIANT'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ead1aaef-959f-45fd-9fa7-64daf4ca4550
+          stepCounter: bc7b9cee-c123-42b4-b2fd-594ddd660edf
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Relevant Business Unit Code
+        name: BUSINESSUNITCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 09e4eb30-711b-40a6-8818-330395406e69
+                stepCounter: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+            transform: ""
+          - columnReferences:
+              - columnCounter: 09e4eb30-711b-40a6-8818-330395406e69
+                stepCounter: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+            transform: ""
+          - columnReferences:
+              - columnCounter: c9b53770-34cf-464a-b4aa-76db0662d665
+                stepCounter: 294046b8-fba0-4f4e-89bf-6e7d3180d324
+            transform: ""
+          - columnReferences:
+              - columnCounter: 09e4eb30-711b-40a6-8818-330395406e69
+                stepCounter: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+            transform: ""
+          - columnReferences: []
+            transform: "'AWL' --COST CENTRE FOR ALISDAIR"
+          - columnReferences:
+              - columnCounter: 0b50d30f-bc53-423e-b765-ea9ecf684906
+                stepCounter: 733ed3e5-7538-4d4e-ac06-feb2342502d1
+            transform: ""
+          - columnReferences:
+              - columnCounter: c444513b-edca-436d-9308-9b83314f5eb6
+                stepCounter: 4437dc14-2eca-4e4a-a134-bd81fba7f438
+            transform: DBO.NP_FUNC_EMPLOYEEBUSINESSUNIT(I_SHP_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENT.RESPONSIBLEPERSONCODE , I_SHP_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENT.MODIFIEDDATETIME , 'EMPLOYEECODE' , 5)
+          - columnReferences:
+              - columnCounter: 893a16ee-2a00-4b37-987b-4f542eddcacd
+                stepCounter: 05c2f881-1d07-4402-96fa-49f8e86c7a44
+            transform: |-
+              CASE WHEN I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS.RESPONSIBLEPERSONCODE IS NOT NULL THEN DBO.NP_FUNC_EMPLOYEEBUSINESSUNIT(I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS.RESPONSIBLEPERSONCODE , GETDATE() , 'EMPLOYEECODE' , 5)
+                          ELSE I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS.BUSINESSUNITCODE
+                           END
+          - columnReferences: []
+            transform: DBO.NP_FUNC_EMPLOYEEBUSINESSUNIT(I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.RESPONSIBLEPERSONCODE , I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.MODIFIEDDATETIME , 'EMPLOYEECODE' , 5)
+          - columnReferences:
+              - columnCounter: fabbe4d6-7e58-4636-bc82-067475109a87
+                stepCounter: fe6be933-f37c-4a1d-b3bf-2eb87538d071
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6ece5c2b-61d2-434d-8280-b17230bdd853
+          stepCounter: bc7b9cee-c123-42b4-b2fd-594ddd660edf
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: The person responsible for this obligation
+        name: RESPONSIBLEPERSONCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 39a7f726-964b-4027-8339-4508317dc1bb
+                stepCounter: e65d00f1-4487-4c70-a252-6eb1343a94bc
+            transform: ""
+          - columnReferences:
+              - columnCounter: eb37b75f-721f-4e1e-b48e-01edecd0eb97
+                stepCounter: 1879c7c2-4553-4939-87e1-ec1fd56942e9
+            transform: ""
+          - columnReferences:
+              - columnCounter: 12184825-560e-4dc4-acc2-fe842d490891
+                stepCounter: 294046b8-fba0-4f4e-89bf-6e7d3180d324
+            transform: ""
+          - columnReferences:
+              - columnCounter: eb37b75f-721f-4e1e-b48e-01edecd0eb97
+                stepCounter: 1879c7c2-4553-4939-87e1-ec1fd56942e9
+            transform: ""
+          - columnReferences: []
+            transform: "'5742' --FOR ALISDAIR"
+          - columnReferences:
+              - columnCounter: eb37b75f-721f-4e1e-b48e-01edecd0eb97
+                stepCounter: 1879c7c2-4553-4939-87e1-ec1fd56942e9
+            transform: ""
+          - columnReferences:
+              - columnCounter: c444513b-edca-436d-9308-9b83314f5eb6
+                stepCounter: 4437dc14-2eca-4e4a-a134-bd81fba7f438
+            transform: ""
+          - columnReferences:
+              - columnCounter: 644134cc-4d94-450f-9cfa-0bbb36b6bb1c
+                stepCounter: 05c2f881-1d07-4402-96fa-49f8e86c7a44
+            transform: ""
+          - columnReferences:
+              - columnCounter: a065e3d4-ea5f-4c3d-9daa-cb7df30f422a
+                stepCounter: 7d60d0d6-f7f3-458a-9ff3-953af2eb7103
+            transform: ""
+          - columnReferences:
+              - columnCounter: f2011125-9819-4b72-9562-c0a874032173
+                stepCounter: fe6be933-f37c-4a1d-b3bf-2eb87538d071
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 65a7c93d-6ab7-4e73-a352-827aacfa432b
+          stepCounter: bc7b9cee-c123-42b4-b2fd-594ddd660edf
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: The depot, zone sub or other location that this obligation applies.
+        name: OBLIGATIONLOCATIONCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ac61d127-92f2-46ae-8d94-8294c3cb057e
+                stepCounter: 733ed3e5-7538-4d4e-ac06-feb2342502d1
+            transform: ""
+          - columnReferences: []
+            transform: "'NOT APPLICABLE'"
+          - columnReferences:
+              - columnCounter: 9b0aff17-3d7e-48a3-a9d1-f9b35e7c0ac0
+                stepCounter: 294046b8-fba0-4f4e-89bf-6e7d3180d324
+            transform: ""
+          - columnReferences: []
+            transform: "'NOT APPLICABLE'"
+          - columnReferences: []
+            transform: "'NOT APPLICABLE'"
+          - columnReferences:
+              - columnCounter: ac61d127-92f2-46ae-8d94-8294c3cb057e
+                stepCounter: 733ed3e5-7538-4d4e-ac06-feb2342502d1
+            transform: ""
+          - columnReferences:
+              - columnCounter: 677d8503-fd37-4b48-bdf5-7310e88a793d
+                stepCounter: 4437dc14-2eca-4e4a-a134-bd81fba7f438
+            transform: ""
+          - columnReferences:
+              - columnCounter: 1d96997e-a953-4dd5-9fa7-f0e3de6f2f86
+                stepCounter: 05c2f881-1d07-4402-96fa-49f8e86c7a44
+            transform: ""
+          - columnReferences:
+              - columnCounter: 629444b6-cdee-4a71-9317-a04c2f4379a8
+                stepCounter: 7d60d0d6-f7f3-458a-9ff3-953af2eb7103
+            transform: ""
+          - columnReferences:
+              - columnCounter: 3f68b07f-096c-4a63-a474-31dcd0081646
+                stepCounter: fe6be933-f37c-4a1d-b3bf-2eb87538d071
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: adfe63e2-b06f-4226-8e05-14afec8937a3
+          stepCounter: bc7b9cee-c123-42b4-b2fd-594ddd660edf
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: What data is used to verify this obligation
+        name: VERIFICATIONTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c5c75533-9425-473a-9f29-e3e5555c837e
+                stepCounter: 14bf0832-0c9a-4506-905b-9a183e8ef086
+            transform: ""
+          - columnReferences:
+              - columnCounter: c5c75533-9425-473a-9f29-e3e5555c837e
+                stepCounter: 14bf0832-0c9a-4506-905b-9a183e8ef086
+            transform: ""
+          - columnReferences:
+              - columnCounter: f9a21240-ec73-490e-9232-0ea65c4f0e64
+                stepCounter: 294046b8-fba0-4f4e-89bf-6e7d3180d324
+            transform: ""
+          - columnReferences:
+              - columnCounter: c5c75533-9425-473a-9f29-e3e5555c837e
+                stepCounter: 14bf0832-0c9a-4506-905b-9a183e8ef086
+            transform: ""
+          - columnReferences: []
+            transform: "'NOT APPLICABLE'"
+          - columnReferences:
+              - columnCounter: e078bd0a-35c8-41e6-8de0-b2c70e54bb85
+                stepCounter: 2f072049-94c7-4f37-9968-806184f36dc5
+            transform: ""
+          - columnReferences:
+              - columnCounter: e74380a8-0a7f-44a1-8b49-c29c25c25b4b
+                stepCounter: 4437dc14-2eca-4e4a-a134-bd81fba7f438
+            transform: ""
+          - columnReferences:
+              - columnCounter: e7401238-a068-41eb-9300-5ec0394e897f
+                stepCounter: 05c2f881-1d07-4402-96fa-49f8e86c7a44
+            transform: ""
+          - columnReferences:
+              - columnCounter: cb6d8717-817c-49a5-9833-a1acb3151430
+                stepCounter: 7d60d0d6-f7f3-458a-9ff3-953af2eb7103
+            transform: ""
+          - columnReferences:
+              - columnCounter: bd6de63c-9c2a-428f-905c-5e519db7b9de
+                stepCounter: fe6be933-f37c-4a1d-b3bf-2eb87538d071
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 98442665-ec11-4201-93eb-ab293493680c
+          stepCounter: bc7b9cee-c123-42b4-b2fd-594ddd660edf
+        config: {}
+        dataType: DECIMAL(15,1)
+        defaultValue: ""
+        description: A measure will be either 0 (not compliant), 0.5 partially compliant, or 1 compliant.
+        name: OBLIGATIONRESULT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ebcfbc8a-a0f8-4780-a2e1-7f89666d693d
+                stepCounter: 4934b0af-ba91-4fd2-967a-56593896d456
+            transform: CASE WHEN F_QMSCONTROLLEDDOCUMENTREVIEW.UPTODATEDOCUMENTCOUNT= 1 THEN 1 -- THE DOCUMENT IS STILL VALID, BUT SHOULD BE REVIEWED SHORTLY   WHEN F_QMSCONTROLLEDDOCUMENTREVIEW.DUEFORREVIEWDOCUMENTCOUNT = 1 THEN 1   -- DOCUMENT IS NO LONGER WITHIN THE REVIEW PERIOD   WHEN F_QMSCONTROLLEDDOCUMENTREVIEW.OVERDUEDOCUMENTCOUNT = 0 THEN 0    ELSE 0 END
+          - columnReferences:
+              - columnCounter: c7a03c78-0610-4e3a-bba6-50d041f6435d
+                stepCounter: 95d4fbaf-6c36-48a7-91e9-acc601e4fc70
+            transform: |-
+              CASE WHEN SUM(CASE WHEN F_VEHICLECERTIFICATION.D_VEHICLE_KEY IS NULL THEN 1 ELSE 0 END) >= 1 AND SUM(F_VEHICLECERTIFICATION.VEHICLECERTIFICATIONCOMPLIANT) < 1 AND SUM(F_VEHICLECERTIFICATION.VEHICLECERTIFICATIONOVERDUE) < 0              THEN 0
+                          WHEN SUM(F_VEHICLECERTIFICATION.VEHICLECERTIFICATIONCOMPLIANT) >= 1 AND (SUM(F_VEHICLECERTIFICATION.VEHICLECERTIFICATIONOVERDUE) = 0 AND SUM(CASE WHEN F_VEHICLECERTIFICATION.D_VEHICLE_KEY IS NULL THEN 1 ELSE 0 END) = 0)            THEN 1
+                          WHEN SUM(F_VEHICLECERTIFICATION.VEHICLECERTIFICATIONCOMPLIANT) >= 1 AND (SUM(F_VEHICLECERTIFICATION.VEHICLECERTIFICATIONOVERDUE) >= 1 OR SUM(CASE WHEN F_VEHICLECERTIFICATION.D_VEHICLE_KEY IS NULL THEN 1 ELSE 0 END) >= 1) THEN .5
+                          WHEN SUM(ISNULL(F_VEHICLECERTIFICATION.VEHICLECERTIFICATIONCOMPLIANT, 0)) = 0 AND (SUM(F_VEHICLECERTIFICATION.VEHICLECERTIFICATIONOVERDUE) >= 1 OR SUM(CASE WHEN F_VEHICLECERTIFICATION.D_VEHICLE_KEY IS NULL THEN 1 ELSE 0 END) >= 1) THEN 0
+                           END
+          - columnReferences:
+              - columnCounter: 982dfbaa-b6c6-4795-91b0-122c14640292
+                stepCounter: 294046b8-fba0-4f4e-89bf-6e7d3180d324
+            transform: |-
+              CASE WHEN I_OBLIGATIONREFERENCE_AUDIT.COMPLIANCERATE > .95                                                             THEN 1
+                          WHEN I_OBLIGATIONREFERENCE_AUDIT.COMPLIANCERATE >.85 AND I_OBLIGATIONREFERENCE_AUDIT.COMPLIANCERATE <=.95 THEN .5
+                          WHEN I_OBLIGATIONREFERENCE_AUDIT.COMPLIANCERATE <=.85                                                             THEN 0
+                          ELSE 0
+                           END
+          - columnReferences:
+              - columnCounter: 0bf38cbf-08ea-4b98-b679-f8e73583d8c2
+                stepCounter: 3eacf970-f711-45f4-a4c4-91674f91a2e0
+            transform: CASE --WHEN COMPETENCY CURRENT AND NO NOT CERTIFIED THEN COMPLIANT    WHEN SUM(F_COMPETENCY.COMPETENCYCURRENTCOUNT) >= 1 AND SUM(F_COMPETENCY.NOTCERTIFIEDCOUNT) = 0 THEN 1    --WHEN SOME ARE CURRENT AND SOME ARE NOT CERTIFIED THEN PARTIAL    WHEN SUM(F_COMPETENCY.NOTCERTIFIEDCOUNT) >= 1 AND SUM(F_COMPETENCY.COMPETENCYCURRENTCOUNT) >= 1 THEN 0.5    --WHEN NONE ARE CURRENT AND SOME ARE NOT CERTIFIED THEN NOT COMPLIANT    WHEN SUM(F_COMPETENCY.NOTCERTIFIEDCOUNT) >= 1 AND SUM(F_COMPETENCY.COMPETENCYCURRENTCOUNT) = 0 THEN 0    ELSE 0   END
+          - columnReferences:
+              - columnCounter: a6e62556-f68d-43af-9fd0-a7b4352ced58
+                stepCounter: 42327624-8d33-425e-a2d7-653ed76b7f6e
+            transform: '0'
+          - columnReferences:
+              - columnCounter: 420cd62c-b9a1-4be3-b017-801b86b2a21c
+                stepCounter: bc7b9cee-c123-42b4-b2fd-594ddd660edf
+            transform: 0 --DOCUMENT DOES NOT EXIST
+          - columnReferences:
+              - columnCounter: dc56f8f7-b344-46d6-bfb7-7ffdf0d0d1c7
+                stepCounter: 4437dc14-2eca-4e4a-a134-bd81fba7f438
+            transform: ""
+          - columnReferences: []
+            transform: CASE -- IF ALL NON COMPLIANT     WHEN MAX(I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS.COMPLIANCE) = 0 THEN 0     --IF ALL COMPLIANT     WHEN MIN(I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS.COMPLIANCE) = 1 THEN 1     -- IF SOME ARE COMPLIANT AND SOME NOT     ELSE 0.5     END
+          - columnReferences: []
+            transform: |-
+              CASE WHEN CAST (I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.OBLIGATIONRESULT AS DECIMAL(9,2)) / CAST(I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.DOCUMENTCOUNT AS DECIMAL(9,2)) > .95                                                                                                                                                                                      THEN 1
+                          WHEN CAST (I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.OBLIGATIONRESULT AS DECIMAL(9,2)) / CAST(I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.DOCUMENTCOUNT AS DECIMAL(9,2)) > .85 AND CAST (I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.OBLIGATIONRESULT AS DECIMAL(9,2)) / CAST(I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.DOCUMENTCOUNT AS DECIMAL(9,2)) <= .95 THEN 0.5
+                          WHEN CAST (I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.OBLIGATIONRESULT AS DECIMAL(9,2)) / CAST(I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP.DOCUMENTCOUNT AS DECIMAL(9,2)) <= .85                                                                                                                                                                                     THEN 0
+                          ELSE 0
+                           END
+          - columnReferences:
+              - columnCounter: 891d31bf-02c1-4924-99a1-2663e3f39759
+                stepCounter: fe6be933-f37c-4a1d-b3bf-2eb87538d071
+            transform: '#ERROR!'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 940c7eaa-0c97-4ee4-b218-ccaacc234c33
+          stepCounter: bc7b9cee-c123-42b4-b2fd-594ddd660edf
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: A measure indicating how confidant we can be in the result we are reporting.
+        name: OBLIGATIONRELIANCENUMERATOR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '1'
+          - columnReferences: []
+            transform: '1'
+          - columnReferences:
+              - columnCounter: defc6516-056d-481a-8b44-e99c60625f9a
+                stepCounter: 294046b8-fba0-4f4e-89bf-6e7d3180d324
+            transform: ""
+          - columnReferences: []
+            transform: '1'
+          - columnReferences: []
+            transform: '1'
+          - columnReferences: []
+            transform: 1 -- THE DOCUMENT SHOULD EXIST AND DOES NOT
+          - columnReferences: []
+            transform: '1'
+          - columnReferences:
+              - columnCounter: feb3edd8-973f-4e2e-adf0-273185d99c58
+                stepCounter: 05c2f881-1d07-4402-96fa-49f8e86c7a44
+            transform: SUM(I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS.EMPLOYEECOUNT)
+          - columnReferences:
+              - columnCounter: ea8619b4-d398-4134-b3d5-0317432eb239
+                stepCounter: 7d60d0d6-f7f3-458a-9ff3-953af2eb7103
+            transform: ""
+          - columnReferences:
+              - columnCounter: 9755f87f-a05b-49e1-b464-252333b386d1
+                stepCounter: fe6be933-f37c-4a1d-b3bf-2eb87538d071
+            transform: '#ERROR!'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 714b7079-65db-4f1a-919c-d94fb30e711d
+          stepCounter: bc7b9cee-c123-42b4-b2fd-594ddd660edf
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: A measure indicating how confidant we can be in the result we are reporting.
+        name: OBLIGATIONRELIANCEDENOMINATOR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '1'
+          - columnReferences: []
+            transform: '1'
+          - columnReferences:
+              - columnCounter: ad4e8926-c4f1-4ae5-ac49-fffc57ba2a61
+                stepCounter: 294046b8-fba0-4f4e-89bf-6e7d3180d324
+            transform: ""
+          - columnReferences: []
+            transform: '1'
+          - columnReferences: []
+            transform: '1'
+          - columnReferences: []
+            transform: 1 -- THE DOCUMENT SHOULD EXIST AND DOES NOT
+          - columnReferences: []
+            transform: '1'
+          - columnReferences:
+              - columnCounter: feb3edd8-973f-4e2e-adf0-273185d99c58
+                stepCounter: 05c2f881-1d07-4402-96fa-49f8e86c7a44
+            transform: SUM(I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS.EMPLOYEECOUNT)
+          - columnReferences:
+              - columnCounter: ea8619b4-d398-4134-b3d5-0317432eb239
+                stepCounter: 7d60d0d6-f7f3-458a-9ff3-953af2eb7103
+            transform: ""
+          - columnReferences:
+              - columnCounter: 9755f87f-a05b-49e1-b464-252333b386d1
+                stepCounter: fe6be933-f37c-4a1d-b3bf-2eb87538d071
+            transform: '#ERROR!'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b0e13374-50ef-479b-a03e-988c72bc4bb8
+          stepCounter: bc7b9cee-c123-42b4-b2fd-594ddd660edf
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Summary table source
+        name: SUMMARYSOURCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'QMS CONTROLLED DOCUMENTS'"
+          - columnReferences:
+              - columnCounter: b9056b78-5736-4d67-863a-e45231b4d35d
+                stepCounter: 82ccaed9-4c7f-4532-840a-cede17250f42
+            transform: "'VEHICLE CERTIFICATION'"
+          - columnReferences: []
+            transform: "'Q-PULSE AUDITS'"
+          - columnReferences:
+              - columnCounter: 8427edb2-d4db-49d7-bcaa-9206bbe13e8f
+                stepCounter: 42327624-8d33-425e-a2d7-653ed76b7f6e
+            transform: "'LMS COMPETENCY'"
+          - columnReferences: []
+            transform: ""
+          - columnReferences: []
+            transform: "''"
+          - columnReferences:
+              - columnCounter: 23e5d052-d6af-41c9-9c7d-d9a3a6f1fa3f
+                stepCounter: 4437dc14-2eca-4e4a-a134-bd81fba7f438
+            transform: ""
+          - columnReferences: []
+            transform: "'CERTIFICATION RATIO'"
+          - columnReferences:
+              - columnCounter: cee4e2f7-b4b2-4e87-b42a-9b21fbdaebb9
+                stepCounter: 7d60d0d6-f7f3-458a-9ff3-953af2eb7103
+            transform: ""
+          - columnReferences:
+              - columnCounter: 3e3c72ab-5581-4774-a9c4-def8e36e92fd
+                stepCounter: fe6be933-f37c-4a1d-b3bf-2eb87538d071
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5cd22486-69f0-467c-b6af-94735adcd372
+          stepCounter: bc7b9cee-c123-42b4-b2fd-594ddd660edf
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: Document Link for Sharepoint Document Type, Library Link for Sharepoint Library Type
+        name: SHAREPOINTDOCUMENTLINKORLIBRARY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'NOT APPLICABLE'"
+          - columnReferences: []
+            transform: "'NOT APPLICABLE'"
+          - columnReferences: []
+            transform: "'NOT APPLICABLE'"
+          - columnReferences: []
+            transform: "'NOT APPLICABLE'"
+          - columnReferences: []
+            transform: "'NOT APPLICABLE'"
+          - columnReferences: []
+            transform: "'NOT APPLICABLE'"
+          - columnReferences:
+              - columnCounter: 46eb8c94-9fb3-453b-8727-aa220b0629a0
+                stepCounter: 4437dc14-2eca-4e4a-a134-bd81fba7f438
+            transform: ""
+          - columnReferences: []
+            transform: "'NOT APPLICABLE'"
+          - columnReferences:
+              - columnCounter: 17cf7e32-d094-47a6-8f62-74c5bdd01f91
+                stepCounter: 7d60d0d6-f7f3-458a-9ff3-953af2eb7103
+            transform: ""
+          - columnReferences:
+              - columnCounter: 04d9cff6-28f1-4112-8415-379c76d116b3
+                stepCounter: fe6be933-f37c-4a1d-b3bf-2eb87538d071
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 35be0ffa-e707-4bd0-897d-e1e9ecc8ee4c
+          stepCounter: bc7b9cee-c123-42b4-b2fd-594ddd660edf
+        config: {}
+        dataType: DECIMAL(15,4)
+        defaultValue: ""
+        description: The percentage target for an obligation to be compliant.
+        name: TARGETRATIO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '1'
+          - columnReferences: []
+            transform: '1'
+          - columnReferences: []
+            transform: '0.95'
+          - columnReferences: []
+            transform: '1'
+          - columnReferences: []
+            transform: '1'
+          - columnReferences: []
+            transform: '1'
+          - columnReferences: []
+            transform: '1'
+          - columnReferences:
+              - columnCounter: 5e376921-43b5-44a8-99e3-525b8673914b
+                stepCounter: 05c2f881-1d07-4402-96fa-49f8e86c7a44
+            transform: MAX(I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS.TARGETRATIO)
+          - columnReferences: []
+            transform: '1'
+          - columnReferences: []
+            transform: '1'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: be79c129-388e-480b-bfb8-20fed09db357
+          stepCounter: bc7b9cee-c123-42b4-b2fd-594ddd660edf
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Minimum Population Target or Minimum Number. Only applicable (currently) to the percent of population verification type and is set per Obligation Reference
+        name: MINIMUMNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: 0 --NOT APPLICABLE
+          - columnReferences: []
+            transform: 0 --NOT APPLICABLE
+          - columnReferences: []
+            transform: 0 --NOT APPLICABLE
+          - columnReferences: []
+            transform: 0 --NOT APPLICABLE
+          - columnReferences: []
+            transform: 0 --NOT APPLICABLE
+          - columnReferences: []
+            transform: 0 --NOT APPLICABLE
+          - columnReferences: []
+            transform: 0 --NOT APPLICABLE
+          - columnReferences:
+              - columnCounter: 53debdcb-50e3-4c2f-a3a9-f906c405f52b
+                stepCounter: 05c2f881-1d07-4402-96fa-49f8e86c7a44
+            transform: MAX(I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS.MINIMUMNUMBER)
+          - columnReferences: []
+            transform: 0 --NOT APPLICABLE
+          - columnReferences: []
+            transform: 0 --NOT APPLICABLE
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          F_QMSCONTROLLEDDOCUMENTREVIEW: 4934b0af-ba91-4fd2-967a-56593896d456
+          D_OBLIGATION: 2fdee330-b073-4663-80b3-04fa31db25f3
+          D_BUSINESSUNIT: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+          D_EMPLOYEE: e65d00f1-4487-4c70-a252-6eb1343a94bc
+          D_OBLIGATIONLOCATION: 733ed3e5-7538-4d4e-ac06-feb2342502d1
+          D_OBLIGATIONVERIFICATIONTYPE: 14bf0832-0c9a-4506-905b-9a183e8ef086
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: D_OBLIGATION
+          - locationName: NP
+            nodeName: F_QMSCONTROLLEDDOCUMENTREVIEW
+          - locationName: NP
+            nodeName: D_BUSINESSUNIT
+          - locationName: NP
+            nodeName: D_EMPLOYEE
+          - locationName: NP
+            nodeName: D_OBLIGATIONLOCATION
+          - locationName: NP
+            nodeName: D_OBLIGATIONVERIFICATIONTYPE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','F_QMSCONTROLLEDDOCUMENTREVIEW') }} F_QMSCONTROLLEDDOCUMENTREVIEW
+              JOIN {{ ref('NP','D_OBLIGATION') }} D_OBLIGATION
+                ON F_QMSCONTROLLEDDOCUMENTREVIEW.D_OBLIGATION_KEY = D_OBLIGATION.D_OBLIGATION_KEY
+              JOIN {{ ref('NP','D_BUSINESSUNIT') }} D_BUSINESSUNIT
+                ON F_QMSCONTROLLEDDOCUMENTREVIEW.D_BUSINESSUNIT_KEY = D_BUSINESSUNIT.D_BUSINESSUNIT_KEY
+              JOIN {{ ref('NP','D_EMPLOYEE') }} D_EMPLOYEE
+                ON F_QMSCONTROLLEDDOCUMENTREVIEW.D_EMPLOYEE_KEY = D_EMPLOYEE.D_EMPLOYEE_KEY
+              JOIN {{ ref('NP','D_OBLIGATIONLOCATION') }} D_OBLIGATIONLOCATION
+                ON F_QMSCONTROLLEDDOCUMENTREVIEW.D_OBLIGATIONLOCATION_KEY = D_OBLIGATIONLOCATION.D_OBLIGATIONLOCATION_KEY
+              JOIN {{ ref('NP','D_OBLIGATIONVERIFICATIONTYPE') }} D_OBLIGATIONVERIFICATIONTYPE
+                ON F_QMSCONTROLLEDDOCUMENTREVIEW.D_OBLIGATIONVERIFICATI_KEY = D_OBLIGATIONVERIFICATIONTYPE.D_OBLIGATIONVERIFICATI_KEY
+             WHERE F_QMSCONTROLLEDDOCUMENTREVIEW.D_QMSDOCUMENT_KEY NOT IN (0,-1)
+               AND F_QMSCONTROLLEDDOCUMENTREVIEW.D_OBLIGATIONLOCATION_KEY NOT IN (0,-1)
+        name: src_I_ObligationSummary_10_QMS
+        noLinkRefs: []
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: D_OBLIGATION
+          - locationName: NP
+            nodeName: F_VEHICLECERTIFICATION
+          - locationName: NP
+            nodeName: D_BUSINESSUNIT
+          - locationName: NP
+            nodeName: I_JDE_BUSINESSUNITMASTER
+          - locationName: NP
+            nodeName: D_OBLIGATIONVERIFICATIONTYPE
+          - locationName: NP
+            nodeName: D_VEHICLE
+        join:
+          joinCondition: |-
+            FROM D_VEHICLE
+              LEFT OUTER JOIN F_VEHICLECERTIFICATION
+                ON D_VEHICLE.D_VEHICLE_KEY = F_VEHICLECERTIFICATION.D_VEHICLE_KEY
+              LEFT OUTER JOIN [D_BUSINESSUNIT]
+                ON D_VEHICLE.BUSINESSUNITCODE = D_BUSINESSUNIT.BUSINESSUNITCODE
+              LEFT OUTER JOIN D_RISK
+                ON D_RISK.D_RISK_KEY = F_VEHICLECERTIFICATION.D_RISK_KEY
+              LEFT JOIN D_OBLIGATION
+                ON ISNULL(F_VEHICLECERTIFICATION.D_OBLIGATION_KEY, (SELECT D_OBLIGATION_KEY FROM D_OBLIGATION WHERE OBLIGATIONCODE = '42')) = D_OBLIGATION.D_OBLIGATION_KEY
+              LEFT JOIN I_JDE_BUSINESSUNITMASTER
+                ON D_BUSINESSUNIT.BUSINESSUNITCODE = I_JDE_BUSINESSUNITMASTER.BUSINESSUNITCODE
+              LEFT JOIN D_OBLIGATIONVERIFICATIONTYPE
+                ON ISNULL(F_VEHICLECERTIFICATION.D_OBLIGATIONVERIFICATI_KEY, (SELECT D_OBLIGATIONVERIFICATI_KEY FROM D_OBLIGATIONVERIFICATIONTYPE WHERE VERIFICATIONTYPE = 'CUSTOM - VEHICLE CERTIFICATION')) = D_OBLIGATIONVERIFICATIONTYPE.D_OBLIGATIONVERIFICATI_KEY
+             WHERE D_VEHICLE.VEHICLEREGISTER = 'JDE'
+               AND D_VEHICLE.PLANTSTATUS = 'OPERATIONAL' --PRE-OPERATIONAL??  AND D_VEHICLE.REGISTRATION <> 'UNKNOWN'  AND ISNULL(F_VEHICLECERTIFICATION.D_OBLIGATION_KEY, 0) <> -1  --ONLY VEHICLES THAT ARE FLAGGED AS REQUIRED WOF/COF  AND FITNESSTESTINGREQUIREDCODE = 'Y' GROUP BY D_OBLIGATION.OBLIGATIONCODE    ,D_BUSINESSUNIT.BUSINESSUNITCODE    ,BUDGETHOLDEREMPLOYEECODE    ,VERIFICATIONTYPECODE
+        name: src_I_ObligationSummary_20_Vehicle
+        noLinkRefs: []
+      - aliases:
+          I_OBLIGATIONREFERENCE_AUDIT: 294046b8-fba0-4f4e-89bf-6e7d3180d324
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_OBLIGATIONREFERENCE_AUDIT
+        join:
+          joinCondition: FROM {{ ref('NP','I_OBLIGATIONREFERENCE_AUDIT') }} I_OBLIGATIONREFERENCE_AUDIT
+        name: src_I_ObligationSummary_40_AuditQuestions
+        noLinkRefs: []
+      - aliases:
+          F_COMPETENCY: 3eacf970-f711-45f4-a4c4-91674f91a2e0
+          D_OBLIGATION: 2fdee330-b073-4663-80b3-04fa31db25f3
+          D_BUSINESSUNIT: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+          I_JDE_BUSINESSUNITMASTER: 1879c7c2-4553-4939-87e1-ec1fd56942e9
+          D_OBLIGATIONVERIFICATIONTYPE: 14bf0832-0c9a-4506-905b-9a183e8ef086
+          I_SHP_OBLIGATIONREFERENCE: 42327624-8d33-425e-a2d7-653ed76b7f6e
+          D_EMPLOYEE: e65d00f1-4487-4c70-a252-6eb1343a94bc
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: D_OBLIGATION
+          - locationName: NP
+            nodeName: D_BUSINESSUNIT
+          - locationName: NP
+            nodeName: I_JDE_BUSINESSUNITMASTER
+          - locationName: NP
+            nodeName: D_OBLIGATIONVERIFICATIONTYPE
+          - locationName: NP
+            nodeName: F_COMPETENCY
+          - locationName: NP
+            nodeName: I_SHP_OBLIGATIONREFERENCE
+          - locationName: NP
+            nodeName: D_EMPLOYEE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','F_COMPETENCY') }} F_COMPETENCY
+              LEFT JOIN {{ ref('NP','D_OBLIGATION') }} D_OBLIGATION
+                ON F_COMPETENCY.D_OBLIGATION_KEY = D_OBLIGATION.D_OBLIGATION_KEY
+              LEFT JOIN {{ ref('NP','D_BUSINESSUNIT') }} D_BUSINESSUNIT
+                ON F_COMPETENCY.D_BUSINESSUNIT_KEY = D_BUSINESSUNIT.D_BUSINESSUNIT_KEY
+              LEFT JOIN {{ ref('NP','I_JDE_BUSINESSUNITMASTER') }} I_JDE_BUSINESSUNITMASTER
+                ON D_BUSINESSUNIT.BUSINESSUNITCODE = I_JDE_BUSINESSUNITMASTER.BUSINESSUNITCODE
+              LEFT JOIN {{ ref('NP','D_OBLIGATIONVERIFICATIONTYPE') }} D_OBLIGATIONVERIFICATIONTYPE
+                ON F_COMPETENCY.D_OBLIGATIONVERIFICATI_KEY = D_OBLIGATIONVERIFICATIONTYPE.D_OBLIGATIONVERIFICATI_KEY
+              LEFT JOIN {{ ref('NP','I_SHP_OBLIGATIONREFERENCE') }} I_SHP_OBLIGATIONREFERENCE
+                ON D_OBLIGATION.OBLIGATIONCODE = I_SHP_OBLIGATIONREFERENCE.OBLIGATIONCODE
+              LEFT JOIN {{ ref('NP','D_EMPLOYEE') }} D_EMPLOYEE
+                ON F_COMPETENCY.D_EMPLOYEE_KEY = D_EMPLOYEE.D_EMPLOYEE_KEY
+             WHERE D_OBLIGATION.OBLIGATIONCODE <> 'NOT APPLICABLE' -- PARTIAL POPULATION CERTIFICATION WILL BE LOADED VIA A SEPARATE METHOD  AND D_OBLIGATIONVERIFICATIONTYPE.VERIFICATIONTYPE = 'CERTIFICATION'  AND D_EMPLOYEE.EMPLOYEECOSTGROUP = I_SHP_OBLIGATIONREFERENCE.EMPLOYEECOSTGROUP GROUP BY D_OBLIGATION.OBLIGATIONCODE    ,D_BUSINESSUNIT.BUSINESSUNITCODE    ,D_OBLIGATIONVERIFICATIONTYPE.VERIFICATIONTYPECODE    ,I_JDE_BUSINESSUNITMASTER.BUDGETHOLDEREMPLOYEECODE    ORDER BY D_BUSINESSUNIT.BUSINESSUNITCODE
+        name: src_I_ObligationSummary_30_LMS_Comp
+        noLinkRefs: []
+      - aliases:
+          L_SHP_OBLIGATIONS: cc78eed0-d8bc-42f9-adfc-5fee491eb073
+          I_SHP_OBLIGATIONREFERENCE: 42327624-8d33-425e-a2d7-653ed76b7f6e
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_SHP_OBLIGATIONS
+          - locationName: NP
+            nodeName: I_SHP_OBLIGATIONREFERENCE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','L_SHP_OBLIGATIONS') }} L_SHP_OBLIGATIONS
+              LEFT JOIN {{ ref('NP','I_SHP_OBLIGATIONREFERENCE') }} I_SHP_OBLIGATIONREFERENCE
+                ON L_SHP_OBLIGATIONS.OBLIGATIONID = I_SHP_OBLIGATIONREFERENCE.OBLIGATIONCODE
+             WHERE L_SHP_OBLIGATIONS.ISDELETED = 'FALSE' --EXCLUDE DELETED RECORDS  --WE ONLY WANT THE ONES THAT HAVE NOT BEEN SET UP YET  AND I_SHP_OBLIGATIONREFERENCE.OBLIGATIONCODE IS NULL
+        name: src_I_ObligationSummary_90_NotMonitored
+        noLinkRefs: []
+      - aliases:
+          I_OBLIGATIONREFERENCE_SCOPE: 2f072049-94c7-4f37-9968-806184f36dc5
+          D_OBLIGATIONLOCATION: 733ed3e5-7538-4d4e-ac06-feb2342502d1
+          I_OBLIGATIONSUMMARY: bc7b9cee-c123-42b4-b2fd-594ddd660edf
+          I_JDE_BUSINESSUNITMASTER: 1879c7c2-4553-4939-87e1-ec1fd56942e9
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_OBLIGATIONREFERENCE_SCOPE
+          - locationName: NP
+            nodeName: D_OBLIGATIONLOCATION
+          - locationName: NP
+            nodeName: I_JDE_BUSINESSUNITMASTER
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_OBLIGATIONREFERENCE_SCOPE') }} I_OBLIGATIONREFERENCE_SCOPE
+              JOIN {{ ref('NP','D_OBLIGATIONLOCATION') }} D_OBLIGATIONLOCATION
+                ON I_OBLIGATIONREFERENCE_SCOPE.SCOPE = D_OBLIGATIONLOCATION.OBLIGATIONLOCATIONTYPE
+              LEFT JOIN {{ ref_no_link('NP','I_OBLIGATIONSUMMARY') }} I_OBLIGATIONSUMMARY
+                ON I_OBLIGATIONREFERENCE_SCOPE.OBLIGATIONCODE = I_OBLIGATIONSUMMARY.OBLIGATIONCODE
+               AND D_OBLIGATIONLOCATION.OBLIGATIONLOCATIONCODE = I_OBLIGATIONSUMMARY.OBLIGATIONLOCATIONCODE
+              LEFT JOIN {{ ref('NP','I_JDE_BUSINESSUNITMASTER') }} I_JDE_BUSINESSUNITMASTER
+                ON D_OBLIGATIONLOCATION.BUSINESSUNITCODE = I_JDE_BUSINESSUNITMASTER.BUSINESSUNITCODE
+             WHERE I_OBLIGATIONSUMMARY.OBLIGATIONCODE IS NULL
+        name: src_I_ObligationSummary_99_Scope
+        noLinkRefs: []
+      - aliases:
+          I_SHP_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENT: 4437dc14-2eca-4e4a-a134-bd81fba7f438
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_SHP_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENT
+        join:
+          joinCondition: FROM {{ ref('NP','I_SHP_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENT') }} I_SHP_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENT
+        name: src_I_ObligationSummary_50_SHPDocument
+        noLinkRefs: []
+      - aliases:
+          I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS: 05c2f881-1d07-4402-96fa-49f8e86c7a44
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS') }} I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS
+             GROUP BY I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS.OBLIGATIONCODE ,
+                      I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS.LOCATIONCODE ,
+                      I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS.BUSINESSUNITCODE ,
+                      I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS.VERIFICATIONTYPECODE ,
+                      I_OBLIGATIONREFERENCE_CERTIFICATIONRATIODETAILS.RESPONSIBLEPERSONCODE
+        name: src_I_ObligationSummary_35_CompetencyRatio
+        noLinkRefs: []
+      - aliases:
+          I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP: 7d60d0d6-f7f3-458a-9ff3-953af2eb7103
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP
+        join:
+          joinCondition: FROM {{ ref('NP','I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP') }} I_OBLIGATIONREFERENCE_SHAREPOINTDOCUMENTGROUP
+        name: src_I_ObligationSummary_60_SHPDocumentGroup
+        noLinkRefs: []
+      - aliases:
+          I_SHP_OBLIGATIONREFERENCE_SHAREPOINTLIST: fe6be933-f37c-4a1d-b3bf-2eb87538d071
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_SHP_OBLIGATIONREFERENCE_SHAREPOINTLIST
+        join:
+          joinCondition: FROM {{ ref('NP','I_SHP_OBLIGATIONREFERENCE_SHAREPOINTLIST') }} I_SHP_OBLIGATIONREFERENCE_SHAREPOINTLIST
+        name: src_I_ObligationSummary_70_SHPList
+        noLinkRefs: []
+  name: I_OBLIGATIONSUMMARY
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,1877 @@
+fileVersion: 1
+id: 392055c7-3752-436b-9cec-c64eb9a11e00
+name: I_JDE_WORKORDERDETAILS
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Table holds WorkOrder Details"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c3e6e92d-372d-4dad-a035-c4a33df7df09
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(2)
+        defaultValue: ""
+        description: ""
+        name: WORKORDERTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5bce80c9-e6d1-4086-b72a-258a8b2906ee
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WADCTO))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b298fc92-5bb5-48fa-b0ea-aac139b7e646
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Work Order Type Description
+        name: WORKORDERTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 82c0e24a-ccc2-40a7-b713-8cfc64ec7c9d
+                stepCounter: e1aa6069-5324-4580-a18d-de10062c5c68
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9b919b77-55f4-448a-90d7-5b2c272109a5
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: For Network projects, it shows whether the work is follow up or project based. This is determined by the number range of the work order.
+        name: NETWORKTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7a705a8d-1e9f-4d9b-8d69-0d3b07098941
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: |-
+              CASE WHEN LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WADCTO)) = 'NW' THEN CASE WHEN L_JDE_F4801_WORKORDERDETAILS.WADOCO BETWEEN 9000 AND 9999 THEN 'CAPEX FOLLOW-UP' ELSE 'CAPEX PROJECTS' END
+                          ELSE 'NOT APPLICABLE'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3ec63448-df31-4bce-a771-67392cc5ce94
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: WORKORDERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7a705a8d-1e9f-4d9b-8d69-0d3b07098941
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cb3c42e3-0489-4fc4-ab4f-e2f4b82f3440
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Number - Parent WO Number
+        name: PARENTWORKORDERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 52e3b51e-2bc2-4dac-8d08-1e101204cdaf
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: CASE --WHEN THE PARENT HAS NOT BEEN SET  WHEN CAST (L_JDE_F4801_WORKORDERDETAILS.WAPARS AS INT) = 0   -- AND THE WO IS A SUMMARY WORK ORDER (TOP LEVEL OF THE PROJECT   --  WORK BENCH) WHICH REQUIRES A ZERO PARENT FOR THE WORK BENCH   --  TO KNOW ITS THE TOP LEVEL WITHIN THE WORK BENCH.   AND L_JDE_F4801_WORKORDERDETAILS.WADCTO = 'TS'   -- AND A VALUE HAS BEEN SET FOR THE OTHER PARENTING FIELD   AND ISNULL(L_JDE_F4801_WORKORDERDETAILS.WARORN,'') <> ''   -- AND THAT VALUE IS NUMERIC OTHERWISE IT WILL CAUSE A SQL ERROR   --  WHEN LOADED   AND ISNUMERIC(L_JDE_F4801_WORKORDERDETAILS.WARORN) = 1  THEN CAST (L_JDE_F4801_WORKORDERDETAILS.WARORN AS INT)    --WHEN THE PARENT HAS NOT BEEN SET  WHEN CAST (L_JDE_F4801_WORKORDERDETAILS.WAPARS AS INT) = 0  THEN CAST (L_JDE_F4801_WORKORDERDETAILS.WADOCO AS INT)    ELSE CAST (L_JDE_F4801_WORKORDERDETAILS.WAPARS AS INT)  END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b406e09d-b5df-4001-9106-57638b68f39d
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: the parent TF for this workorder
+        name: TFPARENTWORKORDERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 969a272b-ff20-407e-8a4c-fc131b5790a1
+                stepCounter: 9f615adb-8fed-4010-930b-a2067a2d36d1
+            transform: ISNULL(I_JDE_WOPARENTS.TFPARENTWORKORDERNUMBER,0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a49feeeb-7505-4dcb-8b94-bb37965f2a15
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: The first TS parent found for the work order
+        name: TSPARENTWORKORDERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9b2ed448-b756-40f5-97ba-783f84f95e69
+                stepCounter: 9f615adb-8fed-4010-930b-a2067a2d36d1
+            transform: |-
+              CASE WHEN WADCTO = 'TS' THEN L_JDE_F4801_WORKORDERDETAILS.WADOCO
+                          ELSE ISNULL(I_JDE_WOPARENTS.TSPARENTWORKORDERNUMBER,0)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3e2257c0-6876-4f4f-bb26-32483c1e2c64
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(3)
+        defaultValue: ""
+        description: ""
+        name: ORDERSUFFIX
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: df9200fb-ddbf-4633-bdd7-9681aced00f9
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WASFXO))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9b725045-5883-4500-98e4-7c36b5bb762a
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(2)
+        defaultValue: ""
+        description: ""
+        name: RELATEDORDERTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fe68e96f-8ed5-43de-99f9-7d57c52070a9
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WARCTO))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1fac6f80-7247-4608-8b2f-0b4ea9c63098
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: ""
+        name: RELATEDWORKORDERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: dcc87e9b-3a74-47b2-bb8c-9929fc631373
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WARORN))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2090476f-0a3c-4655-b959-ac6d94ca640a
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: LINENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a2b9f1df-1edd-4671-9801-4ba0f9e58a92
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c350d047-9af9-4f3f-a05d-51dfc3f762a0
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: WORKORDERDESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 713620c2-e0ae-4567-9e76-9f8bb62b3409
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WADL01))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a1251c61-6d81-4208-9e72-5c3955d92b85
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(5)
+        defaultValue: ""
+        description: 5 digit code for the JDE Company
+        name: COMPANYCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3a1edc5a-792c-4ad9-afe2-16a0945b28c0
+                stepCounter: 1879c7c2-4553-4939-87e1-ec1fd56942e9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 37809f63-f3a7-40fd-9fbc-60f551445983
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Name associated with the five digit JDE company code.
+        name: COMPANY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e779750f-3163-480c-be07-95e1e4a24ed2
+                stepCounter: 1879c7c2-4553-4939-87e1-ec1fd56942e9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 250071ec-042a-42a4-9085-4c4718fc95eb
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: BUSINESSUNITCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a8230530-6975-496b-bbe1-7d2bc80547c4
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WAMCU))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b40d6596-64fe-4116-963f-5ec4768c5fc9
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: DIVISION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d1710321-9a5a-41e8-9495-c34fb93b4787
+                stepCounter: 1879c7c2-4553-4939-87e1-ec1fd56942e9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7e6e62ce-9f5d-4a55-83ee-9954ad80edf6
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(3)
+        defaultValue: ""
+        description: Three digit code for the cost centre.
+        name: COSTCENTRECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c6865875-85a1-47cf-a46d-cc099f927801
+                stepCounter: 1879c7c2-4553-4939-87e1-ec1fd56942e9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fcb04e3b-6fa5-4c40-a8e4-53c70ae54b2f
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(60)
+        defaultValue: ""
+        description: Description associated with the three digit cost centre.
+        name: COSTCENTRE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d13b995d-6bc6-402d-8f2e-4c2053850263
+                stepCounter: 1879c7c2-4553-4939-87e1-ec1fd56942e9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f247119a-f245-471d-9671-03726286fef3
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(3)
+        defaultValue: ""
+        description: Department is a way to group the cost centres together for reporting where there are similar business units across different companies. It does not form part of a hierarchy with any of the other Business Unit atrributes.
+        name: DEPARTMENTCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bea0eee5-31a8-456b-bf87-772d29dfcf43
+                stepCounter: 1879c7c2-4553-4939-87e1-ec1fd56942e9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 50f8fff5-402b-42ce-84bc-df697ccfd093
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Department is a way to group the cost centres together for reporting where there are similar business units across different companies. It does not form part of a hierarchy with any of the other Business Unit atrributes.
+        name: DEPARTMENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7e9d8e0b-c937-4dad-a29e-6609bce7efbb
+                stepCounter: 1879c7c2-4553-4939-87e1-ec1fd56942e9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4ab35c12-4440-4456-a323-f2d10450db0f
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(3)
+        defaultValue: ""
+        description: Indicates the type of work done within the Business Unit. The group is a superset of the sales type.
+        name: SALESGROUPCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b3f20d97-6ebb-46dd-bd17-4fa9205638a3
+                stepCounter: 1879c7c2-4553-4939-87e1-ec1fd56942e9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 012e8e15-58f8-490a-817b-73ae676db008
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(3)
+        defaultValue: ""
+        description: Indicates the type of work done within the Business Unit
+        name: SALESTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fd3f3c1c-e3ea-4a3c-90fa-66b7d5b31ffe
+                stepCounter: 1879c7c2-4553-4939-87e1-ec1fd56942e9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b5873858-bd9b-409b-9dad-7420e88523b4
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: SALESTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 625dfbe6-4e47-48f9-bb8c-1fe0f47b7e7c
+                stepCounter: 1879c7c2-4553-4939-87e1-ec1fd56942e9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a95bc76c-4bf7-4c76-8093-d8aca7266182
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Subsidiary Description (if there are different desciptions entered in JDE for a subsidiary account, the data warehouse will just use the first one it comes across).
+        name: SUBSIDIARY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ISNULL(D_SUBSIDIARY.SUBSIDIARY,'NO SUBSIDIARY')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5f282199-f520-44c6-9035-f673bb3d60cc
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: PLANNEDCOMPLETIONDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a2b4462e-6095-4c1d-ac8f-83f46b194ba8
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: COALESCE([DBO].[NP_FUNC_JDEDATETOJULIAN] (L_JDE_F4801_WORKORDERDETAILS.WADRQJ),[DBO].[NP_FUNC_JDEDATETOJULIAN] (L_JDE_F4801_WORKORDERDETAILS.WADPL))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1375d95b-12a8-4bb8-ae84-029080067c1f
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Work Order Source Type Code
+        name: WORKORDERSOURCETYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2205201c-9ecc-45b7-80db-e0ddf4bd77da
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ISNULL(I_JDE_WORKORDERSOURCETYPE.WORKORDERSOURCECODE,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 909d8523-40b0-4c91-8299-a03922e39353
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: Currency Code - From
+        name: CURRENCY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: adbab0ac-4678-4aa0-8138-03ed4048823e
+                stepCounter: 1879c7c2-4553-4939-87e1-ec1fd56942e9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9af4900b-6e58-4d93-bf57-a2f5afab73f7
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: STARTDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fc32c849-96f7-40b0-a7ae-340f45937a21
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: '[DBO].[NP_FUNC_JDEDATETOJULIAN] (L_JDE_F4801_WORKORDERDETAILS.WASTRT)'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a969f790-fa10-4179-84d0-ebdb9de6a1e2
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: REQUESTEDDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 23f1bbcd-ca67-47fd-b4f3-06a42007282f
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ISNULL(TARGETENDDATE, [DBO].[NP_FUNC_JDEDATETOJULIAN](L_JDE_F4801_WORKORDERDETAILS.WADPL))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 77812a5f-62b2-4087-bf51-1eabac99cd74
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: COMPLETIONDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b1c65145-cd05-48a2-991f-bfe4da65dc9d
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: '[DBO].[NP_FUNC_JDEDATETOJULIAN] (L_JDE_F4801_WORKORDERDETAILS.WASTRX)'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 091c0a30-a763-4a9d-ac32-4d4f59384984
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38,2)
+        defaultValue: ""
+        description: ""
+        name: ESTIMATEDAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: eb08b4db-1823-46ad-b0a0-dd9da7d1a367
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ISNULL(CONVERT(NUMERIC(38,2),L_JDE_F4801_WORKORDERDETAILS.WAAMTO)/100,0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4ac3a285-0fc1-436f-8352-258929e2a4e4
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: ""
+        name: SUBSIDIARYCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f762d5b2-b002-4a0b-82ae-d8a418cf65c3
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ISNULL(LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WASUB)),'')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0766d79c-074a-4897-b63b-1038d5e93cfb
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: CREWSIZE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1da8d44e-d4f9-4474-ae7a-ff560e9d2634
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3d7c57a8-8fec-4d20-b386-fc15d1bb41a1
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: CREATEDDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2ea1197b-fd8c-4a66-9693-d70c166f533a
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: '[DBO].[NP_FUNC_JDEDATETOJULIAN] (L_JDE_F4801_WORKORDERDETAILS.WATRDJ)'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 323b3855-8280-46bb-a9cf-91752f294d40
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: HOURSESTIMATED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 486f372a-31ba-4d92-ab41-327265d3d737
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0023304f-147b-4ecc-844a-b34c9cf79877
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: UNITORDERQUANTITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 600fcf82-6574-40f4-a67b-82cdeffdce5c
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0a6cf064-cef0-4b26-a4c4-b837cf7d3bc1
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: DATEUPDATED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cec8f2ff-383a-46a9-a88a-eb8fe5819ebe
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: '[DBO].[NP_FUNC_JDEDATETOJULIAN] (L_JDE_F4801_WORKORDERDETAILS.WAUPMJ)'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f9177544-77a9-4767-8456-89da6b254593
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: AMOUNTACTUAL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4ef5e27c-9bd9-4c96-98ff-00717c62d6f4
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 117fccc9-3247-4b5f-a886-b12613757998
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: HOURSACTUAL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7c39f762-15aa-4d87-a5e0-7d2c0a7e7403
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8026e4cc-d9e9-48fc-ab8e-1f8280043bca
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: UNITSSHIPPEDTODATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0991306c-1a18-4932-921f-f630fc6146a2
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 333f4086-6ab7-4fd4-9cb4-5d3ceaf481ef
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: AMOUNTACTUALMATERIAL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 20256703-9935-4e9c-91cf-0650db290050
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 39daa84f-49d9-490d-be0e-6239f69b0905
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: Customer Project Number
+        name: CUSTOMERPROJECTNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 86ef9ff0-a121-4c4b-98a8-a3a3441cdcdc
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: |-
+              CASE WHEN ISNULL(LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WAVR02)),'') = '' THEN 'UNKNOWN'
+                          ELSE LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WAVR02))
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dc4baeca-76da-4616-8e16-c967fef27ed7
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(80)
+        defaultValue: ""
+        description: Additional Description
+        name: ADDITIONALDESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 75f3dc21-84e6-4a16-a7cb-e15f7824bb04
+                stepCounter: 7d20b705-9fe9-4810-9e08-3d2e02c51898
+            transform: |-
+              CASE WHEN ISNULL(LTRIM(RTRIM(L_JDE_F4801T_WORKORDERMASTERTAGFILE.WAISSUE)),'') = '' THEN 'UNKNOWN'
+                          ELSE LTRIM(RTRIM(L_JDE_F4801T_WORKORDERMASTERTAGFILE.WAISSUE))
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 59a1bc25-400e-4d80-8810-ec3e20400405
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(20)
+        defaultValue: ""
+        description: Drawing Number - Customer PO Number
+        name: CUSTOMERPONUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 74d97b66-d14e-469a-9883-e7cfee71094a
+                stepCounter: 7d20b705-9fe9-4810-9e08-3d2e02c51898
+            transform: |-
+              CASE WHEN ISNULL(LTRIM(RTRIM(L_JDE_F4801T_WORKORDERMASTERTAGFILE.WADRAW)),'') = '' THEN 'UNKNOWN'
+                          ELSE LTRIM(RTRIM(L_JDE_F4801T_WORKORDERMASTERTAGFILE.WADRAW))
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eac5cf67-2570-4bad-9376-f82e35230144
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: QUANTITYSHIPPED
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1fb76264-9ba8-4d8e-9e27-38f006399bd7
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fd1f83ae-a68c-40a7-a49a-6f28d3cc7f0a
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: Capital Management Code used for classification of Network work orders
+        name: CAPITALMANAGEMENTCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 87842bc7-aa01-47e4-a247-ec6bddf70935
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: CASE --THIS VALUE IS NORMALLY FILLED WITH A SPACE AND IS NOT NULL BY DEFAULT   WHEN ISNULL(LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WAWR10)),'') = ''   THEN 'UNKNOWN'   ELSE LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WAWR10))  END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dc504ce9-c4a0-4c93-868a-3bcb19390bd6
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: UNITBACKORDERQUANTITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 92891b93-6462-4237-9eff-899cdc282546
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e15bcf9a-a212-43d9-8c40-bc4c284ad978
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: Reference
+        name: REFERENCENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 27f14b8a-c178-4ef7-8934-c6879394040b
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WAVR01))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8028f260-8018-468d-b0a5-d5dc7733e287
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: UNITCANCELLEDORDERQUANTITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 13d7ca30-038e-4af7-bc07-1206405fa3c9
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ffe6a997-de8f-4e34-b379-f23ce80ca427
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: Work Team Code used for classification of Internal Project work orders
+        name: WORKTEAMCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 156c6ccf-1422-42c5-baa1-a785ac963ce9
+                stepCounter: 7d20b705-9fe9-4810-9e08-3d2e02c51898
+            transform: CASE --THIS VALUE IS NORMALLY FILLED WITH A SPACE AND IS NOT NULL BY DEFAULT   WHEN ISNULL(LTRIM(RTRIM(L_JDE_F4801T_WORKORDERMASTERTAGFILE.WAWR19)),'') = ''   THEN 'UNKNOWN'   ELSE LTRIM(RTRIM(L_JDE_F4801T_WORKORDERMASTERTAGFILE.WAWR19))  END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8bfd7970-4d0b-4684-8b08-2d71b63cac0a
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: AMOUNTACTUALLABOR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d27827a0-2724-4017-910e-e73b6add2006
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fadb51e0-9b8a-453a-a320-9ca412e8bbae
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: Capex Type Code used for classification of Network work orders
+        name: CAPEXTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a8a58c35-ad5d-4269-89c7-fb6b0ffc1ef1
+                stepCounter: 7d20b705-9fe9-4810-9e08-3d2e02c51898
+            transform: CASE --THIS VALUE IS NORMALLY FILLED WITH A SPACE AND IS NOT NULL BY DEFAULT   WHEN ISNULL(LTRIM(RTRIM(L_JDE_F4801T_WORKORDERMASTERTAGFILE.WAWR20)),'') = ''   THEN 'UNKNOWN'   ELSE LTRIM(RTRIM(L_JDE_F4801T_WORKORDERMASTERTAGFILE.WAWR20))  END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b8833a9e-cc12-46bd-9088-56536edb02f9
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Work Order Source Type
+        name: WORKORDERSOURCETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1f4746bf-8ddc-402a-b0b0-f97c7bfe1690
+                stepCounter: 3492f6e6-4a87-4b5f-96ec-91666d05f9cc
+            transform: ISNULL(I_JDE_WORKORDERSOURCETYPE.WORKORDERSOURCE,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9736df64-da4e-46e6-b2e2-418b345109bd
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: UNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8d6fb684-c449-404c-a92c-120336480086
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d03c2e43-fad9-4acd-b5ab-93c45016f7bd
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Work Team used for classification of Internal Project work orders
+        name: WORKTEAM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b1795d02-f694-4ef2-8b9d-1e21e17d9cb1
+                stepCounter: 7a1b44cb-82a3-48ab-baef-08d589ae78f6
+            transform: ISNULL(I_JDE_WOCATEGORY19.WORKTEAM,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1bcba49e-9c2f-499e-a63b-2a425afcd3f4
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: PERCENTCOMPLETE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e569d5ec-75c1-46d8-8d0d-04aa802f5572
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8162465b-a86a-4b11-a586-5e2e817eb356
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(2)
+        defaultValue: ""
+        description: ""
+        name: DOCUMENTTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 649df0f8-c078-4441-b4a4-1e355310804b
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WADCT))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7e58b43e-1d09-4188-b3d5-5281e82ff1c3
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(2)
+        defaultValue: ""
+        description: ""
+        name: WORKORDERNEXTSTATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b4dd64ef-95b4-48c9-b84c-af279a0492dd
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WANTST))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ff662039-b66a-42cb-a650-8b6f4a76b71b
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: AMOUNTESTLABOR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2d365258-3733-4b89-bac1-e0ade131d9e2
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3e358d2a-d12f-4626-bd33-57c984d223cb
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: AMOUNTESTMATERIAL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5080966a-59a7-4d8f-8635-da6787547a7b
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 79f4a22c-8bff-45bc-ae6c-8cdd79536ef4
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: JDE address book number for the associated customer.
+        name: CUSTOMERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 268279bc-d579-4d5d-b596-1b2d98d218d4
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ISNULL(L_JDE_F4801_WORKORDERDETAILS.WAAN8,0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9c88a112-c6e8-487d-9cda-6c4bc11ff64c
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(32)
+        defaultValue: ""
+        description: Six digit debtor code for old Finance1 NZ Debtors, 4 Digit numeric for the Finance1 Australian Debtors and the JDE address book number (numeric) for JDE Debtors. This is the identifier that the user will know them by in the relevant source system.  This field used to be unique before JDE was implemented.
+        name: CUSTOMERCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4b5903e6-7292-4533-bfad-35a2155b5310
+                stepCounter: 492f8016-3e2e-4b3c-89ec-303878359ba2
+            transform: ISNULL(D_WORKORDER.CUSTOMERCODE, 'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c7653938-5607-4908-9dbb-bdcbdc94cd63
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: Address Number - Manager
+        name: PROJECTMANAGERCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9b935da9-61ab-4bbd-859b-4d9f9e70baaf
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ISNULL(L_JDE_F4801_WORKORDERDETAILS.WAANSA,0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 933c3a01-7b57-4b72-9d01-64f2e6729114
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(40)
+        defaultValue: ""
+        description: Name - Alpha
+        name: PROJECTMANAGER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 27c47f22-34ad-47c0-977f-13038f949a9f
+                stepCounter: f71e11f4-f505-4c73-b0ec-2fbc912b8264
+            transform: ISNULL(LTRIM(RTRIM(L_JDE_F0101_ADDRESSBOOKMASTER.ABALPH)),'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c9c10bea-2f6e-4aec-9616-66b0a98e0b4d
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(40)
+        defaultValue: ""
+        description: Payglobal employee code
+        name: PROJECTMANAGEREMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 98d8952c-cb1f-4a40-88c4-7adc2b03dd3d
+                stepCounter: f71e11f4-f505-4c73-b0ec-2fbc912b8264
+            transform: ISNULL(LTRIM(RTRIM(L_JDE_F0101_ADDRESSBOOKMASTER.ABALKY)),'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e34b96d3-ca78-456d-be73-c4f6b7364eec
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: This is the business status, and indicates where in its life cycle the work order is at. Could be one of many values.
+        name: WORKORDERSTATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 588acaf9-ea34-42c2-b61d-1ca6f8b05bac
+                stepCounter: fcff659f-7dd9-4c74-b578-60afc1913662
+            transform: ISNULL(I_JDE_JOBSTATUS.JOBSTATUS,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fdd08686-dbd2-49a0-b2aa-e163461842c6
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: Status to indicate whether further costs or revenue can be posted to this work order. Posible values are Active or Inactive.
+        name: POSTINGSTATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 34ed6de0-12bf-48fb-aa8e-88627a14682a
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: |-
+              CASE WHEN ISNULL(L_JDE_F4801_WORKORDERDETAILS.WASBLI,'') = '' THEN 'ACTIVE'
+                          ELSE 'INACTIVE'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: de0d1834-331d-4c01-ba89-acdf3734d9bf
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: Code for the work order status. This is the business status, and indicates where in its life cycle the work order is at. Could be one of many values.
+        name: WORKORDERSTATUSCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b8db8029-3463-4e21-9235-91664faafc4d
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ISNULL(LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WASRST)),'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1d28e176-3035-457e-9282-c7b014fd0553
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: Supervisor
+        name: SUPERVISOR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5ea925ce-9c26-4cb6-8bc4-61cc1528e414
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4533f3ba-6441-4f1f-8e64-b9aac171cc8d
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(40)
+        defaultValue: ""
+        description: Name - Alpha
+        name: WIPGROUPMANAGER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 27c47f22-34ad-47c0-977f-13038f949a9f
+                stepCounter: f71e11f4-f505-4c73-b0ec-2fbc912b8264
+            transform: ISNULL(LTRIM(RTRIM(L_JDE_F0101_ADDRESSBOOKMASTER_B.ABALPH)),'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0757641d-0e99-4cef-a677-cc5ce6ef5328
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(256)
+        defaultValue: ""
+        description: Electronic Address
+        name: WIPGROUPMANAGEREMAIL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 411bdc6d-32e2-492f-b274-819eb05e0dae
+                stepCounter: 9dc789bc-379d-4d31-a0c9-1af548ea637d
+            transform: ISNULL(LTRIM(RTRIM(L_JDE_F01151_ELECTRONICADDRESS.EAEMAL)),'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ff4f9cce-be30-4aa1-81b9-eedfa8fb2ba0
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Capital Management Description used for classification of Network work orders
+        name: CAPITALMANAGEMENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 52fc7d8b-1fa5-4f3b-a9e6-dc29ecfc49b2
+                stepCounter: 26a9f937-9b90-410d-a179-7a1e25def1b1
+            transform: ISNULL(I_JDE_WOCATEGORY10.CAPITALMANAGEMENT,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d5db1294-79a6-4456-a7a3-0c3aab427847
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Capex Type used for classification of Network work orders
+        name: CAPEXTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b9b108d0-51a2-4759-ae60-c26b3b2a741e
+                stepCounter: 70fda567-d9b9-4792-84ee-45e5a762e50d
+            transform: ISNULL(I_JDE_WOCATEGORY20.CAPEXTYPE,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2c8c07c8-b068-4bba-bbd9-844bff99de3b
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(60)
+        defaultValue: ""
+        description: Customer Name
+        name: CUSTOMER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fa19d2e4-6f50-4407-a742-afb048d66d11
+                stepCounter: 492f8016-3e2e-4b3c-89ec-303878359ba2
+            transform: ISNULL(D_WORKORDER.CUSTOMER,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 53b5904b-5ad0-4cc8-b14e-3dcdf930ff44
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(60)
+        defaultValue: ""
+        description: Customer Type as set up in JDE
+        name: CUSTOMERTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6d3fa122-db12-445c-9f3a-fce4582c1887
+                stepCounter: 492f8016-3e2e-4b3c-89ec-303878359ba2
+            transform: ISNULL(D_WORKORDER.CUSTOMERTYPE,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 66f40c81-faf9-42df-9500-c85e10a3e4f5
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(60)
+        defaultValue: ""
+        description: Varchar field holding the month and year of the last transaction for this work order in the format yyyy-mm.
+        name: MONTHOFLASTTRANSACTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ac2b8db0-06c7-4cb0-80c9-79db58e39166
+                stepCounter: 492f8016-3e2e-4b3c-89ec-303878359ba2
+            transform: ISNULL(D_WORKORDER.MONTHOFLASTTRANSACTION,'NO TRANSACTIONS YET')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ee379966-dc8f-4c55-aee4-8387f50e665b
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(60)
+        defaultValue: ""
+        description: Varchar field holding the month and year of the first transaction for this work order in the format yyyy-mm.
+        name: MONTHOFFIRSTTRANSACTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bc9d7a2d-2e5e-420a-9c15-bdfc69680f29
+                stepCounter: 492f8016-3e2e-4b3c-89ec-303878359ba2
+            transform: ISNULL(D_WORKORDER.MONTHOFFIRSTTRANSACTION,'NO TRANSACTIONS YET')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ea2a6825-9d26-42f8-8e4a-507af37cb00a
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(40)
+        defaultValue: ""
+        description: Address line 3 - Street
+        name: STREETADDRESS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9c6fece2-2bc8-4fde-994a-c8b861a73252
+                stepCounter: ff9872af-ff78-45ab-aead-1255a7f29ed2
+            transform: |-
+              CASE WHEN ISNULL(I_JDE_WORKORDERASSETLOCATIONLATEST.STREETADDRESS,'') = '' THEN 'UNKNOWN'
+                          ELSE I_JDE_WORKORDERASSETLOCATIONLATEST.STREETADDRESS
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7c738dd2-ebf8-4284-a1aa-22435ee8c742
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(40)
+        defaultValue: ""
+        description: Address line 4 - Suburb
+        name: SUBURB
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8cc8b5fb-24cb-4f78-bf1e-3c637cea0310
+                stepCounter: ff9872af-ff78-45ab-aead-1255a7f29ed2
+            transform: |-
+              CASE WHEN ISNULL(I_JDE_WORKORDERASSETLOCATIONLATEST.SUBURB,'') = '' THEN 'UNKNOWN'
+                          ELSE I_JDE_WORKORDERASSETLOCATIONLATEST.SUBURB
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 345a66ad-a205-4147-91ff-44bfe6de4c5f
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: Addres line City
+        name: CITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 579c9ee5-bc57-4478-aef4-1aa5499f7eec
+                stepCounter: ff9872af-ff78-45ab-aead-1255a7f29ed2
+            transform: |-
+              CASE WHEN ISNULL(I_JDE_WORKORDERASSETLOCATIONLATEST.CITY,'') = '' THEN 'UNKNOWN'
+                          ELSE I_JDE_WORKORDERASSETLOCATIONLATEST.CITY
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0f1954c2-aa02-483f-a67a-512d6b0af281
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Asset ID
+        name: ASSETID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 232a22da-e827-4bd4-984c-8099b433139c
+                stepCounter: ff9872af-ff78-45ab-aead-1255a7f29ed2
+            transform: |-
+              CASE WHEN ISNULL(I_JDE_WORKORDERASSETLOCATIONLATEST.ASSETID,'') = '' THEN 'UNKNOWN'
+                          ELSE I_JDE_WORKORDERASSETLOCATIONLATEST.ASSETID
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c76ec200-3ce9-4140-92ab-28644f1b2f42
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: Asset Description
+        name: ASSETDESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 972a8c2b-be58-4fe8-877e-6fc35eef4ca8
+                stepCounter: ff9872af-ff78-45ab-aead-1255a7f29ed2
+            transform: |-
+              CASE WHEN ISNULL(I_JDE_WORKORDERASSETLOCATIONLATEST.ASSETDESCRIPTION,'') = '' THEN 'UNKNOWN'
+                          ELSE I_JDE_WORKORDERASSETLOCATIONLATEST.ASSETDESCRIPTION
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ae84e79f-4e64-4c2e-ab8b-c95c4c216e22
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: GIS Id
+        name: GISID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 521b304a-4314-4dd4-b48f-66787d891274
+                stepCounter: ff9872af-ff78-45ab-aead-1255a7f29ed2
+            transform: |-
+              CASE WHEN ISNULL(I_JDE_WORKORDERASSETLOCATIONLATEST.GISID,'') = '' THEN 'UNKNOWN'
+                          ELSE I_JDE_WORKORDERASSETLOCATIONLATEST.GISID
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c4d5ed55-6d5b-42ae-99cd-1ffa86e4d4c7
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: Longitude
+        name: LONGITUDE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1b50d1eb-afb1-47bd-8d68-45e38ecb03bf
+                stepCounter: ff9872af-ff78-45ab-aead-1255a7f29ed2
+            transform: |-
+              CASE WHEN ISNULL(I_JDE_WORKORDERASSETLOCATIONLATEST.LONGITUDE,'') = '' THEN 'UNKNOWN'
+                          ELSE I_JDE_WORKORDERASSETLOCATIONLATEST.LONGITUDE
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ac979eaf-d6e1-4067-bdf2-63ffed29310c
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: Access Instructions
+        name: ACCESSINSTRUCTIONS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cfb341fb-9627-4fc8-b51e-0563e4b88979
+                stepCounter: ff9872af-ff78-45ab-aead-1255a7f29ed2
+            transform: |-
+              CASE WHEN ISNULL(I_JDE_WORKORDERASSETLOCATIONLATEST.ACCESSINSTRUCTIONS,'') = '' THEN 'UNKNOWN'
+                          ELSE I_JDE_WORKORDERASSETLOCATIONLATEST.ACCESSINSTRUCTIONS
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ccb81cd0-6d60-4792-991a-503e8dcf6e78
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: Defect Priority
+        name: DEFECTPRIORITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 47f1009d-537c-492c-a3db-a1a8282bb00a
+                stepCounter: ff9872af-ff78-45ab-aead-1255a7f29ed2
+            transform: |-
+              CASE WHEN ISNULL(I_JDE_WORKORDERASSETLOCATIONLATEST.DEFECTPRIORITY,'') = '' THEN 'UNKNOWN'
+                          ELSE I_JDE_WORKORDERASSETLOCATIONLATEST.DEFECTPRIORITY
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: be620405-d186-46c6-bfac-42ac0b1066b4
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: Assembly code - Unit Rate code
+        name: CUSTOMERACTIVITYCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0bd2a448-d4cc-466f-937b-d004dcc71a77
+                stepCounter: ff9872af-ff78-45ab-aead-1255a7f29ed2
+            transform: |-
+              CASE WHEN ISNULL(I_JDE_WORKORDERASSETLOCATIONLATEST.ACTIVITYCODE,'') = '' THEN 'UNKNOWN'
+                          ELSE I_JDE_WORKORDERASSETLOCATIONLATEST.ACTIVITYCODE
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 49bc137b-68f8-44b8-bff2-b0b6671f2b6e
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Revision Number
+        name: REVISIONNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f348c4b7-3a33-4bbd-8f06-118f3efd609a
+                stepCounter: ff9872af-ff78-45ab-aead-1255a7f29ed2
+            transform: ISNULL(I_JDE_WORKORDERASSETLOCATIONLATEST.REVISIONNUMBER, 'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f79d364e-ee44-469c-88d4-40808718df02
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Ouage Number
+        name: OUTAGENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 706dece3-6659-461a-b8cb-929df4ee1158
+                stepCounter: ff9872af-ff78-45ab-aead-1255a7f29ed2
+            transform: ISNULL(I_JDE_WORKORDERASSETLOCATIONLATEST.OUTAGENUMBER,'')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 27f5590d-d7d2-4600-a650-2e926dea4b51
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(50)
+        defaultValue: ""
+        description: Vector Purchase Order Number
+        name: VECTORPURCHASEORDERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 03b89a4d-9843-469b-8fef-0ac6fc959532
+                stepCounter: ff9872af-ff78-45ab-aead-1255a7f29ed2
+            transform: ISNULL(I_JDE_WORKORDERASSETLOCATIONLATEST.VECTORPURCHASEORDERNUMBER, 'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fc1dffb1-9562-4ba4-bd49-a32b3df84a5b
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 174ddbb7-923b-4fbb-a7ec-e4cf8e88aec8
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: SALESGROUP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a3a89bd2-d03c-4e28-b69b-56c80e75943d
+                stepCounter: 1879c7c2-4553-4939-87e1-ec1fd56942e9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2facfb2c-d9a2-4567-8c81-923a9a0f4c29
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: AMOUNTESTOTHER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fb39192b-2f17-4418-bc08-538dc25e8ad5
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 68477375-4771-41ba-a5b6-173ccb896601
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(25)
+        defaultValue: ""
+        description: ""
+        name: LATITUDE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d5a6e88e-167f-47f4-886f-d6b1d8cf9316
+                stepCounter: ff9872af-ff78-45ab-aead-1255a7f29ed2
+            transform: |-
+              CASE WHEN ISNULL(I_JDE_WORKORDERASSETLOCATIONLATEST.LATITUDE,'') = '' THEN 'UNKNOWN'
+                          ELSE I_JDE_WORKORDERASSETLOCATIONLATEST.LATITUDE
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bb9f3037-883e-48b4-ad4b-e2775cefef32
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NUMERIC(8)
+        defaultValue: ""
+        description: Site Supervisor Code
+        name: SITESUPERVISORCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9b301ce6-1dbb-4740-a879-0e41809fd4f3
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1a73cb73-0102-46c4-8f47-98cdd08cc89e
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NCHAR(40)
+        defaultValue: ""
+        description: Site Supervisor
+        name: SITESUPERVISOR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 27c47f22-34ad-47c0-977f-13038f949a9f
+                stepCounter: f71e11f4-f505-4c73-b0ec-2fbc912b8264
+            transform: ISNULL(LTRIM(RTRIM(L_JDE_F0101_ADDRESSBOOKMASTER_C.ABALPH)),'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 68490910-1f16-487a-aa5c-bab3ff1be6f9
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NCHAR(3)
+        defaultValue: ""
+        description: Sub Status used in Vector integration
+        name: SUBSTATUSCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bb5f66bd-d652-41ea-923d-0ff879d17750
+                stepCounter: 24474694-43bc-4d9b-ac9a-55e043561fbc
+            transform: CONVERT(VARCHAR(3),LTRIM(RTRIM(I_JDE_WOCATEGORY07.SUBSTATUSCODE)))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e66363f1-a34f-4319-be67-513891185d5b
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Sub Status Description
+        name: SUBSTATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: cfabd142-9fef-4144-9cd8-fc6baea937f6
+                stepCounter: 24474694-43bc-4d9b-ac9a-55e043561fbc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9daf09d7-6936-4046-8e5f-72b94f72da63
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Sub Status Sort Order
+        name: SUBSTATUSSORT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ecfc6c0d-706c-49ca-b628-5f55790b0ba1
+                stepCounter: 24474694-43bc-4d9b-ac9a-55e043561fbc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d32f15fd-9771-469f-b8fb-57f9894870fb
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: TA work order that has come through the integration portal
+        name: INTEGRATEDWORKORDER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3743cb6e-37e7-48ac-9621-229be69b26d4
+                stepCounter: ff9872af-ff78-45ab-aead-1255a7f29ed2
+            transform: |-
+              CASE WHEN WORKORDERTYPECODE = 'TA' AND INTEGRATIONMODULE <> '' THEN 'YES'
+                          ELSE 'NO'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 854f6ddb-da32-440d-9d1d-9f8ff6279b70
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(500)
+        defaultValue: ""
+        description: Work order comment
+        name: WORKORDERCOMMENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bfc986a5-0f55-429b-a9f8-b77c38669804
+                stepCounter: ff9872af-ff78-45ab-aead-1255a7f29ed2
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 12a2be9f-331f-4e78-a511-e9a4d6a75c92
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NCHAR(4)
+        defaultValue: ""
+        description: Work Sub Type Code
+        name: WORKSUBTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 0efa9798-e434-4d44-b2d7-785685f1a29a
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1a98273a-e7e4-48a5-92ca-5b81a098ab8a
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Work Sub Type Description
+        name: WORKSUBTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ISNULL(I_JDE_WOWORKSUBTYPE.WORKSUBTYPE,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 50f78fae-e7f0-4b94-86b1-df979a59cda0
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NCHAR(3)
+        defaultValue: ""
+        description: Task Type Category Code
+        name: TASKTYPECATEGORYCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b00cd89c-a99d-4bcd-99d3-4b4c1c6ed473
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b6c59804-0ccf-4ea8-9efe-164c55c260b1
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Task Type Category Description
+        name: TASKTYPECATEGORY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ISNULL(I_JDE_WOTASKTYPECATEGORY.TASKTYPECATEGORY,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a44e1525-f722-43ac-acba-1d87c9b3b122
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NCHAR(3)
+        defaultValue: ""
+        description: 'Task Type Code '
+        name: TASKTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ec320e4d-9ce8-44b9-9ce5-4275f5b3623c
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1483bb21-d4c0-461b-bfc6-16f44c5b6b60
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Task Type Description
+        name: TASKTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ISNULL(I_JDE_WOTASKTYPE.TASKTYPE,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3349b876-7b00-453d-bf03-bf26882c0455
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NCHAR(3)
+        defaultValue: ""
+        description: Work Order Category 04
+        name: CATEGORY04CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 52e420ce-ebd6-4e5b-baaa-e560df9d3324
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: da5f91c0-2310-416b-b07a-7f2b33da9ccc
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Category 04 Description
+        name: CATEGORY04
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f1c073ca-69af-4baa-b604-c6ec12b799ae
+                stepCounter: 916dc547-95bc-4989-9e8b-8d0e3f30264d
+            transform: ISNULL(I_JDE_WOCATEGORY04.CATEGORY04,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c2d6666f-5c68-4477-ae6d-32dcff52aebb
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: Due Date from the customer source system, currently being used because interfacing from   WASP to JDE is not working as expected, this may be made redundant as a later stage
+        name: CUSTOMERSOURCESYSTEMDUEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: CONVERT(DATE, I_EMS_WORKTASKS.TARGET_END_DATE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b7dee7ad-73bc-4fb4-a41f-152dd9fc0c73
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(24)
+        defaultValue: ""
+        description: Customer source system priority, currently only being used as interfacing between WASP and JDE has issues.  This may be made redundant at a later stage
+        name: CUSTOMERSOURCESYSTEMPRIORITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN I_EMS_WORKTASKS.URGENCY = 5 THEN 'P1'
+                          WHEN I_EMS_WORKTASKS.URGENCY = 4 THEN 'P2'
+                          WHEN I_EMS_WORKTASKS.URGENCY = 3 THEN 'P3'
+                          WHEN I_EMS_WORKTASKS.URGENCY = 2 THEN 'P4'
+                          WHEN I_EMS_WORKTASKS.URGENCY = 1 THEN 'P5'
+                          ELSE 'UNKNOWN'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 81d18a96-1634-4a3d-bb30-584ce173500a
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NCHAR(3)
+        defaultValue: ""
+        description: Fibre Capex Code
+        name: FIBRECAPEXCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ae5b46b6-6e61-405a-af81-0c7786f3d004
+                stepCounter: 7d20b705-9fe9-4810-9e08-3d2e02c51898
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f177ff47-cb29-427d-87bb-6ed2a6e8248e
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Fibre Capex Description
+        name: FIBRECAPEX
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3bdd88e3-c59f-466c-8ef5-ae6bc2b94bc1
+                stepCounter: 4b4762cd-21a6-472f-9c0e-bd9f59053650
+            transform: ISNULL(I_JDE_WOFIBRECAPEX.FIBRECAPEX,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 65043a23-1f7f-4cc0-9765-c01cbd2cfb57
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Billing Job Type Code
+        name: BILLINGJOBTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e04ec638-bfd9-4cc4-a417-f4f40dd344a7
+                stepCounter: 7d20b705-9fe9-4810-9e08-3d2e02c51898
+            transform: LTRIM(RTRIM(L_JDE_F4801T_WORKORDERMASTERTAGFILE.WAWR15))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0c9d2891-11c3-444c-8b82-10f3f864a85d
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Billing Job Type
+        name: BILLINGJOBTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 819652df-2fa7-40b6-b43d-169b1e86bb47
+                stepCounter: 20ad8ce6-2de0-4246-8135-fb99f759dc18
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 95859774-2470-49d5-bfeb-1acf8246a87c
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: NCHAR(3)
+        defaultValue: ""
+        description: Work Order Category 06 used by Network and Contracting to indicate the status of the work   order
+        name: CATEGORY06CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 30d2db6b-4a19-4a68-8996-bc39f14b1cd7
+                stepCounter: 51d84099-d166-4c94-9b20-60b1a1a96bc0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9d979743-e34b-473e-bbc9-c60a3f9ead00
+          stepCounter: 392055c7-3752-436b-9cec-c64eb9a11e00
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Category 06 Description
+        name: CATEGORY06
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 1df0d586-c833-4a77-ad28-64880cd55de5
+                stepCounter: 9f8c7354-de08-4f6c-9fb4-3986c46760fa
+            transform: ISNULL(I_JDE_WOCATEGORY06.CATEGORY06,'UNKNOWN')
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          L_JDE_F0101_ADDRESSBOOKMASTER: f71e11f4-f505-4c73-b0ec-2fbc912b8264
+          I_JDE_WOCATEGORY07: 24474694-43bc-4d9b-ac9a-55e043561fbc
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_JDE_F4801_WORKORDERDETAILS
+          - locationName: NP
+            nodeName: L_JDE_F0101_ADDRESSBOOKMASTER
+          - locationName: NP
+            nodeName: I_JDE_WOCATEGORY07
+        join:
+          joinCondition: |-
+            EXTENDEDFROM L_JDE_F4801_WORKORDERDETAILS
+             INNER JOIN I_JDE_BUSINESSUNITMASTER
+                ON LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WAMCU)) = I_JDE_BUSINESSUNITMASTER.BUSINESSUNITCODE
+              LEFT OUTER JOIN I_JDE_DOCUMENTTYPE
+                ON L_JDE_F4801_WORKORDERDETAILS.WADCTO = I_JDE_DOCUMENTTYPE.DOCUMENTTYPECODE
+              LEFT JOIN L_JDE_F0101_ADDRESSBOOKMASTER
+                ON L_JDE_F4801_WORKORDERDETAILS.WAANSA = L_JDE_F0101_ADDRESSBOOKMASTER.ABAN8
+              LEFT JOIN L_JDE_F0101_ADDRESSBOOKMASTER L_JDE_F0101_ADDRESSBOOKMASTER_B
+                ON L_JDE_F4801_WORKORDERDETAILS.WAANPA = L_JDE_F0101_ADDRESSBOOKMASTER_B.ABAN8
+              LEFT OUTER JOIN {{ ref('NP','L_JDE_F0101_ADDRESSBOOKMASTER') }} L_JDE_F0101_ADDRESSBOOKMASTER_C
+                ON L_JDE_F4801_WORKORDERDETAILS.WAANT = L_JDE_F0101_ADDRESSBOOKMASTER_C.ABAN8
+              LEFT JOIN L_JDE_F01151_ELECTRONICADDRESS
+                ON L_JDE_F4801_WORKORDERDETAILS.WAANPA = L_JDE_F01151_ELECTRONICADDRESS.EAAN8
+               AND L_JDE_F01151_ELECTRONICADDRESS.EAEHIER = 1
+               AND L_JDE_F01151_ELECTRONICADDRESS.EAECLASS = ''
+              LEFT OUTER JOIN L_JDE_F4801T_WORKORDERMASTERTAGFILE
+                ON L_JDE_F4801_WORKORDERDETAILS.WADOCO = L_JDE_F4801T_WORKORDERMASTERTAGFILE.WADOCO
+              LEFT OUTER JOIN I_JDE_WOCATEGORY10
+                ON L_JDE_F4801_WORKORDERDETAILS.WAWR10 = I_JDE_WOCATEGORY10.CAPITALMANAGEMENTCODE
+               AND WADCTO = 'NW' --ONLY NETWORK JOBS USE THE CAPITAL MANAGEMENT CODE    LEFT OUTER JOIN I_JDE_WOCATEGORY20  ON L_JDE_F4801T_WORKORDERMASTERTAGFILE.WAWR20 = I_JDE_WOCATEGORY20.CAPEXTYPECODE    LEFT OUTER JOIN I_JDE_WOCATEGORY19  ON L_JDE_F4801T_WORKORDERMASTERTAGFILE.WAWR19 = I_JDE_WOCATEGORY19.WORKTEAMCODE    LEFT OUTER JOIN I_JDE_WOCATEGORY15  ON L_JDE_F4801T_WORKORDERMASTERTAGFILE.WAWR15 = I_JDE_WOCATEGORY15.BILLINGJOBTYPECODE    LEFT OUTER JOIN I_JDE_WORKORDERSOURCETYPE  ON L_JDE_F4801_WORKORDERDETAILS.WATYPS = I_JDE_WORKORDERSOURCETYPE.WORKORDERSOURCECODE    LEFT OUTER JOIN I_JDE_JOBSTATUS  ON LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WASRST)) = I_JDE_JOBSTATUS.JOBSTATUSCODE    LEFT OUTER JOIN D_SUBSIDIARY  ON LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WASUB)) = D_SUBSIDIARY.SUBSIDIARYCODE    LEFT OUTER JOIN I_JDE_WOPARENTS  ON L_JDE_F4801_WORKORDERDETAILS.WADOCO = I_JDE_WOPARENTS.WORKORDERNUMBER    LEFT OUTER JOIN [D_WORKORDER]  ON L_JDE_F4801_WORKORDERDETAILS.WADOCO = D_WORKORDER.WORKORDERNUMBER    LEFT OUTER JOIN I_JDE_WORKORDERASSETLOCATIONLATEST  ON L_JDE_F4801_WORKORDERDETAILS.WADOCO = I_JDE_WORKORDERASSETLOCATIONLATEST.WORKORDERNUMBER    LEFT OUTER JOIN {{ ref('NP','I_JDE_WOCATEGORY07') }}  ON LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WAWR07)) = LTRIM(RTRIM(I_JDE_WOCATEGORY07.SUBSTATUSCODE))    LEFT OUTER JOIN [I_JDE_WOWORKSUBTYPE]  ON LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WAWR01)) = LTRIM(RTRIM(I_JDE_WOWORKSUBTYPE.WORKSUBTYPECODE))     LEFT OUTER JOIN [I_JDE_WOTASKTYPECATEGORY]  ON LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WAWR02)) = LTRIM(RTRIM(I_JDE_WOTASKTYPECATEGORY.TASKTYPECATEGORYCODE))     LEFT OUTER JOIN [I_JDE_WOTASKTYPE]  ON LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WAWR03)) = LTRIM(RTRIM(I_JDE_WOTASKTYPE.TASKTYPECODE))     LEFT OUTER JOIN [I_JDE_WOCATEGORY04]  ON LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WAWR04)) = LTRIM(RTRIM(I_JDE_WOCATEGORY04.CATEGORY04CODE))     LEFT OUTER JOIN [I_JDE_WOCATEGORY06]  ON LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WAWR06)) = LTRIM(RTRIM(I_JDE_WOCATEGORY06.CATEGORY06CODE))     LEFT OUTER JOIN [I_JDE_WOFIBRECAPEX]  ON LTRIM(RTRIM(L_JDE_F4801T_WORKORDERMASTERTAGFILE.WAWR13)) = LTRIM(RTRIM(I_JDE_WOFIBRECAPEX.FIBRECAPEXCODE))     --GET SOURCE SYSTEM INFO FOR WHANGAREI WASP TA'S ONLY AT THE MOMENT DUE TO SYSTEM ISSUES THIS MAY BE TEMPORARY  --LEFT JOIN I_EMS_WORKTASKS  -- ON LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WAVR01)) = CONVERT(VARCHAR(24),WORK_TASK_NO) AND CUSTOMERPROJECTNUMBER = CONVERT(VARCHAR(24), WORK_PACK_NO)  --  AND ODSSOURCESYSTEMNAME = 'EMS_WHG' AND WATYPS = '4' AND WADCTO = 'TA' AND WAVR01 <> ''    LEFT JOIN I_EMS_WORKTASKS   ON CASE     WHEN LEFT(LTRIM(RTRIM(L_JDE_F4801_WORKORDERDETAILS.WAVR01)), 3) = 'WHG' THEN RIGHT(LTRIM(RTRIM(L_JDE_F4801_WORKORDERDE
+        name: I_JDE_WORKORDERDETAILS
+        noLinkRefs: []
+  name: I_JDE_WORKORDERDETAILS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

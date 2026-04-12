@@ -1,0 +1,171 @@
+fileVersion: 1
+id: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+name: I_JDEPROJECTALLPERIODS
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "All period for the span of a projects life"
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ac354964-0974-4351-86ec-c3e935317345
+          stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: A separate number is assigned to each period used in the ODS to be used as the business key. A period is a financial month.
+        isBusinessKey: true
+        name: PERIODNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 10841d1a-e8ca-40ed-853c-ff9b68c4f408
+                stepCounter: 3d55749e-d184-4c9c-870c-2ddfa2ac8f28
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 37a9a1d9-f2ef-4625-9c72-37da08627891
+          stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_GLActTransactions.ProjectNumber=D_JDEProject.JDEProject
+        name: D_JDEPROJECT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ff5dff90-950b-4adc-bb51-6a0415240d48
+                stepCounter: 607a5ba5-2f36-4b7d-9e7f-fabc45805ba7
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4375613a-37f9-49bc-a1f2-bd05e1873a65
+          stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: The amount of the actual contracting revenue from the Actual ledgers.  This amount is multiplied by -1 to return a positive figure.
+        name: REVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(GLACTUALCONTRACTINGREVENUE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fd3d0539-5781-44c0-aa98-e2a39e29a97c
+          stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: The amount of the actual contracting revenue from the Actual ledgers.  This amount is multiplied by -1 to return a positive figure. Excludes 4514 and 4516
+        name: BILLEDREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(CASE WHEN OBJECTACCOUNTCODE NOT IN ('4514','4516') THEN GLACTUALCONTRACTINGREVENUE ELSE 0 END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c3a5740d-7368-40d7-bc4d-c9f837f4c80a
+          stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: From accounts 4514 where transactions are not on the first of the month
+        name: ACCRUEDINCOME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: --NEED TO EXCLUDE TRANSACTION ON THE FIRST OF THE MONTH  SUM(CASE    WHEN RIGHT(F_GLACTTRANSACTIONS.D_DATE_KEY, 2) <> '01' AND     OBJECTACCOUNTCODE = '4514' THEN GLACTUALWIPMOVEMENT    ELSE 0   END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3dfdeda5-6e4d-48a6-bc2f-913d3fa6e37f
+          stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: From accounts 4514 and 4516 where transactions are not on the first of the month
+        name: ACTUALWIP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: --NEED TO EXCLUDE TRANSACTION ON THE FIRST OF THE MONTH  SUM(CASE    WHEN RIGHT(F_GLACTTRANSACTIONS.D_DATE_KEY, 2) <> '01' THEN GLACTUALWIPMOVEMENT    ELSE 0   END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7dfa2eb5-2b8c-4158-b6f4-571f47cb81a9
+          stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: The amount of the actual contracting COS from the Actual ledgers.
+        name: TOTALCOS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(ISNULL(F_GLACTTRANSACTIONS.GLACTUALCONTRACTINGLABOURCOS,0) +ISNULL(F_GLACTTRANSACTIONS.GLACTUALCONTRACTINGMATERIALSCOS,0) +ISNULL(F_GLACTTRANSACTIONS.GLACTUALCONTRACTINGOTHERCOS,0) +ISNULL(F_GLACTTRANSACTIONS.GLACTUALCONTRACTINGSUBCONTRACTORSCOS,0) +ISNULL(F_GLACTTRANSACTIONS.GLACTUALCONTRACTINGTRANSPORTCOS,0))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 110a7bb7-a377-4ec5-986b-d875c3dd68bb
+          stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: The negated sum of all transactions within the Contracting Only Income Financial Statement group.
+        name: GROSSMARGIN
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: SUM(GLACTUALGROSSMARGIN)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_JDEPROJECT: 3269a616-2284-4690-8201-a29f951b09ac
+          D_OBJECTACCOUNT: 4f5997cc-a1a8-451d-bd59-629dc8871fd5
+          D_PERIOD: 3d55749e-d184-4c9c-870c-2ddfa2ac8f28
+          I_JDEPROJECTDATERANGE: 607a5ba5-2f36-4b7d-9e7f-fabc45805ba7
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: D_PERIOD
+          - locationName: NP
+            nodeName: D_JDEPROJECT
+          - locationName: NP
+            nodeName: D_OBJECTACCOUNT
+          - locationName: NP
+            nodeName: I_JDEPROJECTDATERANGE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_JDEPROJECT') }}
+              JOIN {{ ref('NP','D_OBJECTACCOUNT') }}
+              JOIN {{ ref('NP','D_PERIOD') }}
+              JOIN {{ ref('NP','I_JDEPROJECTDATERANGE') }}
+        name: I_JDEPROJECTALLPERIODS
+        noLinkRefs: []
+  name: I_JDEPROJECTALLPERIODS
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

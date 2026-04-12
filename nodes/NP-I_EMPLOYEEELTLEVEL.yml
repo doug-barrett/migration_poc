@@ -1,0 +1,126 @@
+fileVersion: 1
+id: 52716fbf-25ca-4f4e-b43b-636554aa0191
+name: I_EMPLOYEEELTLEVEL
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Used to get the ELT Management Tier from the employee hierarchy, have added this as another table after the one before as the one before can fail a lot and we need data when processing the employee dim all day"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 35599139-a8ca-416c-8126-870ea6fc4793
+          stepCounter: 52716fbf-25ca-4f4e-b43b-636554aa0191
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: 4 digit employee number
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d1860f63-c9b2-42ea-9561-ae74e49c6a31
+                stepCounter: 789d017d-064d-4705-a15d-56ea2e662ed6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2353e841-45d9-4f49-b620-8e0740fdc0fa
+          stepCounter: 52716fbf-25ca-4f4e-b43b-636554aa0191
+        config: {}
+        dataType: VARCHAR(MAX)
+        defaultValue: ""
+        description: The Path from the CEO to the employee. This is not used in further calculations, but is useful for testing purposes.
+        name: EMPLOYEECODEPATH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 77cc8c57-eb01-4e1f-b77f-f64189896ac9
+                stepCounter: 789d017d-064d-4705-a15d-56ea2e662ed6
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: df8fd8df-5222-460d-aa10-3fcf254561b1
+          stepCounter: 52716fbf-25ca-4f4e-b43b-636554aa0191
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Four digit employee number
+        name: ELTEMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 39a7f726-964b-4027-8339-4508317dc1bb
+                stepCounter: e65d00f1-4487-4c70-a252-6eb1343a94bc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a9372392-35d5-4da9-b699-e7ea8a2cc49a
+          stepCounter: 52716fbf-25ca-4f4e-b43b-636554aa0191
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: Job Title from PayGlobal. The same as is displayed on the Organisation chart, and on email signatures.
+        name: ELTJOBTITLE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fa0f23b6-b145-43ac-9393-2eec4289717d
+                stepCounter: e65d00f1-4487-4c70-a252-6eb1343a94bc
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8fe7b729-bf1b-48f4-8273-a26b26066ce9
+          stepCounter: 52716fbf-25ca-4f4e-b43b-636554aa0191
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f090267a-ed3a-48c0-8ff3-448f2c336004
+          stepCounter: 52716fbf-25ca-4f4e-b43b-636554aa0191
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_EMPLOYEEDIRECTANDINDIRECTREPORTS: 789d017d-064d-4705-a15d-56ea2e662ed6
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_EMPLOYEEDIRECTANDINDIRECTREPORTS
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_EMPLOYEEDIRECTANDINDIRECTREPORTS') }} I_EMPLOYEEDIRECTANDINDIRECTREPORTS
+              LEFT JOIN D_EMPLOYEE --USE THE SECOND LEVEL OF THE CODE PATH TO IDENTIFY THE ELT MEMBER, CEO IS ALSO INCLUDED   ON SUBSTRING(EMPLOYEECODEPATH, CHARINDEX(',', EMPLOYEECODEPATH) + 1, 4) = D_EMPLOYEE.EMPLOYEECODE    AND MANAGEMENTLEVEL = 'ELT'
+        name: I_EMPLOYEEELTLEVEL
+        noLinkRefs: []
+  name: I_EMPLOYEEELTLEVEL
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

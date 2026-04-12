@@ -1,0 +1,461 @@
+fileVersion: 1
+id: ca90017a-c8fa-4261-97de-c86f94d56fb0
+name: I_JDE_PLANNEDLABOURPLANT
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "The planned labour and plant costs for the work orders that have changed."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 37409fbd-2c0b-420a-a66e-29bc6a7be765
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: VARCHAR(2)
+        defaultValue: ""
+        description: ""
+        name: WORKORDERTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9ed3230a-9d72-4e7e-860b-b34ee102a1e6
+                stepCounter: 2277bb36-7139-4601-a0af-fcd7755c9aa3
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0964bb53-1169-4dc8-8db1-215473e06c7b
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: ""
+        name: WORKORDERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bc24368f-8291-4f1b-9dbb-74dbf8fe9912
+                stepCounter: 2277bb36-7139-4601-a0af-fcd7755c9aa3
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: df8fb4f6-0d96-4c28-9d01-30a4d59b1e61
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: PERIODNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              (
+                      SELECT PERIODNUMBER
+                        FROM D_PERIOD
+                       WHERE MONTHNAMEYEAR = I_PLANNEDTASTATUS.REQUESTEDMONTH
+                     )
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5c3269cf-78ea-494c-b851-b2f2b2c546c1
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: VARCHAR(8)
+        defaultValue: ""
+        description: 'Estimates are hardcoded against certain object accounts:  Plant - 5062  Labour Ordinary - 5050  Labour Overtime - 5051  '
+        name: OBJECTACCOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 36ab74f1-a139-4831-abdc-95a1faafa2cf
+                stepCounter: b6591e53-1381-41a1-9535-84ad12b198bf
+            transform: CASE --CAN'T USE THE LABOUR PLANT FLAG AS THIS IS NOT CONSISTENTLY POPULATED   -- ONLY THE INTERFACE FROM WASP IS POPULATING THIS VALUE    WHEN I_JDE_PLANTTYPES.PLANTTYPECODE IS NOT NULL THEN '5062'   WHEN OVERTIMEFACTOR = '1' THEN '5050'   WHEN OVERTIMEFACTOR IS NOT NULL THEN '5051'   ELSE 'UNKNOWN'  END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3d81cb74-522e-4231-af60-beba8679865b
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: Description from routing in case links to appropriate job functions, plant types, object accounts ... are not created.
+        name: DESCRIPTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 770a32f5-ca96-419d-b9c8-0649603f0fb8
+                stepCounter: b6591e53-1381-41a1-9535-84ad12b198bf
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b0f95e8c-2c2c-4740-8dc7-fe73b42cc99c
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Business Unit
+        name: LABOURPLANTTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 31ae5b78-3ea9-4e4b-9dc8-a6e4d4384697
+                stepCounter: b6591e53-1381-41a1-9535-84ad12b198bf
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e7d6fee5-d9bc-4b74-b35b-0f05581b0625
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Business Unit
+        name: PLANTTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: eadcad36-6eb9-445d-9b5c-2131d29c274b
+                stepCounter: 9efe03d1-ebb4-42a9-b293-18ae89e83155
+            transform: --WHEN LABOUR CODE EXISTS AND PLANT CODE DOES NOT, THEN PLANT TYPE IS NOT APPLICABLE  CASE   WHEN I_JDE_PLANTTYPES.PLANTTYPECODE IS NULL     AND I_JDE_LABOURTYPES.JOBFUNCTIONCODE IS NOT NULL   THEN 'NOT APPLICABLE'   --ELSE I_JDE_PLANTTYPES.PLANTTYPECODE  ELSE I_JDE_PLANTTYPES.DISPATCHGROUP    END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: efbfc136-f8df-421c-a203-abb5462a0774
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Groups all the labour types by the associated Job Function
+        name: JOBFUNCTIONCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 76966577-5771-468e-8913-43d066d909df
+                stepCounter: 252a6c2a-921d-4f71-b3d3-9672b86025e7
+            transform: --WHEN PLANT CODE EXISTS AND LABOUR CODE DOES NOT, THEN LABOUR TYPE IS NOT APPLICABLE  CASE   WHEN I_JDE_PLANTTYPES.PLANTTYPECODE IS NOT NULL     AND I_JDE_LABOURTYPES.JOBFUNCTIONCODE IS NULL   THEN 'NOT APPLICABLE'   ELSE I_JDE_LABOURTYPES.JOBFUNCTIONCODE  END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fedfb7db-f669-411a-9176-02f7dc5bb653
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: A seperate business unit needs to be created for each combination of job function and overtime factor. This field seperates off the overtime factor only.
+        name: OVERTIMEFACTOR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 97eda273-738f-40aa-84a7-2486ec8ef2c6
+                stepCounter: 252a6c2a-921d-4f71-b3d3-9672b86025e7
+            transform: --WHEN PLANT CODE EXISTS AND LABOUR CODE DOES NOT, THEN OVERTIME IS NOT APPLICABLE  CASE   WHEN I_JDE_PLANTTYPES.PLANTTYPECODE IS NOT NULL     AND I_JDE_LABOURTYPES.JOBFUNCTIONCODE IS NULL   THEN -1   ELSE I_JDE_LABOURTYPES.OVERTIMEFACTOR  END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 90260f25-9f08-41fc-ab77-7f632243f51b
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: BIT
+        defaultValue: ""
+        description: Always 0 for planned and estimated items
+        name: CURRENTPERIODFLAG
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 81d00a3b-8d91-484a-825b-f06324408ec9
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: INVENTORYCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '-1'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 812e9515-fb80-4f63-967d-108f5e0412e3
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(15,3)
+        defaultValue: ""
+        description: Rate - Piecework
+        name: RATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 26fc9edc-d483-4e41-9f40-f1c3c336f471
+                stepCounter: b6591e53-1381-41a1-9535-84ad12b198bf
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a1338067-e445-449d-9114-5f8d07a76d5b
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ESTIMATEDREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4c6b5bd8-0d33-4d64-a175-6915606ef4a4
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ESTIMATEDCOSTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 353284f3-e2b2-43d5-b65a-ec06f423de3a
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ESTIMATEDQUANTITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9192e532-5e05-481c-9135-3492a052bda7
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ESTIMATEDPLANTHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 27bd1ed5-6c25-4e06-8a79-50388bf1cfd7
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ESTIMATEDLABOURHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 99b2d057-faf4-447a-badf-c479b40c7b36
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: PLANNEDREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ca9fadf2-8daf-4b8d-828d-169b39bddeca
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: Hours * Rate Amount
+        name: PLANNEDCOSTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 26fc9edc-d483-4e41-9f40-f1c3c336f471
+                stepCounter: b6591e53-1381-41a1-9535-84ad12b198bf
+            transform: ROUND(CASE --TC TYPE WORK ORDERS HAVE THEIR VALUES IN THE UNLOCKED COLUMN   -- THESE ARE USED FOR PLANNED WORK   WHEN I_PLANNEDTASTATUS.WORKORDERTYPECODE = 'TC'   THEN I_JDE_WORKORDERROUTING.ESTIMATEDHOURS   --IF THE WORK ORDER HAS NOT BEEN ROLLED UP, THEN WE WANT THE TA   -- VALUES USED AS THE PLANNED VALUE   WHEN I_PLANNEDTASTATUS.WORKORDERTYPECODE = 'TA' AND TAROLLED = 'NO'   THEN I_JDE_WORKORDERROUTING.ESTIMATEDHOURS   ELSE 0 END  *  I_JDE_WORKORDERROUTING.RATE,2)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9ba2344d-3181-4aaf-a4b4-f54e2f9085f9
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: PLANNEDQUANTITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9a94332d-78b9-4d4d-a06c-31c9e4d6ece2
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: Estimated Hours
+        name: PLANNEDPLANTHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3442efb7-c2db-43f0-ae3d-00c3081a9851
+                stepCounter: b6591e53-1381-41a1-9535-84ad12b198bf
+            transform: |-
+              CONVERT(DECIMAL(15,2),
+                     ROUND(CASE --TC TYPE WORK ORDERS HAVE THEIR VALUES IN THE UNLOCKED COLUMN   -- THESE ARE USED FOR PLANNED WORK   WHEN I_PLANNEDTASTATUS.WORKORDERTYPECODE = 'TC'     AND I_JDE_PLANTTYPES.PLANTTYPECODE IS NOT NULL   THEN I_JDE_WORKORDERROUTING.ESTIMATEDHOURS   --IF THE WORK ORDER HAS NOT BEEN ROLLED UP, THEN WE WANT THE TA   -- VALUES USED AS THE PLANNED VALUE   WHEN I_PLANNEDTASTATUS.WORKORDERTYPECODE = 'TA' AND TAROLLED = 'NO'     AND I_JDE_PLANTTYPES.PLANTTYPECODE IS NOT NULL   THEN I_JDE_WORKORDERROUTING.ESTIMATEDHOURS   ELSE 0  END  --USE CONVERSION TO HOURLY RATE  * CASE    WHEN ISNULL(I_JDE_PLANTTYPES.HOURLYCONVERSION, '') = '' THEN 1.0000    ELSE I_JDE_PLANTTYPES.HOURLYCONVERSION   END,2))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d7897f99-2280-450b-8c36-53f305164674
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: Estimated Hours
+        name: PLANNEDLABOURHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3442efb7-c2db-43f0-ae3d-00c3081a9851
+                stepCounter: b6591e53-1381-41a1-9535-84ad12b198bf
+            transform: |-
+              CONVERT(DECIMAL(15,2),
+                     ROUND(CASE --TC TYPE WORK ORDERS HAVE THEIR VALUES IN THE UNLOCKED COLUMN   -- THESE ARE USED FOR PLANNED WORK   WHEN I_PLANNEDTASTATUS.WORKORDERTYPECODE = 'TC'     AND OVERTIMEFACTOR IS NOT NULL   THEN I_JDE_WORKORDERROUTING.ESTIMATEDHOURS   --IF THE WORK ORDER HAS NOT BEEN ROLLED UP, THEN WE WANT THE TA   -- VALUES USED AS THE PLANNED VALUE   WHEN I_PLANNEDTASTATUS.WORKORDERTYPECODE = 'TA' AND TAROLLED = 'NO'     AND OVERTIMEFACTOR IS NOT NULL   THEN I_JDE_WORKORDERROUTING.ESTIMATEDHOURS   ELSE 0  END  --USE CONVERSION TO HOURLY RATE  * CASE    WHEN ISNULL(I_JDE_LABOURTYPES.HOURLYCONVERSION, '') = '' THEN 1.0000    ELSE I_JDE_LABOURTYPES.HOURLYCONVERSION   END,2))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1aba37b0-d673-4429-a22a-239310a7cc60
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ACTUALREVENUE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5f41ce77-2ee8-4ee9-abbf-9a81ea9a1f25
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ACTUALCOSTS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a19edb7c-36fd-487a-a144-bc31a103f242
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ACTUALQUANTITY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5df357f7-886c-464a-8e57-cdd4f4fb449f
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ACTUALPLANTHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5c4faeb4-369c-44dd-a659-e6c368567cb0
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: ACTUALLABOURHOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0a3180d9-eeef-4034-94fa-de7abdd40a83
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: Dummy field for set merge
+        name: UNDELIVEREDCOMMITMENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '0'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: baac0182-f3d2-4ddd-932d-1c72558a7006
+          stepCounter: ca90017a-c8fa-4261-97de-c86f94d56fb0
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_JDE_LABOURTYPES: 252a6c2a-921d-4f71-b3d3-9672b86025e7
+          I_JDE_PLANTTYPES: 9efe03d1-ebb4-42a9-b293-18ae89e83155
+          I_JDE_WORKORDERROUTING: b6591e53-1381-41a1-9535-84ad12b198bf
+          I_PLANNEDTASTATUS: 2277bb36-7139-4601-a0af-fcd7755c9aa3
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_PLANNEDTASTATUS
+          - locationName: NP
+            nodeName: I_JDE_LABOURTYPES
+          - locationName: NP
+            nodeName: I_JDE_PLANTTYPES
+          - locationName: NP
+            nodeName: I_JDE_WORKORDERROUTING
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_JDE_LABOURTYPES') }}
+              JOIN {{ ref('NP','I_JDE_PLANTTYPES') }}
+              JOIN {{ ref('NP','I_JDE_WORKORDERROUTING') }}
+              JOIN {{ ref('NP','I_PLANNEDTASTATUS') }}
+        name: I_JDE_PLANNEDLABOURPLANT
+        noLinkRefs: []
+  name: I_JDE_PLANNEDLABOURPLANT
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

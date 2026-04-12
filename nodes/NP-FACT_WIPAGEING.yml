@@ -1,0 +1,362 @@
+fileVersion: 1
+id: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+name: FACT_WIPAGEING
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "WIP ageing by project, using the business unit from the JDE project number. Only for WO with a transaction in the last fiscal and current years. SQL query in power BI to only show the rows in this period, but all data needed to get LTD values in this view"
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 95fd952a-6a23-4021-991b-a101af64375e
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: S_GLActTransactions.ProjectNumber=D_JDEProject.JDEProject
+        name: D_JDEPROJECT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 37a9a1d9-f2ef-4625-9c72-37da08627891
+                stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 00efac59-07b1-4a0b-8bd3-df04c3988cec
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Generated key for the date dimension. Nominal format is YYYYMMDD, but DD equal to 0 and greater than 31 permitted for special date handling.
+        name: D_DATE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7ad6f211-f07a-40a0-89df-3bc14afb8076
+                stepCounter: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+            transform: DBO.NP_FUNC_PERIODKEYTODATEKEY(I_JDEPROJECTALLPERIODS.PERIODNUMBER)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 894943a3-b369-4cb3-9165-38a93866acdc
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Generated artificial key
+        name: D_BUSINESSUNIT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 789da21e-5c36-4e4f-b186-aa3aa909d366
+                stepCounter: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8430bf88-d182-4dfe-89f1-a65c93c401da
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Generated artificial key
+        name: D_SALESTYPE_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: a3ce3ae2-3d72-4d11-bec8-3c11229ec837
+                stepCounter: 61e0767a-6d0c-4d43-b307-f90e7cbdc0dd
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 03e4f824-88f8-413f-8312-052d7b822bad
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: From accounts 4514 and 4516 where transactions are not on the first of the month
+        name: PROJECT_WIP
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3dfdeda5-6e4d-48a6-bc2f-913d3fa6e37f
+                stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aac73817-ec33-4299-9fef-2b7ea5e12c36
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: From accounts 4514 where transactions are not on the first of the month
+        name: PROJECT_ACCRUED_INCOME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c3a5740d-7368-40d7-bc4d-c9f837f4c80a
+                stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2a38f488-acea-4dad-87c5-f082669e23da
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: The amount of the actual contracting revenue from the Actual ledgers.  This amount is multiplied by -1 to return a positive figure.
+        name: PROJECT_REVENUE_LTD
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4375613a-37f9-49bc-a1f2-bd05e1873a65
+                stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+            transform: SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: db0bf719-4530-45a7-bec7-41be1c6a9f86
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: The amount of the actual contracting revenue from the Actual ledgers.  This amount is multiplied by -1 to return a positive figure. Excluding 4514 and 4516 object accounts
+        name: PROJECT_BILLED_REVENUE_LTD
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4375613a-37f9-49bc-a1f2-bd05e1873a65
+                stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+            transform: SUM(BILLEDREVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 64e423af-3cf1-48da-acca-311875048554
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: The negated sum of all transactions within the Contracting Only Income Financial Statement group.
+        name: PROJECT_GM_LTD
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 110a7bb7-a377-4ec5-986b-d875c3dd68bb
+                stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+            transform: SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dd425fa8-0a32-42ab-a8f0-2e22e7be23f1
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: The negated sum of all transactions within the Contracting Only Income Financial Statement group.
+        name: PROJECT_GM_PERCENT_LTD
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 110a7bb7-a377-4ec5-986b-d875c3dd68bb
+                stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+            transform: |-
+              CASE WHEN SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) = 0 THEN 0
+                          ELSE SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) / SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f3a1fe0c-e6ca-43a9-8981-3484e02a2928
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: The amount of the actual contracting COS from the Actual ledgers.
+        name: PROJECT_TOTAL_COS_LTD
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7dfa2eb5-2b8c-4158-b6f4-571f47cb81a9
+                stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+            transform: SUM(TOTALCOS) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3fa2aa8a-5776-4df0-b50b-6863c2dec022
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: Expected Revenue current month from LTD GM percent.   Total Costs /1-GM LTD %
+        name: EXPECTED_REVENUE_PRIOR_MONTH_0
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4375613a-37f9-49bc-a1f2-bd05e1873a65
+                stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+            transform: |-
+              CASE WHEN (1 - CASE WHEN SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) = 0 THEN 0 ELSE SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) / SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END) = 0 THEN 0
+                          ELSE CASE WHEN TOTALCOS <= 0 THEN 0 ELSE TOTALCOS END / (1 - CASE WHEN SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) = 0 THEN 0 ELSE SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) / SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1bf16375-09d0-4878-ba1e-8c19476356a9
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: Expected Revenue prior month 1 from LTD GM percent  Total Costs /1-GM LTD %
+        name: EXPECTED_REVENUE_PRIOR_MONTH_1
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4375613a-37f9-49bc-a1f2-bd05e1873a65
+                stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+            transform: |-
+              CASE WHEN (1 - CASE WHEN SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) = 0 THEN 0 ELSE SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) / SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END) = 0 THEN 0
+                          ELSE CASE WHEN LAG(TOTALCOS, 1) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) <= 0 THEN 0 ELSE LAG(TOTALCOS, 1) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END / (1 - CASE WHEN SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) = 0 THEN 0 ELSE SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) / SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cc374962-14b4-4c67-8336-e872feb85787
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: Expected Revenue prior month 2 from LTD GM percent  Total Costs /1-GM LTD %
+        name: EXPECTED_REVENUE_PRIOR_MONTH_2
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4375613a-37f9-49bc-a1f2-bd05e1873a65
+                stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+            transform: |-
+              CASE WHEN (1 - CASE WHEN SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) = 0 THEN 0 ELSE SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) / SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END) = 0 THEN 0
+                          ELSE CASE WHEN LAG(TOTALCOS, 2) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) <= 0 THEN 0 ELSE LAG(TOTALCOS, 2) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END / (1 - CASE WHEN SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) = 0 THEN 0 ELSE SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) / SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e9d90a0d-ea6e-458a-8f7e-d0e3e7ccb3a9
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: Expected Revenue prior month 3 from LTD GM percent  Total Costs /1-GM LTD %
+        name: EXPECTED_REVENUE_PRIOR_MONTH_3
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4375613a-37f9-49bc-a1f2-bd05e1873a65
+                stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+            transform: |-
+              CASE WHEN (1 - CASE WHEN SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) = 0 THEN 0 ELSE SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) / SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END) = 0 THEN 0
+                          ELSE CASE WHEN LAG(TOTALCOS, 3) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) <= 0 THEN 0 ELSE LAG(TOTALCOS, 3) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END / (1 - CASE WHEN SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) = 0 THEN 0 ELSE SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) / SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 420cf01d-6ad2-4101-b0ff-520222943e1a
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: Expected Revenue prior month 4 from LTD GM percent  Total Costs /1-GM LTD %
+        name: EXPECTED_REVENUE_PRIOR_MONTH_4
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4375613a-37f9-49bc-a1f2-bd05e1873a65
+                stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+            transform: |-
+              CASE WHEN (1 - CASE WHEN SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) = 0 THEN 0 ELSE SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) / SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END) = 0 THEN 0
+                          ELSE CASE WHEN LAG(TOTALCOS, 4) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) <= 0 THEN 0 ELSE LAG(TOTALCOS, 4) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END / (1 - CASE WHEN SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) = 0 THEN 0 ELSE SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) / SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4f64a7bc-7a97-44fa-ac22-ffd4ecef8215
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: Expected Revenue prior month 5 from LTD GM percent  Total Costs /1-GM LTD %
+        name: EXPECTED_REVENUE_PRIOR_MONTH_5
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4375613a-37f9-49bc-a1f2-bd05e1873a65
+                stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+            transform: |-
+              CASE WHEN (1 - CASE WHEN SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) = 0 THEN 0 ELSE SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) / SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END) = 0 THEN 0
+                          ELSE CASE WHEN LAG(TOTALCOS, 5) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) <= 0 THEN 0 ELSE LAG(TOTALCOS, 5) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END / (1 - CASE WHEN SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) = 0 THEN 0 ELSE SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) / SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: da811c5d-bc23-472a-b4c4-f5f7f7457304
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: Expected Revenue prior month 6 from LTD GM percent  Total Costs /1-GM LTD %
+        name: EXPECTED_REVENUE_PRIOR_MONTH_6
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4375613a-37f9-49bc-a1f2-bd05e1873a65
+                stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+            transform: |-
+              CASE WHEN (1 - CASE WHEN SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) = 0 THEN 0 ELSE SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) / SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END) = 0 THEN 0
+                          ELSE CASE WHEN LAG(TOTALCOS, 6) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) <= 0 THEN 0 ELSE LAG(TOTALCOS, 6) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END / (1 - CASE WHEN SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) = 0 THEN 0 ELSE SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) / SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4d15c096-172e-431b-9568-97760d2c5eed
+          stepCounter: c6f07fa5-493f-444e-97a2-e57c62d04b7e
+        config: {}
+        dataType: DECIMAL(14,2)
+        defaultValue: ""
+        description: Expected Revenue prior month remaining from LTD GM percent  Total Costs /1-GM LTD %
+        name: EXPECTED_REVENUE_PRIOR_MONTH_6_PLUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4375613a-37f9-49bc-a1f2-bd05e1873a65
+                stepCounter: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+            transform: |-
+              CASE WHEN (1 - CASE WHEN SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) = 0 THEN 0 ELSE SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) / SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END) = 0 THEN 0
+                          ELSE CASE WHEN (SUM(TOTALCOS) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) - (TOTALCOS + LAG(TOTALCOS, 1) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) + LAG(TOTALCOS, 2) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) + LAG(TOTALCOS, 3) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) + LAG(TOTALCOS, 4) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) + LAG(TOTALCOS, 5) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) + LAG(TOTALCOS, 6) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER))) <= 0 THEN 0 ELSE (SUM(TOTALCOS) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) - (TOTALCOS + LAG(TOTALCOS, 1) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) + LAG(TOTALCOS, 2) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) + LAG(TOTALCOS, 3) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) + LAG(TOTALCOS, 4) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) + LAG(TOTALCOS, 5) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) + LAG(TOTALCOS, 6) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER))) END / (1 - CASE WHEN SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) = 0 THEN 0 ELSE SUM(GROSSMARGIN) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) / SUM(REVENUE) OVER (PARTITION BY D_JDEPROJECT.D_JDEPROJECT_KEY ORDER BY PERIODNUMBER) END)
+                           END
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_BUSINESSUNIT: 3fcb39e3-3a9c-4912-9fe8-149038c0ab52
+          D_JDEPROJECT: 3269a616-2284-4690-8201-a29f951b09ac
+          D_SALESTYPE: 61e0767a-6d0c-4d43-b307-f90e7cbdc0dd
+          I_JDEPROJECTALLPERIODS: f1afcfb7-b0eb-4fd0-b6ba-f9a8a092b25c
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_JDEPROJECTALLPERIODS
+          - locationName: NP
+            nodeName: D_BUSINESSUNIT
+          - locationName: NP
+            nodeName: D_JDEPROJECT
+          - locationName: NP
+            nodeName: D_SALESTYPE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_BUSINESSUNIT') }}
+              JOIN {{ ref('NP','D_JDEPROJECT') }}
+              JOIN {{ ref('NP','D_SALESTYPE') }}
+              JOIN {{ ref('NP','I_JDEPROJECTALLPERIODS') }}
+        name: FACT_WIPAGEING
+        noLinkRefs: []
+  name: FACT_WIPAGEING
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,142 @@
+fileVersion: 1
+id: e20aaa8f-9ff1-46f7-91fd-3d859fd3a2a0
+name: I_AUDITQUESTIONMAPPING
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Mapping Table to allow for the funny values coming through from NP Safe Database"
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2bad3632-88b9-42ec-b055-4e69d82c573b
+          stepCounter: e20aaa8f-9ff1-46f7-91fd-3d859fd3a2a0
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: OCCURRENCEINCIDENTID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 062f1b9d-da74-4f3a-9dc1-194245aaa8ed
+                stepCounter: 9e1452d3-c7af-4436-aa11-e94d9ed3cf61
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a57b8737-0cd1-4f93-b776-fe68fd47befd
+          stepCounter: e20aaa8f-9ff1-46f7-91fd-3d859fd3a2a0
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: SourceKey
+        name: RAISEDFROMQUESTIONID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b183f905-9bfb-4111-85e8-06aae70f998b
+                stepCounter: 9e1452d3-c7af-4436-aa11-e94d9ed3cf61
+            transform: |-
+              CASE WHEN SOURCEDESCRIPTION = 'RAISEDFROMQUESTIONID' THEN SOURCEKEY
+                          ELSE NULL
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f79dc6d2-bb5d-4914-ad6b-5a736ef766ce
+          stepCounter: e20aaa8f-9ff1-46f7-91fd-3d859fd3a2a0
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: D_AuditQuestion.QuestionCode
+        name: RAISEDFROMQUESTIONIDQUESTIONCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5b3f73cd-da9b-4d7c-b43f-b1949f7e7c51
+                stepCounter: bce26317-74f4-4091-977e-6b1a496c79e1
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: dc5a63b6-e00d-4ee6-97ff-bed77df4775f
+          stepCounter: e20aaa8f-9ff1-46f7-91fd-3d859fd3a2a0
+        config: {}
+        dataType: VARCHAR(MAX)
+        defaultValue: ""
+        description: Title of the Investigation
+        name: TITLE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 251cb0dd-0d43-4839-b403-24dac5fa0081
+                stepCounter: 9e1452d3-c7af-4436-aa11-e94d9ed3cf61
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d0dbaec5-50c5-4f74-a030-807c96337beb
+          stepCounter: e20aaa8f-9ff1-46f7-91fd-3d859fd3a2a0
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: QuestionCode from the Title of the Investigation
+        name: TITLEQUESTIONCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 251cb0dd-0d43-4839-b403-24dac5fa0081
+                stepCounter: 9e1452d3-c7af-4436-aa11-e94d9ed3cf61
+            transform: |-
+              CASE WHEN SOURCEDESCRIPTION = 'RAISEDFROMQUESTIONID' AND PATINDEX('%#%', I_NPS_OCCURRENCEINCIDENT.TITLE) > 0 THEN SUBSTRING(I_NPS_OCCURRENCEINCIDENT.TITLE, PATINDEX('%#%', I_NPS_OCCURRENCEINCIDENT.TITLE) + 1, PATINDEX('%' + CHAR(10) + '%', I_NPS_OCCURRENCEINCIDENT.TITLE) - PATINDEX('%#%', I_NPS_OCCURRENCEINCIDENT.TITLE) - 2)
+                          ELSE NULL
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: da0c3653-b1dc-46b5-9a6d-a6b30b56a674
+          stepCounter: e20aaa8f-9ff1-46f7-91fd-3d859fd3a2a0
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: Question code from Raised from Question ID, but if that doesn't exist get it from the title.
+        name: QUESTIONCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5b3f73cd-da9b-4d7c-b43f-b1949f7e7c51
+                stepCounter: bce26317-74f4-4091-977e-6b1a496c79e1
+            transform: COALESCE(D_AUDITQUESTION.QUESTIONCODE, CASE WHEN SOURCEDESCRIPTION = 'RAISEDFROMQUESTIONID' AND PATINDEX('%#%', I_NPS_OCCURRENCEINCIDENT.TITLE) > 0 THEN SUBSTRING(I_NPS_OCCURRENCEINCIDENT.TITLE, PATINDEX('%#%', I_NPS_OCCURRENCEINCIDENT.TITLE) + 1, PATINDEX('%' + CHAR(10) + '%', I_NPS_OCCURRENCEINCIDENT.TITLE) - PATINDEX('%#%', I_NPS_OCCURRENCEINCIDENT.TITLE) - 2) ELSE NULL END, 0)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_AUDITQUESTION: bce26317-74f4-4091-977e-6b1a496c79e1
+          I_NPS_OCCURRENCEINCIDENT: 9e1452d3-c7af-4436-aa11-e94d9ed3cf61
+          S_AUDITQUESTIONS: 477c8f0c-cea1-4502-976a-4575d17e1473
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_NPS_OCCURRENCEINCIDENT
+          - locationName: NP
+            nodeName: D_AUDITQUESTION
+          - locationName: NP
+            nodeName: S_AUDITQUESTIONS
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_AUDITQUESTION') }}
+              JOIN {{ ref('NP','I_NPS_OCCURRENCEINCIDENT') }}
+              JOIN {{ ref('NP','S_AUDITQUESTIONS') }}
+        name: I_AUDITQUESTIONMAPPING
+        noLinkRefs: []
+  name: I_AUDITQUESTIONMAPPING
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

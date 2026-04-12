@@ -1,0 +1,84 @@
+fileVersion: 1
+id: db91f77f-2cd6-45c4-90d2-f556eb7f6513
+name: I_EMPLOYEEBOOKEDLEAVETOMONTHEND
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Look up any booked leave from the resources tables tableto be subtractred from the AL end of month accrual"
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 847016a6-55e1-488e-b27e-26b5a22fa3e7
+          stepCounter: db91f77f-2cd6-45c4-90d2-f556eb7f6513
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c1366e97-6c9e-4326-8a14-58606f97fa06
+                stepCounter: 4f9e22a5-b806-4227-9b1a-d51513c125c0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3ed6fab8-efed-4e0c-98e5-f243c3abce23
+          stepCounter: db91f77f-2cd6-45c4-90d2-f556eb7f6513
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Hours of leave booked after the last pay sequence ends but before month end.
+        name: BOOKEDANNUALLEAVE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 658399d4-ff41-4cfc-b741-ea1211c24868
+                stepCounter: 06e02b2b-eb57-49e1-a282-7f567a0ec2f4
+            transform: SUM(UNAVAILABLEHOURS)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_DATE: 44a96185-af1e-4619-9cc3-0ec48770c3bc
+          D_EMPLOYEE: e65d00f1-4487-4c70-a252-6eb1343a94bc
+          D_PAIDHOURSTYPE: 9ed7e334-f397-45a5-916c-ec299f6c0208
+          F_EMPLOYEERESOURCES: 06e02b2b-eb57-49e1-a282-7f567a0ec2f4
+          I_EMPLOYEECURRENTPAYSEQUENCE: 4f9e22a5-b806-4227-9b1a-d51513c125c0
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_EMPLOYEECURRENTPAYSEQUENCE
+          - locationName: NP
+            nodeName: D_DATE
+          - locationName: NP
+            nodeName: D_EMPLOYEE
+          - locationName: NP
+            nodeName: D_PAIDHOURSTYPE
+          - locationName: NP
+            nodeName: F_EMPLOYEERESOURCES
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_DATE') }}
+              JOIN {{ ref('NP','D_EMPLOYEE') }}
+              JOIN {{ ref('NP','D_PAIDHOURSTYPE') }}
+              JOIN {{ ref('NP','F_EMPLOYEERESOURCES') }}
+              JOIN {{ ref('NP','I_EMPLOYEECURRENTPAYSEQUENCE') }}
+        name: I_EMPLOYEEBOOKEDLEAVETOMONTHEND
+        noLinkRefs: []
+  name: I_EMPLOYEEBOOKEDLEAVETOMONTHEND
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

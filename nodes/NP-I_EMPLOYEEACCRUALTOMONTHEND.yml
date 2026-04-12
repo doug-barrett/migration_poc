@@ -1,0 +1,157 @@
+fileVersion: 1
+id: 4864af1e-a855-4817-808e-2246b0c8d783
+name: I_EMPLOYEEACCRUALTOMONTHEND
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Work out an accrual from the end of the pay sequence to the end of the month based on the amount accrued per pay in the last standard pay."
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 30fda9db-46a3-4442-9543-c40146ed1134
+          stepCounter: 4864af1e-a855-4817-808e-2246b0c8d783
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c1366e97-6c9e-4326-8a14-58606f97fa06
+                stepCounter: 4f9e22a5-b806-4227-9b1a-d51513c125c0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: acb2912c-1c1b-407e-9d49-4c31a7c5d765
+          stepCounter: 4864af1e-a855-4817-808e-2246b0c8d783
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: PAYSEQUENCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8a293af1-cd5a-4f4c-ad7e-2746dae0fda3
+                stepCounter: 4f9e22a5-b806-4227-9b1a-d51513c125c0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d637a757-6818-4c75-882a-6f6213fc3110
+          stepCounter: 4864af1e-a855-4817-808e-2246b0c8d783
+        config: {}
+        dataType: NUMERIC(11,4)
+        defaultValue: ""
+        description: ""
+        name: ALACCRUEDPERPAY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6594fe41-2402-40cc-a17e-273166c09b1a
+                stepCounter: 4f9e22a5-b806-4227-9b1a-d51513c125c0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9ce1df3e-35bc-4831-8987-c57363d6ab6e
+          stepCounter: 4864af1e-a855-4817-808e-2246b0c8d783
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: The first day included in this pay sequence
+        name: PERIODSTART
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5e8a45a5-c17d-4fe9-8bd3-c51f909d6c78
+                stepCounter: 4f9e22a5-b806-4227-9b1a-d51513c125c0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5bda7411-4ced-4a3e-ab68-f61f5a0238e3
+          stepCounter: 4864af1e-a855-4817-808e-2246b0c8d783
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: The last day included in this pay sequence
+        name: PERIODEND
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: c697594f-c655-4ced-b705-935e793e7dfc
+                stepCounter: 4f9e22a5-b806-4227-9b1a-d51513c125c0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3ad0e42a-57b2-43bf-ae73-0ee50ceded6b
+          stepCounter: 4864af1e-a855-4817-808e-2246b0c8d783
+        config: {}
+        dataType: NUMERIC(11,4)
+        defaultValue: ""
+        description: When we are past the month end processing (I have chosen the 14th as month close in January is late) work out the number of days from period close to month end and apportion the amount accrued per pay over this.
+        name: ALACCRUETOMONTHEND
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6594fe41-2402-40cc-a17e-273166c09b1a
+                stepCounter: 4f9e22a5-b806-4227-9b1a-d51513c125c0
+            transform: CASE --ONLY START ACCRUING IF PAST MONTH END REPORTING PERIODS   WHEN DAY(PERIODEND) <= 14 THEN 0   ELSE   --NUMBER OF DAYS FROM PERIOD END TO MONTH END   DATEDIFF(DAY,PERIODEND,EOMONTH(PERIODEND))   -- TIMES THE AMOUNT ACCRUED PER PAY DIVIDED BY THE NUMBER OF DAYS IN THE PERIOD   * (ALACCRUEDPERPAY / (DATEDIFF(DAY,PERIODSTART, PERIODEND) + 1))   END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 482b253b-c873-4e16-852c-85d4c96ffc9e
+          stepCounter: 4864af1e-a855-4817-808e-2246b0c8d783
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 509f2424-dcc2-4046-825e-38885db1a744
+                stepCounter: 4f9e22a5-b806-4227-9b1a-d51513c125c0
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 694715f0-8444-4491-bf4a-b08f37c96bfe
+          stepCounter: 4864af1e-a855-4817-808e-2246b0c8d783
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: edfee79c-30f3-4152-822b-8d684e0a69b1
+                stepCounter: 4f9e22a5-b806-4227-9b1a-d51513c125c0
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_EMPLOYEECURRENTPAYSEQUENCE: 4f9e22a5-b806-4227-9b1a-d51513c125c0
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_EMPLOYEECURRENTPAYSEQUENCE
+        join:
+          joinCondition: FROM {{ ref('NP','I_EMPLOYEECURRENTPAYSEQUENCE') }}
+        name: I_EMPLOYEEACCRUALTOMONTHEND
+        noLinkRefs: []
+  name: I_EMPLOYEEACCRUALTOMONTHEND
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

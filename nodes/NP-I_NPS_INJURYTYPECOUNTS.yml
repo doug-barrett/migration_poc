@@ -1,0 +1,124 @@
+fileVersion: 1
+id: 556bda5d-0978-4203-8677-24137e3cff3e
+name: I_NPS_INJURYTYPECOUNTS
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Creates multiple records depending on the number of outcomes indicated against each event"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4d4b4533-7abb-4a73-b41d-cd330a8024f3
+          stepCounter: 556bda5d-0978-4203-8677-24137e3cff3e
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: ""
+        name: ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 603c8306-0283-4640-b87e-8878d083c3f5
+                stepCounter: c9f61e8a-d8ed-49aa-bf0e-7f9f61c4daec
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b1aea798-5dc2-475e-a92a-4c04a412d0c6
+          stepCounter: 556bda5d-0978-4203-8677-24137e3cff3e
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: ODSSOURCESYSTEMNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d215c4f8-f632-4bf9-b1d4-eda69352cfc3
+                stepCounter: c9f61e8a-d8ed-49aa-bf0e-7f9f61c4daec
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 41b55491-b2c8-42b3-8542-4209f5d93d77
+          stepCounter: 556bda5d-0978-4203-8677-24137e3cff3e
+        config: {}
+        dataType: VARCHAR(MAX)
+        defaultValue: ""
+        description: ""
+        name: INJURYTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fbc00aff-951e-4d75-852a-45816f80d50a
+                stepCounter: c9f61e8a-d8ed-49aa-bf0e-7f9f61c4daec
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e7f13dd2-47d2-4974-b7b5-da49e3dff815
+          stepCounter: 556bda5d-0978-4203-8677-24137e3cff3e
+        config: {}
+        dataType: VARCHAR(15)
+        defaultValue: ""
+        description: ""
+        name: INJURYTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: fbc00aff-951e-4d75-852a-45816f80d50a
+                stepCounter: c9f61e8a-d8ed-49aa-bf0e-7f9f61c4daec
+            transform: VALUE
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fec11254-e6bf-43f5-9bc2-f5e142e770f2
+          stepCounter: 556bda5d-0978-4203-8677-24137e3cff3e
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: Count of the number of events times the number of injury types. This will not be used as a measure. Need a distinct count on the Event Key.
+        name: INJURYTYPECOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: '1'
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ab22a767-5f05-4a04-aa7a-e6b3f9023897
+          stepCounter: 556bda5d-0978-4203-8677-24137e3cff3e
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          L_NPS_NPSELOCCURRENCEVIEW: c9f61e8a-d8ed-49aa-bf0e-7f9f61c4daec
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_NPS_NPSELOCCURRENCEVIEW
+        join:
+          joinCondition: FROM {{ ref('NP','L_NPS_NPSELOCCURRENCEVIEW') }} L_NPS_NPSELOCCURRENCEVIEW CROSS APPLY STRING_SPLIT(INJURYTYPE,',') --EXCLUDE ANY RECORDS THAT DO NOT HAVE AN INJURY TYPE OR HAVE BEEN SET TO N/A  -- AND THERE IS ONE RECORD WITH A BLANK VALUE, SO THAT IS ALSO EXCLUDED.   WHERE ISNULL(L_NPS_NPSELOCCURRENCEVIEW.INJURYTYPE,'-1') NOT IN ('-1','')  --EXCLUDE EVENTS THAT HAVE BEEN REJECTED  AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID <> 3
+        name: I_NPS_INJURYTYPECOUNTS
+        noLinkRefs: []
+  name: I_NPS_INJURYTYPECOUNTS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

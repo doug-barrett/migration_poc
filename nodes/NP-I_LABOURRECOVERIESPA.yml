@@ -1,0 +1,255 @@
+fileVersion: 1
+id: 3ea01a8a-cf0b-4aa2-83ad-715f9663a258
+name: I_LABOURRECOVERIESPA
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Finalised Labour Recoveries for both Manual and standard pays from the Payroll module"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d79f4a8c-030c-42fe-b96f-b35d6119c330
+          stepCounter: 3ea01a8a-cf0b-4aa2-83ad-715f9663a258
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: PAYPERIODCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5d67b741-7df7-4d4e-9d9e-beda79119ce9
+                stepCounter: 7feffefd-0e67-42aa-a214-d22a6cc85f9d
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5ca9c435-0b3f-41d7-a23b-b61170a55d25
+          stepCounter: 3ea01a8a-cf0b-4aa2-83ad-715f9663a258
+        config: {}
+        dataType: VARCHAR(30)
+        defaultValue: ""
+        description: ""
+        name: SEQUENCENUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 883e959c-d310-49a4-831d-709a69da7f70
+                stepCounter: 7feffefd-0e67-42aa-a214-d22a6cc85f9d
+            transform: |-
+              CONVERT(VARCHAR(14),SEQUENCENUMBER) + CASE WHEN MANUALPAY = 'MANUAL' THEN '.' + CONVERT(VARCHAR(15),PAYSEQUENCE)
+                          ELSE ''
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 059f7d52-6c4a-43ec-b60d-b0daff079fef
+          stepCounter: 3ea01a8a-cf0b-4aa2-83ad-715f9663a258
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: JOBCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 9a8993c3-6032-430f-a53b-034ac2c15933
+                stepCounter: de4e4f0a-527f-4ee3-b72f-1f32f98e0e66
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: da8096b9-0351-48b6-97c0-250470a38a43
+          stepCounter: 3ea01a8a-cf0b-4aa2-83ad-715f9663a258
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: 4 digit employee number
+        name: EMPLOYEENO
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d91a3ee2-a31e-4814-86d0-c0a379aa2eb7
+                stepCounter: de4e4f0a-527f-4ee3-b72f-1f32f98e0e66
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f961708d-2bad-4d18-8107-f4f4a13d7d6b
+          stepCounter: 3ea01a8a-cf0b-4aa2-83ad-715f9663a258
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: WORKDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: d98e5f0b-1656-4ef7-b288-a794375e284d
+                stepCounter: de4e4f0a-527f-4ee3-b72f-1f32f98e0e66
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 13bab999-c119-4b95-b0e1-8606ae1d9996
+          stepCounter: 3ea01a8a-cf0b-4aa2-83ad-715f9663a258
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: FACTOR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 732e7f78-20a5-41cd-aaeb-8b8ac69c1819
+                stepCounter: 2b93c8cf-016c-420d-9927-ae72641aba7a
+            transform: LEFT(XALLOWCAT,1)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 82a5d8e7-265f-492f-8401-d04071240f78
+          stepCounter: 3ea01a8a-cf0b-4aa2-83ad-715f9663a258
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: ALLOWANCECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b7e729a3-9fb6-437d-bd23-fab9d50e7d8d
+                stepCounter: de4e4f0a-527f-4ee3-b72f-1f32f98e0e66
+            transform: |-
+              CASE WHEN OVERTIMEFACTOR = 0 THEN S_PAYROLLTRANSACTIONS.ALLOWANCECODE
+                          ELSE 'NOTSET'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 62bcb180-d9df-4c59-9792-5decc25a42e6
+          stepCounter: 3ea01a8a-cf0b-4aa2-83ad-715f9663a258
+        config: {}
+        dataType: NUMERIC(11,4)
+        defaultValue: ""
+        description: Only applicable if paid a non-hourly based allowance code.
+        name: ALLOWANCERATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4de2a763-9543-4bb1-b6e1-2ffcfe930f02
+                stepCounter: de4e4f0a-527f-4ee3-b72f-1f32f98e0e66
+            transform: |-
+              CASE WHEN OVERTIMEFACTOR = 0 THEN PAIDAMOUNT / CASE WHEN ALLOWANCEQUANTITY = 0 THEN 1 ELSE ALLOWANCEQUANTITY END
+                          ELSE NULL
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b4234c7b-3ff9-4604-9601-1c5048ca70ea
+          stepCounter: 3ea01a8a-cf0b-4aa2-83ad-715f9663a258
+        config: {}
+        dataType: NUMERIC(9,2)
+        defaultValue: ""
+        description: ""
+        name: HOURS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 4e7ec79f-b391-49e5-8aed-68e22aa0bd97
+                stepCounter: de4e4f0a-527f-4ee3-b72f-1f32f98e0e66
+            transform: SUM(CASE WHEN OVERTIMEFACTOR = 0 THEN ALLOWANCEQUANTITY ELSE HOURS END)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b7c56f81-339f-476e-b0a4-2bb99c054259
+          stepCounter: 3ea01a8a-cf0b-4aa2-83ad-715f9663a258
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: ""
+        name: PAIDHOURSTYPECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5e16772a-9236-45b1-985c-c7326e381655
+                stepCounter: de4e4f0a-527f-4ee3-b72f-1f32f98e0e66
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 454c62b1-4424-4635-bdd6-fc64a85a9b4f
+          stepCounter: 3ea01a8a-cf0b-4aa2-83ad-715f9663a258
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: Either TandA (for time and attendance) or Payroll
+        name: SOURCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "'PAYROLL'"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e03f2260-aeab-4a87-9dab-76c20d93f7db
+          stepCounter: 3ea01a8a-cf0b-4aa2-83ad-715f9663a258
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: ODSSOURCESYSTEMNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 64495c64-c1ec-4d66-a330-550973ac37b8
+                stepCounter: de4e4f0a-527f-4ee3-b72f-1f32f98e0e66
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 10cc6e3a-c7fa-4376-bbb0-989ce7f29188
+          stepCounter: 3ea01a8a-cf0b-4aa2-83ad-715f9663a258
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_PAIDHOURSTYPE: 9ed7e334-f397-45a5-916c-ec299f6c0208
+          D_PAYSEQUENCE: 29d8196a-6a56-48c0-a02a-3679162c12cf
+          I_ALLOWANCE: 2b93c8cf-016c-420d-9927-ae72641aba7a
+          I_PG_TRANSPERPAYSEQUENCE: 7feffefd-0e67-42aa-a214-d22a6cc85f9d
+          S_PAYROLLTRANSACTIONS: de4e4f0a-527f-4ee3-b72f-1f32f98e0e66
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_PG_TRANSPERPAYSEQUENCE
+          - locationName: NP
+            nodeName: D_PAIDHOURSTYPE
+          - locationName: NP
+            nodeName: D_PAYSEQUENCE
+          - locationName: NP
+            nodeName: I_ALLOWANCE
+          - locationName: NP
+            nodeName: S_PAYROLLTRANSACTIONS
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_PAIDHOURSTYPE') }}
+              JOIN {{ ref('NP','D_PAYSEQUENCE') }}
+              JOIN {{ ref('NP','I_ALLOWANCE') }}
+              JOIN {{ ref('NP','I_PG_TRANSPERPAYSEQUENCE') }}
+              JOIN {{ ref('NP','S_PAYROLLTRANSACTIONS') }}
+        name: I_LABOURRECOVERIESPA
+        noLinkRefs: []
+  name: I_LABOURRECOVERIESPA
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

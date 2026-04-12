@@ -1,0 +1,97 @@
+fileVersion: 1
+id: 1b3480c9-f5d3-40dc-af2f-cf0855f59156
+name: I_TSWORKORDERGMPERCENT
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: "Expected GM percent at TS Level"
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 77b40cc1-ac07-49e1-922f-911669b1bfd3
+          stepCounter: 1b3480c9-f5d3-40dc-af2f-cf0855f59156
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: Complementary Inverse Expected GM Percent
+        name: COMPLEMENTARYEXPECTEDGMPERCENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6d19c12d-5570-4633-b6b1-2b8e9b6919dc
+                stepCounter: 1668f4eb-9eec-4efd-8272-e999903f12f5
+            transform: |-
+              CASE WHEN SUM(EXPECTEDREVENUE) = 0               THEN 0
+                          WHEN SUM(PLANNEDREVENUE) <= 0               THEN 0
+                          WHEN SUM(EXPECTEDREVENUE) = SUM(EXPECTEDGM) THEN 0
+                          ELSE 1 - SUM(EXPECTEDGM) / CASE WHEN SUM(EXPECTEDREVENUE) = 0 THEN 1 ELSE SUM(EXPECTEDREVENUE) END
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a41ba9c3-3d40-48b6-9654-e05478abc0a4
+          stepCounter: 1b3480c9-f5d3-40dc-af2f-cf0855f59156
+        config: {}
+        dataType: NUMERIC(15,2)
+        defaultValue: ""
+        description: ""
+        name: EXPECTEDGMPERCENT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6d19c12d-5570-4633-b6b1-2b8e9b6919dc
+                stepCounter: 1668f4eb-9eec-4efd-8272-e999903f12f5
+            transform: |-
+              CASE WHEN SUM(EXPECTEDREVENUE) = 0               THEN 0
+                          WHEN SUM(PLANNEDREVENUE) <= 0               THEN 0
+                          WHEN SUM(EXPECTEDREVENUE) = SUM(EXPECTEDGM) THEN 0
+                          ELSE SUM(EXPECTEDGM) / CASE WHEN SUM(EXPECTEDREVENUE) = 0 THEN 1 ELSE SUM(EXPECTEDREVENUE) END
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c9bb478d-cd87-46e4-87f2-2794acc8bb36
+          stepCounter: 1b3480c9-f5d3-40dc-af2f-cf0855f59156
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Lowest level level TS work order number related to this WO
+        name: TSPARENTWORKORDERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8d62376b-5b32-43a3-a975-f4b69d085df2
+                stepCounter: 492f8016-3e2e-4b3c-89ec-303878359ba2
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          D_WORKORDER: 492f8016-3e2e-4b3c-89ec-303878359ba2
+          F_WORKORDERCOMPARISON: 1668f4eb-9eec-4efd-8272-e999903f12f5
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: F_WORKORDERCOMPARISON
+          - locationName: NP
+            nodeName: D_WORKORDER
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','D_WORKORDER') }}
+              JOIN {{ ref('NP','F_WORKORDERCOMPARISON') }}
+        name: I_TSWORKORDERGMPERCENT
+        noLinkRefs: []
+  name: I_TSWORKORDERGMPERCENT
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

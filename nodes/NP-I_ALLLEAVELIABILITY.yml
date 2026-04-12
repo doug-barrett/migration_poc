@@ -1,0 +1,845 @@
+fileVersion: 1
+id: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+name: I_ALLLEAVELIABILITY
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0a0dfda5-a03e-4492-b642-c87db88d5966
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: VARCHAR(12)
+        defaultValue: ""
+        description: ""
+        name: EMPLOYEECODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3899e919-03b4-4bc0-8997-2ff228067192
+                stepCounter: c1a8f561-f5ec-4328-8741-83b1e6904d81
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c5d2c372-1708-4520-befe-00334376975b
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: PAYSEQUENCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: dd3935e3-b9bc-42f3-9351-90c370bdb7d5
+                stepCounter: c1a8f561-f5ec-4328-8741-83b1e6904d81
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8a55a7e9-0677-4935-9d83-bf5313693303
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: Leave Type
+        name: LEAVETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 6a6f06e7-6235-4abd-a6c2-f7d7d14dba5b
+                stepCounter: c1a8f561-f5ec-4328-8741-83b1e6904d81
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0ebcfe70-a25a-453c-ade5-bfb789ca4d79
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: NUMERIC(11,4)
+        defaultValue: ""
+        description: Liability units (SL only includes 50% on all regions contract)
+        name: LIABILITYUNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 54df768f-1faa-421a-8c3b-7eb5d05d6b9e
+                stepCounter: 70a9e9eb-5a6e-4ee5-84c5-95284c5a5af2
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN CASE WHEN CONTRACTCODE = 'ALLREG' THEN LIABILITYUNITS / 2 ELSE 0 END
+                          ELSE LIABILITYUNITS
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 315b04c6-509b-4f91-91b8-bf3077b73f5c
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: NUMERIC(11,4)
+        defaultValue: ""
+        description: Liability amount (SL only includes 50% on all regions contract)
+        name: LIABILITYAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 81d92f71-04a4-4858-bba8-80ad8926efce
+                stepCounter: c4ec5549-f337-4e34-a9fb-7122f9e8c67a
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN CASE WHEN CONTRACTCODE = 'ALLREG' THEN ISNULL(LIABILITYAMOUNT / 2,0) ELSE 0 END
+                          ELSE ISNULL(LIABILITYAMOUNT, 0)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e7c8310b-cfc7-4145-91f0-9433e9661b87
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: NUMERIC(11,4)
+        defaultValue: ""
+        description: Liability days (SL only includes 50% on all regions contract)
+        name: LIABILITYDAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN CASE WHEN CONTRACTCODE = 'ALLREG' THEN CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE (LIABILITYUNITS/2)/ CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END ELSE 0 END
+                          ELSE CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE LIABILITYUNITS/ CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ad55bc58-5308-4937-a63c-0de8c8786c57
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: NUMERIC(11,4)
+        defaultValue: ""
+        description: Accrued Units (SL only includes 50% on all regions contract)
+        name: ACCRUEDUNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 13413f72-bba6-444b-b9ac-fa07fc745c62
+                stepCounter: f981d0fb-9cb9-434d-a731-44ac3a53c846
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN CASE WHEN CONTRACTCODE = 'ALLREG' THEN ISNULL(ACCRUEDUNITS / 2, 0) ELSE 0 END
+                          ELSE ISNULL(ACCRUEDUNITS, 0)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 27d9d332-b0a0-4c77-a914-8b7d02457b81
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: NUMERIC(11,4)
+        defaultValue: ""
+        description: Accrued Amounts (SL only includes 50% on all regions contract)
+        name: ACCRUEDAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5888ca65-ac67-4585-b3fa-14798b00b7c5
+                stepCounter: c1a8f561-f5ec-4328-8741-83b1e6904d81
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN CASE WHEN CONTRACTCODE = 'ALLREG' THEN ISNULL(ACCRUEDAMOUNT/ 2,0) ELSE 0 END
+                          ELSE ISNULL(ACCRUEDAMOUNT, 0)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8991bf55-3ffd-4049-af3a-36dd6741d230
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: NUMERIC(11,4)
+        defaultValue: ""
+        description: Accrued Days (SL only includes 50% on all regions contract)
+        name: ACCRUEDDAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN CASE WHEN CONTRACTCODE = 'ALLREG' THEN CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE (ISNULL(ACCRUEDUNITS, 0)/2)/ CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END ELSE 0 END
+                          ELSE CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE ISNULL(ACCRUEDUNITS, 0)/ CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2189b19b-ad32-4330-96df-6fc71114ee4d
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: NUMERIC(11,4)
+        defaultValue: ""
+        description: ""
+        name: OUTSTANDINGUNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: dafb388c-9d88-4920-b98c-61ea606d4ec1
+                stepCounter: c1a8f561-f5ec-4328-8741-83b1e6904d81
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN CASE WHEN CONTRACTCODE = 'ALLREG' THEN ISNULL(OUTSTANDINGUNITS/ 2, 0) ELSE 0 END
+                          ELSE ISNULL(OUTSTANDINGUNITS, 0)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 14aaeeed-897b-4565-8e71-fd604cb88e57
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: NUMERIC(11,4)
+        defaultValue: ""
+        description: ""
+        name: OUTSTANDINGAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3ea1ce8b-01d2-48a1-b102-3f6ffb0e928d
+                stepCounter: c1a8f561-f5ec-4328-8741-83b1e6904d81
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN CASE WHEN CONTRACTCODE = 'ALLREG' THEN ISNULL(OUTSTANDINGAMOUNT/ 2,0) ELSE 0 END
+                          ELSE ISNULL(OUTSTANDINGAMOUNT, 0)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c7428fb1-d6c8-4f60-83ea-ff9edfe42a97
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: NUMERIC(11,4)
+        defaultValue: ""
+        description: Outstanding Days (SL only includes 50% on all regions contract)
+        name: OUTSTANDINGDAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN CASE WHEN CONTRACTCODE = 'ALLREG' THEN CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE (ISNULL(OUTSTANDINGUNITS, 0)/2)/ CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END ELSE 0 END
+                          ELSE CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE ISNULL(OUTSTANDINGUNITS, 0)/ CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3362ae5b-2d1f-4b59-9e7c-670d288ee95f
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: NUMERIC(11,4)
+        defaultValue: ""
+        description: ""
+        name: TAKENUNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 525795f6-6b68-4bca-9de8-a88b875f2bbb
+                stepCounter: c1a8f561-f5ec-4328-8741-83b1e6904d81
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN CASE WHEN CONTRACTCODE = 'ALLREG' THEN ISNULL(TAKENUNITS/ 2, 0) ELSE 0 END
+                          ELSE ISNULL(TAKENUNITS, 0)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 66d3e60e-7521-442b-95e4-f5efa62d724f
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: NUMERIC(11,4)
+        defaultValue: ""
+        description: ""
+        name: TAKENDAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN CASE WHEN CONTRACTCODE = 'ALLREG' THEN CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE (ISNULL(TAKENUNITS, 0)/2)/ CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END ELSE 0 END
+                          ELSE CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE ISNULL(TAKENUNITS, 0)/ CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a31b6f36-9740-4049-82a0-f33b74e5679c
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: SICKLIABILITYUNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN ISNULL(LIABILITYUNITS, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bcdc9faa-4bdf-419c-af72-f7821317a4ae
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: SICKLIABILITYAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN ISNULL(LIABILITYAMOUNT, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 78381539-b3d3-4f18-89a0-55758622d198
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: SICKLIABILITYDAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE ISNULL(LIABILITYUNITS/ CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END, 0) END
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 999682e5-bec3-4dff-8c7c-3bf7f849b513
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: SICKACCRUEDUNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN ISNULL(ACCRUEDUNITS, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 805bd21e-3109-499a-b432-f0c935a36fc7
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: SICKACCRUEDAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN ISNULL(ACCRUEDAMOUNT, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 70eb5c7b-78d4-4020-8371-d002d6f7f693
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: SICKACCRUEDDAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE ISNULL(ACCRUEDUNITS, 0)/ CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0860f4ab-2367-452b-b7c7-c73ef20ca526
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: SICKOUTSTANDINGUNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN ISNULL(OUTSTANDINGUNITS, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 53da9403-126b-4fd4-98e1-b1ada872436c
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: SICKOUTSTANDINGAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN ISNULL(OUTSTANDINGAMOUNT, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 92e0db0b-4cd2-4ffa-aedd-499f4bac0d1c
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: SICKOUTSTANDINGDAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE ISNULL(OUTSTANDINGUNITS, 0)/ CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 69e8e2e6-5019-4801-94bc-6d6f8967dd56
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: SICKTAKENUNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN ISNULL(TAKENUNITS, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a533d52a-908c-4a37-8f14-a46fbebfb63a
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: SICKTAKENDAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'SL' THEN CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE ISNULL(TAKENUNITS, 0)/ CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f48c62b2-fc6f-49e6-a541-1c82ae91cac7
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: ANNUALLEAVELIABILITYUNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'AL' THEN ISNULL(LIABILITYUNITS, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4d5a717c-047d-48af-a7d7-9bcd37e83e0c
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: ANNUALLEAVELIABILITYAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'AL' THEN ISNULL(LIABILITYAMOUNT, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: de202b62-ae56-4505-890d-e75ee9df54fb
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: ANNUALLEAVELIABILITYDAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'AL' THEN CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE ISNULL(LIABILITYUNITS, 0)/ CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5e685aae-550c-4259-abb8-06c36f99c60f
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: ANNUALLEAVEACCRUEDUNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'AL' THEN ISNULL(ACCRUEDUNITS, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f38d6506-c673-4666-941a-f604f322763d
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: ANNUALLEAVEACCRUEDAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'AL' THEN ISNULL(ACCRUEDAMOUNT, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0f5a6f3b-3554-48ab-aa61-8dc388877d40
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: ANNUALLEAVEACCRUEDDAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'AL' THEN CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE ISNULL(ACCRUEDUNITS, 0) / CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 01911db0-177c-46a4-9d18-6e6b4304f2b4
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: ANNUALLEAVEOUTSTANDINGUNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'AL' THEN ISNULL(OUTSTANDINGUNITS, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 95080f42-1035-4e8d-b0e6-a7aedd966998
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: ANNUALLEAVEOUTSTANDINGAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'AL' THEN ISNULL(OUTSTANDINGAMOUNT, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4543b754-ca5e-4d16-b7f1-b00235646b84
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: ANNUALLEAVEOUTSTANDINGDAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'AL' THEN CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE ISNULL(OUTSTANDINGUNITS, 0) / CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3809a375-5a94-4349-9843-2fa3be1d1463
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: ANNUALLEAVETAKENUNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'AL' THEN ISNULL(TAKENUNITS, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 925df14f-bf2d-4215-ac62-b691b1af12f5
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: ANNUALLEAVETAKENDAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE = 'AL' THEN CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE ISNULL(TAKENUNITS, 0) / CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 33c8c1d0-fbee-43c3-b0d0-2bc04de21952
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: OTHERLIABILITYUNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE NOT IN ('AL', 'SL') THEN ISNULL(LIABILITYUNITS, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 40005fbb-6cd7-4e2e-9191-13b0686265db
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: OTHERLIABILITYAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE NOT IN ('AL', 'SL') THEN ISNULL(LIABILITYAMOUNT, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 48d857d4-89b1-4494-8c98-5c83a053d857
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: OTHERLIABILITYDAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE NOT IN ('AL', 'SL') THEN CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE ISNULL(LIABILITYUNITS, 0)/ CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: da3b3743-b3c3-4ab5-b21c-e3c549d4af44
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: OTHERACCRUEDUNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE NOT IN ('AL', 'SL') THEN ISNULL(ACCRUEDUNITS, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 44e40372-d35d-4b85-ad9c-686451872c81
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: OTHERACCRUEDAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE NOT IN ('AL', 'SL') THEN ISNULL(ACCRUEDAMOUNT, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eb39d7ae-2072-4ccb-92b5-9093606f9bd9
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: OTHERACCRUEDDAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE NOT IN ('AL', 'SL') THEN CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE ISNULL(ACCRUEDUNITS, 0)/ CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2c22a872-6cfa-4515-ac73-2dd3f189a319
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: OTHEROUTSTANDINGUNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE NOT IN ('AL', 'SL') THEN ISNULL(OUTSTANDINGUNITS, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1ad97bfe-9af2-40df-b85f-50ffaa992da8
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: OTHEROUTSTANDINGAMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE NOT IN ('AL', 'SL') THEN ISNULL(OUTSTANDINGAMOUNT, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0c4dfa7d-b626-4b9a-86b0-8d55b1baddfd
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: OTHEROUTSTANDINGDAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE NOT IN ('AL', 'SL') THEN CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE ISNULL(OUTSTANDINGUNITS, 0)/ CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 850f4e64-d642-43cf-9811-fe45dc554909
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: OTHERTAKENUNITS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE NOT IN ('AL', 'SL') THEN ISNULL(TAKENUNITS, 0)
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 495c9d56-3b7b-43da-998b-a6f8eb1e9672
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,4)
+        defaultValue: ""
+        description: ""
+        name: OTHERTAKENDAYS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: |-
+              CASE WHEN LEAVETYPE NOT IN ('AL', 'SL') THEN CASE WHEN DAYSDIVISOR = 0 THEN 0 ELSE ISNULL(TAKENUNITS, 0)/ CASE WHEN DAYSDIVISOR = 0 THEN 1 ELSE DAYSDIVISOR END END
+                          ELSE 0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 36532bca-9852-4ee7-9b2c-fbbcfc5e54c9
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DECIMAL(11,2)
+        defaultValue: ""
+        description: ""
+        name: DAYSDIVISOR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ff426588-11fb-4e0c-b18f-c9126306f4d0
+                stepCounter: c1a8f561-f5ec-4328-8741-83b1e6904d81
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 145ea733-9a41-4b9d-8a92-b28df241b337
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 89cc6c84-beec-4642-ab14-517b0b7f5047
+          stepCounter: 9cffdc07-8fad-46ca-95cd-5cfd40fad17f
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_ALLIABILITY: c1a8f561-f5ec-4328-8741-83b1e6904d81
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_ALLIABILITY
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','I_ALLIABILITY') }}
+              LEFT JOIN L_PG_EMPLOYEE
+                ON I_SLLIABILITY.EMPLOYEECODE = L_PG_EMPLOYEE.EMPLOYEECODE
+        name: I_ALLLEAVELIABILITY
+        noLinkRefs: []
+  name: I_ALLLEAVELIABILITY
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

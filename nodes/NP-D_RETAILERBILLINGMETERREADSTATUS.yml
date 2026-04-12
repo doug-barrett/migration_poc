@@ -1,0 +1,116 @@
+fileVersion: 1
+id: c1a76845-272f-4798-8fe9-30415e1e7e11
+name: D_RETAILERBILLINGMETERREADSTATUS
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Meter Read Status from the Retailer Billing detail records."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7b760499-b3c4-41b1-900a-327a0b619e09
+          stepCounter: c1a76845-272f-4798-8fe9-30415e1e7e11
+        config: {}
+        dataType: INTEGER IDENTITY(1,1)
+        defaultValue: ""
+        description: Generated artificial key
+        isSurrogateKey: true
+        name: D_RETAILERBILLINGMETER_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0af7b997-877a-4f36-86d8-73bcc0135af3
+          stepCounter: c1a76845-272f-4798-8fe9-30415e1e7e11
+        config: {}
+        dataType: VARCHAR(56)
+        defaultValue: ""
+        description: Mandatory except Null where only fixed charges apply.  RD = Read, ES = Estimate, RV =  Reversal.  For as billed files only, FL = Final, UB = Unbilled.
+        name: METERREADSTATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 51f06605-1a3d-496d-a701-a5281b1f10d7
+                stepCounter: 7876c381-d0a7-4118-bb34-868b3fc43c98
+            transform: |-
+              CASE WHEN METERREADSTATUS = 'ES' THEN 'ESTIMATE'
+                          WHEN METERREADSTATUS = 'RD' THEN 'READ'
+                          WHEN METERREADSTATUS = 'RV' THEN 'REVERSAL'
+                          WHEN METERREADSTATUS = 'FL' THEN 'FINAL'
+                          WHEN METERREADSTATUS = 'UB' THEN 'UNBILLED'
+                          ELSE 'UNKNOWN'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7da5d84b-5702-4acd-8efe-6fa43efb289b
+          stepCounter: c1a76845-272f-4798-8fe9-30415e1e7e11
+        config: {}
+        dataType: VARCHAR(56)
+        defaultValue: ""
+        description: Mandatory except Null where only fixed charges apply.  RD = Read, ES = Estimate, RV =  Reversal.  For as billed files only, FL = Final, UB = Unbilled.
+        isBusinessKey: true
+        name: METERREADSTATUSCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 51f06605-1a3d-496d-a701-a5281b1f10d7
+                stepCounter: 7876c381-d0a7-4118-bb34-868b3fc43c98
+            transform: ISNULL(I_EIEP_RETAILERBILLING.METERREADSTATUS,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 55de24fc-3e0c-4c2d-861b-66ae891dc855
+          stepCounter: c1a76845-272f-4798-8fe9-30415e1e7e11
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 00c80051-59af-420b-b801-94ad8633a80e
+          stepCounter: c1a76845-272f-4798-8fe9-30415e1e7e11
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_EIEP_RETAILERBILLING: 7876c381-d0a7-4118-bb34-868b3fc43c98
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_EIEP_RETAILERBILLING
+        join:
+          joinCondition: FROM {{ ref('NP','I_EIEP_RETAILERBILLING') }} I_EIEP_RETAILERBILLING
+        name: D_RETAILERBILLINGMETERREADSTATUS
+        noLinkRefs: []
+  name: D_RETAILERBILLINGMETERREADSTATUS
+  overrideSQL: false
+  schema: ""
+  sqlType: Dimension
+  type: sql
+  version: 1
+type: Node

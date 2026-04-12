@@ -1,0 +1,193 @@
+fileVersion: 1
+id: afe2b8f6-0ed0-40b2-9f74-6bc4cd722e61
+name: I_EIEP_LATESTFILETAG
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Work table from I_EIEP_AllHeaderRecords to tag latest file and washup files. Row number partition."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 17076962-87f3-482d-a5f1-0dd9f9141970
+          stepCounter: afe2b8f6-0ed0-40b2-9f74-6bc4cd722e61
+        config: {}
+        dataType: VARCHAR(MAX)
+        defaultValue: ""
+        description: Record Type, HDR – indicates the row is a header record type, DET – indicates the row is a detail  record.
+        name: RECORDTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 58b903e0-3b65-4b41-b0f9-244c251b37d5
+                stepCounter: 26993515-dddd-425b-8be5-c7b45bb767a4
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 406e7cab-45c9-4b8f-a5b8-bf13bb89d18a
+          stepCounter: afe2b8f6-0ed0-40b2-9f74-6bc4cd722e61
+        config: {}
+        dataType: VARCHAR(100)
+        defaultValue: ""
+        description: Sent on behalf of participant identifier. Participant identifier of party on whose behalf volume data is provided.
+        name: RETAILERCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 97a038dc-f63d-407a-9ca0-bfea878235c6
+                stepCounter: 26993515-dddd-425b-8be5-c7b45bb767a4
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ca7c3f86-8351-4da4-960a-050ddb31827d
+          stepCounter: afe2b8f6-0ed0-40b2-9f74-6bc4cd722e61
+        config: {}
+        dataType: VARCHAR(56)
+        defaultValue: ""
+        description: Recipient participant identifier / Valid recipient participant identifier.
+        name: RECIPIENTCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 941167d9-8ace-4c02-b6ce-d1341daa09ec
+                stepCounter: 26993515-dddd-425b-8be5-c7b45bb767a4
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f1c981d5-b7af-4ba6-bbae-bf39683680a0
+          stepCounter: afe2b8f6-0ed0-40b2-9f74-6bc4cd722e61
+        config: {}
+        dataType: VARCHAR(56)
+        defaultValue: ""
+        description: The month the report is run for.
+        name: REPORTMONTH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: b86f7267-2b2c-48ef-afe1-596763a0d196
+                stepCounter: 26993515-dddd-425b-8be5-c7b45bb767a4
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c58868e5-c7e6-4796-a7d0-9e00eb22ec0f
+          stepCounter: afe2b8f6-0ed0-40b2-9f74-6bc4cd722e61
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: SORTORDER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: --   ROW_NUMBER() OVER (PARTITION BY RECIPIENTCODE,RETAILERCODE,REPORTMONTH ORDER BY CONVERT(DATE, REPORTRUNDATE, 103) DESC)   ROW_NUMBER() OVER (PARTITION BY RECIPIENTCODE,RETAILERCODE,REPORTMONTH,CASE WHEN I_EIEP_ALLHEADERRECORDS.FILETYPE = 'ICPHHR' THEN 'HHR' ELSE 'NONHHR' END   ORDER BY CONVERT(DATE, REPORTRUNDATE, 103) DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6f9ef0b2-fef8-4ff3-892e-3b5e1858a040
+          stepCounter: afe2b8f6-0ed0-40b2-9f74-6bc4cd722e61
+        config: {}
+        dataType: VARCHAR(56)
+        defaultValue: ""
+        description: Date the report is run
+        name: REPORTRUNDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 96b0ead2-4201-4cc9-a912-9d12334003cf
+                stepCounter: 26993515-dddd-425b-8be5-c7b45bb767a4
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: db895a3b-b947-46a2-b103-4faf524d8647
+          stepCounter: afe2b8f6-0ed0-40b2-9f74-6bc4cd722e61
+        config: {}
+        dataType: VARCHAR(MAX)
+        defaultValue: ""
+        description: Concatenated description for HDR and DET rows, based on unique identifiers from the HDR row per file - Similar to file name of each billing file.  Sender + Utility Type (only “E” to be used) + Recipient + File Type + Report Month + Report  Run Date + UniqueID# (e.g. hhmm run time, or ICP but limited to Char (60))
+        name: FILEIDENTIFIER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 66c91293-8250-45a1-a272-99397ea7f002
+                stepCounter: 26993515-dddd-425b-8be5-c7b45bb767a4
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e447a44d-d25c-4a88-9ff8-8a530b4b013a
+          stepCounter: afe2b8f6-0ed0-40b2-9f74-6bc4cd722e61
+        config: {}
+        dataType: VARCHAR(10)
+        defaultValue: ""
+        description: Either Initial or Washup
+        name: WASHUPFILETYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: --CASE  --  WHEN ROW_NUMBER() OVER (PARTITION BY RECIPIENTCODE, RETAILERCODE, REPORTMONTH ORDER BY CONVERT(DATE, REPORTRUNDATE, 103)) = 1 THEN 'INITIAL'  --  ELSE 'WASHUP'  -- END  CASE    WHEN ROW_NUMBER() OVER (PARTITION BY RECIPIENTCODE, RETAILERCODE, REPORTMONTH,  CASE WHEN I_EIEP_ALLHEADERRECORDS.FILETYPE = 'ICPHHR' THEN 'HHR' ELSE 'NONHHR' END    ORDER BY CONVERT(DATE, REPORTRUNDATE, 103)) = 1  AND I_EIEP_ALLHEADERRECORDS.FILETYPE != 'ICPHHR'   THEN 'INITIAL' WHEN FILETYPE = 'ICPHHR' THEN 'HHR'    ELSE 'WASHUP'   END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 34cf8aca-04bb-43e3-acd3-8a0fd746b611
+          stepCounter: afe2b8f6-0ed0-40b2-9f74-6bc4cd722e61
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: Washup Number, Either 0,3,7,14
+        name: WASHUPNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: DATEDIFF(MONTH, CAST(REPORTMONTH + '01' AS DATE), CAST(REPLACE(LEFT(DATEADD(MONTH, -1, CONVERT(DATE, REPORTRUNDATE, 103)), 7), '-', '') + '01' AS DATE))
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bc0f1bf0-167c-43f2-b828-5856f91e2300
+          stepCounter: afe2b8f6-0ed0-40b2-9f74-6bc4cd722e61
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 91f92dfa-7a81-46ae-b613-8323755a63e4
+          stepCounter: afe2b8f6-0ed0-40b2-9f74-6bc4cd722e61
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_EIEP_ALLHEADERRECORDS: 26993515-dddd-425b-8be5-c7b45bb767a4
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_EIEP_ALLHEADERRECORDS
+        join:
+          joinCondition: FROM {{ ref('NP','I_EIEP_ALLHEADERRECORDS') }}
+        name: I_EIEP_LATESTFILETAG
+        noLinkRefs: []
+  name: I_EIEP_LATESTFILETAG
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

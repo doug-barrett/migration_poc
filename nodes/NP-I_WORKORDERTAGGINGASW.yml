@@ -1,0 +1,75 @@
+fileVersion: 1
+id: d6268902-4e73-40d0-b160-e64ec19dda48
+name: I_WORKORDERTAGGINGASW
+operation:
+  config:
+    insertStrategy: UNION
+    selectDistinct: false
+  customOverride: false
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: NP
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c7cbd15e-2cfb-42a0-b4a6-c62e20ffd1b4
+          stepCounter: d6268902-4e73-40d0-b160-e64ec19dda48
+        config: {}
+        dataType: NUMERIC(38)
+        defaultValue: ""
+        description: Document (Order No Invoice etc.)
+        name: WORKORDERNUMBER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 74d441fb-c101-4cec-9c67-8d5f46e6095b
+                stepCounter: 5bd8cdae-ee7e-42eb-a4f6-3aa4f341d3c9
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a8f19e66-7dc8-46cb-b3f6-33b86b70d3e6
+          stepCounter: d6268902-4e73-40d0-b160-e64ec19dda48
+        config: {}
+        dataType: VARCHAR(MAX)
+        defaultValue: ""
+        description: Tag for Items of Interest for reporting
+        name: VARIOUSTAGS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 68ceb08c-09f0-4ffc-b24c-44995529fdb3
+                stepCounter: 34be3c46-5091-4def-a251-c014659a7f5c
+            transform: MAX(L_JDE_F4102_ITEMBRANCHFILE.IBPRP8)
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          L_JDE_F3111_WORKORDERPARTSLIST: 5bd8cdae-ee7e-42eb-a4f6-3aa4f341d3c9
+          L_JDE_F4102_ITEMBRANCHFILE: 34be3c46-5091-4def-a251-c014659a7f5c
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_JDE_F3111_WORKORDERPARTSLIST
+          - locationName: NP
+            nodeName: L_JDE_F4102_ITEMBRANCHFILE
+        join:
+          joinCondition: |-
+            FROM {{ ref('NP','L_JDE_F3111_WORKORDERPARTSLIST') }} L_JDE_F3111_WORKORDERPARTSLIST
+              JOIN {{ ref('NP','L_JDE_F4102_ITEMBRANCHFILE') }} L_JDE_F4102_ITEMBRANCHFILE
+                ON L_JDE_F3111_WORKORDERPARTSLIST.WMCPIT = L_JDE_F4102_ITEMBRANCHFILE.IBITM
+               AND L_JDE_F3111_WORKORDERPARTSLIST.WMCMCU = L_JDE_F4102_ITEMBRANCHFILE.IBMCU
+             WHERE L_JDE_F4102_ITEMBRANCHFILE.IBPRP8 = 'ASW' --ONE RECORD PER WORK ORDER  GROUP BY WMDOCO
+        name: I_WORKORDERTAGGINGASW
+        noLinkRefs: []
+  name: I_WORKORDERTAGGINGASW
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

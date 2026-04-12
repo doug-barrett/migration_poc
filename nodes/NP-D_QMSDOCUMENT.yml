@@ -1,0 +1,399 @@
+fileVersion: 1
+id: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+name: D_QMSDOCUMENT
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "This dim table is having one record for each approved document from contracting, fibre , group and network."
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e4f896a5-dc42-40ad-93e5-c1c99c5af163
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: INTEGER IDENTITY(1,1)
+        defaultValue: ""
+        description: Generated artificial key
+        isSurrogateKey: true
+        name: D_QMSDOCUMENT_KEY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 111adde7-c4ba-4123-82f1-ce7457c5ab1f
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: QMS Document Code is Unique Identity based on document source. It doesn't have any NULL values
+        isBusinessKey: true
+        name: QMSDOCUMENTCODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 24b1d3a1-46e3-483d-81ae-2ee250047724
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.ID, 0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 407867e8-74e1-47c4-b238-e6b4b8034497
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(255)
+        defaultValue: ""
+        description: Record source.  All the source systems (Contracting, Fibre, Group and Network) have few NULLS in this fields so there are few records nulls.All the NULLs are replaced with Unknown
+        isBusinessKey: true
+        name: DOCUMENTSOURCE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2736e178-f144-4861-8cf1-c61ecceafa9e
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.DOCUMENTSOURCE, 'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 16685c55-f6eb-48aa-89cd-2cedfcf61b0b
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(5000)
+        defaultValue: ""
+        description: Document Name, there are NULLs as well because Contracting Controlled Doc Development link have NULLS in title. All the NULLs are replaced with Unknown
+        name: DOCUMENTNAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 10e988cd-8869-4502-ac7a-c41cf95086bd
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c41c1bea-ee29-4723-a707-cc63fa4465de
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(5000)
+        defaultValue: ""
+        description: Document Title, there are NULLs as well because Contracting Controlled Doc Development link have NULLS in title. All the NULLs are replaced with Unknown
+        name: TITLE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 5da699ce-3883-46cb-9afb-c14e8072205e
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.TITLE,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 88546802-107b-4d42-8002-5f7df994de75
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: Next Due Date for Document Review, there are NULLs as well because Contracting Controlled Doc Development link have NULLS in Next Review Date. All the NULLs are replaced with 01-01-1900
+        name: NEXTREVIEWDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 77324998-0b92-496e-96f0-504a41e00821
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.NEXTREVIEWDATE, '01-01-1900')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e7321f2d-301f-47d4-aa45-5b1baefcae6f
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(5000)
+        defaultValue: ""
+        description: One of Up To Date, Due (if review date is in the next 90 days) or Overdue (if review date is in the past).
+        name: REVIEWSTATUS
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 77324998-0b92-496e-96f0-504a41e00821
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: |-
+              CASE WHEN I_CONTROLLEDDOCUMENT.NEXTREVIEWDATE < GETDATE()                 THEN 'OVERDUE'
+                          WHEN I_CONTROLLEDDOCUMENT.NEXTREVIEWDATE < DATEADD(DAY,90,GETDATE()) THEN 'DUE FOR REVIEW'
+                          ELSE 'UP TO DATE'
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4b62a51a-6c77-4547-8a6b-8e4ce9d76b9f
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(5000)
+        defaultValue: ""
+        description: The Functional Owner is a department that Owns and Controls the Document.  there are NULLs as well because Contracting Controlled Doc Development link have NULLS in Functional Owner.All the NULLs are replaced with Unknown
+        name: FUNCTIONALOWNER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: e3b38e0a-c08e-4f00-8545-1f8c48d85069
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.FUNCTIONALOWNER, 'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 4d8732e1-1da2-4399-b9b3-b87e17a88e11
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(5000)
+        defaultValue: ""
+        description: This is the Working area of the document.  There are NULLs as well because Network and Contracting Controlled Doc Development link have NULLS in Work Area field.All the NULLs are replaced with Unknown
+        name: WORKAREA
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 7c61805d-6427-4615-b89d-1f785c1fd988
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.WORKAREA, 'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b37fec70-ecf0-486e-895b-aaab115e4164
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(5000)
+        defaultValue: ""
+        description: Work Category
+        name: WORKCATEGORY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 53761a9c-0089-496f-a4ac-c73a843d2a3e
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.WORKCATEGORY,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 317f815b-f519-445c-846a-fd1feda3196b
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(5000)
+        defaultValue: ""
+        description: This is link to physical document location and user can navigate to open the document on the same screen.  There are NULLs as well because Network and Contracting Controlled Doc Development link have NULLS in this field.All the NULLs are replaced with Unknown
+        name: DOCUMENTLINK
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ed46f5f1-9168-4cbd-822a-8d507a798473
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.DOCUMENTLINK, 'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3b6c669f-088e-4ba8-868c-a73c5a58f01f
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(5000)
+        defaultValue: ""
+        description: This explains Document Type.  there are NULLs as well because Contracting Controlled Doc Development link have NULLS in this field.All the NULLs are replaced with Unknown
+        name: DOCUMENTTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 89bd9ffb-9282-4f67-9f94-7083812d10c7
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.DOCUMENTTYPE, 'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2c2034e7-0470-477a-9d84-3fb0c042ffe9
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(5000)
+        defaultValue: ""
+        description: Document Sub Type - A lot of the time this meta data is not populated.
+        name: DOCUMENTSUBTYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: ddb52b4c-1226-42f6-b061-38e3b9ff011f
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.DOCUMENTSUBTYPE,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 56d5426f-0fcb-48bd-b0fa-2c565e7d32b1
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(5000)
+        defaultValue: ""
+        description: Purpose
+        name: PURPOSE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: f16e7110-6848-4a3d-a6c2-9fa59ae15bff
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.PURPOSE,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f33476cc-13c8-45a9-a48a-3523eb4b0bb3
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(5000)
+        defaultValue: ""
+        description: It is topic on which document is written. All the source systems (Contracting, Fibre, Group and Network) have many NULLS in this fields so there are lot of nulls overall.  All the NULLs are replaced with Unknown
+        name: NETWORKTOPIC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 79850c81-e1c1-4a6e-99cc-43af40075340
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.NETWORKTOPIC, 'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 19e74e06-afda-4e9b-a515-0f0e820f8c59
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(5000)
+        defaultValue: ""
+        description: It is Function for which document produced.  All the source systems (Contracting, Fibre, Group and Network) have many NULLS in this fields so there are lot of nulls overall.All the NULLs are replaced with Unknown
+        name: NETWORKFUNCTION
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 20b54bdf-c742-431f-947c-056453ec69a4
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.NETWORKFUNCTION, 'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ef81dc3a-e02b-42f3-9812-bf664dc6b0e0
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(5000)
+        defaultValue: ""
+        description: Document Author.  All the source systems (Contracting, Fibre, Group and Network) have many NULLS in this fields so there are lot of nulls overall.All the NULLs are replaced with Unknown
+        name: DOCUMENTAUTHOR
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8e2fe89b-2c50-4e4e-ae24-d61fb7048931
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.DOCUMENTAUTHOR, 'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ea5cb579-012a-400a-99c5-5c616d472cf3
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(5000)
+        defaultValue: ""
+        description: Document Owner.  All the source systems (Contracting, Fibre, Group and Network) have many NULLS in this fields so there are lot of nulls overall.All the NULLs are replaced with Unknown
+        name: DOCUMENTOWNER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 3ffb363d-fec9-46e7-b6a0-40062dbee9eb
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.DOCUMENTOWNER, 'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e2d2f962-8d98-4011-81c6-7b7067d8e9d2
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(5000)
+        defaultValue: ""
+        description: Document Approver.  All the source systems (Contracting, Fibre, Group and Network) have many NULLS in this fields so there are lot of nulls overall.All the NULLs are replaced with Unknown
+        name: DOCUMENTAPPROVER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2aa10166-65df-4a38-b7cb-260e227633d7
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.DOCUMENTAPPROVER, 'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0bbd4a39-4c2a-4d47-9c99-afc6f1cc5bac
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: The date the document was published
+        name: PUBLISHEDDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 464ba304-ef4a-4efa-8765-3d011ceeee21
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.PUBLISHEDDATE,'1900-01-01')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 88a74887-60e7-4e5c-902b-682dc8b124a6
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(5000)
+        defaultValue: ""
+        description: ""
+        name: ASSETSUBCATEGORY
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8b76315c-0b42-422f-8939-18d520d7d8c3
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.ASSETSUBCATEGORY,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1bcc4184-9981-4713-b4f6-851c5b2b924a
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: VARCHAR(5000)
+        defaultValue: ""
+        description: Practice field from Controlled Documents
+        name: PRACTICE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 8174d6ca-81b6-47e9-b872-6efb852c1c93
+                stepCounter: 9ff7e1fd-3819-4726-800d-92d57db4009c
+            transform: ISNULL(I_CONTROLLEDDOCUMENT.PRACTICE,'UNKNOWN')
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 83000c05-a2cd-4f6c-8350-0d91bbd4b5b8
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6fa79851-ffff-4a89-bff9-5a3dc28b35ca
+          stepCounter: 4814b7bb-eb02-4eb2-9773-1d2e42f47392
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          I_CONTROLLEDDOCUMENT: 9ff7e1fd-3819-4726-800d-92d57db4009c
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: I_CONTROLLEDDOCUMENT
+        join:
+          joinCondition: FROM {{ ref('NP','I_CONTROLLEDDOCUMENT') }} I_CONTROLLEDDOCUMENT--IF THE DOCUMENT DOES NOT HAVE A "NEXT REVIEW DATE", IT HASN'T ENTERED THE MANAGED PROCESS YET  -- AND WE ARE NOT INTERESTED IN IT  WHERE NEXTREVIEWDATE IS NOT NULL
+        name: D_QMSDOCUMENT
+        noLinkRefs: []
+  name: D_QMSDOCUMENT
+  overrideSQL: false
+  schema: ""
+  sqlType: Dimension
+  type: sql
+  version: 1
+type: Node

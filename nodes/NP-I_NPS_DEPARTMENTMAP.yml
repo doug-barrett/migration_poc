@@ -1,0 +1,139 @@
+fileVersion: 1
+id: c41872b7-b768-45ba-8f83-562c9a0d2971
+name: I_NPS_DEPARTMENTMAP
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: "Maps the QPulse departments to JDE business units"
+  isMultisource: false
+  locationName: NP
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fce9ae5b-861a-4244-9c52-a01ec6a2dfef
+          stepCounter: c41872b7-b768-45ba-8f83-562c9a0d2971
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 15524758-5f0b-4e3b-8898-dae2b90e5769
+                stepCounter: c5196909-107b-4189-94ee-9cb7ba76cf90
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 089ee30c-d5be-40c5-b76d-004c0b3358f4
+          stepCounter: c41872b7-b768-45ba-8f83-562c9a0d2971
+        config: {}
+        dataType: INT
+        defaultValue: ""
+        description: ""
+        name: PARENTID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: eb282dbb-8443-4bbd-a76d-a5059ae7db68
+                stepCounter: c5196909-107b-4189-94ee-9cb7ba76cf90
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f7109893-0abe-4bd5-8686-b6af271b0754
+          stepCounter: c41872b7-b768-45ba-8f83-562c9a0d2971
+        config: {}
+        dataType: VARCHAR(200)
+        defaultValue: ""
+        description: ""
+        name: NAME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: bf693a2c-94aa-4cab-830c-d05f13087a36
+                stepCounter: c5196909-107b-4189-94ee-9cb7ba76cf90
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 54687559-9fdc-4114-ac92-1253265fe546
+          stepCounter: c41872b7-b768-45ba-8f83-562c9a0d2971
+        config: {}
+        dataType: VARCHAR(2000)
+        defaultValue: ""
+        description: ""
+        name: CALCULATEDPATH
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2d691ec2-c5bf-4002-9812-3f4b66c38ee9
+                stepCounter: c5196909-107b-4189-94ee-9cb7ba76cf90
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d35ad3ac-047b-4843-9981-9e67b99ff7f6
+          stepCounter: c41872b7-b768-45ba-8f83-562c9a0d2971
+        config: {}
+        dataType: VARCHAR(2000)
+        defaultValue: ""
+        description: ""
+        name: JDEBUSINESSUNIT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: 2d691ec2-c5bf-4002-9812-3f4b66c38ee9
+                stepCounter: c5196909-107b-4189-94ee-9cb7ba76cf90
+            transform: CASE -- CHECK FOR BOTH TYPES OF DASHES...     WHEN SUBSTRING(LTRIM(RTRIM(L_NPS_YDEPARTMENT.NAME)), 5,1) = '-' OR SUBSTRING(LTRIM(RTRIM(L_NPS_YDEPARTMENT.NAME)), 5,1) = NCHAR(8211)     -- CORPORATE (A), NETWORK (B) AND SOLUTIONS (O) DO NOT USE 6 DIGIT BUSINESS UNITS     THEN SUBSTRING(LTRIM(RTRIM(L_NPS_YDEPARTMENT.NAME)), 1,3) + CASE WHEN LEFT(LTRIM(RTRIM(L_NPS_YDEPARTMENT.NAME)),1) IN ('A','B','O') THEN '' ELSE '905' END     -- IT COULD BE POSSIBLE TO MAP THE COMPANY LEVEL ENTRIES AS WELL, BUT I THINK I WILL LEAVE THESE AS UNKNOWN, AND LEAVE IT TO THE QPULSE USER TO CHOOSE A DEFAULT IF APPLICABLE     -- IF WE DID MAP THIS, CONTRACTING WOULD GO TO _CC905, CORPORATE TO AWB AND NETWORK TO BNM     ELSE 'UNKNOWN' END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5549c6db-954a-4820-9d9b-6b51b95cf27e
+          stepCounter: c41872b7-b768-45ba-8f83-562c9a0d2971
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: eedae278-c907-4e58-89d8-01f71582b08e
+          stepCounter: c41872b7-b768-45ba-8f83-562c9a0d2971
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases:
+          L_NPS_YDEPARTMENT: c5196909-107b-4189-94ee-9cb7ba76cf90
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: NP
+            nodeName: L_NPS_YDEPARTMENT
+        join:
+          joinCondition: FROM {{ ref('NP','L_NPS_YDEPARTMENT') }}
+        name: I_NPS_DEPARTMENTMAP
+        noLinkRefs: []
+  name: I_NPS_DEPARTMENTMAP
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node
