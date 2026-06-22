@@ -27,7 +27,9 @@ operation:
       name: QUESTIONNUMBER
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: b14e6a0a-0e48-5c30-a6a4-b327b2891765
+          stepCounter: fe96dac2-ad05-5029-b93e-58be0e1d9ad0
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -39,7 +41,9 @@ operation:
       name: QUESTIONRESPONSE
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 12745273-3530-5b10-9eee-9193a7f1a1cf
+          stepCounter: fe96dac2-ad05-5029-b93e-58be0e1d9ad0
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -51,7 +55,9 @@ operation:
       name: SURVEYNUMBER
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: b6c7ca59-b70a-59ec-832c-19f8207d69d3
+          stepCounter: fe96dac2-ad05-5029-b93e-58be0e1d9ad0
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -63,7 +69,9 @@ operation:
       name: RECALLCODE
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: efff1141-3457-5e30-b86b-0c4947d552f4
+          stepCounter: fe96dac2-ad05-5029-b93e-58be0e1d9ad0
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -75,7 +83,9 @@ operation:
       name: WAVE
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: f007d0ef-dea3-5c81-a2cf-8f9296e81b1a
+          stepCounter: e59830fe-50b6-552c-8fa1-205a64a373f2
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -87,7 +97,9 @@ operation:
       name: SURVEYTYPE
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 0ae5f400-d1c5-51d6-9f45-ee55fd1ec556
+          stepCounter: 41a51a06-2e10-583b-bdcb-bb1b7b9f162f
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -100,7 +112,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ''
+        transform: '{{parameters.ODSUpdateDate}}'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a6bac8e6-f1a6-5fdf-a5eb-8a48f517ffce
@@ -112,19 +124,30 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ''
+        transform: '{{parameters.ODSCreateDate}}'
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        L_EMAIL_SURVEYDATADICTIONARY: 26d0481f-faf8-5a26-b4f4-6886be38672a
+        I_NORTHPOWERNETWORKSURVEYFAULTS: fe96dac2-ad05-5029-b93e-58be0e1d9ad0
+        I_NORTHPOWERNETWORKSURVEYLINES: e59830fe-50b6-552c-8fa1-205a64a373f2
+        I_NORTHPOWERNETWORKSURVEYFIBRE: 41a51a06-2e10-583b-bdcb-bb1b7b9f162f
       customSQL:
         customSQL: ''
       dependencies:
-      - locationName: BRONZE
-        nodeName: L_EMAIL_SURVEYDATADICTIONARY
+      - locationName: SILVER
+        nodeName: I_NORTHPOWERNETWORKSURVEYFAULTS
+      - locationName: SILVER
+        nodeName: I_NORTHPOWERNETWORKSURVEYLINES
+      - locationName: SILVER
+        nodeName: I_NORTHPOWERNETWORKSURVEYFIBRE
       join:
-        joinCondition: FROM {{ ref('BRONZE', 'L_EMAIL_SURVEYDATADICTIONARY') }} "L_EMAIL_SURVEYDATADICTIONARY"
+        joinCondition: |-
+          FROM {{ ref('SILVER', 'I_NORTHPOWERNETWORKSURVEYFAULTS') }} "I_NORTHPOWERNETWORKSURVEYFAULTS"
+          INNER JOIN {{ ref('SILVER', 'I_NORTHPOWERNETWORKSURVEYLINES') }} "I_NORTHPOWERNETWORKSURVEYLINES"
+            ON "I_NORTHPOWERNETWORKSURVEYFAULTS"."SURVEYNUMBER" = "I_NORTHPOWERNETWORKSURVEYLINES"."SURVEYNUMBER"
+          INNER JOIN {{ ref('SILVER', 'I_NORTHPOWERNETWORKSURVEYFIBRE') }} "I_NORTHPOWERNETWORKSURVEYFIBRE"
+            ON "I_NORTHPOWERNETWORKSURVEYFAULTS"."SURVEYNUMBER" = "I_NORTHPOWERNETWORKSURVEYFIBRE"."SURVEYNUMBER"
       name: I_NORTHPOWERNETWORKSURVEYMERGE
       noLinkRefs: []
   name: I_NORTHPOWERNETWORKSURVEYMERGE

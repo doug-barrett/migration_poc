@@ -328,17 +328,29 @@ def generate_stage_node(meta: dict, all_tables: dict, location: str = "SILVER") 
         src_table = col.get("src_table", "")
         src_col = col.get("src_column", col["name"])
 
+        # Handle ODS system date columns - use parameter references
+        if col["name"].upper() in ("ODSCREATEDATE", "ODSUPDATEDATE"):
+            param_name = "ODSCreateDate" if "CREATE" in col["name"].upper() else "ODSUpdateDate"
+            c = make_mapped_column(node_id, node_name, col, node_id, "", node_name, f"{{{{parameters.{param_name}}}}}")
+            columns.append(c)
+            continue
+
         # If source table exists in our generated set AND has columns, link to it
         if src_table and src_table in all_tables and all_tables[src_table]["columns"]:
             src_node_id = stable_uuid(src_table)
-            # Check if src_col actually exists on source - use src_col name for UUID
+            columns.append(make_mapped_column(node_id, node_name, col, src_node_id, src_col, src_table))
+            dep_nodes.add(src_table)
+        elif src_table and src_table in all_tables and not all_tables[src_table]["columns"]:
+            # Source node exists but has 0 cols (data store we couldn't parse)
+            # Still create the reference - the node is known
+            src_node_id = stable_uuid(src_table)
             columns.append(make_mapped_column(node_id, node_name, col, src_node_id, src_col, src_table))
             dep_nodes.add(src_table)
         elif src_table and src_table not in all_tables:
-            # Source node not in our set - use empty reference
+            # Source node not in our set at all - use empty reference
             columns.append(make_mapped_column(node_id, node_name, col, node_id, "", node_name))
         else:
-            # No source or source has 0 cols - self-reference (empty)
+            # No source - self-reference (empty)
             columns.append(make_mapped_column(node_id, node_name, col, node_id, "", node_name))
 
     # Build sourceMapping from lineage knowledge
@@ -394,6 +406,9 @@ def generate_dimension_node(meta: dict, all_tables: dict) -> dict:
         src_col = col.get("src_column", col["name"])
         if col.get("is_surrogate_key"):
             columns.append(make_system_column(node_id, node_name, col["name"].upper(), "NUMBER", "isSurrogateKey", ""))
+        elif col["name"].upper() in ("ODSCREATEDATE", "ODSUPDATEDATE"):
+            param_name = "ODSCreateDate" if "CREATE" in col["name"].upper() else "ODSUpdateDate"
+            columns.append(make_mapped_column(node_id, node_name, col, node_id, "", node_name, f"{{{{parameters.{param_name}}}}}"))
         elif primary_src and src_col:
             # Check if the src_column exists on primary source
             src_col_names = [c["name"] for c in all_tables.get(primary_src, {}).get("columns", [])]
@@ -542,8 +557,12 @@ def generate_fact_node(meta: dict, all_tables: dict) -> dict:
 
     for col in meta["columns"]:
         src_col = col.get("src_column", col["name"])
+        # Handle ODS date columns with parameter references
+        if col["name"].upper() in ("ODSCREATEDATE", "ODSUPDATEDATE"):
+            param_name = "ODSCreateDate" if "CREATE" in col["name"].upper() else "ODSUpdateDate"
+            columns.append(make_mapped_column(node_id, node_name, col, node_id, "", node_name, f"{{{{parameters.{param_name}}}}}"))
         # Only link if source column exists on the source node
-        if src_col.upper() in src_col_names:
+        elif src_col.upper() in src_col_names:
             columns.append(make_mapped_column(node_id, node_name, col, primary_src_id, src_col, primary_src))
         else:
             # Computed or system column - empty ref
@@ -594,6 +613,19 @@ def generate_fact_node(meta: dict, all_tables: dict) -> dict:
     }
 
 
+def get_stub_columns_for_data_store(ds_name: str, all_tables: dict) -> list:
+    """Infer columns for a data store stub from what downstream nodes reference."""
+    # Look at all tables that reference this data store as src_table
+    cols = {}
+    for tbl_name, tbl_meta in all_tables.items():
+        for col in tbl_meta.get("columns", []):
+            if col.get("src_table") == ds_name and col.get("src_column"):
+                src_col = col["src_column"]
+                if src_col not in cols:
+                    cols[src_col] = {"name": src_col, "data_type": col["data_type"], "nullable": True, "description": col.get("description", "")}
+    return list(cols.values())
+
+
 def build_stage_source_mapping(meta: dict, all_tables: dict, dep_nodes: set) -> tuple:
     """Build proper FROM/JOIN clause based on known lineage."""
     node_name = meta["name"]
@@ -602,18 +634,37 @@ def build_stage_source_mapping(meta: dict, all_tables: dict, dep_nodes: set) -> 
 
     # Known lineage from WhereScape procedure analysis
     if node_name == "I_NorthpowerNetworkSurveyMerge":
-        src = "L_Email_SurveyDataDictionary"
-        src_id = stable_uuid(src)
-        aliases[src.upper()] = src_id
-        dependencies = [{"locationName": "BRONZE", "nodeName": src.upper()}]
-        join_cond = f"FROM {{{{ ref('BRONZE', '{src.upper()}') }}}} \"{src.upper()}\""
+        # Sources from data stores: I_NorthpowerNetworkSurveyFaults, Lines, Fibre
+        srcs = ["I_NorthpowerNetworkSurveyFaults", "I_NorthpowerNetworkSurveyLines", "I_NorthpowerNetworkSurveyFibre"]
+        for s in srcs:
+            aliases[s.upper()] = stable_uuid(s)
+        dependencies = [{"locationName": "SILVER", "nodeName": s.upper()} for s in srcs]
+        join_cond = (
+            f"FROM {{{{ ref('SILVER', '{srcs[0].upper()}') }}}} \"{srcs[0].upper()}\"\n"
+            f"INNER JOIN {{{{ ref('SILVER', '{srcs[1].upper()}') }}}} \"{srcs[1].upper()}\"\n"
+            f"  ON \"{srcs[0].upper()}\".\"SURVEYNUMBER\" = \"{srcs[1].upper()}\".\"SURVEYNUMBER\"\n"
+            f"INNER JOIN {{{{ ref('SILVER', '{srcs[2].upper()}') }}}} \"{srcs[2].upper()}\"\n"
+            f"  ON \"{srcs[0].upper()}\".\"SURVEYNUMBER\" = \"{srcs[2].upper()}\".\"SURVEYNUMBER\""
+        )
 
     elif node_name == "I_NorthpowerNetworkSurvey":
         src = "I_NorthpowerNetworkSurveyMerge"
+        src_q = "I_NorthpowerNetworkSurveyQuestions"
         src_id = stable_uuid(src)
+        src_q_id = stable_uuid(src_q)
         aliases[src.upper()] = src_id
-        dependencies = [{"locationName": "SILVER", "nodeName": src.upper()}]
-        join_cond = f"FROM {{{{ ref('SILVER', '{src.upper()}') }}}} \"{src.upper()}\""
+        aliases[src_q.upper()] = src_q_id
+        dependencies = [
+            {"locationName": "SILVER", "nodeName": src.upper()},
+            {"locationName": "SILVER", "nodeName": src_q.upper()},
+        ]
+        join_cond = (
+            f"FROM {{{{ ref('SILVER', '{src.upper()}') }}}} \"{src.upper()}\"\n"
+            f"LEFT JOIN {{{{ ref('SILVER', '{src_q.upper()}') }}}} \"{src_q.upper()}\"\n"
+            f"  ON \"{src.upper()}\".\"QUESTIONNUMBER\" = \"{src_q.upper()}\".\"QUESTIONNUMBER\"\n"
+            f"  AND \"{src.upper()}\".\"WAVE\" = \"{src_q.upper()}\".\"WAVE\"\n"
+            f"  AND \"{src.upper()}\".\"SURVEYTYPE\" = \"{src_q.upper()}\".\"SURVEYTYPE\""
+        )
 
     elif node_name == "S_NorthpowerNetworkSurvey":
         # Complex: FROM I_NorthpowerNetworkSurvey LEFT JOIN 3 dims + D_Date
@@ -707,8 +758,16 @@ def main():
         f.unlink()
 
     generated = 0
+    # Track which nodes were generated so we know what exists
+    generated_nodes = set()
+
     for name, meta in sorted(tables.items()):
         if not meta["columns"]:
+            # Generate stub Source nodes for data stores that other nodes reference
+            if meta["ws_type"] == "data_store":
+                # Create a minimal source stub so lineage references resolve
+                stub_meta = {"name": name, "description": meta.get("description", ""), "columns": []}
+                # Don't generate - but track for later stub generation
             print(f"  SKIP (0 cols): {name}")
             continue
         ws_type = meta["ws_type"]
@@ -730,9 +789,33 @@ def main():
         else:
             continue
         generated += 1
+        generated_nodes.add(name)
+
+    # Generate stub Source nodes for referenced data stores that have no columns
+    data_store_stubs = ["I_NorthpowerNetworkSurveyFaults", "I_NorthpowerNetworkSurveyLines",
+                        "I_NorthpowerNetworkSurveyFibre", "I_NorthpowerNetworkSurveyQuestions"]
+    for ds_name in data_store_stubs:
+        if ds_name not in generated_nodes and ds_name in tables:
+            # Create stub with minimal columns matching what downstream nodes reference
+            stub_cols = get_stub_columns_for_data_store(ds_name, tables)
+            stub_meta = {"name": ds_name, "description": tables[ds_name].get("description", ""), "columns": stub_cols}
+            node = generate_source_node(stub_meta)
+            # Place in SILVER as these are intermediate data stores
+            node["operation"]["locationName"] = "SILVER"
+            write_node_yaml(node, "SILVER", ds_name.upper())
+            generated += 1
+            print(f"  Written (stub): SILVER-{ds_name.upper()}.yml")
 
     print(f"\n  Total: {generated} nodes generated")
-    print("\n[4] Run: coa validate")
+
+    print("\n[4] Parameters Required:")
+    print("  The following parameters must be configured in Coalesce:")
+    print("    - parameters.ODSCreateDate  (TIMESTAMP - set to CURRENT_TIMESTAMP at runtime)")
+    print("    - parameters.ODSUpdateDate  (TIMESTAMP - set to CURRENT_TIMESTAMP at runtime)")
+    print("  These are used in column transforms for: I_NorthpowerNetworkSurveyMerge,")
+    print("  I_NorthpowerNetworkSurvey, S_NorthpowerNetworkSurvey, D_* dimensions, F_* fact")
+
+    print("\n[5] Run: coa validate")
 
 
 if __name__ == "__main__":

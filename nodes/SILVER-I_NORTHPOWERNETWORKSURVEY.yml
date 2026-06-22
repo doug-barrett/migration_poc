@@ -112,7 +112,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ''
+        transform: '{{parameters.ODSUpdateDate}}'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 980db3e3-ce8a-5019-9f90-7ce1be194f7e
@@ -124,7 +124,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ''
+        transform: '{{parameters.ODSCreateDate}}'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: eb33cb08-66f9-57f1-b48f-6ae307eca123
@@ -135,7 +135,9 @@ operation:
       name: WAVEDATE
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 2071144b-0142-5049-8eae-ae2b46467093
+          stepCounter: cf9b04c1-eb35-5b42-b9f4-bcd88f6932ab
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -147,21 +149,30 @@ operation:
       name: RESPONSECODE
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 6415203f-ac63-521e-b416-733cf988c3b8
+          stepCounter: cf9b04c1-eb35-5b42-b9f4-bcd88f6932ab
         transform: ''
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
         I_NORTHPOWERNETWORKSURVEYMERGE: 2aa3199a-b3ce-5ad8-be16-5c9255f60e22
+        I_NORTHPOWERNETWORKSURVEYQUESTIONS: cf9b04c1-eb35-5b42-b9f4-bcd88f6932ab
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: SILVER
         nodeName: I_NORTHPOWERNETWORKSURVEYMERGE
+      - locationName: SILVER
+        nodeName: I_NORTHPOWERNETWORKSURVEYQUESTIONS
       join:
-        joinCondition: FROM {{ ref('SILVER', 'I_NORTHPOWERNETWORKSURVEYMERGE') }}
-          "I_NORTHPOWERNETWORKSURVEYMERGE"
+        joinCondition: |-
+          FROM {{ ref('SILVER', 'I_NORTHPOWERNETWORKSURVEYMERGE') }} "I_NORTHPOWERNETWORKSURVEYMERGE"
+          LEFT JOIN {{ ref('SILVER', 'I_NORTHPOWERNETWORKSURVEYQUESTIONS') }} "I_NORTHPOWERNETWORKSURVEYQUESTIONS"
+            ON "I_NORTHPOWERNETWORKSURVEYMERGE"."QUESTIONNUMBER" = "I_NORTHPOWERNETWORKSURVEYQUESTIONS"."QUESTIONNUMBER"
+            AND "I_NORTHPOWERNETWORKSURVEYMERGE"."WAVE" = "I_NORTHPOWERNETWORKSURVEYQUESTIONS"."WAVE"
+            AND "I_NORTHPOWERNETWORKSURVEYMERGE"."SURVEYTYPE" = "I_NORTHPOWERNETWORKSURVEYQUESTIONS"."SURVEYTYPE"
       name: I_NORTHPOWERNETWORKSURVEY
       noLinkRefs: []
   name: I_NORTHPOWERNETWORKSURVEY
