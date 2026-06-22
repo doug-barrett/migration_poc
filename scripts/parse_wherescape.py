@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Parse WhereScape RED deployment files and generate Coalesce node YAML files.
-Focused on Network Survey subject area as POC.
+Network Survey subject area POC - generates proper sourceColumnReferences and JOIN syntax.
 """
 
 import re
@@ -16,15 +16,11 @@ OUTPUT_DIR = Path(__file__).parent.parent / "nodes"
 OBJ_FILE = APP_DIR / "app_obj_NP_FullMetaData.wst"
 DATA_FILE = APP_DIR / "app_data_NP_FullMetaData.wst"
 
+# UUID namespace for deterministic generation
+NS = uuid.UUID("12345678-1234-5678-1234-567812345678")
+
 # WhereScape object type codes
-OBJ_TYPE_PROCEDURE = 1
-OBJ_TYPE_LOAD = 8
-OBJ_TYPE_STAGE = 7
-OBJ_TYPE_DIMENSION = 6
-OBJ_TYPE_FACT = 5
-OBJ_TYPE_INDEX = 10
 OBJ_TYPE_DIM_VIEW = 12
-OBJ_TYPE_DATA_STORE = 18
 
 # Network Survey filter patterns
 SURVEY_PATTERNS = [
@@ -36,27 +32,24 @@ SURVEY_PATTERNS = [
 ]
 
 
+def stable_uuid(seed: str) -> str:
+    return str(uuid.uuid5(NS, seed))
+
+
 def map_datatype(sql_server_type: str) -> str:
-    """Map SQL Server data type to Snowflake."""
     t = sql_server_type.strip().lower()
     if t in ("integer", "int"):
-        return "NUMBER"
+        return "NUMBER(38,0)"
     if t == "bigint":
         return "NUMBER(18,0)"
     if t == "smallint":
         return "NUMBER(5,0)"
-    if t == "tinyint":
-        return "NUMBER(3,0)"
-    if t == "bit":
-        return "BOOLEAN"
     if t in ("float", "real"):
         return "FLOAT"
     if t in ("datetime", "datetime2", "smalldatetime"):
         return "TIMESTAMP"
     if t == "date":
         return "DATE"
-    if t == "time":
-        return "TIME"
     if t in ("varchar(max)", "nvarchar(max)", "text", "ntext"):
         return "VARCHAR(16777216)"
     m = re.match(r"(n?varchar|n?char)\((\d+)\)", t)
@@ -64,12 +57,7 @@ def map_datatype(sql_server_type: str) -> str:
         return f"VARCHAR({m.group(2)})"
     m = re.match(r"(numeric|decimal)\((\d+)(?:,(\d+))?\)", t)
     if m:
-        prec = m.group(2)
-        scale = m.group(3) or "0"
-        return f"NUMBER({prec},{scale})"
-    m = re.match(r"(n?varchar|n?char)$", t)
-    if m:
-        return "VARCHAR"
+        return f"NUMBER({m.group(1)},{m.group(2) or '0'})" if m.group(2) else f"NUMBER({m.group(1)})"
     return "VARCHAR"
 
 
@@ -80,8 +68,21 @@ def is_survey_object(name: str) -> bool:
     return False
 
 
+def parse_quoted_values(line: str) -> list:
+    val_start = line.find("values")
+    if val_start == -1:
+        val_start = line.find("VALUES")
+    if val_start == -1:
+        return []
+    val_section = line[val_start:]
+    values = re.findall(r"'((?:[^']|'')*)'", val_section)
+    values = [v.replace("''", "'") for v in values]
+    if values and values[0] == "ws_obj_object":
+        values = values[1:]
+    return values
+
+
 def parse_obj_file() -> dict:
-    """Parse the object file to get type;id;name registry."""
     objects = {}
     with open(OBJ_FILE, "r", encoding="utf-8") as f:
         for line in f:
@@ -100,46 +101,20 @@ def parse_obj_file() -> dict:
     return objects
 
 
-def parse_quoted_values(line: str) -> list:
-    """Extract quoted string values from a SQL INSERT values(...) clause.
-    Skips the first value which is always 'ws_obj_object' from IDENT_CURRENT.
-    """
-    # Find the values(...) part
-    val_start = line.find("values")
-    if val_start == -1:
-        val_start = line.find("VALUES")
-    if val_start == -1:
-        return []
-    val_section = line[val_start:]
-    # Extract all quoted values
-    values = re.findall(r"'((?:[^']|'')*)'", val_section)
-    values = [v.replace("''", "'") for v in values]
-    # Skip the first value ('ws_obj_object' from IDENT_CURRENT)
-    if values and values[0] == "ws_obj_object":
-        values = values[1:]
-    return values
-
-
 def parse_data_file(survey_objects: dict) -> dict:
-    """Parse the UTF-16LE data file extracting metadata for survey objects."""
     tables = {}
     current_table_name = None
 
-    print("  Reading data file...")
     with open(DATA_FILE, "r", encoding="utf-16-le") as f:
         content = f.read()
-
     lines = content.split("\n")
-    print(f"  Processing {len(lines)} lines...")
 
     for line in lines:
         if not line.strip():
             continue
 
-        # Detect new object boundary - resets current_table tracking
-        # This fires when a new ws_obj_object INSERT creates a new object
+        # Object boundary detection
         if "ws_obj_object" in line and "oo_obj_key" in line and "oo_name" in line:
-            # A new object is starting - only track it if it's a survey object
             name_m = re.search(r"'([^']+)',\s*\d+,\s*\d+,\s*\d+", line)
             if name_m:
                 obj_name = name_m.group(1)
@@ -147,487 +122,551 @@ def parse_data_file(survey_objects: dict) -> dict:
                     current_table_name = None
             continue
 
-        # Load table metadata (type 8)
         if "ws_load_tab" in line and "values" in line:
             vals = parse_quoted_values(line)
             if len(vals) >= 2:
-                tname = vals[0]  # lt_table_name
+                tname = vals[0]
                 if is_survey_object(tname):
-                    description = vals[3] if len(vals) > 3 else ""
-                    tables[tname] = {
-                        "ws_type": "load",
-                        "name": tname,
-                        "description": description,
-                        "columns": [],
-                    }
+                    tables[tname] = {"ws_type": "load", "name": tname, "description": vals[3] if len(vals) > 3 else "", "columns": []}
                     current_table_name = tname
             continue
 
-        # Load column metadata
         if "ws_load_col" in line and "values" in line:
             if current_table_name and current_table_name in tables:
                 vals = parse_quoted_values(line)
                 if len(vals) >= 4:
-                    col_name = vals[0]  # lc_col_name
-                    display_name = vals[1]  # lc_display_name
-                    data_type = vals[2]  # lc_data_type
-                    nulls_flag = vals[3]  # lc_nulls_flag
-                    src_strategy = vals[10] if len(vals) > 10 else display_name
                     tables[current_table_name]["columns"].append({
-                        "name": col_name,
-                        "display_name": display_name,
-                        "data_type": data_type,
-                        "nullable": nulls_flag == "Y",
-                        "description": src_strategy if src_strategy else display_name,
+                        "name": vals[0], "data_type": vals[2], "nullable": vals[3] == "Y",
+                        "description": vals[10] if len(vals) > 10 else vals[1],
                     })
             continue
 
-        # Stage table metadata (type 7)
         if "ws_stage_tab" in line and "values" in line:
             vals = parse_quoted_values(line)
             if len(vals) >= 2:
-                tname = vals[0]  # st_table_name
+                tname = vals[0]
                 if is_survey_object(tname):
-                    description = vals[3] if len(vals) > 3 else ""
                     from_clause = ""
-                    # Look for FROM clause in st_where field
                     for v in vals:
                         if v.strip().upper().startswith("FROM"):
                             from_clause = v
                             break
-                    tables[tname] = {
-                        "ws_type": "stage",
-                        "name": tname,
-                        "description": description,
-                        "from_clause": from_clause,
-                        "columns": [],
-                    }
+                    tables[tname] = {"ws_type": "stage", "name": tname, "description": vals[3] if len(vals) > 3 else "", "from_clause": from_clause, "columns": []}
                     current_table_name = tname
             continue
 
-        # View table metadata (type 18 data stores)
         if "ws_view_tab" in line and "values" in line:
             vals = parse_quoted_values(line)
             if len(vals) >= 2:
-                tname = vals[0]  # vt_table_name
+                tname = vals[0]
                 if is_survey_object(tname):
-                    description = vals[5] if len(vals) > 5 else ""
-                    tables[tname] = {
-                        "ws_type": "data_store",
-                        "name": tname,
-                        "description": description,
-                        "columns": [],
-                    }
+                    tables[tname] = {"ws_type": "data_store", "name": tname, "description": vals[5] if len(vals) > 5 else "", "columns": []}
                     current_table_name = tname
             continue
 
-        # Stage column metadata (used by type 7 AND type 18)
         if "ws_stage_col" in line and "values" in line:
             if current_table_name and current_table_name in tables:
                 vals = parse_quoted_values(line)
                 if len(vals) >= 4:
-                    col_name = vals[0]
-                    display_name = vals[1]
-                    data_type = vals[2]
-                    nulls_flag = vals[3]
-                    src_strategy = vals[10] if len(vals) > 10 else display_name
                     tables[current_table_name]["columns"].append({
-                        "name": col_name,
-                        "display_name": display_name,
-                        "data_type": data_type,
-                        "nullable": nulls_flag == "Y",
-                        "description": src_strategy if src_strategy else display_name,
+                        "name": vals[0], "data_type": vals[2], "nullable": vals[3] == "Y",
+                        "description": vals[10] if len(vals) > 10 else vals[1],
+                        "src_table": vals[8] if len(vals) > 8 else "",
+                        "src_column": vals[9] if len(vals) > 9 else "",
                     })
             continue
 
-        # Dimension table metadata (type 6 AND type 12)
         if "ws_dim_tab" in line and "values" in line:
             vals = parse_quoted_values(line)
             if len(vals) >= 2:
-                tname = vals[0]  # dt_table_name
+                tname = vals[0]
                 if is_survey_object(tname):
-                    description = vals[5] if len(vals) > 5 else ""
                     from_clause = ""
                     for v in vals:
                         if v.strip().upper().startswith("FROM"):
                             from_clause = v
                             break
-                    # Check if this is type 12 (dim view) from registry
                     obj_info = survey_objects.get(tname, {})
-                    if obj_info.get("type") == OBJ_TYPE_DIM_VIEW:
-                        ws_type = "dim_view"
-                    else:
-                        ws_type = "dimension"
-                    tables[tname] = {
-                        "ws_type": ws_type,
-                        "name": tname,
-                        "description": description,
-                        "from_clause": from_clause,
-                        "columns": [],
-                    }
+                    ws_type = "dim_view" if obj_info.get("type") == OBJ_TYPE_DIM_VIEW else "dimension"
+                    tables[tname] = {"ws_type": ws_type, "name": tname, "description": vals[5] if len(vals) > 5 else "", "from_clause": from_clause, "columns": []}
                     current_table_name = tname
             continue
 
-        # Dimension column metadata
         if "ws_dim_col" in line and "values" in line:
             if current_table_name and current_table_name in tables:
                 vals = parse_quoted_values(line)
                 if len(vals) >= 4:
-                    col_name = vals[0]  # dc_col_name
-                    display_name = vals[1]  # dc_display_name
-                    data_type = vals[2]  # dc_data_type
-                    nulls_flag = vals[3]  # dc_nulls_flag
-                    # dc_key_type at index 12, dc_business_key_ind at 13, dc_artificial_key_ind at 14
                     key_type = vals[12] if len(vals) > 12 else ""
-                    business_key_ind = vals[13] if len(vals) > 13 else ""
                     artificial_key_ind = vals[14] if len(vals) > 14 else ""
-                    src_strategy = vals[11] if len(vals) > 11 else display_name
-
-                    is_surrogate = artificial_key_ind == "Y"
-                    is_business_key = key_type == "A"
-
                     tables[current_table_name]["columns"].append({
-                        "name": col_name,
-                        "display_name": display_name,
-                        "data_type": data_type,
-                        "nullable": nulls_flag == "Y",
-                        "description": src_strategy if src_strategy else display_name,
-                        "is_surrogate_key": is_surrogate,
-                        "is_business_key": is_business_key,
+                        "name": vals[0], "data_type": vals[2], "nullable": vals[3] == "Y",
+                        "description": vals[11] if len(vals) > 11 else vals[1],
+                        "is_surrogate_key": artificial_key_ind == "Y",
+                        "is_business_key": key_type == "A",
+                        "src_table": vals[9] if len(vals) > 9 else "",
+                        "src_column": vals[10] if len(vals) > 10 else "",
                     })
             continue
 
-        # Fact table metadata (type 5)
         if "ws_fact_tab" in line and "values" in line:
             vals = parse_quoted_values(line)
             if len(vals) >= 2:
-                tname = vals[0]  # ft_table_name
+                tname = vals[0]
                 if is_survey_object(tname):
-                    description = vals[5] if len(vals) > 5 else ""
-                    tables[tname] = {
-                        "ws_type": "fact",
-                        "name": tname,
-                        "description": description,
-                        "columns": [],
-                    }
+                    tables[tname] = {"ws_type": "fact", "name": tname, "description": vals[5] if len(vals) > 5 else "", "columns": []}
                     current_table_name = tname
             continue
 
-        # Fact column metadata
         if "ws_fact_col" in line and "values" in line:
             if current_table_name and current_table_name in tables:
                 vals = parse_quoted_values(line)
                 if len(vals) >= 4:
-                    col_name = vals[0]  # fc_col_name
-                    display_name = vals[1]  # fc_display_name
-                    data_type = vals[2]  # fc_data_type
-                    nulls_flag = vals[3]  # fc_nulls_flag
-                    # fc_join_flag at index 7, fc_src_table at 10, fc_src_strategy at 12
-                    join_flag = vals[7] if len(vals) > 7 else "N"
-                    src_table = vals[10] if len(vals) > 10 else ""
-                    src_strategy = vals[12] if len(vals) > 12 else display_name
-
                     tables[current_table_name]["columns"].append({
-                        "name": col_name,
-                        "display_name": display_name,
-                        "data_type": data_type,
-                        "nullable": nulls_flag == "Y",
-                        "description": src_strategy if src_strategy else display_name,
-                        "is_join": join_flag == "Y",
-                        "src_table": src_table,
+                        "name": vals[0], "data_type": vals[2], "nullable": vals[3] == "Y",
+                        "description": vals[12] if len(vals) > 12 else vals[1],
+                        "join_flag": vals[7] if len(vals) > 7 else "N",
+                        "src_table": vals[10] if len(vals) > 10 else "",
+                        "src_column": vals[11] if len(vals) > 11 else "",
                     })
             continue
 
     return tables
 
 
-def generate_source_node(table_meta: dict) -> dict:
-    """Generate a Source node YAML structure."""
-    columns = []
-    for i, col in enumerate(table_meta["columns"], 1):
-        col_def = {
-            "name": col["name"].upper(),
-            "dataType": map_datatype(col["data_type"]),
-            "description": col.get("description", ""),
-            "columnReference": {"stepCounter": "1", "columnCounter": str(i)},
-        }
-        if col.get("nullable", True):
-            col_def["nullable"] = True
-        columns.append(col_def)
+# ─── YAML GENERATION ─────────────────────────────────────────────────────────
 
+def make_source_column(node_id: str, node_name: str, col: dict) -> dict:
+    col_uuid = stable_uuid(f"{node_name}.{col['name'].upper()}")
     return {
-        "name": table_meta["name"].upper(),
-        "id": str(uuid.uuid4()),
+        "appliedColumnTests": {},
+        "columnReference": {"columnCounter": col_uuid, "stepCounter": node_id},
+        "config": {},
+        "dataType": map_datatype(col["data_type"]),
+        "defaultValue": "",
+        "description": col.get("description", ""),
+        "name": col["name"].upper(),
+        "nullable": col.get("nullable", True),
+        "sourceColumnReferences": [{"columnReferences": [], "transform": ""}],
+        "transform": "",
+    }
+
+
+def make_mapped_column(node_id: str, node_name: str, col: dict, src_node_id: str, src_col_name: str, src_node_name: str, transform: str = "") -> dict:
+    col_uuid = stable_uuid(f"{node_name}.{col['name'].upper()}")
+    # Use UPPERCASE source column name for UUID consistency
+    src_col_uuid = stable_uuid(f"{src_node_name}.{src_col_name.upper()}")
+    # If source is self-referencing or missing, use empty sourceColumnReferences
+    if src_node_id == node_id or not src_col_name:
+        src_refs = [{"columnReferences": [], "transform": transform}]
+    else:
+        src_refs = [{"columnReferences": [{"columnCounter": src_col_uuid, "stepCounter": src_node_id}], "transform": transform}]
+    entry = {
+        "appliedColumnTests": {},
+        "columnReference": {"columnCounter": col_uuid, "stepCounter": node_id},
+        "config": {},
+        "dataType": map_datatype(col["data_type"]),
+        "description": col.get("description", ""),
+        "name": col["name"].upper(),
+        "nullable": col.get("nullable", True),
+        "sourceColumnReferences": src_refs,
+    }
+    if col.get("is_surrogate_key"):
+        entry["isSurrogateKey"] = True
+    if col.get("is_business_key"):
+        entry["isBusinessKey"] = True
+    return entry
+
+
+def make_system_column(node_id: str, node_name: str, col_name: str, data_type: str, sys_flag: str, transform: str = "") -> dict:
+    # Use UPPERCASE col_name for UUID to be consistent with column references
+    col_uuid = stable_uuid(f"{node_name}.{col_name.upper()}")
+    entry = {
+        "appliedColumnTests": {},
+        "columnReference": {"columnCounter": col_uuid, "stepCounter": node_id},
+        "config": {},
+        "dataType": data_type,
+        "defaultValue": "",
+        "description": "",
+        "name": col_name.upper(),
+        "nullable": True,
+        sys_flag: True,
+        "sourceColumnReferences": [{"columnReferences": [], "transform": transform}],
+    }
+    return entry
+
+
+def generate_source_node(meta: dict) -> dict:
+    node_id = stable_uuid(meta["name"])
+    columns = [make_source_column(node_id, meta["name"], col) for col in meta["columns"]]
+    return {
         "fileVersion": 1,
-        "type": "Node",
+        "id": node_id,
+        "name": meta["name"].upper(),
         "operation": {
+            "database": "",
+            "deployEnabled": True,
+            "description": meta.get("description", ""),
             "locationName": "BRONZE",
-            "name": table_meta["name"].upper(),
+            "metadata": {"columns": columns},
+            "name": meta["name"].upper(),
+            "schema": "",
             "sqlType": "Source",
             "type": "sourceInput",
-            "metadata": {
-                "columns": columns,
-            },
+            "version": 1,
         },
+        "type": "Node",
     }
 
 
-def generate_stage_node(table_meta: dict, location: str = "SILVER") -> dict:
-    """Generate a Stage node YAML structure."""
+def generate_stage_node(meta: dict, all_tables: dict, location: str = "SILVER") -> dict:
+    node_id = stable_uuid(meta["name"])
+    node_name = meta["name"]
     columns = []
+    dep_nodes = set()
 
-    # Determine source from from_clause
-    src_tables = set()
-    from_clause = table_meta.get("from_clause", "")
-    if from_clause:
-        refs = re.findall(r"\[TABLEOWNER\]\.\[([^\]]+)\]", from_clause)
-        if refs:
-            src_tables.update(refs)
+    for col in meta["columns"]:
+        src_table = col.get("src_table", "")
+        src_col = col.get("src_column", col["name"])
+
+        # If source table exists in our generated set AND has columns, link to it
+        if src_table and src_table in all_tables and all_tables[src_table]["columns"]:
+            src_node_id = stable_uuid(src_table)
+            # Check if src_col actually exists on source - use src_col name for UUID
+            columns.append(make_mapped_column(node_id, node_name, col, src_node_id, src_col, src_table))
+            dep_nodes.add(src_table)
+        elif src_table and src_table not in all_tables:
+            # Source node not in our set - use empty reference
+            columns.append(make_mapped_column(node_id, node_name, col, node_id, "", node_name))
         else:
-            refs = re.findall(r"\[([^\]]+)\]", from_clause)
-            if refs:
-                src_tables.update(refs)
+            # No source or source has 0 cols - self-reference (empty)
+            columns.append(make_mapped_column(node_id, node_name, col, node_id, "", node_name))
 
-    for i, col in enumerate(table_meta["columns"], 1):
-        col_def = {
-            "name": col["name"].upper(),
-            "dataType": map_datatype(col["data_type"]),
-            "description": col.get("description", ""),
-            "columnReference": {"stepCounter": "1", "columnCounter": str(i)},
-            "transform": f'"{col["name"].upper()}"',
-        }
-        if col.get("nullable", True):
-            col_def["nullable"] = True
-        columns.append(col_def)
-
-    # Build source mapping
-    source_mapping = []
-    if src_tables:
-        src_name = list(src_tables)[0]
-        src_loc = "BRONZE" if src_name.startswith("L_") else "SILVER"
-        source_mapping.append({
-            "name": "Step 1",
-            "join": {"joinCondition": f"FROM {{{{ ref('{src_loc}', '{src_name.upper()}') }}}}"},
-            "dependencies": [{"locationName": src_loc, "nodeName": src_name.upper()}],
-        })
-    else:
-        source_mapping.append({
-            "name": "Step 1",
-            "join": {"joinCondition": ""},
-            "dependencies": [],
-        })
+    # Build sourceMapping from lineage knowledge
+    join_cond, dependencies, aliases = build_stage_source_mapping(meta, all_tables, dep_nodes)
 
     return {
-        "name": table_meta["name"].upper(),
-        "id": str(uuid.uuid4()),
         "fileVersion": 1,
-        "type": "Node",
+        "id": node_id,
+        "name": node_name.upper(),
         "operation": {
+            "config": {"insertStrategy": "INSERT", "postSQL": "", "preSQL": "", "testsEnabled": True, "truncateBefore": True},
+            "database": "",
+            "deployEnabled": True,
+            "description": meta.get("description", ""),
+            "isMultisource": False,
             "locationName": location,
-            "name": table_meta["name"].upper(),
+            "materializationType": "table",
+            "metadata": {
+                "appliedNodeTests": [],
+                "columns": columns,
+                "cteString": "",
+                "enabledColumnTestIDs": [],
+                "sourceMapping": [{
+                    "aliases": aliases,
+                    "customSQL": {"customSQL": ""},
+                    "dependencies": dependencies,
+                    "join": {"joinCondition": join_cond},
+                    "name": node_name.upper(),
+                    "noLinkRefs": [],
+                }],
+            },
+            "name": node_name.upper(),
+            "overrideSQL": False,
+            "schema": "",
             "sqlType": "Stage",
             "type": "sql",
-            "isMultisource": False,
-            "materializationType": "table",
-            "config": {"truncateBefore": True},
-            "metadata": {
-                "columns": columns,
-                "sourceMapping": source_mapping,
-            },
+            "version": 1,
         },
+        "type": "Node",
     }
 
 
-def generate_dimension_node(table_meta: dict) -> dict:
-    """Generate a Dimension node YAML structure."""
+def generate_dimension_node(meta: dict, all_tables: dict) -> dict:
+    node_id = stable_uuid(meta["name"])
+    node_name = meta["name"]
     columns = []
-    business_keys = []
 
-    # Determine source
-    src_tables = set()
-    from_clause = table_meta.get("from_clause", "")
-    if from_clause:
-        refs = re.findall(r"\[TABLEOWNER\]\.\[([^\]]+)\]", from_clause)
-        if refs:
-            src_tables.update(refs)
-        else:
-            refs = re.findall(r"\[([^\]]+)\]", from_clause)
-            if refs:
-                src_tables.update(refs)
+    # Determine primary source - use the I_NorthpowerNetworkSurvey if available
+    primary_src = "I_NorthpowerNetworkSurvey" if "I_NorthpowerNetworkSurvey" in all_tables and all_tables["I_NorthpowerNetworkSurvey"]["columns"] else ""
+    primary_src_id = stable_uuid(primary_src) if primary_src else node_id
 
-    for i, col in enumerate(table_meta["columns"], 1):
-        col_def = {
-            "name": col["name"].upper(),
-            "dataType": map_datatype(col["data_type"]),
-            "description": col.get("description", ""),
-            "columnReference": {"stepCounter": "1", "columnCounter": str(i)},
-        }
-        if col.get("nullable", True):
-            col_def["nullable"] = True
-
+    for col in meta["columns"]:
+        src_col = col.get("src_column", col["name"])
         if col.get("is_surrogate_key"):
-            col_def["isSurrogateKey"] = True
-            col_def["keyColumnType"] = "surrogateKey"
-        elif col.get("is_business_key"):
-            col_def["isBusinessKey"] = True
-            col_def["keyColumnType"] = "primaryBusinessKey"
-            business_keys.append(col["name"].upper())
+            columns.append(make_system_column(node_id, node_name, col["name"].upper(), "NUMBER", "isSurrogateKey", ""))
+        elif primary_src and src_col:
+            # Check if the src_column exists on primary source
+            src_col_names = [c["name"] for c in all_tables.get(primary_src, {}).get("columns", [])]
+            if src_col in src_col_names:
+                columns.append(make_mapped_column(node_id, node_name, col, primary_src_id, src_col, primary_src))
+            else:
+                # Column doesn't exist on primary source - empty ref
+                columns.append(make_mapped_column(node_id, node_name, col, node_id, "", node_name))
+        else:
+            columns.append(make_mapped_column(node_id, node_name, col, node_id, "", node_name))
 
-        if not col.get("is_surrogate_key"):
-            col_def["transform"] = f'"{col["name"].upper()}"'
+    # Add Dimension system columns
+    for sys_col_name, sys_flag, dt, transform in [
+        ("SYSTEM_VERSION", "isSystemVersion", "NUMBER", ""),
+        ("SYSTEM_CURRENT_FLAG", "isSystemCurrentFlag", "VARCHAR", ""),
+        ("SYSTEM_START_DATE", "isSystemStartDate", "TIMESTAMP", "CAST(CURRENT_TIMESTAMP AS TIMESTAMP)"),
+        ("SYSTEM_END_DATE", "isSystemEndDate", "TIMESTAMP", "CAST('2999-12-31 00:00:00' AS TIMESTAMP)"),
+        ("SYSTEM_CREATE_DATE", "isSystemCreateDate", "TIMESTAMP", "CAST(CURRENT_TIMESTAMP AS TIMESTAMP)"),
+        ("SYSTEM_UPDATE_DATE", "isSystemUpdateDate", "TIMESTAMP", "CAST(CURRENT_TIMESTAMP AS TIMESTAMP)"),
+    ]:
+        columns.append(make_system_column(node_id, node_name, sys_col_name, dt, sys_flag, transform))
 
-        columns.append(col_def)
+    # Source mapping
+    src_loc = "SILVER"
+    aliases = {primary_src.upper(): primary_src_id} if primary_src else {}
+    dependencies = [{"locationName": src_loc, "nodeName": primary_src.upper()}] if primary_src else []
+    join_cond = f"FROM {{{{ ref('{src_loc}', '{primary_src.upper()}') }}}} \"{primary_src.upper()}\"" if primary_src else ""
 
-    # Build source mapping
-    source_mapping = []
-    if src_tables:
-        src_name = list(src_tables)[0]
-        src_loc = "SILVER"
-        source_mapping.append({
-            "name": "Step 1",
-            "join": {"joinCondition": f"FROM {{{{ ref('{src_loc}', '{src_name.upper()}') }}}}"},
-            "dependencies": [{"locationName": src_loc, "nodeName": src_name.upper()}],
-        })
-    else:
-        source_mapping.append({
-            "name": "Step 1",
-            "join": {"joinCondition": ""},
-            "dependencies": [],
-        })
+    # Business keys
+    bk_cols = [col["name"].upper() for col in meta["columns"] if col.get("is_business_key")]
 
-    config = {}
-    if business_keys:
-        config["businessKeyColumns"] = business_keys
+    config = {"postSQL": "", "preSQL": "", "testsEnabled": True}
+    if bk_cols:
+        config["businessKeyColumns"] = bk_cols
 
     return {
-        "name": table_meta["name"].upper(),
-        "id": str(uuid.uuid4()),
         "fileVersion": 1,
-        "type": "Node",
+        "id": node_id,
+        "name": node_name.upper(),
         "operation": {
+            "config": config,
+            "database": "",
+            "deployEnabled": True,
+            "description": meta.get("description", ""),
+            "isMultisource": False,
             "locationName": "GOLD",
-            "name": table_meta["name"].upper(),
+            "materializationType": "table",
+            "metadata": {
+                "appliedNodeTests": [],
+                "columns": columns,
+                "cteString": "",
+                "enabledColumnTestIDs": [],
+                "sourceMapping": [{
+                    "aliases": aliases,
+                    "customSQL": {"customSQL": ""},
+                    "dependencies": dependencies,
+                    "join": {"joinCondition": join_cond},
+                    "name": node_name.upper(),
+                    "noLinkRefs": [],
+                }],
+            },
+            "name": node_name.upper(),
+            "overrideSQL": False,
+            "schema": "",
             "sqlType": "Dimension",
             "type": "sql",
-            "isMultisource": False,
-            "materializationType": "table",
-            "config": config,
-            "metadata": {
-                "columns": columns,
-                "sourceMapping": source_mapping,
-            },
+            "version": 1,
         },
+        "type": "Node",
     }
 
 
-def generate_view_node(table_meta: dict) -> dict:
-    """Generate a View node YAML structure (for type 12 dim views)."""
+def generate_view_node(meta: dict, all_tables: dict) -> dict:
+    node_id = stable_uuid(meta["name"])
+    node_name = meta["name"]
+    base_dim = node_name.replace("Dim_", "D_")
+    base_dim_id = stable_uuid(base_dim)
     columns = []
 
-    # Determine the base dimension this view references
-    base_dim = table_meta["name"].replace("Dim_", "D_")
-    from_clause = table_meta.get("from_clause", "")
-    if from_clause:
-        refs = re.findall(r"\[TABLEOWNER\]\.\[([^\]]+)\]", from_clause)
-        if refs:
-            base_dim = refs[0]
+    # Get column names available on base dimension
+    base_dim_col_names = [c["name"] for c in all_tables.get(base_dim, {}).get("columns", [])]
+    # Also include system columns we generate for dimensions
+    base_dim_col_names.extend(["SYSTEM_VERSION", "SYSTEM_CURRENT_FLAG", "SYSTEM_START_DATE", "SYSTEM_END_DATE", "SYSTEM_CREATE_DATE", "SYSTEM_UPDATE_DATE"])
 
-    for i, col in enumerate(table_meta["columns"], 1):
-        col_def = {
-            "name": col["name"].upper(),
-            "dataType": map_datatype(col["data_type"]),
-            "description": col.get("description", ""),
-            "columnReference": {"stepCounter": "1", "columnCounter": str(i)},
-            "transform": f'"{col["name"].upper()}"',
-        }
-        if col.get("nullable", True):
-            col_def["nullable"] = True
-        columns.append(col_def)
+    for col in meta["columns"]:
+        src_col = col.get("src_column", col["name"])
+        # Try to match to a column on the base dimension
+        if src_col in base_dim_col_names:
+            columns.append(make_mapped_column(node_id, node_name, col, base_dim_id, src_col, base_dim))
+        elif col["name"] in base_dim_col_names:
+            columns.append(make_mapped_column(node_id, node_name, col, base_dim_id, col["name"], base_dim))
+        else:
+            # Can't find a match - empty source ref
+            columns.append(make_mapped_column(node_id, node_name, col, node_id, "", node_name))
 
-    source_mapping = [{
-        "name": "Step 1",
-        "join": {"joinCondition": f"FROM {{{{ ref('GOLD', '{base_dim.upper()}') }}}}"},
-        "dependencies": [{"locationName": "GOLD", "nodeName": base_dim.upper()}],
-    }]
+    aliases = {base_dim.upper(): base_dim_id}
+    dependencies = [{"locationName": "GOLD", "nodeName": base_dim.upper()}]
+    join_cond = f"FROM {{{{ ref('GOLD', '{base_dim.upper()}') }}}} \"{base_dim.upper()}\""
 
     return {
-        "name": table_meta["name"].upper(),
-        "id": str(uuid.uuid4()),
         "fileVersion": 1,
-        "type": "Node",
+        "id": node_id,
+        "name": node_name.upper(),
         "operation": {
+            "config": {},
+            "database": "",
+            "deployEnabled": True,
+            "description": meta.get("description", ""),
+            "isMultisource": False,
             "locationName": "GOLD",
-            "name": table_meta["name"].upper(),
+            "materializationType": "view",
+            "metadata": {
+                "appliedNodeTests": [],
+                "columns": columns,
+                "cteString": "",
+                "enabledColumnTestIDs": [],
+                "sourceMapping": [{
+                    "aliases": aliases,
+                    "customSQL": {"customSQL": ""},
+                    "dependencies": dependencies,
+                    "join": {"joinCondition": join_cond},
+                    "name": node_name.upper(),
+                    "noLinkRefs": [],
+                }],
+            },
+            "name": node_name.upper(),
+            "overrideSQL": False,
+            "schema": "",
             "sqlType": "View",
             "type": "sql",
-            "isMultisource": False,
-            "materializationType": "view",
-            "config": {},
-            "metadata": {
-                "columns": columns,
-                "sourceMapping": source_mapping,
-            },
+            "version": 1,
         },
+        "type": "Node",
     }
 
 
-def generate_fact_node(table_meta: dict) -> dict:
-    """Generate a Fact node YAML structure."""
+def generate_fact_node(meta: dict, all_tables: dict) -> dict:
+    node_id = stable_uuid(meta["name"])
+    node_name = meta["name"]
+    primary_src = "S_NorthpowerNetworkSurvey"
+    primary_src_id = stable_uuid(primary_src)
     columns = []
 
-    # Determine source from column references
-    src_tables = set()
-    for col in table_meta["columns"]:
-        if col.get("src_table"):
-            src_tables.add(col["src_table"])
+    # Get column names on primary source
+    src_col_names = [c["name"].upper() for c in all_tables.get(primary_src, {}).get("columns", [])]
 
-    for i, col in enumerate(table_meta["columns"], 1):
-        col_def = {
-            "name": col["name"].upper(),
-            "dataType": map_datatype(col["data_type"]),
-            "description": col.get("description", ""),
-            "columnReference": {"stepCounter": "1", "columnCounter": str(i)},
-            "transform": f'"{col["name"].upper()}"',
-        }
-        if col.get("nullable", True):
-            col_def["nullable"] = True
-        columns.append(col_def)
+    for col in meta["columns"]:
+        src_col = col.get("src_column", col["name"])
+        # Only link if source column exists on the source node
+        if src_col.upper() in src_col_names:
+            columns.append(make_mapped_column(node_id, node_name, col, primary_src_id, src_col, primary_src))
+        else:
+            # Computed or system column - empty ref
+            columns.append(make_mapped_column(node_id, node_name, col, node_id, "", node_name))
 
-    # Primary source is the S_ summary table
-    primary_source = "S_NORTHPOWERNETWORKSURVEY"
-    source_mapping = [{
-        "name": "Step 1",
-        "join": {"joinCondition": f"FROM {{{{ ref('SILVER', '{primary_source}') }}}}"},
-        "dependencies": [{"locationName": "SILVER", "nodeName": primary_source}],
-    }]
+    # System columns
+    columns.append(make_system_column(node_id, node_name, "SYSTEM_CREATE_DATE", "TIMESTAMP", "isSystemCreateDate", "CAST(CURRENT_TIMESTAMP AS TIMESTAMP)"))
+    columns.append(make_system_column(node_id, node_name, "SYSTEM_UPDATE_DATE", "TIMESTAMP", "isSystemUpdateDate", "CAST(CURRENT_TIMESTAMP AS TIMESTAMP)"))
+
+    aliases = {primary_src.upper(): primary_src_id}
+    dependencies = [{"locationName": "SILVER", "nodeName": primary_src.upper()}]
+    join_cond = f"FROM {{{{ ref('SILVER', '{primary_src.upper()}') }}}} \"{primary_src.upper()}\""
 
     return {
-        "name": table_meta["name"].upper(),
-        "id": str(uuid.uuid4()),
         "fileVersion": 1,
-        "type": "Node",
+        "id": node_id,
+        "name": node_name.upper(),
         "operation": {
+            "config": {"postSQL": "", "preSQL": "", "testsEnabled": True},
+            "database": "",
+            "deployEnabled": True,
+            "description": meta.get("description", ""),
+            "isMultisource": False,
             "locationName": "GOLD",
-            "name": table_meta["name"].upper(),
+            "materializationType": "table",
+            "metadata": {
+                "appliedNodeTests": [],
+                "columns": columns,
+                "cteString": "",
+                "enabledColumnTestIDs": [],
+                "sourceMapping": [{
+                    "aliases": aliases,
+                    "customSQL": {"customSQL": ""},
+                    "dependencies": dependencies,
+                    "join": {"joinCondition": join_cond},
+                    "name": node_name.upper(),
+                    "noLinkRefs": [],
+                }],
+            },
+            "name": node_name.upper(),
+            "overrideSQL": False,
+            "schema": "",
             "sqlType": "Fact",
             "type": "sql",
-            "isMultisource": False,
-            "materializationType": "table",
-            "config": {},
-            "metadata": {
-                "columns": columns,
-                "sourceMapping": source_mapping,
-            },
+            "version": 1,
         },
+        "type": "Node",
     }
+
+
+def build_stage_source_mapping(meta: dict, all_tables: dict, dep_nodes: set) -> tuple:
+    """Build proper FROM/JOIN clause based on known lineage."""
+    node_name = meta["name"]
+    aliases = {}
+    dependencies = []
+
+    # Known lineage from WhereScape procedure analysis
+    if node_name == "I_NorthpowerNetworkSurveyMerge":
+        src = "L_Email_SurveyDataDictionary"
+        src_id = stable_uuid(src)
+        aliases[src.upper()] = src_id
+        dependencies = [{"locationName": "BRONZE", "nodeName": src.upper()}]
+        join_cond = f"FROM {{{{ ref('BRONZE', '{src.upper()}') }}}} \"{src.upper()}\""
+
+    elif node_name == "I_NorthpowerNetworkSurvey":
+        src = "I_NorthpowerNetworkSurveyMerge"
+        src_id = stable_uuid(src)
+        aliases[src.upper()] = src_id
+        dependencies = [{"locationName": "SILVER", "nodeName": src.upper()}]
+        join_cond = f"FROM {{{{ ref('SILVER', '{src.upper()}') }}}} \"{src.upper()}\""
+
+    elif node_name == "S_NorthpowerNetworkSurvey":
+        # Complex: FROM I_NorthpowerNetworkSurvey LEFT JOIN 3 dims + D_Date
+        src_i = "I_NorthpowerNetworkSurvey"
+        dim_c = "D_NorthpowerNetworkSurveyComments"
+        dim_d = "D_NorthpowerNetworkSurveyDetails"
+        dim_q = "D_NorthpowerNetworkSurveyQuestions"
+
+        for s in [src_i, dim_c, dim_d, dim_q]:
+            aliases[s.upper()] = stable_uuid(s)
+
+        dependencies = [
+            {"locationName": "SILVER", "nodeName": src_i.upper()},
+            {"locationName": "GOLD", "nodeName": dim_c.upper()},
+            {"locationName": "GOLD", "nodeName": dim_d.upper()},
+            {"locationName": "GOLD", "nodeName": dim_q.upper()},
+        ]
+
+        join_cond = (
+            f"FROM {{{{ ref('SILVER', '{src_i.upper()}') }}}} \"{src_i.upper()}\"\n"
+            f"LEFT JOIN {{{{ ref('GOLD', '{dim_c.upper()}') }}}} \"{dim_c.upper()}\"\n"
+            f"  ON \"{src_i.upper()}\".\"QUESTIONNUMBER\" = \"{dim_c.upper()}\".\"QUESTIONNUMBER\"\n"
+            f"  AND \"{src_i.upper()}\".\"SURVEYNUMBER\" = \"{dim_c.upper()}\".\"SURVEYNUMBER\"\n"
+            f"  AND \"{src_i.upper()}\".\"SURVEYTYPE\" = \"{dim_c.upper()}\".\"SURVEYTYPE\"\n"
+            f"LEFT JOIN {{{{ ref('GOLD', '{dim_d.upper()}') }}}} \"{dim_d.upper()}\"\n"
+            f"  ON \"{src_i.upper()}\".\"SURVEYNUMBER\" = \"{dim_d.upper()}\".\"SURVEYNUMBER\"\n"
+            f"  AND \"{src_i.upper()}\".\"SURVEYTYPE\" = \"{dim_d.upper()}\".\"SURVEYTYPE\"\n"
+            f"LEFT JOIN {{{{ ref('GOLD', '{dim_q.upper()}') }}}} \"{dim_q.upper()}\"\n"
+            f"  ON \"{src_i.upper()}\".\"QUESTIONNUMBER\" = \"{dim_q.upper()}\".\"QUESTIONNUMBER\"\n"
+            f"  AND \"{src_i.upper()}\".\"RESPONSECODE\" = \"{dim_q.upper()}\".\"RESPONSECODE\"\n"
+            f"  AND \"{src_i.upper()}\".\"SURVEYTYPE\" = \"{dim_q.upper()}\".\"SURVEYTYPE\"\n"
+            f"  AND \"{src_i.upper()}\".\"WAVE\" = \"{dim_q.upper()}\".\"WAVE\""
+        )
+    else:
+        # Generic: use first dependency
+        if dep_nodes:
+            src = list(dep_nodes)[0]
+            src_id = stable_uuid(src)
+            src_loc = "BRONZE" if src.startswith("L_") else "SILVER"
+            aliases[src.upper()] = src_id
+            dependencies = [{"locationName": src_loc, "nodeName": src.upper()}]
+            join_cond = f"FROM {{{{ ref('{src_loc}', '{src.upper()}') }}}} \"{src.upper()}\""
+        else:
+            join_cond = ""
+
+    return join_cond, dependencies, aliases
 
 
 def write_node_yaml(node_data: dict, location: str, name: str):
-    """Write a node YAML file."""
     filename = f"{location}-{name}.yml"
     filepath = OUTPUT_DIR / filename
 
-    class CoalesceYamlDumper(yaml.Dumper):
+    class CoalesceDumper(yaml.Dumper):
         pass
 
     def str_representer(dumper, data):
@@ -635,82 +674,65 @@ def write_node_yaml(node_data: dict, location: str, name: str):
             return dumper.represent_scalar("tag:yaml.org,2002:str", data, style="|")
         return dumper.represent_scalar("tag:yaml.org,2002:str", data)
 
-    CoalesceYamlDumper.add_representer(str, str_representer)
+    def bool_representer(dumper, data):
+        return dumper.represent_scalar("tag:yaml.org,2002:bool", "true" if data else "false")
+
+    CoalesceDumper.add_representer(str, str_representer)
+    CoalesceDumper.add_representer(bool, bool_representer)
 
     with open(filepath, "w", encoding="utf-8") as f:
-        yaml.dump(node_data, f, Dumper=CoalesceYamlDumper, default_flow_style=False, sort_keys=False, allow_unicode=True)
-
+        yaml.dump(node_data, f, Dumper=CoalesceDumper, default_flow_style=False, sort_keys=False, allow_unicode=True)
     print(f"  Written: {filename}")
 
 
 def main():
     print("=" * 60)
-    print("WhereScape RED to Coalesce Migration - Network Survey POC")
+    print("WhereScape RED → Coalesce Migration (Network Survey)")
     print("=" * 60)
 
-    # Step 1: Parse object registry
     print("\n[1] Parsing object registry...")
     all_objects = parse_obj_file()
     survey_objects = {k: v for k, v in all_objects.items() if is_survey_object(k)}
-    print(f"  Found {len(all_objects)} total objects")
-    print(f"  Found {len(survey_objects)} Network Survey objects")
+    print(f"  {len(survey_objects)} Network Survey objects")
 
-    by_type = {}
-    for name, obj in survey_objects.items():
-        t = obj["type"]
-        by_type.setdefault(t, []).append(name)
-
-    type_labels = {8: "Load", 7: "Stage", 6: "Dimension", 5: "Fact", 12: "Dim View", 18: "Data Store", 1: "Procedure", 10: "Index"}
-    for t, names in sorted(by_type.items()):
-        print(f"  Type {t} ({type_labels.get(t, '?')}): {len(names)} - {', '.join(sorted(names)[:3])}...")
-
-    # Step 2: Parse data file for column metadata
-    print("\n[2] Parsing data file for column metadata...")
+    print("\n[2] Parsing data file...")
     tables = parse_data_file(survey_objects)
-    print(f"  Extracted metadata for {len(tables)} tables:")
+    print(f"  {len(tables)} tables with metadata:")
     for name, meta in sorted(tables.items()):
         print(f"    {meta['ws_type']:12s} | {name} ({len(meta['columns'])} cols)")
 
-    # Step 3: Generate YAML nodes
-    print(f"\n[3] Generating Coalesce node YAML files in {OUTPUT_DIR}/")
+    print(f"\n[3] Generating nodes in {OUTPUT_DIR}/")
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-    # Clean existing generated files
     for f in OUTPUT_DIR.glob("*.yml"):
         f.unlink()
 
     generated = 0
     for name, meta in sorted(tables.items()):
-        ws_type = meta["ws_type"]
         if not meta["columns"]:
-            print(f"  SKIPPED (0 cols): {name}")
+            print(f"  SKIP (0 cols): {name}")
             continue
-
+        ws_type = meta["ws_type"]
         if ws_type == "load":
             node = generate_source_node(meta)
             write_node_yaml(node, "BRONZE", name.upper())
-        elif ws_type == "stage":
-            node = generate_stage_node(meta, "SILVER")
-            write_node_yaml(node, "SILVER", name.upper())
-        elif ws_type == "data_store":
-            node = generate_stage_node(meta, "SILVER")
+        elif ws_type in ("stage", "data_store"):
+            node = generate_stage_node(meta, tables)
             write_node_yaml(node, "SILVER", name.upper())
         elif ws_type == "dimension":
-            node = generate_dimension_node(meta)
+            node = generate_dimension_node(meta, tables)
             write_node_yaml(node, "GOLD", name.upper())
         elif ws_type == "dim_view":
-            node = generate_view_node(meta)
+            node = generate_view_node(meta, tables)
             write_node_yaml(node, "GOLD", name.upper())
         elif ws_type == "fact":
-            node = generate_fact_node(meta)
+            node = generate_fact_node(meta, tables)
             write_node_yaml(node, "GOLD", name.upper())
         else:
-            print(f"  SKIPPED (unknown type): {name} ({ws_type})")
             continue
         generated += 1
 
-    print(f"\n  Total nodes generated: {generated}")
-    print("\n[4] Done! Run 'coa validate' to verify the generated nodes.")
+    print(f"\n  Total: {generated} nodes generated")
+    print("\n[4] Run: coa validate")
 
 
 if __name__ == "__main__":
