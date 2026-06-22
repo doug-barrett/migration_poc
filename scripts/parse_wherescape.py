@@ -8,6 +8,7 @@ import re
 import uuid
 import yaml
 import os
+import sys
 from pathlib import Path
 
 # Paths
@@ -22,14 +23,28 @@ NS = uuid.UUID("12345678-1234-5678-1234-567812345678")
 # WhereScape object type codes
 OBJ_TYPE_DIM_VIEW = 12
 
-# Network Survey filter patterns
-SURVEY_PATTERNS = [
-    "NorthpowerNetworkSurvey",
-    "NPNetworkSur",
-    "L_Email_SurveyDataDictionary",
-    "Fact_NorthpowerNetworkSurvey",
-    "Dim_NorthpowerNetworkSurvey",
-]
+# Subject area definitions
+SUBJECT_AREAS = {
+    "network_survey": [
+        "NorthpowerNetworkSurvey",
+        "NPNetworkSur",
+        "L_Email_SurveyDataDictionary",
+        "Fact_NorthpowerNetworkSurvey",
+        "Dim_NorthpowerNetworkSurvey",
+    ],
+    "fibre": [
+        "Fibre",
+        "fibre",
+        "L_Foot_NPFibre",
+        "L_Ref_Fibre",
+        "L_SHP_Fibre",
+        "L_Email_NorthpowerFibre",
+        "L_Email_SurveyDataDictionaryFibre",
+    ],
+}
+
+# Active subject area (set via command line)
+ACTIVE_PATTERNS = []
 
 
 def stable_uuid(seed: str) -> str:
@@ -61,8 +76,8 @@ def map_datatype(sql_server_type: str) -> str:
     return "VARCHAR"
 
 
-def is_survey_object(name: str) -> bool:
-    for pat in SURVEY_PATTERNS:
+def is_target_object(name: str) -> bool:
+    for pat in ACTIVE_PATTERNS:
         if pat.lower() in name.lower():
             return True
     return False
@@ -101,7 +116,7 @@ def parse_obj_file() -> dict:
     return objects
 
 
-def parse_data_file(survey_objects: dict) -> dict:
+def parse_data_file(target_objects: dict) -> dict:
     tables = {}
     current_table_name = None
 
@@ -118,7 +133,7 @@ def parse_data_file(survey_objects: dict) -> dict:
             name_m = re.search(r"'([^']+)',\s*\d+,\s*\d+,\s*\d+", line)
             if name_m:
                 obj_name = name_m.group(1)
-                if not is_survey_object(obj_name):
+                if not is_target_object(obj_name):
                     current_table_name = None
             continue
 
@@ -126,7 +141,7 @@ def parse_data_file(survey_objects: dict) -> dict:
             vals = parse_quoted_values(line)
             if len(vals) >= 2:
                 tname = vals[0]
-                if is_survey_object(tname):
+                if is_target_object(tname):
                     tables[tname] = {"ws_type": "load", "name": tname, "description": vals[3] if len(vals) > 3 else "", "columns": []}
                     current_table_name = tname
             continue
@@ -145,7 +160,7 @@ def parse_data_file(survey_objects: dict) -> dict:
             vals = parse_quoted_values(line)
             if len(vals) >= 2:
                 tname = vals[0]
-                if is_survey_object(tname):
+                if is_target_object(tname):
                     from_clause = ""
                     for v in vals:
                         if v.strip().upper().startswith("FROM"):
@@ -159,7 +174,7 @@ def parse_data_file(survey_objects: dict) -> dict:
             vals = parse_quoted_values(line)
             if len(vals) >= 2:
                 tname = vals[0]
-                if is_survey_object(tname):
+                if is_target_object(tname):
                     tables[tname] = {"ws_type": "data_store", "name": tname, "description": vals[5] if len(vals) > 5 else "", "columns": []}
                     current_table_name = tname
             continue
@@ -180,13 +195,13 @@ def parse_data_file(survey_objects: dict) -> dict:
             vals = parse_quoted_values(line)
             if len(vals) >= 2:
                 tname = vals[0]
-                if is_survey_object(tname):
+                if is_target_object(tname):
                     from_clause = ""
                     for v in vals:
                         if v.strip().upper().startswith("FROM"):
                             from_clause = v
                             break
-                    obj_info = survey_objects.get(tname, {})
+                    obj_info = target_objects.get(tname, {})
                     ws_type = "dim_view" if obj_info.get("type") == OBJ_TYPE_DIM_VIEW else "dimension"
                     tables[tname] = {"ws_type": ws_type, "name": tname, "description": vals[5] if len(vals) > 5 else "", "from_clause": from_clause, "columns": []}
                     current_table_name = tname
@@ -212,7 +227,7 @@ def parse_data_file(survey_objects: dict) -> dict:
             vals = parse_quoted_values(line)
             if len(vals) >= 2:
                 tname = vals[0]
-                if is_survey_object(tname):
+                if is_target_object(tname):
                     tables[tname] = {"ws_type": "fact", "name": tname, "description": vals[5] if len(vals) > 5 else "", "columns": []}
                     current_table_name = tname
             continue
@@ -398,8 +413,14 @@ def generate_dimension_node(meta: dict, all_tables: dict) -> dict:
     node_name = meta["name"]
     columns = []
 
-    # Determine primary source - use the I_NorthpowerNetworkSurvey if available
-    primary_src = "I_NorthpowerNetworkSurvey" if "I_NorthpowerNetworkSurvey" in all_tables and all_tables["I_NorthpowerNetworkSurvey"]["columns"] else ""
+    # Determine primary source from column src_table references
+    src_tables = {}
+    for col in meta["columns"]:
+        st = col.get("src_table", "")
+        if st and st != node_name and st in all_tables and all_tables[st]["columns"]:
+            src_tables[st] = src_tables.get(st, 0) + 1
+    # Pick the most-referenced source table
+    primary_src = max(src_tables, key=src_tables.get) if src_tables else ""
     primary_src_id = stable_uuid(primary_src) if primary_src else node_id
 
     for col in meta["columns"]:
@@ -548,8 +569,20 @@ def generate_view_node(meta: dict, all_tables: dict) -> dict:
 def generate_fact_node(meta: dict, all_tables: dict) -> dict:
     node_id = stable_uuid(meta["name"])
     node_name = meta["name"]
-    primary_src = "S_NorthpowerNetworkSurvey"
-    primary_src_id = stable_uuid(primary_src)
+
+    # Determine primary source from column src_table references
+    src_tables = {}
+    for col in meta["columns"]:
+        st = col.get("src_table", "")
+        if st and st != node_name and st in all_tables:
+            src_tables[st] = src_tables.get(st, 0) + 1
+    # Pick the most-referenced source, preferring S_ tables
+    if src_tables:
+        s_tables = {k: v for k, v in src_tables.items() if k.startswith("S_")}
+        primary_src = max(s_tables, key=s_tables.get) if s_tables else max(src_tables, key=src_tables.get)
+    else:
+        primary_src = ""
+    primary_src_id = stable_uuid(primary_src) if primary_src else node_id
     columns = []
 
     # Get column names on primary source
@@ -572,9 +605,15 @@ def generate_fact_node(meta: dict, all_tables: dict) -> dict:
     columns.append(make_system_column(node_id, node_name, "SYSTEM_CREATE_DATE", "TIMESTAMP", "isSystemCreateDate", "CAST(CURRENT_TIMESTAMP AS TIMESTAMP)"))
     columns.append(make_system_column(node_id, node_name, "SYSTEM_UPDATE_DATE", "TIMESTAMP", "isSystemUpdateDate", "CAST(CURRENT_TIMESTAMP AS TIMESTAMP)"))
 
-    aliases = {primary_src.upper(): primary_src_id}
-    dependencies = [{"locationName": "SILVER", "nodeName": primary_src.upper()}]
-    join_cond = f"FROM {{{{ ref('SILVER', '{primary_src.upper()}') }}}} \"{primary_src.upper()}\""
+    if primary_src:
+        src_loc = "SILVER" if not primary_src.startswith("L_") else "BRONZE"
+        aliases = {primary_src.upper(): primary_src_id}
+        dependencies = [{"locationName": src_loc, "nodeName": primary_src.upper()}]
+        join_cond = f"FROM {{{{ ref('{src_loc}', '{primary_src.upper()}') }}}} \"{primary_src.upper()}\""
+    else:
+        aliases = {}
+        dependencies = []
+        join_cond = ""
 
     return {
         "fileVersion": 1,
@@ -737,17 +776,28 @@ def write_node_yaml(node_data: dict, location: str, name: str):
 
 
 def main():
+    global ACTIVE_PATTERNS
+
+    # Parse command line argument for subject area
+    subject_area = sys.argv[1] if len(sys.argv) > 1 else "network_survey"
+    if subject_area not in SUBJECT_AREAS:
+        print(f"Unknown subject area: {subject_area}")
+        print(f"Available: {', '.join(SUBJECT_AREAS.keys())}")
+        sys.exit(1)
+
+    ACTIVE_PATTERNS = SUBJECT_AREAS[subject_area]
+
     print("=" * 60)
-    print("WhereScape RED → Coalesce Migration (Network Survey)")
+    print(f"WhereScape RED → Coalesce Migration ({subject_area})")
     print("=" * 60)
 
     print("\n[1] Parsing object registry...")
     all_objects = parse_obj_file()
-    survey_objects = {k: v for k, v in all_objects.items() if is_survey_object(k)}
-    print(f"  {len(survey_objects)} Network Survey objects")
+    target_objects = {k: v for k, v in all_objects.items() if is_target_object(k)}
+    print(f"  {len(target_objects)} objects found")
 
     print("\n[2] Parsing data file...")
-    tables = parse_data_file(survey_objects)
+    tables = parse_data_file(target_objects)
     print(f"  {len(tables)} tables with metadata:")
     for name, meta in sorted(tables.items()):
         print(f"    {meta['ws_type']:12s} | {name} ({len(meta['columns'])} cols)")
@@ -791,16 +841,21 @@ def main():
         generated += 1
         generated_nodes.add(name)
 
-    # Generate stub Source nodes for referenced data stores that have no columns
-    data_store_stubs = ["I_NorthpowerNetworkSurveyFaults", "I_NorthpowerNetworkSurveyLines",
-                        "I_NorthpowerNetworkSurveyFibre", "I_NorthpowerNetworkSurveyQuestions"]
-    for ds_name in data_store_stubs:
-        if ds_name not in generated_nodes and ds_name in tables:
-            # Create stub with minimal columns matching what downstream nodes reference
-            stub_cols = get_stub_columns_for_data_store(ds_name, tables)
+    # Generate stub Source nodes for any referenced data stores with no columns
+    # Find all data stores that were skipped but are referenced by generated nodes
+    referenced_sources = set()
+    for name, meta in tables.items():
+        if meta["columns"]:
+            for col in meta["columns"]:
+                st = col.get("src_table", "")
+                if st and st in tables and not tables[st]["columns"] and st not in generated_nodes:
+                    referenced_sources.add(st)
+
+    for ds_name in sorted(referenced_sources):
+        stub_cols = get_stub_columns_for_data_store(ds_name, tables)
+        if stub_cols:
             stub_meta = {"name": ds_name, "description": tables[ds_name].get("description", ""), "columns": stub_cols}
             node = generate_source_node(stub_meta)
-            # Place in SILVER as these are intermediate data stores
             node["operation"]["locationName"] = "SILVER"
             write_node_yaml(node, "SILVER", ds_name.upper())
             generated += 1
@@ -812,8 +867,6 @@ def main():
     print("  The following parameters must be configured in Coalesce:")
     print("    - parameters.ODSCreateDate  (TIMESTAMP - set to CURRENT_TIMESTAMP at runtime)")
     print("    - parameters.ODSUpdateDate  (TIMESTAMP - set to CURRENT_TIMESTAMP at runtime)")
-    print("  These are used in column transforms for: I_NorthpowerNetworkSurveyMerge,")
-    print("  I_NorthpowerNetworkSurvey, S_NorthpowerNetworkSurvey, D_* dimensions, F_* fact")
 
     print("\n[5] Run: coa validate")
 
