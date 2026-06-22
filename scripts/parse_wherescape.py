@@ -502,14 +502,66 @@ def generate_dimension_node(meta: dict, all_tables: dict) -> dict:
     }
 
 
+
+def generate_dimension_view_node(meta: dict, all_tables: dict) -> dict:
+    """Generate a Dimension View node (type 12 with D_ prefix - role-playing dimension)."""
+    node_id = stable_uuid(meta["name"])
+    node_name = meta["name"]
+    columns = []
+
+    for col in meta["columns"]:
+        if col.get("is_surrogate_key"):
+            columns.append(make_system_column(node_id, node_name, col["name"].upper(), "NUMBER", "isSurrogateKey", ""))
+        elif col["name"].upper() in ("ODSCREATEDATE", "ODSUPDATEDATE"):
+            param_name = "ODSCreateDate" if "CREATE" in col["name"].upper() else "ODSUpdateDate"
+            columns.append(make_mapped_column(node_id, node_name, col, node_id, "", node_name, f"{{{{parameters.{param_name}}}}}"))
+        else:
+            columns.append(make_mapped_column(node_id, node_name, col, node_id, "", node_name))
+
+    return {
+        "fileVersion": 1,
+        "id": node_id,
+        "name": node_name.upper(),
+        "operation": {
+            "config": {},
+            "database": "",
+            "deployEnabled": True,
+            "description": meta.get("description", ""),
+            "isMultisource": False,
+            "locationName": "GOLD",
+            "materializationType": "view",
+            "metadata": {
+                "appliedNodeTests": [],
+                "columns": columns,
+                "cteString": "",
+                "enabledColumnTestIDs": [],
+                "sourceMapping": [{
+                    "aliases": {},
+                    "customSQL": {"customSQL": ""},
+                    "dependencies": [],
+                    "join": {"joinCondition": ""},
+                    "name": node_name.upper(),
+                    "noLinkRefs": [],
+                }],
+            },
+            "name": node_name.upper(),
+            "overrideSQL": False,
+            "schema": "",
+            "sqlType": "DimensionView",
+            "type": "sql",
+            "version": 1,
+        },
+        "type": "Node",
+    }
+
+
 def generate_view_node(meta: dict, all_tables: dict) -> dict:
     node_id = stable_uuid(meta["name"])
     node_name = meta["name"]
     base_dim = node_name.replace("Dim_", "D_")
-    # If base_dim resolves to self (D_ prefix type 12 role-playing dims), treat as dimension
+    # If base_dim resolves to self (D_ prefix type 12 role-playing dims), generate as DimensionView
     if base_dim == node_name:
-        # This is a role-playing dimension (type 12 with D_ prefix) - generate as Dimension
-        return generate_dimension_node(meta, all_tables)
+        return generate_dimension_view_node(meta, all_tables)
     base_dim_id = stable_uuid(base_dim) if base_dim else node_id
     columns = []
 
