@@ -506,9 +506,10 @@ def generate_view_node(meta: dict, all_tables: dict) -> dict:
     node_id = stable_uuid(meta["name"])
     node_name = meta["name"]
     base_dim = node_name.replace("Dim_", "D_")
-    # If base_dim resolves to self (D_ prefix type 12 views), it's self-referencing
+    # If base_dim resolves to self (D_ prefix type 12 role-playing dims), treat as dimension
     if base_dim == node_name:
-        base_dim = ""
+        # This is a role-playing dimension (type 12 with D_ prefix) - generate as Dimension
+        return generate_dimension_node(meta, all_tables)
     base_dim_id = stable_uuid(base_dim) if base_dim else node_id
     columns = []
 
