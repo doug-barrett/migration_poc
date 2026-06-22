@@ -354,7 +354,7 @@ def generate_stage_node(meta: dict, all_tables: dict, location: str = "SILVER") 
             columns.append(make_mapped_column(node_id, node_name, col, node_id, "", node_name))
 
     # Build sourceMapping from lineage knowledge
-    join_cond, dependencies, aliases = build_stage_source_mapping(meta, all_tables, dep_nodes)
+    join_cond, dependencies, aliases, no_link_refs = build_stage_source_mapping(meta, all_tables, dep_nodes)
 
     return {
         "fileVersion": 1,
@@ -379,7 +379,7 @@ def generate_stage_node(meta: dict, all_tables: dict, location: str = "SILVER") 
                     "dependencies": dependencies,
                     "join": {"joinCondition": join_cond},
                     "name": node_name.upper(),
-                    "noLinkRefs": [],
+                    "noLinkRefs": no_link_refs,
                 }],
             },
             "name": node_name.upper(),
@@ -667,7 +667,8 @@ def build_stage_source_mapping(meta: dict, all_tables: dict, dep_nodes: set) -> 
         )
 
     elif node_name == "S_NorthpowerNetworkSurvey":
-        # Complex: FROM I_NorthpowerNetworkSurvey LEFT JOIN 3 dims + D_Date
+        # Complex: FROM I_NorthpowerNetworkSurvey LEFT JOIN 3 dims
+        # Dims are downstream nodes (fed by I_) so use ref_no_link to avoid circular refs
         src_i = "I_NorthpowerNetworkSurvey"
         dim_c = "D_NorthpowerNetworkSurveyComments"
         dim_d = "D_NorthpowerNetworkSurveyDetails"
@@ -676,8 +677,13 @@ def build_stage_source_mapping(meta: dict, all_tables: dict, dep_nodes: set) -> 
         for s in [src_i, dim_c, dim_d, dim_q]:
             aliases[s.upper()] = stable_uuid(s)
 
+        # Only I_ is a true upstream dependency; dims are no-link refs
         dependencies = [
             {"locationName": "SILVER", "nodeName": src_i.upper()},
+        ]
+
+        # noLinkRefs for downstream dimension lookups
+        no_link_refs = [
             {"locationName": "GOLD", "nodeName": dim_c.upper()},
             {"locationName": "GOLD", "nodeName": dim_d.upper()},
             {"locationName": "GOLD", "nodeName": dim_q.upper()},
@@ -685,19 +691,21 @@ def build_stage_source_mapping(meta: dict, all_tables: dict, dep_nodes: set) -> 
 
         join_cond = (
             f"FROM {{{{ ref('SILVER', '{src_i.upper()}') }}}} \"{src_i.upper()}\"\n"
-            f"LEFT JOIN {{{{ ref('GOLD', '{dim_c.upper()}') }}}} \"{dim_c.upper()}\"\n"
+            f"LEFT JOIN {{{{ ref_no_link('GOLD', '{dim_c.upper()}') }}}} \"{dim_c.upper()}\"\n"
             f"  ON \"{src_i.upper()}\".\"QUESTIONNUMBER\" = \"{dim_c.upper()}\".\"QUESTIONNUMBER\"\n"
             f"  AND \"{src_i.upper()}\".\"SURVEYNUMBER\" = \"{dim_c.upper()}\".\"SURVEYNUMBER\"\n"
             f"  AND \"{src_i.upper()}\".\"SURVEYTYPE\" = \"{dim_c.upper()}\".\"SURVEYTYPE\"\n"
-            f"LEFT JOIN {{{{ ref('GOLD', '{dim_d.upper()}') }}}} \"{dim_d.upper()}\"\n"
+            f"LEFT JOIN {{{{ ref_no_link('GOLD', '{dim_d.upper()}') }}}} \"{dim_d.upper()}\"\n"
             f"  ON \"{src_i.upper()}\".\"SURVEYNUMBER\" = \"{dim_d.upper()}\".\"SURVEYNUMBER\"\n"
             f"  AND \"{src_i.upper()}\".\"SURVEYTYPE\" = \"{dim_d.upper()}\".\"SURVEYTYPE\"\n"
-            f"LEFT JOIN {{{{ ref('GOLD', '{dim_q.upper()}') }}}} \"{dim_q.upper()}\"\n"
+            f"LEFT JOIN {{{{ ref_no_link('GOLD', '{dim_q.upper()}') }}}} \"{dim_q.upper()}\"\n"
             f"  ON \"{src_i.upper()}\".\"QUESTIONNUMBER\" = \"{dim_q.upper()}\".\"QUESTIONNUMBER\"\n"
             f"  AND \"{src_i.upper()}\".\"RESPONSECODE\" = \"{dim_q.upper()}\".\"RESPONSECODE\"\n"
             f"  AND \"{src_i.upper()}\".\"SURVEYTYPE\" = \"{dim_q.upper()}\".\"SURVEYTYPE\"\n"
             f"  AND \"{src_i.upper()}\".\"WAVE\" = \"{dim_q.upper()}\".\"WAVE\""
         )
+
+        return join_cond, dependencies, aliases, no_link_refs
     else:
         # Generic: use first dependency
         if dep_nodes:
@@ -710,7 +718,7 @@ def build_stage_source_mapping(meta: dict, all_tables: dict, dep_nodes: set) -> 
         else:
             join_cond = ""
 
-    return join_cond, dependencies, aliases
+    return join_cond, dependencies, aliases, []
 
 
 def write_node_yaml(node_data: dict, location: str, name: str):
