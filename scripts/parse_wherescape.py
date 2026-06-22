@@ -506,13 +506,18 @@ def generate_view_node(meta: dict, all_tables: dict) -> dict:
     node_id = stable_uuid(meta["name"])
     node_name = meta["name"]
     base_dim = node_name.replace("Dim_", "D_")
-    base_dim_id = stable_uuid(base_dim)
+    # If base_dim resolves to self (D_ prefix type 12 views), it's self-referencing
+    if base_dim == node_name:
+        base_dim = ""
+    base_dim_id = stable_uuid(base_dim) if base_dim else node_id
     columns = []
 
     # Get column names available on base dimension
-    base_dim_col_names = [c["name"] for c in all_tables.get(base_dim, {}).get("columns", [])]
-    # Also include system columns we generate for dimensions
-    base_dim_col_names.extend(["SYSTEM_VERSION", "SYSTEM_CURRENT_FLAG", "SYSTEM_START_DATE", "SYSTEM_END_DATE", "SYSTEM_CREATE_DATE", "SYSTEM_UPDATE_DATE"])
+    if base_dim and base_dim in all_tables:
+        base_dim_col_names = [c["name"] for c in all_tables[base_dim].get("columns", [])]
+        base_dim_col_names.extend(["SYSTEM_VERSION", "SYSTEM_CURRENT_FLAG", "SYSTEM_START_DATE", "SYSTEM_END_DATE", "SYSTEM_CREATE_DATE", "SYSTEM_UPDATE_DATE"])
+    else:
+        base_dim_col_names = []
 
     for col in meta["columns"]:
         src_col = col.get("src_column", col["name"])
@@ -525,9 +530,14 @@ def generate_view_node(meta: dict, all_tables: dict) -> dict:
             # Can't find a match - empty source ref
             columns.append(make_mapped_column(node_id, node_name, col, node_id, "", node_name))
 
-    aliases = {base_dim.upper(): base_dim_id}
-    dependencies = [{"locationName": "GOLD", "nodeName": base_dim.upper()}]
-    join_cond = f"FROM {{{{ ref('GOLD', '{base_dim.upper()}') }}}} \"{base_dim.upper()}\""
+    if base_dim:
+        aliases = {base_dim.upper(): base_dim_id}
+        dependencies = [{"locationName": "GOLD", "nodeName": base_dim.upper()}]
+        join_cond = f"FROM {{{{ ref('GOLD', '{base_dim.upper()}') }}}} \"{base_dim.upper()}\""
+    else:
+        aliases = {}
+        dependencies = []
+        join_cond = ""
 
     return {
         "fileVersion": 1,
