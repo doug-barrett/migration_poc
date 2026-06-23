@@ -1,0 +1,861 @@
+fileVersion: 1
+id: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+name: ETL_CASH_DRAWER
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: BRONZE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5ab4c0d2-3452-45bc-b377-4762d61fa6fd
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: JOURNAL_TYPE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN AUD_TYPE IN ('PT','PX','FI')      THEN 1
+                          WHEN AUD_TYPE IN ('UB','FB','FP','BR') THEN 2
+                          WHEN AUD_TYPE IN ('UP','UR')           THEN 3
+                          WHEN AUD_TYPE IN ('DL','FD')           THEN 4
+                          WHEN AUD_TYPE IN ('RR')                THEN 5
+                          ELSE NULL
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 7789f3c5-5d1b-4ad6-a289-59d73b634da6
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: JOURNAL_BEGIN_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN AUD_TYPE IN ('PT', 'PX', 'FI', 'UP', 'UR') THEN AUD_TIME
+                          ELSE CAST('1997-11-01 00:00:00.000000' AS TIMESTAMP)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 81aa2837-f115-499b-a8b5-306fb9456640
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: ""
+        name: JOURNAL_END_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN AUD_TYPE IN ('UB', 'FB', 'FP', 'DL', 'FD', 'BR') THEN AUD_TIME
+                          ELSE CAST('2999-12-31 00:00:00.000000' AS TIMESTAMP)
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1afef87f-a2a0-4905-928e-8ca6c5fb3a49
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Audit Time
+        name: AUD_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c833d580-c7f2-43a5-98a9-97c1077ec3c1
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: CHAR(2)
+        defaultValue: ""
+        description: Company Code
+        name: COMPANY_CODE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: cdf78d6a-69ab-4696-9cb8-e03ffe8b160f
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: INTEGER
+        defaultValue: ""
+        description: ""
+        name: LOCATION_ID
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: COALESCE(LOCATION.LOCATION_ID,0)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6f103a55-c14d-47d3-90e0-bc1e48e0ab25
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: CHAR(3)
+        defaultValue: ""
+        description: 'Branch Loc #'
+        name: R5LOC
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ad6b9beb-35e8-45d3-a737-1c21cf07a69b
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: From Date
+        name: FROM_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: EDW_PRODUCTION.P_BI_STGTAB_DB.UDF_DEC_TO_DATE_EH(R5FMDT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 51857991-535d-4e3a-9d1a-e31a0d8b2f87
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(6)
+        defaultValue: ""
+        description: From Time
+        name: FROM_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: c512d905-ade5-433f-b057-53666afd6e56
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: To Date
+        name: TO_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: EDW_PRODUCTION.P_BI_STGTAB_DB.UDF_DEC_TO_DATE_EH(R5TODT)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d185ea4a-f493-4161-886d-66bc85a92d62
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(6)
+        defaultValue: ""
+        description: To Time
+        name: TO_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6551b4ce-2359-4ef9-8b67-358dd09745d4
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Total Currency Amount
+        name: TOTAL_CURRENCY_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1906855f-069c-4bdc-a159-dc523a5f99f0
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Total Checks Amount
+        name: TOTAL_CHECKS_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: fed180d7-d77f-4c59-be9f-28d48472d9f2
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Total Credit Card Amount
+        name: TOTAL_CREDIT_CARD_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 6265892d-e3b1-48ff-99b7-3814155ea82e
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Total Drawer Amount
+        name: TOTAL_DRAWER_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 2a6ae482-3449-465c-a041-4925d70ad90f
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Start Drawer Amount
+        name: START_DRAWER_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 90485462-4645-4b22-9834-783f7b18b673
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Total Transactions Amount
+        name: TOTAL_TRANSACTIONS_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 12796a5b-46af-4506-b140-998d7ff3f30b
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Next Drawer Amount
+        name: NEXT_DRAWER_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 542e1b17-4936-43f2-ba82-09be746615ab
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Total Deposit Amount
+        name: TOTAL_DEPOSIT_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 5f6792d8-19c3-4a33-94f9-47bcc63a0658
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Auto Deposit Amount
+        name: AUTO_DEPOSIT_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3f3597f6-554b-444f-9526-43ecc72ef65d
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Deposit in Bank Amount
+        name: DEPOSIT_IN_BANK_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d3fb8da4-e5fb-491f-b3fc-d7e6d0fd1118
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Cash Sales Amount
+        name: CASH_SALES_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 3dae2ef5-f909-494b-98c0-d7c317219d11
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Refunds/ Deposits Amount
+        name: REFUNDS_DEPOSITS_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9c38bf1e-8f6f-421a-bc67-f4b7a67f4b6e
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Uncollected Cash Amount
+        name: UNCOLLECTED_CASH_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: b1134cca-8faa-4a04-9a0b-0134b8450d4f
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Net Cash From Invoices
+        name: NET_CASH_FROM_INVOICES
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: d40445c5-4c37-4e74-a598-727137c0a7af
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Deposits Taken Amount
+        name: DEPOSITS_TAKEN_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f47ac0ed-1cf3-4bfa-a9c9-026ecaa61328
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Refunds Not Given Amount
+        name: REFUNDS_NOT_GIVEN_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 197dc0d2-85ad-410e-a352-0a9136856a1a
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Inter loc Cash Amount
+        name: INTER_LOC_CASH_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9f9dfef2-108c-4ef3-862e-a566c04b1a51
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Total Cash Tran Amount
+        name: TOTAL_CASH_TRAN_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e26099fb-d4cb-4021-a0ce-b61bed824fea
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Deposit Cash to Bank
+        name: DEPOSIT_CASH_TO_BANK
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 10577331-e05e-44ea-8573-a4abdc007e43
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Deposit Checks to Bank
+        name: DEPOSIT_CHECKS_TO_BANK
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 13b34267-c67b-49f1-8cba-3986f0b74d9f
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Deposit Credit Card Slips to Bank
+        name: DEP_CREDIT_CARD_SLIPS_TO_BANK
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: aeaf87d7-1825-4dcc-90cb-d4ee3b0679b3
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: Bank Deposit Date
+        name: BANK_DEPOSIT_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: EDW_PRODUCTION.P_BI_STGTAB_DB.UDF_DEC_TO_DATE_EH(R5DEPD)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9e591b26-79a5-4dda-8b4b-7ce98a12ba80
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: CHAR(1)
+        defaultValue: ""
+        description: Posted to G/L
+        name: POSTED_TO_GL
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0fe16015-65bb-42b1-97bc-e72b273b36c0
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: Posted to G/L Date
+        name: POSTED_TO_GL_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: EDW_PRODUCTION.P_BI_STGTAB_DB.UDF_DEC_TO_DATE_EH(R5PDTE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 8b3de873-5d18-4068-ac19-f65c8a9f5a2e
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(6)
+        defaultValue: ""
+        description: Posted to GL Time
+        name: POSTED_TO_GL_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1f338bf3-eee4-40f7-b637-0f9e27ef0768
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Drawer Over/Under Amount
+        name: DRAWER_OVER_UNDER_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: a0760be7-c914-4282-8a3f-4e7108168275
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: CHAR(10)
+        defaultValue: ""
+        description: User
+        name: EMPLOYEE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: ccd0ed85-cc88-4b9b-81a8-979a5d742996
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DATE
+        defaultValue: ""
+        description: System Date
+        name: SYSTEM_DATE
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: EDW_PRODUCTION.P_BI_STGTAB_DB.UDF_DEC_TO_DATE_EH(R5SYSD)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 40329894-325b-4f58-a93d-db075b50d1d6
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(6)
+        defaultValue: ""
+        description: System Time
+        name: SYSTEM_TIME
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 71fa5b42-5607-4253-942d-755198a52cde
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: CHAR(10)
+        defaultValue: ""
+        description: Maint by User
+        name: MAINT_BY_USER
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 670418b2-60c4-489d-8942-4ce6672e426b
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: VARCHAR(13)
+        defaultValue: ""
+        description: 'Invoice #'
+        name: INVOICE_NUM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: |-
+              CASE WHEN LENGTH(TRIM(R5INV0)) = 11 THEN '0' || TRIM(R5INV0)
+                          ELSE R5INV0
+                           END
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0d7e5b1d-fc02-4178-acf0-0998aeecc1c5
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Auto ROA Deposit Amount
+        name: AUTO_ROA_DEPOSIT_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: e1f4276b-5937-4202-b920-1e9b1312a0a7
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: ROA Amount
+        name: ROA_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: f4236326-5dad-4b0c-a542-71858063f422
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Total ROA Checks Amount
+        name: TOTAL_ROA_CHECKS_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 72dce0ea-37ca-43d1-9988-6b17998b0c01
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Deposit ROA Cash to Bank
+        name: DEPOSIT_ROA_CASH_TO_BANK
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: afabe1bb-f4ed-4dcb-8006-a9e178fc32ea
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Deposit ROA Checks to Bank
+        name: DEPOSIT_ROA_CHECKS_TO_BANK
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 9ae14518-d414-4be1-80b5-7b1013116d79
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Deposit ROA Crd Card Slips to Bank
+        name: DEP_ROA_CRD_CD_SLPS_TO_BANK
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 14dda2bc-2f08-4cc7-b55d-7739ad35631b
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Total ROA Currency Amount
+        name: TOTAL_ROA_CURRENCY_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: bc63ca4f-2bdb-4a79-982f-73cd98a99a40
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Total ROA Credit Card Amount
+        name: TOTAL_ROA_CREDIT_CARD_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 0557ea53-8b9a-4b3f-a6db-a4bc5fe9d570
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DECIMAL(9,2)
+        defaultValue: ""
+        description: Misc. Non-AR Amount
+        name: MISC_NON_AR_AMOUNT
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences:
+              - columnCounter: "0"
+                stepCounter: "0"
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 1e7ea323-3321-4b78-8791-ca957d26304c
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was created in the data warehouse.
+        name: CREATE_DTTM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: 10324aa2-a4c7-4ad0-ac72-815fee7ab99f
+          stepCounter: e48e7635-cd5d-4aa0-ba41-1d19e8a04266
+        config: {}
+        dataType: DATETIME
+        defaultValue: ""
+        description: Date and time the row was updated in the data warehouse.
+        name: LAST_UPDATE_DTTM
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+      - aliases: {}
+        customSQL:
+          customSQL: ""
+        dependencies:
+          - locationName: BRONZE
+            nodeName: SRC_RACSHHFL
+          - locationName: UNKNOWN
+            nodeName: SRC_RACSHHFL
+          - locationName: UNKNOWN
+            nodeName: LOCATION
+          - locationName: UNKNOWN
+            nodeName: CDC_BATCH
+        join:
+          joinCondition: |-
+            FROM {{ ref('UNKNOWN','SRC_RACSHHFL') }} SRC_RACSHHFL
+              LEFT OUTER JOIN {{ ref('UNKNOWN','LOCATION') }}
+            LOCATION
+                ON SRC_RACSHHFL.R5LOC = LOCATION.LOCATION_CODE
+               AND SRC_RACSHHFL.R5CMP = LOCATION.COMPANY_CODE
+               AND LOCATION.DSS_CURRENT_FLAG = 'Y'
+             WHERE AUD_TIME <= (
+                    SELECT MAX(BATCH_END)
+                      FROM {{ ref('UNKNOWN','CDC_BATCH') }}
+                   )
+               AND (AUD_CODE <> 'F' OR (AUD_CODE IS NULL AND AUD_TYPE = 'RR')) QUALIFY RANK() OVER (PARTITION BY R5CMP, R5LOC, R5TODT, R5TOTM, R5FMDT,R5FMTM ORDER BY AUD_TIME DESC, AUD_SEQNO DESC, CASE WHEN AUD_TYPE IN ('PT','PX','FI') THEN 1 WHEN AUD_TYPE IN ('UB','FB','FP','BR') THEN 2 WHEN AUD_TYPE IN ('UP','UR') THEN 3 WHEN AUD_TYPE IN ('DL','FD') THEN 4 WHEN AUD_TYPE IN ('RR') THEN 5 ELSE 0 END DESC) = 1
+        name: ETL_CASH_DRAWER
+        noLinkRefs: []
+  name: ETL_CASH_DRAWER
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node
