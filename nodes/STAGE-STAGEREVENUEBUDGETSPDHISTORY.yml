@@ -164,7 +164,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: ''
+        transform: COALESCE("DimBudgetDate"."BudgetDateKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 32a1d230-d679-5773-9580-64d5fcb97d68
@@ -267,6 +267,7 @@ operation:
         Contract: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
         Supplier: d53a79d2-fb60-532e-8596-560738ff8f56
         SupplierPDHistory: c8b09081-b1d8-5292-b962-89133449de11
+        DimBudgetDate: 1c035b59-b6e6-5676-bfa9-0b45cb823cad
       customSQL:
         customSQL: ''
       dependencies:
@@ -278,6 +279,8 @@ operation:
         nodeName: Supplier
       - locationName: DIM
         nodeName: SupplierPDHistory
+      - locationName: DIM
+        nodeName: DimBudgetDate
       join:
         joinCondition: |-
           FROM {{ ref('LOAD', 'LoadRevenueBudgetsPD') }} "LoadRevenueBudgetsPD"
@@ -287,6 +290,7 @@ operation:
             ON CONTRACT.SUPPLIERKEY = SUPPLIER.SUPPLIERKEY
           LEFT JOIN {{ ref('DIM', 'SupplierPDHistory') }} "SupplierPDHistory"
             ON CONTRACT.SUPPLIERKEY = SUPPLIERPDHISTORY.SUPPLIERKEY AND LOADREVENUEBUDGETSPD.BUDGETDATE BETWEEN SUPPLIERPDHISTORY.STARTDATE AND SUPPLIERPDHISTORY.ENDDATE
+          LEFT JOIN {{ ref('DIM', 'DimBudgetDate') }} "DimBudgetDate"
       name: StageRevenueBudgetsPDHistory
       noLinkRefs: []
   name: StageRevenueBudgetsPDHistory

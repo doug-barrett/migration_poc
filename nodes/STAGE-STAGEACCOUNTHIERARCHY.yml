@@ -28,7 +28,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: ''
+        transform: COALESCE("Organization"."OrganizationKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 83edf0f0-d2c4-5a6d-bed6-07986b0e97a2
@@ -618,6 +618,7 @@ operation:
         LoadAccountHierarchy: 10cb9f6a-3727-5980-9154-406e31bfbbe7
         AccountGeography: 1071dd2d-aef7-53a0-9ed4-a5c3b3dfe3f1
         Sector: 07596b2d-bee7-500c-87de-dea1033bd2fe
+        Organization: a209659e-0ef5-5142-8763-8e50f8f22d4c
       customSQL:
         customSQL: ''
       dependencies:
@@ -627,6 +628,8 @@ operation:
         nodeName: AccountGeography
       - locationName: DIM
         nodeName: Sector
+      - locationName: DIM
+        nodeName: Organization
       join:
         joinCondition: |-
           FROM {{ ref('LOAD', 'LoadAccountHierarchy') }} "LoadAccountHierarchy"
@@ -636,6 +639,7 @@ operation:
             ON LOADACCOUNTHIERARCHY.LEVEL1 = ACCOUNT.FORCEID
           LEFT JOIN {{ ref('DIM', 'Sector') }} "Sector"
             ON ACCOUNT.SECTORKEY = SECTOR.SECTORKEY
+          LEFT JOIN {{ ref('DIM', 'Organization') }} "Organization"
       name: StageAccountHierarchy
       noLinkRefs:
       - locationName: DIM

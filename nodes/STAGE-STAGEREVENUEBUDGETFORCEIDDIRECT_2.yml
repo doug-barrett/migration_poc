@@ -30,7 +30,8 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: ''
+        transform: COALESCE("RevenueBudgetForceIdDirectDetail"."RevenueBudgetForceIdDirectDetailKey",
+          0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: fa2e50cf-190f-5e6c-a878-d50e0511bb4e
@@ -100,7 +101,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: ''
+        transform: COALESCE("Account"."AccountKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2c3804d3-7674-5ff4-a413-da99abef1689
@@ -168,7 +169,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: ''
+        transform: COALESCE("DIRECTSALESTERRITORY"."DIRECT_SALES_TERRITORY_KEY", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 81982e73-0a8f-5faf-9b6d-e03d5a23753e
@@ -180,7 +181,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: ''
+        transform: COALESCE("DIMBUDGETDATE"."BUDGET_DATE_KEY", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1a73da95-32fd-5f0e-9dce-feda4891d9a9
@@ -242,14 +243,22 @@ operation:
     sourceMapping:
     - aliases:
         StageRevenueBudgetsForceIdDirect: 1a104f45-a513-52ec-ae11-13e50d1dcc02
+        Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
+        RevenueBudgetForceIdDirectDetail: 18a510d9-e766-5ae3-89c2-00c88f65b01a
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: STAGE
         nodeName: StageRevenueBudgetsForceIdDirect
+      - locationName: DIM
+        nodeName: Account
+      - locationName: DIM
+        nodeName: RevenueBudgetForceIdDirectDetail
       join:
-        joinCondition: FROM {{ ref('STAGE', 'StageRevenueBudgetsForceIdDirect') }}
-          "StageRevenueBudgetsForceIdDirect"
+        joinCondition: |-
+          FROM {{ ref('STAGE', 'StageRevenueBudgetsForceIdDirect') }} "StageRevenueBudgetsForceIdDirect"
+          LEFT JOIN {{ ref('DIM', 'Account') }} "Account"
+          LEFT JOIN {{ ref('DIM', 'RevenueBudgetForceIdDirectDetail') }} "RevenueBudgetForceIdDirectDetail"
       name: StageRevenueBudgetForceIdDirect_2
       noLinkRefs: []
   name: StageRevenueBudgetForceIdDirect_2

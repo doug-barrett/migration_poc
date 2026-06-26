@@ -30,7 +30,8 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: ''
+        transform: COALESCE("RevenueBudgetForceIdDetail"."RevenueBudgetForceIdDetailKey",
+          0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 307d5153-b981-58de-9c15-dfe174f94aaa
@@ -100,7 +101,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: ''
+        transform: COALESCE("Account"."AccountKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4c9f806c-6a7d-5227-a8a6-0d26b5b410e3
@@ -170,7 +171,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: ''
+        transform: COALESCE("SALESTERRITORY"."SALES_TERRITORY_KEY", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 216c1847-cb50-507f-b5f8-e9cb6e9e8867
@@ -196,7 +197,8 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: ''
+        transform: COALESCE("FINANCIALSALESTERRITORY"."FINANCIAL_SALES_TERRITORY_KEY",
+          0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2365f25f-0be2-55b1-98da-49236d4a8ae0
@@ -208,7 +210,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: ''
+        transform: COALESCE("DimBudgetDate"."BudgetDateKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3cd7d95a-38c2-5a90-a12e-0dfc50c31bcb
@@ -266,13 +268,26 @@ operation:
     sourceMapping:
     - aliases:
         StageRevenueBudgetsForceId: 6e55bf96-2c19-5923-a3e1-f1650f5753e6
+        Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
+        DimBudgetDate: 1c035b59-b6e6-5676-bfa9-0b45cb823cad
+        RevenueBudgetForceIdDetail: 24aa7f29-efed-5b5a-80d8-53533c5ad8f9
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: STAGE
         nodeName: StageRevenueBudgetsForceId
+      - locationName: DIM
+        nodeName: Account
+      - locationName: DIM
+        nodeName: DimBudgetDate
+      - locationName: DIM
+        nodeName: RevenueBudgetForceIdDetail
       join:
-        joinCondition: FROM {{ ref('STAGE', 'StageRevenueBudgetsForceId') }} "StageRevenueBudgetsForceId"
+        joinCondition: |-
+          FROM {{ ref('STAGE', 'StageRevenueBudgetsForceId') }} "StageRevenueBudgetsForceId"
+          LEFT JOIN {{ ref('DIM', 'Account') }} "Account"
+          LEFT JOIN {{ ref('DIM', 'DimBudgetDate') }} "DimBudgetDate"
+          LEFT JOIN {{ ref('DIM', 'RevenueBudgetForceIdDetail') }} "RevenueBudgetForceIdDetail"
       name: StageRevenueBudgetsForceId_2
       noLinkRefs: []
   name: StageRevenueBudgetsForceId_2
