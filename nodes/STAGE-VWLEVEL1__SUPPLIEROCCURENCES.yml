@@ -1,0 +1,132 @@
+fileVersion: 1
+id: d6010fae-8d23-5c5d-ab51-c73e8459b5db
+name: VWLEVEL1__SUPPLIEROCCURENCES
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: ''
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e3d36488-f9e9-5f64-894b-b360159bd347
+        stepCounter: d6010fae-8d23-5c5d-ab51-c73e8459b5db
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: LEVEL1_FORCE_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 094d58f2-55c9-5d87-a420-5e7ca381c0b9
+          stepCounter: 50012636-113f-5dbd-9dfd-7d3de804ebf9
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 13dacbc7-ea70-5eab-be32-6f7f3d4f4367
+        stepCounter: d6010fae-8d23-5c5d-ab51-c73e8459b5db
+      config: {}
+      dataType: DATE
+      description: IS THE FINANCIAL PERIOD FOR WHICH OMNIA PARTNERS RECORDED REVENUE
+        ON A TRANSACTION.
+      name: RECEIPT_DATE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: c8fa4944-dd2a-513f-b66c-c07a4adda840
+          stepCounter: 50012636-113f-5dbd-9dfd-7d3de804ebf9
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ad1b28f3-390e-5fd9-9bc2-32a67bdfa4df
+        stepCounter: d6010fae-8d23-5c5d-ab51-c73e8459b5db
+      config: {}
+      dataType: VARCHAR
+      description: SUPPLIER NAME TO BE USED ON FINANCIAL REPORTS
+      name: FINANCIAL_REPORTING_SUPPLIER_NAME
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 7796d655-02c3-513e-892c-bb7683218a8d
+          stepCounter: 1c1decdb-6c99-53a7-8ffd-ee2b440ede2a
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: de9e650e-c817-5e79-8664-dffeff1a407a
+        stepCounter: d6010fae-8d23-5c5d-ab51-c73e8459b5db
+      config: {}
+      dataType: NUMBER(38,0)
+      description: SUPPLIER NAME TO BE USED ON FINANCIAL REPORTS
+      name: SUPPLIER_OCCURENCE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 7796d655-02c3-513e-892c-bb7683218a8d
+          stepCounter: 1c1decdb-6c99-53a7-8ffd-ee2b440ede2a
+        transform: ROW_NUMBER () OVER (PARTITION BY LEVEL1FORCEID, FINANCIALREPORTINGSUPPLIERNAME
+          ORDER BY RECEIPTDATE ASC)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3716cdcf-46ab-55b0-a244-78e381469278
+        stepCounter: d6010fae-8d23-5c5d-ab51-c73e8459b5db
+      config: {}
+      dataType: NUMBER(18,4)
+      description: IS THE SALES AMOUNT, OR GROSS TRANSACTION VOLUME (GTV), ASSOCIATED
+        WITH A TRANSACTION IN US DOLLARS. A SALES AMOUNT IS TYPICALLY NOT AN INDIVIDUAL
+        SALE, BUT A MONTHLY AGGREGATE OF ALL SALES FOR A CUSTOMER IN A GIVEN MONTH.
+      name: SUM_OF_GTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 97d5e571-5c61-5aa7-b678-a99e7452ccec
+          stepCounter: 50012636-113f-5dbd-9dfd-7d3de804ebf9
+        transform: SUM(SALESANDREVENUE.SALES)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7145cfa3-ef98-508c-8774-36bdba703d91
+        stepCounter: d6010fae-8d23-5c5d-ab51-c73e8459b5db
+      config: {}
+      dataType: NUMBER(18,4)
+      description: IS THE AMOUNT OF GROSS REVENUE, ALWAYS IN US DOLLARS, OMNIA PARTNERS
+        RECIEVED FOR THE ROW.
+      name: SUM_OF_REVENUE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 04d637c6-0bae-5ade-9258-ac19d35f8987
+          stepCounter: 50012636-113f-5dbd-9dfd-7d3de804ebf9
+        transform: SUM(SALESANDREVENUE.REVENUE)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        FACT: 86f964e0-4829-56bc-850d-35ba7ffe6f78
+        DIM: 76c66ea5-afab-54db-8c82-ed85dbed24cd
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: STAGE
+        nodeName: FACT
+      - locationName: STAGE
+        nodeName: DIM
+      join:
+        joinCondition: |-
+          FROM {{ ref('STAGE', 'FACT') }} "FACT"
+          INNER JOIN {{ ref('STAGE', 'DIM') }} "DIM"
+      name: VWLEVEL1__SUPPLIEROCCURENCES
+      noLinkRefs: []
+  name: VWLEVEL1__SUPPLIEROCCURENCES
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,132 @@
+fileVersion: 1
+id: b19eccc9-a773-5178-b3ba-57b888849864
+name: VWLEVEL1__CONTRACTOCCURENCES
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: ''
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: bf13fa34-8daf-57e3-a70c-bc8a72225061
+        stepCounter: b19eccc9-a773-5178-b3ba-57b888849864
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: LEVEL1_FORCE_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 094d58f2-55c9-5d87-a420-5e7ca381c0b9
+          stepCounter: 50012636-113f-5dbd-9dfd-7d3de804ebf9
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 1dcdaee5-8227-56df-9b6f-99c0bf178a31
+        stepCounter: b19eccc9-a773-5178-b3ba-57b888849864
+      config: {}
+      dataType: DATE
+      description: IS THE FINANCIAL PERIOD FOR WHICH OMNIA PARTNERS RECORDED REVENUE
+        ON A TRANSACTION.
+      name: RECEIPT_DATE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: c8fa4944-dd2a-513f-b66c-c07a4adda840
+          stepCounter: 50012636-113f-5dbd-9dfd-7d3de804ebf9
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0aaf1b20-c6e7-5df4-bc23-172a8b75fa9b
+        stepCounter: b19eccc9-a773-5178-b3ba-57b888849864
+      config: {}
+      dataType: VARCHAR
+      description: ''
+      name: INITIAL_CONTRACT_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 1bb541c5-e340-5114-89de-1bf552bdfded
+          stepCounter: 1c1decdb-6c99-53a7-8ffd-ee2b440ede2a
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e651211a-e231-516b-a46a-a6516510c9ca
+        stepCounter: b19eccc9-a773-5178-b3ba-57b888849864
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: CONTRACT_OCCURENCE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 1bb541c5-e340-5114-89de-1bf552bdfded
+          stepCounter: 1c1decdb-6c99-53a7-8ffd-ee2b440ede2a
+        transform: ROW_NUMBER () OVER (PARTITION BY LEVEL1FORCEID, INITIALCONTRACTID
+          ORDER BY RECEIPTDATE ASC)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 775a5178-b358-5362-ac01-facbc78180f9
+        stepCounter: b19eccc9-a773-5178-b3ba-57b888849864
+      config: {}
+      dataType: NUMBER(18,4)
+      description: IS THE SALES AMOUNT, OR GROSS TRANSACTION VOLUME (GTV), ASSOCIATED
+        WITH A TRANSACTION IN US DOLLARS. A SALES AMOUNT IS TYPICALLY NOT AN INDIVIDUAL
+        SALE, BUT A MONTHLY AGGREGATE OF ALL SALES FOR A CUSTOMER IN A GIVEN MONTH.
+      name: SUM_OF_GTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 97d5e571-5c61-5aa7-b678-a99e7452ccec
+          stepCounter: 50012636-113f-5dbd-9dfd-7d3de804ebf9
+        transform: SUM(SALESANDREVENUE.SALES)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ec739efe-e5c0-541d-b391-d7cc9c519c21
+        stepCounter: b19eccc9-a773-5178-b3ba-57b888849864
+      config: {}
+      dataType: NUMBER(18,4)
+      description: IS THE AMOUNT OF GROSS REVENUE, ALWAYS IN US DOLLARS, OMNIA PARTNERS
+        RECIEVED FOR THE ROW.
+      name: SUM_OF_REVENUE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 04d637c6-0bae-5ade-9258-ac19d35f8987
+          stepCounter: 50012636-113f-5dbd-9dfd-7d3de804ebf9
+        transform: SUM(SALESANDREVENUE.REVENUE)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        FACT: 86f964e0-4829-56bc-850d-35ba7ffe6f78
+        DIM: 76c66ea5-afab-54db-8c82-ed85dbed24cd
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: STAGE
+        nodeName: FACT
+      - locationName: STAGE
+        nodeName: DIM
+      join:
+        joinCondition: |-
+          FROM {{ ref('STAGE', 'FACT') }} "FACT"
+          INNER JOIN {{ ref('STAGE', 'DIM') }} "DIM"
+      name: VWLEVEL1__CONTRACTOCCURENCES
+      noLinkRefs: []
+  name: VWLEVEL1__CONTRACTOCCURENCES
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

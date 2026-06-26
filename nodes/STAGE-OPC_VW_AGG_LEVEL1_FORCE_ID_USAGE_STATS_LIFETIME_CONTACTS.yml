@@ -1,0 +1,101 @@
+fileVersion: 1
+id: 235fab5c-02f8-5e04-ab53-b81f82e0e4cc
+name: OPC_VW_AGG_LEVEL1_FORCE_ID_USAGE_STATS_LIFETIME_CONTACTS
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: CONTACTS FOR EACH LEVEL1FORCEID AND FORCEID
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 373ae494-805d-549e-b77f-a8219dd06933
+        stepCounter: 235fab5c-02f8-5e04-ab53-b81f82e0e4cc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: LEVEL1FORCEID
+      name: LEVEL1_FORCE_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: b6749832-b369-581d-87ac-08c7b854b3ee
+          stepCounter: 9484b01e-4566-53d2-a4f3-d85e5720081d
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c458758b-0ba0-5399-b562-bd901e86b4e3
+        stepCounter: 235fab5c-02f8-5e04-ab53-b81f82e0e4cc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: FORCE ID
+      name: FORCE_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 1c5afabc-f96c-5edb-a5ce-91e3c9cee4e4
+          stepCounter: 9484b01e-4566-53d2-a4f3-d85e5720081d
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 79cb31b5-77be-568b-b527-3c10c9917cf7
+        stepCounter: 235fab5c-02f8-5e04-ab53-b81f82e0e4cc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: LEVEL1 FORCEID LIFETIME NUMBER OF CONTACTS (SUM OF CONTACT COUNT
+        FOR ALL CHILDREN TOO)
+      name: LEVEL1_FORCE_ID_LIFETIME_NUM_OF_CONTACTS
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 5b237ca7-d31f-548b-9b40-01520eaa879d
+          stepCounter: 9c08e88c-6ae1-5a41-bfc1-a1c853fafc1b
+        transform: COUNT(OPC_CONTACT.CONTACTKEY) OVER (PARTITION BY ACCOUNT.LEVEL1FORCEID)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6d5df895-c3ac-516d-b465-14ca6728cedf
+        stepCounter: 235fab5c-02f8-5e04-ab53-b81f82e0e4cc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: FORCEID LIFETIME NUMBER OF CONTACTS
+      name: FORCE_ID_LIFETIME_NUM_OF_CONTACTS
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 5b237ca7-d31f-548b-9b40-01520eaa879d
+          stepCounter: 9c08e88c-6ae1-5a41-bfc1-a1c853fafc1b
+        transform: COUNT(OPC_CONTACT.CONTACTKEY) OVER (PARTITION BY ACCOUNT.FORCEID)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        ACCOUNT: 9484b01e-4566-53d2-a4f3-d85e5720081d
+        OPC_CONTACT: 9c08e88c-6ae1-5a41-bfc1-a1c853fafc1b
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: DIM
+        nodeName: ACCOUNT
+      - locationName: STAGE
+        nodeName: OPC_CONTACT
+      join:
+        joinCondition: |-
+          FROM {{ ref('DIM', 'ACCOUNT') }} "ACCOUNT"
+          LEFT JOIN {{ ref('STAGE', 'OPC_CONTACT') }} "OPC_CONTACT"
+            ON "ACCOUNT"."FORCEID" = "OPC_CONTACT"."FORCEID"
+      name: OPC_VW_AGG_LEVEL1_FORCE_ID_USAGE_STATS_LIFETIME_CONTACTS
+      noLinkRefs: []
+  name: OPC_VW_AGG_LEVEL1_FORCE_ID_USAGE_STATS_LIFETIME_CONTACTS
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node
