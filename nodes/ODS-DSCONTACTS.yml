@@ -1,6 +1,6 @@
 fileVersion: 1
 id: 1075790d-d2d8-56cc-9dfe-77a3af3009f9
-name: DSCONTACTS
+name: DsContacts
 operation:
   config:
     postSQL: ''
@@ -29,10 +29,8 @@ operation:
       name: ACCOUNT_KEY
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 1d517a10-4d17-5fdb-94ed-c9af134c0dab
-          stepCounter: 36da35eb-4d26-55e7-8dde-feec79f6c80a
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("Account"."AccountKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: aa70f236-9bbf-5b06-9214-0f96b34b42cb
@@ -1252,17 +1250,22 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        STAGECONTACTS_2: 4678c4ce-6492-509e-8ad7-9e522de9ab80
+        StageContacts_2: 4678c4ce-6492-509e-8ad7-9e522de9ab80
+        Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: STAGE
-        nodeName: STAGECONTACTS_2
+        nodeName: StageContacts_2
+      - locationName: DIM
+        nodeName: Account
       join:
-        joinCondition: FROM {{ ref('STAGE', 'STAGECONTACTS_2') }} "STAGECONTACTS_2"
-      name: DSCONTACTS
+        joinCondition: |-
+          FROM {{ ref('STAGE', 'StageContacts_2') }} "STAGECONTACTS_2"
+          LEFT JOIN {{ ref('DIM', 'Account') }} "Account"
+      name: DsContacts
       noLinkRefs: []
-  name: DSCONTACTS
+  name: DsContacts
   overrideSQL: false
   schema: ''
   sqlType: persistentStage

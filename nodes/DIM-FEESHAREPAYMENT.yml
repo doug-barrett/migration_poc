@@ -1,6 +1,6 @@
 fileVersion: 1
 id: ecf7d79f-0545-50a4-ad12-9b4f83f40631
-name: FEESHAREPAYMENT
+name: FeeSharePayment
 operation:
   config:
     postSQL: ''
@@ -40,10 +40,8 @@ operation:
       name: AgreementKey
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: c318f66d-3438-5d2d-8c54-6a46c9ce80ea
-          stepCounter: 5f2a9238-0e7b-56ea-9215-a184e88c5aab
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("Agreement"."AgreementKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ad955cde-29b5-57ba-bd1a-439c5360fc4a
@@ -338,17 +336,22 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        STAGEFEESHAREPAYMENTS_ADDKEYS: e47677fa-d7ca-5e23-8806-2b9fc1e0a391
+        StageFeeSharePayments_AddKeys: e47677fa-d7ca-5e23-8806-2b9fc1e0a391
+        Agreement: 5f2a9238-0e7b-56ea-9215-a184e88c5aab
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: STAGE
-        nodeName: STAGEFEESHAREPAYMENTS_ADDKEYS
+        nodeName: StageFeeSharePayments_AddKeys
+      - locationName: DIM
+        nodeName: Agreement
       join:
-        joinCondition: FROM {{ ref('STAGE', 'STAGEFEESHAREPAYMENTS_ADDKEYS') }} "STAGEFEESHAREPAYMENTS_ADDKEYS"
-      name: FEESHAREPAYMENT
+        joinCondition: |-
+          FROM {{ ref('STAGE', 'StageFeeSharePayments_AddKeys') }} "STAGEFEESHAREPAYMENTS_ADDKEYS"
+          LEFT JOIN {{ ref('DIM', 'Agreement') }} "Agreement"
+      name: FeeSharePayment
       noLinkRefs: []
-  name: FEESHAREPAYMENT
+  name: FeeSharePayment
   overrideSQL: false
   schema: ''
   sqlType: Dimension

@@ -1,6 +1,6 @@
 fileVersion: 1
 id: 3558843d-ffd5-517f-bf96-5c333a20d8ef
-name: FEESHAREPAYMENTDETAIL
+name: FeeSharePaymentDetail
 operation:
   config:
     postSQL: ''
@@ -25,10 +25,8 @@ operation:
       name: FeeSharePaymentKey
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 526070f2-bdf1-5aba-bf54-350622d30473
-          stepCounter: ecf7d79f-0545-50a4-ad12-9b4f83f40631
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("FeeSharePayment"."FeeSharePaymentKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3a824cfd-ef26-5da2-8b7d-ded72450df23
@@ -39,10 +37,8 @@ operation:
       name: AgreementKey
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: c318f66d-3438-5d2d-8c54-6a46c9ce80ea
-          stepCounter: 5f2a9238-0e7b-56ea-9215-a184e88c5aab
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("Agreement"."AgreementKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d37d5b23-06ac-5675-9c21-17d66b5cf7ad
@@ -224,18 +220,26 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        STAGEFEESHAREPAYMENTDETAILS_ADDKEYS: 25a5b984-f853-53ed-9862-23b541c59e35
+        StageFeeSharePaymentDetails_AddKeys: 25a5b984-f853-53ed-9862-23b541c59e35
+        Agreement: 5f2a9238-0e7b-56ea-9215-a184e88c5aab
+        FeeSharePayment: ecf7d79f-0545-50a4-ad12-9b4f83f40631
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: STAGE
-        nodeName: STAGEFEESHAREPAYMENTDETAILS_ADDKEYS
+        nodeName: StageFeeSharePaymentDetails_AddKeys
+      - locationName: DIM
+        nodeName: Agreement
+      - locationName: DIM
+        nodeName: FeeSharePayment
       join:
-        joinCondition: FROM {{ ref('STAGE', 'STAGEFEESHAREPAYMENTDETAILS_ADDKEYS')
-          }} "STAGEFEESHAREPAYMENTDETAILS_ADDKEYS"
-      name: FEESHAREPAYMENTDETAIL
+        joinCondition: |-
+          FROM {{ ref('STAGE', 'StageFeeSharePaymentDetails_AddKeys') }} "STAGEFEESHAREPAYMENTDETAILS_ADDKEYS"
+          LEFT JOIN {{ ref('DIM', 'Agreement') }} "Agreement"
+          LEFT JOIN {{ ref('DIM', 'FeeSharePayment') }} "FeeSharePayment"
+      name: FeeSharePaymentDetail
       noLinkRefs: []
-  name: FEESHAREPAYMENTDETAIL
+  name: FeeSharePaymentDetail
   overrideSQL: false
   schema: ''
   sqlType: Fact

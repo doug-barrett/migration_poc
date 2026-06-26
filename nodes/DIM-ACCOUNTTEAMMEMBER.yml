@@ -1,6 +1,6 @@
 fileVersion: 1
 id: b3bd9fe8-38da-5ac6-b916-ec76bf7a62a0
-name: ACCOUNTTEAMMEMBER
+name: AccountTeamMember
 operation:
   config:
     postSQL: ''
@@ -153,10 +153,8 @@ operation:
       name: AccountKey
       nullable: true
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 1d517a10-4d17-5fdb-94ed-c9af134c0dab
-          stepCounter: 36da35eb-4d26-55e7-8dde-feec79f6c80a
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("Account"."AccountKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e6435306-f2a6-52eb-a3e8-4378b3dfba6c
@@ -282,17 +280,23 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        STAGEACCOUNTTEAMMEMBER_ADDKEYS: 143cd616-c798-50b3-a19c-1c21b7901f30
+        StageAccountTeamMember_AddKeys: 143cd616-c798-50b3-a19c-1c21b7901f30
+        Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: STAGE
-        nodeName: STAGEACCOUNTTEAMMEMBER_ADDKEYS
+        nodeName: StageAccountTeamMember_AddKeys
+      - locationName: DIM
+        nodeName: Account
       join:
-        joinCondition: FROM {{ ref('STAGE', 'STAGEACCOUNTTEAMMEMBER_ADDKEYS') }} "STAGEACCOUNTTEAMMEMBER_ADDKEYS"
-      name: ACCOUNTTEAMMEMBER
+        joinCondition: |-
+          FROM {{ ref('STAGE', 'StageAccountTeamMember_AddKeys') }} "STAGEACCOUNTTEAMMEMBER_ADDKEYS"
+          JOIN {{ ref('DIM', 'Account') }} "ACCOUNT"
+            ON STAGEACCOUNTTEAMMEMBER_ADDKEYS.SALESFORCEACCOUNTID = ACCOUNT.SALESFORCEID
+      name: AccountTeamMember
       noLinkRefs: []
-  name: ACCOUNTTEAMMEMBER
+  name: AccountTeamMember
   overrideSQL: false
   schema: ''
   sqlType: Dimension

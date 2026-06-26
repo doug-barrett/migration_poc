@@ -1,6 +1,6 @@
 fileVersion: 1
 id: ee95de87-3288-50d5-a144-4504a5b2ec74
-name: VWOPSALESANDREVENUEUC
+name: vwOPSalesAndRevenueUC
 operation:
   config:
     postSQL: ''
@@ -629,28 +629,38 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        AGGOPSALESANDREVENUEUC: bda5cb71-772b-5e6c-a283-75422eb9607a
-        CONTRACT: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
-        SOLICITATION: 7a4096f0-bd96-516b-bde1-1f09ae704846
+        AggOPSalesAndRevenueUC: bda5cb71-772b-5e6c-a283-75422eb9607a
+        AccountHierarchy_OMNIA: 230b2fbf-77a7-5303-93c8-06b48e487f15
+        Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
+        Contract: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
+        Solicitation: 7a4096f0-bd96-516b-bde1-1f09ae704846
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: OP
-        nodeName: AGGOPSALESANDREVENUEUC
+        nodeName: AggOPSalesAndRevenueUC
       - locationName: DIM
-        nodeName: CONTRACT
+        nodeName: AccountHierarchy_OMNIA
       - locationName: DIM
-        nodeName: SOLICITATION
+        nodeName: Account
+      - locationName: DIM
+        nodeName: Contract
+      - locationName: DIM
+        nodeName: Solicitation
       join:
         joinCondition: |-
-          FROM {{ ref('OP', 'AGGOPSALESANDREVENUEUC') }} "AGGOPSALESANDREVENUEUC"
-          FULL JOIN {{ ref('DIM', 'CONTRACT') }} "CONTRACT"
+          FROM {{ ref('OP', 'AggOPSalesAndRevenueUC') }} "AGGOPSALESANDREVENUEUC"
+          JOIN {{ ref('DIM', 'AccountHierarchy_OMNIA') }} "ACCOUNTHIERARCHY_OMNIA"
+            ON AGGOPSALESANDREVENUEUC.FORCEID = ACCOUNTHIERARCHY_OMNIA.FORCEID
+          JOIN {{ ref('DIM', 'Account') }} "ACCOUNT"
+            ON AGGOPSALESANDREVENUEUC.FORCEID = ACCOUNT.FORCEID
+          FULL JOIN {{ ref('DIM', 'Contract') }} "CONTRACT"
             ON AGGOPSALESANDREVENUEUC.CONTRACTID = CONTRACT.CONTRACTID
-          FULL JOIN {{ ref('DIM', 'SOLICITATION') }} "SOLICITATION"
+          FULL JOIN {{ ref('DIM', 'Solicitation') }} "SOLICITATION"
             ON CONTRACT.CONTRACTSOLICITATIONID = SOLICITATION.SOLICITATIONSALESFORCEID
-      name: VWOPSALESANDREVENUEUC
+      name: vwOPSalesAndRevenueUC
       noLinkRefs: []
-  name: VWOPSALESANDREVENUEUC
+  name: vwOPSalesAndRevenueUC
   overrideSQL: false
   schema: ''
   sqlType: View

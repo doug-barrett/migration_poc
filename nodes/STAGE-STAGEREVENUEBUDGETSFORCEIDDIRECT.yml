@@ -1,6 +1,6 @@
 fileVersion: 1
 id: 1a104f45-a513-52ec-ae11-13e50d1dcc02
-name: STAGEREVENUEBUDGETSFORCEIDDIRECT
+name: StageRevenueBudgetsForceIdDirect
 operation:
   config:
     postSQL: ''
@@ -153,10 +153,8 @@ operation:
       name: DirectSalesTerritoryKey
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 953bde4a-8de0-5d79-999b-b6579f49c3cd
-          stepCounter: d2a4b769-e5ca-56fe-95d6-627887fe6f61
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("DirectSalesTerritory"."DirectSalesTerritoryKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 47624ff6-5320-5caf-a0b2-49a31d6795e2
@@ -167,10 +165,8 @@ operation:
       name: BudgetDateKey
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: cb53ed7d-243d-59f5-83df-523df6cd2199
-          stepCounter: 1c035b59-b6e6-5676-bfa9-0b45cb823cad
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("DimBudgetDate"."BudgetDateKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e77a8a85-1179-5716-a25e-73c4cf8390c1
@@ -227,23 +223,35 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        LOADREVENUEBUDGETSFORCEIDDIRECT: 199d8502-0d0a-58a3-9711-f385f566c897
-        ACCOUNT: 36da35eb-4d26-55e7-8dde-feec79f6c80a
+        LoadRevenueBudgetsForceIdDirect: 199d8502-0d0a-58a3-9711-f385f566c897
+        Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
+        AccountHierarchy_OMNIA: 230b2fbf-77a7-5303-93c8-06b48e487f15
+        DimBudgetDate: 1c035b59-b6e6-5676-bfa9-0b45cb823cad
+        DirectSalesTerritory: d2a4b769-e5ca-56fe-95d6-627887fe6f61
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: LOAD
-        nodeName: LOADREVENUEBUDGETSFORCEIDDIRECT
+        nodeName: LoadRevenueBudgetsForceIdDirect
       - locationName: DIM
-        nodeName: ACCOUNT
+        nodeName: Account
+      - locationName: DIM
+        nodeName: AccountHierarchy_OMNIA
+      - locationName: DIM
+        nodeName: DimBudgetDate
+      - locationName: DIM
+        nodeName: DirectSalesTerritory
       join:
         joinCondition: |-
-          FROM {{ ref('LOAD', 'LOADREVENUEBUDGETSFORCEIDDIRECT') }} "LOADREVENUEBUDGETSFORCEIDDIRECT"
-          LEFT JOIN {{ ref('DIM', 'ACCOUNT') }} "ACCOUNT"
+          FROM {{ ref('LOAD', 'LoadRevenueBudgetsForceIdDirect') }} "LOADREVENUEBUDGETSFORCEIDDIRECT"
+          LEFT JOIN {{ ref('DIM', 'Account') }} "ACCOUNT"
             ON LOADREVENUEBUDGETSFORCEIDDIRECT.FORCEID = ACCOUNT.FORCEID
-      name: STAGEREVENUEBUDGETSFORCEIDDIRECT
+          LEFT JOIN {{ ref('DIM', 'AccountHierarchy_OMNIA') }} "AccountHierarchy_OMNIA"
+          LEFT JOIN {{ ref('DIM', 'DimBudgetDate') }} "DimBudgetDate"
+          LEFT JOIN {{ ref('DIM', 'DirectSalesTerritory') }} "DirectSalesTerritory"
+      name: StageRevenueBudgetsForceIdDirect
       noLinkRefs: []
-  name: STAGEREVENUEBUDGETSFORCEIDDIRECT
+  name: StageRevenueBudgetsForceIdDirect
   overrideSQL: false
   schema: ''
   sqlType: Stage

@@ -1,6 +1,6 @@
 fileVersion: 1
 id: a6fae210-a10e-596c-b532-3680b3234677
-name: STAGEREVENUEBUDGETSPD
+name: StageRevenueBudgetsPD
 operation:
   config:
     postSQL: ''
@@ -138,10 +138,8 @@ operation:
       name: BudgetDateKey
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: cb53ed7d-243d-59f5-83df-523df6cd2199
-          stepCounter: 1c035b59-b6e6-5676-bfa9-0b45cb823cad
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("DimBudgetDate"."BudgetDateKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a5390ba8-3b12-54d6-a63c-0874d6d32628
@@ -297,28 +295,32 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        LOADREVENUEBUDGETSPD_ALL: 56212d4e-c506-5b1e-9026-c8d5f3b2936e
-        CONTRACT: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
-        SUPPLIER: d53a79d2-fb60-532e-8596-560738ff8f56
+        LoadRevenueBudgetsPD_All: 56212d4e-c506-5b1e-9026-c8d5f3b2936e
+        Contract: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
+        Supplier: d53a79d2-fb60-532e-8596-560738ff8f56
+        DimBudgetDate: 1c035b59-b6e6-5676-bfa9-0b45cb823cad
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: LOAD
-        nodeName: LOADREVENUEBUDGETSPD_ALL
+        nodeName: LoadRevenueBudgetsPD_All
       - locationName: DIM
-        nodeName: CONTRACT
+        nodeName: Contract
       - locationName: DIM
-        nodeName: SUPPLIER
+        nodeName: Supplier
+      - locationName: DIM
+        nodeName: DimBudgetDate
       join:
         joinCondition: |-
-          FROM {{ ref('LOAD', 'LOADREVENUEBUDGETSPD_ALL') }} "LOADREVENUEBUDGETSPD_ALL"
-          LEFT JOIN {{ ref('DIM', 'CONTRACT') }} "CONTRACT"
+          FROM {{ ref('LOAD', 'LoadRevenueBudgetsPD_All') }} "LOADREVENUEBUDGETSPD_ALL"
+          LEFT JOIN {{ ref('DIM', 'Contract') }} "CONTRACT"
             ON LOADREVENUEBUDGETSPD_ALL.CONTRACTID = CONTRACT.CONTRACTID
-          LEFT JOIN {{ ref('DIM', 'SUPPLIER') }} "SUPPLIER"
+          LEFT JOIN {{ ref('DIM', 'Supplier') }} "SUPPLIER"
             ON CONTRACT.SUPPLIERKEY = SUPPLIER.SUPPLIERKEY
-      name: STAGEREVENUEBUDGETSPD
+          LEFT JOIN {{ ref('DIM', 'DimBudgetDate') }} "DimBudgetDate"
+      name: StageRevenueBudgetsPD
       noLinkRefs: []
-  name: STAGEREVENUEBUDGETSPD
+  name: StageRevenueBudgetsPD
   overrideSQL: false
   schema: ''
   sqlType: Stage

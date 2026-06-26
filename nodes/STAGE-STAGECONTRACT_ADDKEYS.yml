@@ -1,6 +1,6 @@
 fileVersion: 1
 id: fa6d9988-3194-5ac1-92d6-c3e30a6a0e54
-name: STAGECONTRACT_ADDKEYS
+name: StageContract_AddKeys
 operation:
   config:
     postSQL: ''
@@ -27,10 +27,8 @@ operation:
       name: OrganizationKey
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: e3b1c530-a843-5a38-b254-eb3d60f87845
-          stepCounter: a209659e-0ef5-5142-8763-8e50f8f22d4c
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("Organization"."OrganizationKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: cf68f934-f249-554c-896d-5a1566ac0012
@@ -629,10 +627,8 @@ operation:
       name: ContractTermEndDateKey
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 71223720-ef88-5b8e-ab80-85218a9e4908
-          stepCounter: d31ebe68-cd49-54e0-8ead-cdb72561b920
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("DimContractTermEndDate"."ContractTermEndDateKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c61992e8-fc66-5fba-a4dd-26a3e4dfe166
@@ -699,10 +695,8 @@ operation:
       name: ContractFinalEndDateKey
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 88ac9906-a48f-58cb-955b-f8ffbd2cda64
-          stepCounter: 50d1d751-440a-5ed9-ad4b-b96c903a8d15
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("DimContractFinalEndDate"."ContractFinalEndDateKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5c5abf2d-4d47-542a-bb20-dd9c7cbc6372
@@ -1540,10 +1534,8 @@ operation:
       name: ContractStartDateKey
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 49681474-5b2e-5e30-a4ad-0a7ef75004f4
-          stepCounter: a5759f1e-f948-54f1-867f-74271f595913
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("DimContractStartDate"."ContractStartDateKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e642629a-3ba1-581b-b1e0-1d93b28128d9
@@ -1933,10 +1925,8 @@ operation:
       name: SourceEntityKey
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: eb14afc3-0bf7-5448-994b-57299629a183
-          stepCounter: fddbea86-7513-5781-b0d9-6db1ec4ab5e4
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("SourceEntity"."SourceEntityKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e418a53b-ba2e-5465-921b-31d34451e682
@@ -1961,10 +1951,8 @@ operation:
       name: dss_source_system_key
       nullable: true
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: d10052f5-1e7a-57b1-b08e-75b07f684da2
-          stepCounter: 608d0092-693f-5a63-b524-8753565cf661
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("StageContract_BizXForms"."dss_source_system_key", 0)
       isBusinessKey: true
     - appliedColumnTests: {}
       columnReference:
@@ -2008,28 +1996,48 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        STAGECONTRACT_BIZXFORMS: 608d0092-693f-5a63-b524-8753565cf661
-        SUPPLIER: d53a79d2-fb60-532e-8596-560738ff8f56
-        ACCOUNT: 36da35eb-4d26-55e7-8dde-feec79f6c80a
+        StageContract_BizXForms: 608d0092-693f-5a63-b524-8753565cf661
+        Supplier: d53a79d2-fb60-532e-8596-560738ff8f56
+        Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
+        DimContractFinalEndDate: 50d1d751-440a-5ed9-ad4b-b96c903a8d15
+        DimContractStartDate: a5759f1e-f948-54f1-867f-74271f595913
+        DimContractTermEndDate: d31ebe68-cd49-54e0-8ead-cdb72561b920
+        Organization: a209659e-0ef5-5142-8763-8e50f8f22d4c
+        SourceEntity: fddbea86-7513-5781-b0d9-6db1ec4ab5e4
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: STAGE
-        nodeName: STAGECONTRACT_BIZXFORMS
+        nodeName: StageContract_BizXForms
       - locationName: DIM
-        nodeName: SUPPLIER
+        nodeName: Supplier
       - locationName: DIM
-        nodeName: ACCOUNT
+        nodeName: Account
+      - locationName: DIM
+        nodeName: DimContractFinalEndDate
+      - locationName: DIM
+        nodeName: DimContractStartDate
+      - locationName: DIM
+        nodeName: DimContractTermEndDate
+      - locationName: DIM
+        nodeName: Organization
+      - locationName: DIM
+        nodeName: SourceEntity
       join:
         joinCondition: |-
-          FROM {{ ref('STAGE', 'STAGECONTRACT_BIZXFORMS') }} "STAGECONTRACT_BIZXFORMS"
-          LEFT JOIN {{ ref('DIM', 'SUPPLIER') }} "SUPPLIER"
+          FROM {{ ref('STAGE', 'StageContract_BizXForms') }} "STAGECONTRACT_BIZXFORMS"
+          LEFT JOIN {{ ref('DIM', 'Supplier') }} "SUPPLIER"
             ON STAGECONTRACT_BIZXFORMS.CONTRACTACCOUNTID = SUPPLIER.SALESFORCEID
-          LEFT JOIN {{ ref('DIM', 'ACCOUNT') }} "ACCOUNT"
+          LEFT JOIN {{ ref('DIM', 'Account') }} "ACCOUNT"
             ON STAGECONTRACT_BIZXFORMS.CONTRACTACCOUNTID = ACCOUNT.SALESFORCEID
-      name: STAGECONTRACT_ADDKEYS
+          LEFT JOIN {{ ref('DIM', 'DimContractFinalEndDate') }} "DimContractFinalEndDate"
+          LEFT JOIN {{ ref('DIM', 'DimContractStartDate') }} "DimContractStartDate"
+          LEFT JOIN {{ ref('DIM', 'DimContractTermEndDate') }} "DimContractTermEndDate"
+          LEFT JOIN {{ ref('DIM', 'Organization') }} "Organization"
+          LEFT JOIN {{ ref('DIM', 'SourceEntity') }} "SourceEntity"
+      name: StageContract_AddKeys
       noLinkRefs: []
-  name: STAGECONTRACT_ADDKEYS
+  name: StageContract_AddKeys
   overrideSQL: false
   schema: ''
   sqlType: Stage

@@ -1,6 +1,6 @@
 fileVersion: 1
 id: b84f42e6-8d90-5703-9c95-b638a4e51447
-name: CUSTOMERPOTENTIAL
+name: CustomerPotential
 operation:
   config:
     postSQL: ''
@@ -25,10 +25,8 @@ operation:
       name: ACCOUNT_KEY
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: d01be544-d257-58b5-9b4c-c87ee07365d1
-          stepCounter: e27f426b-fb6f-5eb7-94a7-47a07c3be198
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("StageCustomerPotentialAddKeys"."AccountKey", 0)
       isBusinessKey: true
     - appliedColumnTests: {}
       columnReference:
@@ -40,10 +38,9 @@ operation:
       name: ACCOUNT_HIERARCHY_KEY
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: bd5512c0-5963-5f79-bbe5-c1783fde1ed3
-          stepCounter: e27f426b-fb6f-5eb7-94a7-47a07c3be198
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("StageCustomerPotentialAddKeys"."AccountHierarchyKey",
+          0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d4d4175a-65fe-5229-b66d-a9922e042120
@@ -54,10 +51,8 @@ operation:
       name: SUPPLIER_KEY
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 045f3f44-29df-529e-8151-167a61613509
-          stepCounter: e27f426b-fb6f-5eb7-94a7-47a07c3be198
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("StageCustomerPotentialAddKeys"."SupplierKey", 0)
       isBusinessKey: true
     - appliedColumnTests: {}
       columnReference:
@@ -216,17 +211,26 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        STAGECUSTOMERPOTENTIALADDKEYS: e27f426b-fb6f-5eb7-94a7-47a07c3be198
+        StageCustomerPotentialAddKeys: e27f426b-fb6f-5eb7-94a7-47a07c3be198
+        AccountHierarchy_OMNIA: 230b2fbf-77a7-5303-93c8-06b48e487f15
+        Supplier: d53a79d2-fb60-532e-8596-560738ff8f56
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: STAGE
-        nodeName: STAGECUSTOMERPOTENTIALADDKEYS
+        nodeName: StageCustomerPotentialAddKeys
+      - locationName: DIM
+        nodeName: AccountHierarchy_OMNIA
+      - locationName: DIM
+        nodeName: Supplier
       join:
-        joinCondition: FROM {{ ref('STAGE', 'STAGECUSTOMERPOTENTIALADDKEYS') }} "STAGECUSTOMERPOTENTIALADDKEYS"
-      name: CUSTOMERPOTENTIAL
+        joinCondition: |-
+          FROM {{ ref('STAGE', 'StageCustomerPotentialAddKeys') }} "STAGECUSTOMERPOTENTIALADDKEYS"
+          LEFT JOIN {{ ref('DIM', 'AccountHierarchy_OMNIA') }} "AccountHierarchy_OMNIA"
+          LEFT JOIN {{ ref('DIM', 'Supplier') }} "Supplier"
+      name: CustomerPotential
       noLinkRefs: []
-  name: CUSTOMERPOTENTIAL
+  name: CustomerPotential
   overrideSQL: false
   schema: ''
   sqlType: Fact

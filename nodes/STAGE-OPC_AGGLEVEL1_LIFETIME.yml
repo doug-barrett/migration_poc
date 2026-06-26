@@ -1,6 +1,6 @@
 fileVersion: 1
 id: 5b635234-a485-5f0f-ad0c-925fd81749b2
-name: OPC_AGGLEVEL1_LIFETIME
+name: OPC_AggLevel1_Lifetime
 operation:
   config:
     postSQL: ''
@@ -151,19 +151,23 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        OPC_SALESANDREVENUE: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+        OPC_SalesAndRevenue: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+        Contract: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: STAGE
-        nodeName: OPC_SALESANDREVENUE
+        nodeName: OPC_SalesAndRevenue
+      - locationName: DIM
+        nodeName: Contract
       join:
         joinCondition: |-
-          FROM {{ ref('STAGE', 'OPC_SALESANDREVENUE') }} "OPC_SALESANDREVENUE"
-          GROUP BY ALL
-      name: OPC_AGGLEVEL1_LIFETIME
+          FROM {{ ref('STAGE', 'OPC_SalesAndRevenue') }} "OPC_SALESANDREVENUE"
+          JOIN {{ ref('DIM', 'Contract') }} "CONTRACT"
+            ON OPC_SALESANDREVENUE.CONTRACTKEY = CONTRACT.CONTRACTKEY GROUP BY OPC_SALESANDREVENUE.LEVEL1FORCEID HAVING SUM(OPC_SALESANDREVENUE.SALES) <> 0
+      name: OPC_AggLevel1_Lifetime
       noLinkRefs: []
-  name: OPC_AGGLEVEL1_LIFETIME
+  name: OPC_AggLevel1_Lifetime
   overrideSQL: false
   schema: ''
   sqlType: '390'

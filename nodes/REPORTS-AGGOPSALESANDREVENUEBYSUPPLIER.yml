@@ -1,6 +1,6 @@
 fileVersion: 1
 id: a0d8d2fd-f057-5ead-a3c6-9e5cb81414e1
-name: AGGOPSALESANDREVENUEBYSUPPLIER
+name: AggOPSalesAndRevenueBySupplier
 operation:
   config:
     postSQL: ''
@@ -29,10 +29,8 @@ operation:
       name: SupplierKey
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: e2a1c831-5eac-5f27-bb2c-98fdb2f1f0c1
-          stepCounter: d53a79d2-fb60-532e-8596-560738ff8f56
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("Supplier"."SupplierKey", 0)
       isBusinessKey: true
     - appliedColumnTests: {}
       columnReference:
@@ -44,10 +42,8 @@ operation:
       name: TransactionDateKey
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: c9b1996d-660b-5a5c-9d41-8ca283427b58
-          stepCounter: a87fee4f-af20-5a45-a166-dfac0c893cce
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("DimTransactionDate"."TransactionDateKey", 0)
       isBusinessKey: true
     - appliedColumnTests: {}
       columnReference:
@@ -59,10 +55,8 @@ operation:
       name: UCCampusKey
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 24b7d9de-059d-5fab-9a08-5866ef5df10d
-          stepCounter: e4f19c38-4f23-5880-af16-784f2c4f669b
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("UCCampus"."UCCampusKey", 0)
       isBusinessKey: true
     - appliedColumnTests: {}
       columnReference:
@@ -95,19 +89,31 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        SALESANDREVENUE: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        SalesAndRevenue: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        UCCampus: e4f19c38-4f23-5880-af16-784f2c4f669b
+        DimTransactionDate: a87fee4f-af20-5a45-a166-dfac0c893cce
+        Supplier: d53a79d2-fb60-532e-8596-560738ff8f56
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: FACT
-        nodeName: SALESANDREVENUE
+        nodeName: SalesAndRevenue
+      - locationName: DIM
+        nodeName: UCCampus
+      - locationName: DIM
+        nodeName: DimTransactionDate
+      - locationName: DIM
+        nodeName: Supplier
       join:
         joinCondition: |-
-          FROM {{ ref('FACT', 'SALESANDREVENUE') }} "SALESANDREVENUE"
-          GROUP BY ALL
-      name: AGGOPSALESANDREVENUEBYSUPPLIER
+          FROM {{ ref('FACT', 'SalesAndRevenue') }} "SALESANDREVENUE"
+          JOIN {{ ref('DIM', 'UCCampus') }} "UCCAMPUS"
+            ON SALESANDREVENUE.LEVEL1FORCEID = UCCAMPUS.OPCAMPUSFORCEID GROUP BY SALESANDREVENUE.SUPPLIERKEY , SALESANDREVENUE.TRANSACTIONDATEKEY , UCCAMPUS.UCCAMPUSKEY
+          LEFT JOIN {{ ref('DIM', 'DimTransactionDate') }} "DimTransactionDate"
+          LEFT JOIN {{ ref('DIM', 'Supplier') }} "Supplier"
+      name: AggOPSalesAndRevenueBySupplier
       noLinkRefs: []
-  name: AGGOPSALESANDREVENUEBYSUPPLIER
+  name: AggOPSalesAndRevenueBySupplier
   overrideSQL: false
   schema: ''
   sqlType: '390'

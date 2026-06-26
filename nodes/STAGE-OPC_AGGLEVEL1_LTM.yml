@@ -1,6 +1,6 @@
 fileVersion: 1
 id: 09bd2851-9935-5385-a85e-f28677e34859
-name: OPC_AGGLEVEL1_LTM
+name: OPC_AggLevel1_LTM
 operation:
   config:
     postSQL: ''
@@ -126,19 +126,23 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        OPC_SALESANDREVENUE: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+        OPC_SalesAndRevenue: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+        Contract: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: STAGE
-        nodeName: OPC_SALESANDREVENUE
+        nodeName: OPC_SalesAndRevenue
+      - locationName: DIM
+        nodeName: Contract
       join:
         joinCondition: |-
-          FROM {{ ref('STAGE', 'OPC_SALESANDREVENUE') }} "OPC_SALESANDREVENUE"
-          GROUP BY ALL
-      name: OPC_AGGLEVEL1_LTM
+          FROM {{ ref('STAGE', 'OPC_SalesAndRevenue') }} "OPC_SALESANDREVENUE"
+          JOIN {{ ref('DIM', 'Contract') }} "CONTRACT"
+            ON OPC_SALESANDREVENUE.CONTRACTKEY = CONTRACT.CONTRACTKEY WHERE DATEDIFF(MONTH,TRANSACTIONDATE,MAXREPORTINGPERIODENDDATE) BETWEEN 0 AND 11 GROUP BY OPC_SALESANDREVENUE.LEVEL1FORCEID HAVING SUM(OPC_SALESANDREVENUE.SALES) <> 0
+      name: OPC_AggLevel1_LTM
       noLinkRefs: []
-  name: OPC_AGGLEVEL1_LTM
+  name: OPC_AggLevel1_LTM
   overrideSQL: false
   schema: ''
   sqlType: '390'

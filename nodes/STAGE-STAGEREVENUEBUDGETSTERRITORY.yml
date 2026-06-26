@@ -1,6 +1,6 @@
 fileVersion: 1
 id: ca1a2c54-d7ab-5aa2-bfdb-32e890ad084e
-name: STAGEREVENUEBUDGETSTERRITORY
+name: StageRevenueBudgetsTerritory
 operation:
   config:
     postSQL: ''
@@ -126,10 +126,8 @@ operation:
       name: BudgetDateKey
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: cb53ed7d-243d-59f5-83df-523df6cd2199
-          stepCounter: 1c035b59-b6e6-5676-bfa9-0b45cb823cad
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("DimBudgetDate"."BudgetDateKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c46c04f1-db4f-5880-a0b9-d66643ac9a1e
@@ -229,23 +227,27 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        LOADREVENUEBUDGETSTERRITORY: b268859f-c277-55a7-8c39-9b044d2632b5
-        SALESTERRITORY: 1fe14bc6-9177-56ee-a85f-9451ca0deebb
+        LoadRevenueBudgetsTerritory: b268859f-c277-55a7-8c39-9b044d2632b5
+        SalesTerritory: 1fe14bc6-9177-56ee-a85f-9451ca0deebb
+        DimBudgetDate: 1c035b59-b6e6-5676-bfa9-0b45cb823cad
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: LOAD
-        nodeName: LOADREVENUEBUDGETSTERRITORY
+        nodeName: LoadRevenueBudgetsTerritory
       - locationName: DIM
-        nodeName: SALESTERRITORY
+        nodeName: SalesTerritory
+      - locationName: DIM
+        nodeName: DimBudgetDate
       join:
         joinCondition: |-
-          FROM {{ ref('LOAD', 'LOADREVENUEBUDGETSTERRITORY') }} "LOADREVENUEBUDGETSTERRITORY"
-          LEFT JOIN {{ ref('DIM', 'SALESTERRITORY') }} "SALESTERRITORY"
+          FROM {{ ref('LOAD', 'LoadRevenueBudgetsTerritory') }} "LOADREVENUEBUDGETSTERRITORY"
+          LEFT JOIN {{ ref('DIM', 'SalesTerritory') }} "SALESTERRITORY"
             ON LOADREVENUEBUDGETSTERRITORY.TERRITORYID = SALESTERRITORY.TERRITORYID
-      name: STAGEREVENUEBUDGETSTERRITORY
+          LEFT JOIN {{ ref('DIM', 'DimBudgetDate') }} "DimBudgetDate"
+      name: StageRevenueBudgetsTerritory
       noLinkRefs: []
-  name: STAGEREVENUEBUDGETSTERRITORY
+  name: StageRevenueBudgetsTerritory
   overrideSQL: false
   schema: ''
   sqlType: Stage
