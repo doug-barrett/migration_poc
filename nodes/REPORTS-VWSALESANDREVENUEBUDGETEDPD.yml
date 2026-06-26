@@ -4191,13 +4191,17 @@ operation:
         nodeName: Solicitation
       join:
         joinCondition: |-
-          FROM {{ ref('FACT', 'RevenueBudgetPD') }} "AS"
-          LEFT JOIN {{ ref('DIM', 'RevenueBudgetPDDetail') }} "AS"
-          LEFT JOIN {{ ref('DIM', 'DimReceiptDate') }} "AS"
-          LEFT JOIN {{ ref('DIM', 'Contract') }} "AS"
+          FROM {{ ref('FACT', 'RevenueBudgetPD') }} "REVENUEBUDGETPD"
+          LEFT JOIN {{ ref('DIM', 'RevenueBudgetPDDetail') }} "REVENUEBUDGETPDDETAIL"
+            ON REVENUEBUDGETPD.REVENUEBUDGETPDDETAILKEY = REVENUEBUDGETPDDETAIL.REVENUEBUDGETPDDETAILKEY
+          LEFT JOIN {{ ref('DIM', 'DimReceiptDate') }} "DIMRECEIPTDATE"
+            ON DIMRECEIPTDATE.RECEIPTDATEKEY = REVENUEBUDGETPD.BUDGETDATEKEY
+          LEFT JOIN {{ ref('DIM', 'Contract') }} "CONTRACT"
+            ON CONTRACT.CONTRACTKEY = REVENUEBUDGETPD.CONTRACTKEY
           LEFT JOIN {{ ref('DIM', 'Supplier') }} "SUPPLIER"
             ON SUPPLIER.SUPPLIERKEY = CONTRACT.SUPPLIERKEY --
-          LEFT JOIN {{ ref('FACT', 'SalesAndRevenue') }} "AS"
+          LEFT JOIN {{ ref('FACT', 'SalesAndRevenue') }} "SALESANDREVENUE"
+            ON REVENUEBUDGETPD.CONTRACTKEY = SALESANDREVENUE.CONTRACTKEY AND REVENUEBUDGETPD.BUDGETDATEKEY = SALESANDREVENUE.RECEIPTDATEKEY
           LEFT JOIN {{ ref('DIM', 'Solicitation') }} "SOLICITATION"
             ON REVENUEBUDGETPD.CONTRACTID = SOLICITATION.SOLICITATIONNUMBER WHERE SALESANDREVENUE.CONTRACTKEY IS NULL
       name: vwSalesAndRevenueBudgetedPD
