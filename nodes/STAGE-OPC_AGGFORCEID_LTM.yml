@@ -132,10 +132,11 @@ operation:
       - locationName: STAGE
         nodeName: OPC_SalesAndRevenue
       join:
-        joinCondition: |2-
-
-          LEFT JOIN {{ ref('STAGE', 'OPC_SalesAndRevenue') }} "OPC_SalesAndRevenue"
-          GROUP BY ALL
+        joinCondition: |-
+          FROM {{ ref('STAGE', 'OPC_SalesAndRevenue') }} "OPC_SALESANDREVENUE"
+          WHERE DATEDIFF(MONTH,TRANSACTIONDATE,MAXREPORTINGPERIODENDDATE) BETWEEN 0 AND 11
+           GROUP BY OPC_SALESANDREVENUE.FORCEID
+          HAVING SUM(OPC_SALESANDREVENUE.SALES) <> 0
       name: OPC_AggForceId_LTM
       noLinkRefs: []
   name: OPC_AggForceId_LTM

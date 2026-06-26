@@ -706,9 +706,14 @@ operation:
       - locationName: OP
         nodeName: OP_Sales_And_Revenue
       join:
-        joinCondition: |2-
-
-          LEFT JOIN {{ ref('OP', 'OP_Sales_And_Revenue') }} "OP_Sales_And_Revenue"
+        joinCondition: |-
+          FROM {{ ref('OP', 'OP_Sales_And_Revenue') }} "OPSALESANDREVENUE"
+          WHERE NOT (OPSALESANDREVENUE.RECORDDESIGNATION = 'DUPLICATE')
+                AND OPSALESANDREVENUE.SALES IS NOT NULL
+                AND ACCOUNTTYPE NOT IN ('UNCLASSIFIED', 'SUPPLIER DEEMED ELIGIBLE')
+                AND ACCOUNTCLASSIFICATIONNAME NOT IN ('UNCLASSIFIED PUBLIC','UNCLASSIFIED PRIVATE','SUPPLIER DEEMED ELIGIBLE')
+                AND CONTRACTRECORDTYPE <> 'MARKETING AGREEMENT'
+                AND SOURCEENTITYNAME IN ('NATIONAL IPA', 'OMNIA PUBLIC SECTOR', 'TCPN', 'US COMMUNITIES', 'VIZIENT', 'NCPA')
           GROUP BY ALL
       name: OPC_SalesAndRevenue
       noLinkRefs: []

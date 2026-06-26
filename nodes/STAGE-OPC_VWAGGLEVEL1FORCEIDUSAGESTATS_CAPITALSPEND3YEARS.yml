@@ -58,12 +58,19 @@ operation:
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
-    - aliases: {}
+    - aliases:
+        OPC_SalesAndRevenue: 0a5a8efb-89dc-5dc3-8675-f235092f3723
       customSQL:
         customSQL: ''
-      dependencies: []
+      dependencies:
+      - locationName: STAGE
+        nodeName: OPC_SalesAndRevenue
       join:
-        joinCondition: ''
+        joinCondition: |-
+          FROM {{ ref('STAGE', 'OPC_SalesAndRevenue') }} "OPC_SALESANDREVENUE"
+          WHERE DATEDIFF(MONTH, OPC_SALESANDREVENUE.TRANSACTIONDATE, OPC_SALESANDREVENUE.MAXREPORTINGPERIODENDDATE) BETWEEN 0 AND 35
+          AND OPC_SALESANDREVENUE.ISCAPITALCONTRACT =1 AND OPC_SALESANDREVENUE.SECTOR='PUBLIC'
+          GROUP BY OPC_SALESANDREVENUE.LEVEL1FORCEID, OPC_SALESANDREVENUE.SUPPLIERID
       name: OPC_vwAggLevel1ForceIdUsageStats_CapitalSpend3Years
       noLinkRefs: []
   name: OPC_vwAggLevel1ForceIdUsageStats_CapitalSpend3Years

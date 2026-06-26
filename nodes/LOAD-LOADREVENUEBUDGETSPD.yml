@@ -94,12 +94,19 @@ operation:
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
-    - aliases: {}
+    - aliases:
+        LoadRevenueBudgets: aac9672e-429f-5a67-98b5-173b4f900433
       customSQL:
         customSQL: ''
-      dependencies: []
+      dependencies:
+      - locationName: LOAD
+        nodeName: LoadRevenueBudgets
       join:
-        joinCondition: ''
+        joinCondition: |-
+          FROM {{ ref('LOAD', 'LoadRevenueBudgets') }} "LOADREVENUEBUDGETS"
+          WHERE LOADREVENUEBUDGETS.BUDGETTYPELABEL = 'PD BUDGET'
+             OR  (LOADREVENUEBUDGETS.BUDGETTYPELABEL LIKE 'BUDGET - %' AND NOT LOADREVENUEBUDGETS.BUDGETTYPE LIKE 'BUDGET - ISO P%') --EXCLUDE ISO FROM PD BUDGET
+          GROUP BY LOADREVENUEBUDGETS.CONTRACTID, LOADREVENUEBUDGETS.BUDGETDATE
       name: LoadRevenueBudgetsPD
       noLinkRefs: []
   name: LoadRevenueBudgetsPD
