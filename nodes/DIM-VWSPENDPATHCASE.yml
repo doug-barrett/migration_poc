@@ -229,12 +229,31 @@ operation:
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
-    - aliases: {}
+    - aliases:
+        Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
+        AccountHierarchy: 012ac2e1-7289-53fa-8366-e3f8e03e1897
+        SalesTerritory: 1fe14bc6-9177-56ee-a85f-9451ca0deebb
+        Case_SFDC: 337057b8-a7af-503b-b5c0-efa32663b1e5
       customSQL:
         customSQL: ''
-      dependencies: []
+      dependencies:
+      - locationName: DIM
+        nodeName: Account
+      - locationName: DIM
+        nodeName: AccountHierarchy
+      - locationName: DIM
+        nodeName: SalesTerritory
+      - locationName: DIM
+        nodeName: Case_SFDC
       join:
-        joinCondition: ''
+        joinCondition: |-
+          FROM {{ ref('DIM', 'Account') }} "ACCOUNT"
+          LEFT JOIN {{ ref('DIM', 'AccountHierarchy') }} "ACCOUNTHIERARCHY"
+            ON ACCOUNTHIERARCHY.ACCOUNTHIERARCHYKEY = ACCOUNT.ACCOUNTHIERARCHYKEY
+          LEFT JOIN {{ ref('DIM', 'SalesTerritory') }} "SALESTERRITORY"
+            ON SALESTERRITORY.SALESTERRITORYKEY = ACCOUNT.SALESTERRITORYKEY
+          INNER JOIN {{ ref('DIM', 'Case_SFDC') }} "CASE_SFDC"
+            ON CASE_SFDC.ACCOUNTKEY = ACCOUNT.ACCOUNTKEY WHERE CASE_SFDC.CASE_CASE_CLOSED_REASON = 'COMPLETED' AND CASE_SFDC.CASE_RECORDTYPEID='0124M000000KZYKQAQ'
       name: vwSpendPathCase
       noLinkRefs: []
   name: vwSpendPathCase
