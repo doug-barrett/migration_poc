@@ -629,37 +629,25 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        AGGOPSALESANDREVENUEUC: 5490fe04-79dc-5edd-a09a-b811f618f7c3
-        ACCOUNTHIERARCHY_OMNIA: a3c73d95-3c3c-51d3-aaf7-0f0c6602864e
-        ACCOUNT: 9484b01e-4566-53d2-a4f3-d85e5720081d
-        CONTRACT: 1c1decdb-6c99-53a7-8ffd-ee2b440ede2a
-        SOLICITATION: 0373136f-485b-595e-8801-f151e025fefa
+        AGGOPSALESANDREVENUEUC: bda5cb71-772b-5e6c-a283-75422eb9607a
+        CONTRACT: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
+        SOLICITATION: 7a4096f0-bd96-516b-bde1-1f09ae704846
       customSQL:
         customSQL: ''
       dependencies:
-      - locationName: STAGE
+      - locationName: OP
         nodeName: AGGOPSALESANDREVENUEUC
-      - locationName: STAGE
-        nodeName: ACCOUNTHIERARCHY_OMNIA
-      - locationName: STAGE
-        nodeName: ACCOUNT
-      - locationName: STAGE
+      - locationName: DIM
         nodeName: CONTRACT
-      - locationName: STAGE
+      - locationName: DIM
         nodeName: SOLICITATION
       join:
         joinCondition: |-
-          FROM {{ ref('STAGE', 'AGGOPSALESANDREVENUEUC') }} "AGGOPSALESANDREVENUEUC"
-          LEFT JOIN {{ ref('STAGE', 'ACCOUNTHIERARCHY_OMNIA') }} "ACCOUNTHIERARCHY_OMNIA"
-            ON "AGGOPSALESANDREVENUEUC"."FORCEID" = "ACCOUNTHIERARCHY_OMNIA"."FORCEID"
-          JOIN "ACCOUNT" ACCOUNT
-            ON "AGGOPSALESANDREVENUEUC"."FORCEID" = "ACCOUNT"."FORCEID"
-          LEFT JOIN {{ ref('STAGE', 'ACCOUNT') }} "ACCOUNT"
-            ON "AGGOPSALESANDREVENUEUC"."FORCEID" = "ACCOUNT"."FORCEID"
-          FULL JOIN {{ ref('STAGE', 'CONTRACT') }} "CONTRACT"
-            ON "AGGOPSALESANDREVENUEUC"."CONTRACTID" = "CONTRACT"."CONTRACTID"
-          FULL JOIN {{ ref('STAGE', 'SOLICITATION') }} "SOLICITATION"
-            ON "CONTRACT"."CONTRACTSOLICITATIONID" = "SOLICITATION"."SOLICITATIONSALESFORCEID"
+          FROM {{ ref('OP', 'AGGOPSALESANDREVENUEUC') }} "AGGOPSALESANDREVENUEUC"
+          FULL JOIN {{ ref('DIM', 'CONTRACT') }} "CONTRACT"
+            ON AGGOPSALESANDREVENUEUC.CONTRACTID = CONTRACT.CONTRACTID
+          FULL JOIN {{ ref('DIM', 'SOLICITATION') }} "SOLICITATION"
+            ON CONTRACT.CONTRACTSOLICITATIONID = SOLICITATION.SOLICITATIONSALESFORCEID
       name: VWOPSALESANDREVENUEUC
       noLinkRefs: []
   name: VWOPSALESANDREVENUEUC

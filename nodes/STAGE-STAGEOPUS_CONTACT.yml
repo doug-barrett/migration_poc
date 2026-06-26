@@ -311,14 +311,30 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        LOADOPUS_CONTACT: 6a462add-298a-502b-ad2d-5eed0b3220e4
+        LOADOPUS_CONTACT: 9a87e62d-8a5c-5600-9423-aa8c8c3245fa
+        STAGEACCOUNT_2: 20bb5f44-6ef7-5c3c-9f20-42832bc71250
+        STAGECONTACTS_1: 980809ad-ab5d-5d6b-b0e4-54bfdff8df7a
+        LOADOPUSACCOUNT: c848b4a7-0317-55f5-a223-da8bdda17964
       customSQL:
         customSQL: ''
       dependencies:
-      - locationName: STAGE
+      - locationName: LOAD
         nodeName: LOADOPUS_CONTACT
+      - locationName: STAGE
+        nodeName: STAGEACCOUNT_2
+      - locationName: STAGE
+        nodeName: STAGECONTACTS_1
+      - locationName: LOAD
+        nodeName: LOADOPUSACCOUNT
       join:
-        joinCondition: FROM {{ ref('STAGE', 'LOADOPUS_CONTACT') }} "LOADOPUS_CONTACT"
+        joinCondition: |-
+          FROM {{ ref('LOAD', 'LOADOPUS_CONTACT') }} "LOADOPUS_CONTACT"
+          LEFT JOIN {{ ref('STAGE', 'STAGEACCOUNT_2') }} "STAGEACCOUNT_2"
+            ON TRY_CAST(LOADOPUS_CONTACT.FORCEID AS INT) = STAGEACCOUNT_2.FORCEID
+          LEFT JOIN {{ ref('STAGE', 'STAGECONTACTS_1') }} "STAGECONTACTS_1"
+            ON STAGECONTACTS_1.EMAIL = LOADOPUS_CONTACT.EMAIL AND STAGECONTACTS_1.FORCEID = TRY_CAST(LOADOPUS_CONTACT.FORCEID AS INT)
+          LEFT JOIN {{ ref('LOAD', 'LOADOPUSACCOUNT') }} "LOADOPUSACCOUNT"
+            ON LOADOPUS_CONTACT.ORGANIZATIONID=LOADOPUSACCOUNT.ORGANIZATIONID
       name: STAGEOPUS_CONTACT
       noLinkRefs: []
   name: STAGEOPUS_CONTACT

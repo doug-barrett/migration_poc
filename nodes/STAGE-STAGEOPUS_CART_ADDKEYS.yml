@@ -326,11 +326,11 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        STAGEFACT_OPUS_CART: 6bdb80e5-8598-550b-b96e-c951c71e4ff4
+        STAGEFACT_OPUS_CART: 5c4cca50-49fc-5a18-944d-e8a8e2e81d13
         OPUS_CART: 687915f0-727d-51a2-b0a5-4adbb7e5b1d2
-        CONTACT: 784f16fd-30c6-5397-b422-17590cbfa7a5
+        CONTACT: 0966087d-71be-52bd-b036-c51d5760dec5
         OPUS_PRODUCT: f7af927a-ae42-57d9-af21-9c97e2d66d69
-        ACCOUNT: 9484b01e-4566-53d2-a4f3-d85e5720081d
+        ACCOUNT: 36da35eb-4d26-55e7-8dde-feec79f6c80a
         OPUS_CONTACT: e544e9bb-f1db-5eb8-804a-e26ddcae5787
       customSQL:
         customSQL: ''
@@ -339,11 +339,11 @@ operation:
         nodeName: STAGEFACT_OPUS_CART
       - locationName: DIM
         nodeName: OPUS_CART
-      - locationName: STAGE
+      - locationName: DIM
         nodeName: CONTACT
       - locationName: DIM
         nodeName: OPUS_PRODUCT
-      - locationName: STAGE
+      - locationName: DIM
         nodeName: ACCOUNT
       - locationName: DIM
         nodeName: OPUS_CONTACT
@@ -351,16 +351,15 @@ operation:
         joinCondition: |-
           FROM {{ ref('STAGE', 'STAGEFACT_OPUS_CART') }} "STAGEFACT_OPUS_CART"
           LEFT JOIN {{ ref('DIM', 'OPUS_CART') }} "OPUS_CART"
-            ON "STAGEFACT_OPUS_CART"."CARTID" = "OPUS_CART"."CARTID"
-          LEFT JOIN {{ ref('STAGE', 'CONTACT') }} "CONTACT"
-            ON "STAGEFACT_OPUS_CART"."CUSTOMERID" = "CONTACT"."OPUS_CUSTOMER_ID"
+            ON STAGEFACT_OPUS_CART.CARTID = OPUS_CART.CARTID
+          LEFT JOIN {{ ref('DIM', 'CONTACT') }} "CONTACT"
+            ON STAGEFACT_OPUS_CART.CUSTOMERID = CONTACT.OPUS_CUSTOMER_ID
           LEFT JOIN {{ ref('DIM', 'OPUS_PRODUCT') }} "OPUS_PRODUCT"
-            ON "STAGEFACT_OPUS_CART"."PRODUCTID" = "OPUS_PRODUCT"."PRODUCTID"
-          LEFT JOIN {{ ref('STAGE', 'ACCOUNT') }} "ACCOUNT"
-            ON "STAGEFACT_OPUS_CART"."ORGANIZATIONID" = "ACCOUNT"."OPUS_ORGANIZATION_ID"
+            ON STAGEFACT_OPUS_CART.PRODUCTID = OPUS_PRODUCT.PRODUCTID
+          LEFT JOIN {{ ref('DIM', 'ACCOUNT') }} "ACCOUNT"
+            ON STAGEFACT_OPUS_CART.ORGANIZATIONID = ACCOUNT.OPUS_ORGANIZATION_ID
           LEFT JOIN {{ ref('DIM', 'OPUS_CONTACT') }} "OPUS_CONTACT"
-            ON "STAGEFACT_OPUS_CART"."CUSTOMERID" = "OPUS_CONTACT"."CUSTOMERID"
-          AND "STAGEFACT_OPUS_CART"."ORGANIZATIONID"="OPUS_CONTACT"."ORGANIZATIONID"
+            ON STAGEFACT_OPUS_CART.CUSTOMERID = OPUS_CONTACT.CUSTOMERID AND STAGEFACT_OPUS_CART.ORGANIZATIONID=OPUS_CONTACT.ORGANIZATIONID
       name: STAGEOPUS_CART_ADDKEYS
       noLinkRefs: []
   name: STAGEOPUS_CART_ADDKEYS

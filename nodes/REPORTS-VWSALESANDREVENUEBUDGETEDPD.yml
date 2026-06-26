@@ -4615,39 +4615,41 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        REVENUEBUDGETPD: 79a3b473-a388-5000-8327-515004369549
-        REVENUEBUDGETPDDETAIL: b307744d-0dc2-5bd0-89c0-4e10644aa1b4
-        DIMRECEIPTDATE: 87a542db-a1d8-54ac-80c7-edea4d71a0f8
-        CONTRACT: 1c1decdb-6c99-53a7-8ffd-ee2b440ede2a
-        SUPPLIER: e50af761-3d61-5367-9b46-1f8e5543b4f6
-        SALESANDREVENUE: 1586c0f4-77ae-5d7b-b13d-c240dea01e18
-        SOLICITATION: 0373136f-485b-595e-8801-f151e025fefa
+        REVENUEBUDGETPD: 30219ff3-024a-5f72-aaf9-0aa697e1e5e1
+        REVENUEBUDGETPDDETAIL: 2852c14b-576f-523e-be51-a9b4d4d85a16
+        DIMRECEIPTDATE: 960fa6f7-221a-538b-b67f-bdab671638fc
+        CONTRACT: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
+        SUPPLIER: d53a79d2-fb60-532e-8596-560738ff8f56
+        SALESANDREVENUE: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        SOLICITATION: 7a4096f0-bd96-516b-bde1-1f09ae704846
       customSQL:
         customSQL: ''
       dependencies:
-      - locationName: STAGE
+      - locationName: FACT
         nodeName: REVENUEBUDGETPD
-      - locationName: STAGE
+      - locationName: DIM
         nodeName: REVENUEBUDGETPDDETAIL
-      - locationName: STAGE
+      - locationName: DIM
         nodeName: DIMRECEIPTDATE
-      - locationName: STAGE
+      - locationName: DIM
         nodeName: CONTRACT
-      - locationName: STAGE
+      - locationName: DIM
         nodeName: SUPPLIER
-      - locationName: STAGE
+      - locationName: FACT
         nodeName: SALESANDREVENUE
-      - locationName: STAGE
+      - locationName: DIM
         nodeName: SOLICITATION
       join:
-        joinCondition: "FROM {{ ref('STAGE', 'REVENUEBUDGETPD') }} \"AS\"\nLEFT JOIN\
-          \ {{ ref('STAGE', 'REVENUEBUDGETPDDETAIL') }} \"AS\"\nLEFT JOIN {{ ref('STAGE',\
-          \ 'DIMRECEIPTDATE') }} \"AS\"\nLEFT JOIN {{ ref('STAGE', 'CONTRACT') }}\
-          \ \"AS\"\nLEFT JOIN {{ ref('STAGE', 'SUPPLIER') }} \"ON\"\n  ON \"SUPPLIER\"\
-          .\"SUPPLIERKEY\" = \"CONTRACT\".\"SUPPLIERKEY\"\n\t\t   --\nLEFT JOIN {{\
-          \ ref('STAGE', 'SALESANDREVENUE') }} \"AS\"\nLEFT JOIN {{ ref('STAGE', 'SOLICITATION')\
-          \ }} \"SOLICITATION\"\n  ON \"REVENUEBUDGETPD\".\"CONTRACTID\" = \"SOLICITATION\"\
-          .\"SOLICITATIONNUMBER\""
+        joinCondition: |-
+          FROM {{ ref('FACT', 'REVENUEBUDGETPD') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'REVENUEBUDGETPDDETAIL') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'DIMRECEIPTDATE') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'CONTRACT') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'SUPPLIER') }} "SUPPLIER"
+            ON SUPPLIER.SUPPLIERKEY = CONTRACT.SUPPLIERKEY --
+          LEFT JOIN {{ ref('FACT', 'SALESANDREVENUE') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'SOLICITATION') }} "SOLICITATION"
+            ON REVENUEBUDGETPD.CONTRACTID = SOLICITATION.SOLICITATIONNUMBER WHERE SALESANDREVENUE.CONTRACTKEY IS NULL
       name: VWSALESANDREVENUEBUDGETEDPD
       noLinkRefs: []
   name: VWSALESANDREVENUEBUDGETEDPD

@@ -4633,14 +4633,106 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        LOADMAXRECEIPTDATE: e6dcfa5a-60e2-5182-b403-661a3cd2f9b8
+        SALESANDREVENUE: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        DIMRECEIPTDATE: 960fa6f7-221a-538b-b67f-bdab671638fc
+        CONTRACT: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
+        SUPPLIER: d53a79d2-fb60-532e-8596-560738ff8f56
+        REVENUEBUDGETPD: 30219ff3-024a-5f72-aaf9-0aa697e1e5e1
+        REVENUEBUDGETPDDETAIL: 2852c14b-576f-523e-be51-a9b4d4d85a16
+        ACCOUNT: 36da35eb-4d26-55e7-8dde-feec79f6c80a
+        ACCOUNTGEOGRAPHY: 1071dd2d-aef7-53a0-9ed4-a5c3b3dfe3f1
+        ACCOUNTHIERARCHY: 012ac2e1-7289-53fa-8366-e3f8e03e1897
+        LEVEL1ACCOUNT: a5c09adf-2c06-5dfb-9234-4441bb3ad37d
+        ORGANIZATION: a209659e-0ef5-5142-8763-8e50f8f22d4c
+        SALESTERRITORY: 1fe14bc6-9177-56ee-a85f-9451ca0deebb
+        TERRITORYHISTORY: 97aea2fa-d86d-560e-a322-21afbb75fcbe
+        DIRECTSALESTERRITORY: d2a4b769-e5ca-56fe-95d6-627887fe6f61
+        REVENUEBUDGETFORCEID: ac746460-2223-5944-9efa-db2e0925ba6d
+        REVENUEBUDGETFORCEIDDETAIL: 24aa7f29-efed-5b5a-80d8-53533c5ad8f9
+        LOADMAXRECEIPTDATE: 8d77b009-aeaf-5c14-b257-4e4e398324ae
+        REVENUEBUDGETFORCEIDDIRECT: 1e0673f8-1663-50bb-9f4b-af94b32b8942
+        REVENUEBUDGETFORCEIDDIRECTDETAIL: 18a510d9-e766-5ae3-89c2-00c88f65b01a
+        TRANSACTIONCLASS: 0a364e4c-c54f-5b2b-a9dd-cd8c0e6e747b
+        AGGCONTRACTUSAGEBYRECEIPTDATE: 70490da1-3a1a-518a-a404-910ed3465033
+        SQLBIT: 628e7b3c-1f28-5214-9311-805a97de0201
+        VWSYSCOCHECK: f2a91543-ee07-51c1-847b-a71684245795
       customSQL:
         customSQL: ''
       dependencies:
-      - locationName: STAGE
+      - locationName: FACT
+        nodeName: SALESANDREVENUE
+      - locationName: DIM
+        nodeName: DIMRECEIPTDATE
+      - locationName: DIM
+        nodeName: CONTRACT
+      - locationName: DIM
+        nodeName: SUPPLIER
+      - locationName: FACT
+        nodeName: REVENUEBUDGETPD
+      - locationName: DIM
+        nodeName: REVENUEBUDGETPDDETAIL
+      - locationName: DIM
+        nodeName: ACCOUNT
+      - locationName: DIM
+        nodeName: ACCOUNTGEOGRAPHY
+      - locationName: DIM
+        nodeName: ACCOUNTHIERARCHY
+      - locationName: DIM
+        nodeName: LEVEL1ACCOUNT
+      - locationName: DIM
+        nodeName: ORGANIZATION
+      - locationName: DIM
+        nodeName: SALESTERRITORY
+      - locationName: DIM
+        nodeName: TERRITORYHISTORY
+      - locationName: DIM
+        nodeName: DIRECTSALESTERRITORY
+      - locationName: FACT
+        nodeName: REVENUEBUDGETFORCEID
+      - locationName: DIM
+        nodeName: REVENUEBUDGETFORCEIDDETAIL
+      - locationName: LOAD
         nodeName: LOADMAXRECEIPTDATE
+      - locationName: FACT
+        nodeName: REVENUEBUDGETFORCEIDDIRECT
+      - locationName: DIM
+        nodeName: REVENUEBUDGETFORCEIDDIRECTDETAIL
+      - locationName: DIM
+        nodeName: TRANSACTIONCLASS
+      - locationName: REPORTS
+        nodeName: AGGCONTRACTUSAGEBYRECEIPTDATE
+      - locationName: STAGE
+        nodeName: SQLBIT
+      - locationName: DIM
+        nodeName: VWSYSCOCHECK
       join:
-        joinCondition: FROM {{ ref('STAGE', 'LOADMAXRECEIPTDATE') }} "LOADMAXRECEIPTDATE"
+        joinCondition: |-
+          FROM {{ ref('FACT', 'SALESANDREVENUE') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'DIMRECEIPTDATE') }} "AS"
+          FULL JOIN {{ ref('DIM', 'CONTRACT') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'SUPPLIER') }} "SUPPLIER"
+            ON SUPPLIER.SUPPLIERKEY = CONTRACT.SUPPLIERKEY
+          LEFT JOIN {{ ref('FACT', 'REVENUEBUDGETPD') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'REVENUEBUDGETPDDETAIL') }} "AS"
+          FULL JOIN {{ ref('DIM', 'ACCOUNT') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'ACCOUNTGEOGRAPHY') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'ACCOUNTHIERARCHY') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'LEVEL1ACCOUNT') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'ORGANIZATION') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'SALESTERRITORY') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'TERRITORYHISTORY') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'DIRECTSALESTERRITORY') }} "AS"
+          LEFT JOIN {{ ref('FACT', 'REVENUEBUDGETFORCEID') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'REVENUEBUDGETFORCEIDDETAIL') }} "AS"
+          CROSS JOIN {{ ref('LOAD', 'LOADMAXRECEIPTDATE') }} "LOADMAXRECEIPTDATE"
+          LEFT JOIN {{ ref('FACT', 'REVENUEBUDGETFORCEIDDIRECT') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'REVENUEBUDGETFORCEIDDIRECTDETAIL') }} "AS"
+          LEFT JOIN {{ ref('DIM', 'TRANSACTIONCLASS') }} "AS"
+          LEFT JOIN {{ ref('REPORTS', 'AGGCONTRACTUSAGEBYRECEIPTDATE') }} "AGGCONTRACTUSAGEBYRECEIPTDATE"
+            ON TRACTUSAGEBYRECEIPTDATE ON ACCOUNT.FORCEID = AGGCONTRACTUSAGEBYRECEIPTDATE.FORCEID AND CONTRACT.PPACONTRACTNUMBER = AGGCONTRACTUSAGEBYRECEIPTDATE.PPACONTRACTNUMBER AND DIMRECEIPTDATE.RECEIPTDATECALQUARTER = AGGCONTRACTUSAGEBYRECEIPTDATE.RECEIPTDATECALQUARTER
+          LEFT JOIN {{ ref('STAGE', 'SQLBIT') }} "SQLBIT"
+          LEFT JOIN {{ ref('DIM', 'VWSYSCOCHECK') }} "VWSYSCOCHECK"
+            ON VWSYSCOCHECK.RECEIPTDATE=SALESANDREVENUE.RECEIPTDATE AND VWSYSCOCHECK.FORCEID=ACCOUNT.FORCEID AND VWSYSCOCHECK.VERTICAL=CONTRACT.VERTICAL AND VWSYSCOCHECK.SOURCEENTITYNAME=CONTRACT.SOURCEENTITYNAME
       name: VWSALESANDREVENUE
       noLinkRefs: []
   name: VWSALESANDREVENUE

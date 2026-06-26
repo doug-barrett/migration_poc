@@ -90,22 +90,25 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        FACT: 86f964e0-4829-56bc-850d-35ba7ffe6f78
-        DIM: 76c66ea5-afab-54db-8c82-ed85dbed24cd
+        SALESANDREVENUE: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        ACCOUNT: 36da35eb-4d26-55e7-8dde-feec79f6c80a
+        CONTRACT: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
       customSQL:
         customSQL: ''
       dependencies:
-      - locationName: STAGE
-        nodeName: FACT
-      - locationName: STAGE
-        nodeName: DIM
-      - locationName: STAGE
-        nodeName: DIM
+      - locationName: FACT
+        nodeName: SALESANDREVENUE
+      - locationName: DIM
+        nodeName: ACCOUNT
+      - locationName: DIM
+        nodeName: CONTRACT
       join:
         joinCondition: |-
-          FROM {{ ref('STAGE', 'FACT') }} "FACT"
-          LEFT JOIN {{ ref('STAGE', 'DIM') }} "DIM"
-          LEFT JOIN {{ ref('STAGE', 'DIM') }} "DIM"
+          FROM {{ ref('FACT', 'SALESANDREVENUE') }} "SALESANDREVENUE"
+          LEFT JOIN {{ ref('DIM', 'ACCOUNT') }} "ACCOUNT"
+            ON ACCOUNT.ACCOUNTKEY = SALESANDREVENUE.ACCOUNTKEY
+          LEFT JOIN {{ ref('DIM', 'CONTRACT') }} "CONTRACT"
+            ON CONTRACT.CONTRACTKEY = SALESANDREVENUE.CONTRACTKEY WHERE CONTRACT.SUPPLIERNAME = 'SYSCO CORPORATION' AND CONTRACT.SOURCEENTITYNAME = 'VIZIENT' AND CONTRACT.VERTICAL = 'FOOD AND NUTRITION' GROUP BY 1, 2, 3, 4,5 HAVING SUM(REVENUE) >= 0.5
       name: VWSYSCOCHECK
       noLinkRefs: []
   name: VWSYSCOCHECK
