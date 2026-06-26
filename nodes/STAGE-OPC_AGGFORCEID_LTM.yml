@@ -1,0 +1,182 @@
+fileVersion: 1
+id: d91ed17f-52c4-5a10-bfca-c28b38b4230a
+name: OPC_AGGFORCEID_LTM
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: 'AGGREGATES BY LEVEL1FORCEID, SUM OF SALES, SUM OF REVENUE, # OF FINANCIAL
+    REPORTING SUPPLIER NAME, # OF CONTRACTS, # OF CONTRACT CATEGORIES, DATE OF 1ST
+    PURCHASE, DATE OF MOST RECENT PURCHASE FOR ALL TIME'
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4bacee41-a9ff-5e7d-a389-668a81f02461
+        stepCounter: d91ed17f-52c4-5a10-bfca-c28b38b4230a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ACCOUNT ID
+      name: FORCE_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 00c2a7f1-da57-5996-94c0-6c4ef69492cf
+          stepCounter: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+        transform: ''
+      isBusinessKey: true
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 02becb2d-1056-565c-8417-693239cd3e20
+        stepCounter: d91ed17f-52c4-5a10-bfca-c28b38b4230a
+      config: {}
+      dataType: NUMBER(18,4)
+      description: IS THE SALES AMOUNT, OR GROSS TRANSACTION VOLUME (GTV), ASSOCIATED
+        WITH A TRANSACTION IN US DOLLARS. A SALES AMOUNT IS TYPICALLY NOT AN INDIVIDUAL
+        SALE, BUT A MONTHLY AGGREGATE OF ALL SALES FOR A CUSTOMER IN A GIVEN MONTH.
+      name: FORCE_ID_LTM_SUM_OF_GTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 724e85e5-608b-5bc2-bfbb-905083a604e1
+          stepCounter: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+        transform: SUM(OPC_SALESANDREVENUE.SALES)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9d8c4018-b191-50c5-9c4d-ee23869738cd
+        stepCounter: d91ed17f-52c4-5a10-bfca-c28b38b4230a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: IS THE RANK BY GROSS TRANSACTION VOLUME (GTV), ASSOCIATED TO THE
+        LEVEL1FORCEID
+      name: FORCE_ID_LTM_RANK_BY_GTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 724e85e5-608b-5bc2-bfbb-905083a604e1
+          stepCounter: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+        transform: RANK() OVER (ORDER BY SUM(OPC_SALESANDREVENUE.SALES) DESC)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: cf120b73-a348-5ce1-a0e8-1c0a226f7ec2
+        stepCounter: d91ed17f-52c4-5a10-bfca-c28b38b4230a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: IS THE DISTINCT COUNT OF FINANCIAL REPORTING SUPPLIER NAMES FOR
+        A LEVEL1FORCEID.
+      name: FORCE_ID_LTM_NUM_OF_SUPPLIERS_USED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: da783af4-427b-5611-92a9-ca3ba8f3ea6d
+          stepCounter: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+        transform: COUNT (DISTINCT OPC_SALESANDREVENUE.FINANCIALREPORTINGSUPPLIERNAME)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c23689cd-ee30-5101-a980-e1252f6a3384
+        stepCounter: d91ed17f-52c4-5a10-bfca-c28b38b4230a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: IS THE LIFETIME "DISTINCT COUNT" OF INITIALCONTRACTID FOR EACH
+        LEVEL1FORCEID.
+      name: FORCE_ID_LTM_NUM_OF_CONTRACTS_USED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 752e8487-7275-5620-b3b0-da3152fca280
+          stepCounter: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+        transform: COUNT (DISTINCT OPC_SALESANDREVENUE.INITIALCONTRACTID)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 46808652-4985-5cde-bf92-63cec76d64c6
+        stepCounter: d91ed17f-52c4-5a10-bfca-c28b38b4230a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: IS THE LIFETIME "DISTINCT COUNT" OF CONTRACTCATEGORY FOR EACH LEVEL1FORCEID
+      name: FORCE_ID_LTM_NUM_OF_CONTRACT_CATEGORIES_USED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 9a387ca2-f5a7-5603-86e5-8100eaff34e4
+          stepCounter: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+        transform: COUNT (DISTINCT OPC_SALESANDREVENUE.CONTRACTCATEGORY)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4e5cc27f-a15c-5ec4-bd9f-61afee5a95de
+        stepCounter: d91ed17f-52c4-5a10-bfca-c28b38b4230a
+      config: {}
+      dataType: TIMESTAMP
+      description: IS THE TIMESTAMP FOR WHEN THIS WAS CREATED.
+      name: DSSCREATE_TIME
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: GETDATE()
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5a1fc9cc-cf14-5c67-a3af-5d05d66b0b5e
+        stepCounter: d91ed17f-52c4-5a10-bfca-c28b38b4230a
+      config: {}
+      dataType: TIMESTAMP
+      description: IS THE TIMESTAMP FOR WHEN THIS LAST UPDATED.
+      name: DSSUPDATE_TIME
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: GETDATE()
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 46a9331b-16c7-547c-a891-4f0c88308217
+        stepCounter: d91ed17f-52c4-5a10-bfca-c28b38b4230a
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_CREATE_DATE
+      nullable: true
+      isSystemCreateDate: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3d519857-9264-5a6f-9e70-1a469b382a2d
+        stepCounter: d91ed17f-52c4-5a10-bfca-c28b38b4230a
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_UPDATE_DATE
+      nullable: true
+      isSystemUpdateDate: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        OPC_SALESANDREVENUE: 7c083326-4f71-5045-8059-b7d8dbab7e75
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: STAGE
+        nodeName: OPC_SALESANDREVENUE
+      join:
+        joinCondition: FROM {{ ref('STAGE', 'OPC_SALESANDREVENUE') }} "OPC_SALESANDREVENUE"
+      name: OPC_AGGFORCEID_LTM
+      noLinkRefs: []
+  name: OPC_AGGFORCEID_LTM
+  overrideSQL: false
+  schema: ''
+  sqlType: Aggregate
+  type: sql
+  version: 1
+type: Node

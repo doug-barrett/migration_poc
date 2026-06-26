@@ -1,0 +1,247 @@
+fileVersion: 1
+id: 42ec30a5-6c6c-5cf6-af02-61ffb1dd956b
+name: AGGLEVEL1_LIFETIME
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: 'AGGREGATES BY LEVEL1FORCEID, SUM OF SALES, SUM OF REVENUE, # OF FINANCIAL
+    REPORTING SUPPLIER NAME, # OF CONTRACTS, # OF CONTRACT CATEGORIES, DATE OF 1ST
+    PURCHASE, DATE OF MOST RECENT PURCHASE FOR ALL TIME'
+  isMultisource: false
+  locationName: REPORTS
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 18999ca7-ddcb-5513-b37b-bc465dcd10de
+        stepCounter: 42ec30a5-6c6c-5cf6-af02-61ffb1dd956b
+      config: {}
+      dataType: NUMBER(38,0)
+      description: IS THE ULTIMATE PARENT OF A FORCEID, THE TOP OF THE HIERARCHY FOR
+        A MEMBER.
+      name: LEVEL1_FORCE_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: f64a6a0f-f2d2-5054-99b3-2ae60805954e
+          stepCounter: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b8a41f1a-ae32-5dc4-96c7-fe1f60ea54a8
+        stepCounter: 42ec30a5-6c6c-5cf6-af02-61ffb1dd956b
+      config: {}
+      dataType: TIMESTAMP
+      description: IS THE TIMESTAMP FOR WHEN THIS WAS CREATED.
+      name: DSSCREATE_TIME
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: GETDATE()
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6fa02a4e-3055-59db-975b-c3ec45d814ee
+        stepCounter: 42ec30a5-6c6c-5cf6-af02-61ffb1dd956b
+      config: {}
+      dataType: TIMESTAMP
+      description: IS THE TIMESTAMP FOR WHEN THIS LAST UPDATED.
+      name: DSSUPDATE_TIME
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: GETDATE()
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a08ceb63-a226-54fa-81cb-b2e5365dd897
+        stepCounter: 42ec30a5-6c6c-5cf6-af02-61ffb1dd956b
+      config: {}
+      dataType: NUMBER(18,4)
+      description: IS THE SALES AMOUNT, OR GROSS TRANSACTION VOLUME (GTV), ASSOCIATED
+        WITH A TRANSACTION IN US DOLLARS. A SALES AMOUNT IS TYPICALLY NOT AN INDIVIDUAL
+        SALE, BUT A MONTHLY AGGREGATE OF ALL SALES FOR A CUSTOMER IN A GIVEN MONTH.
+      name: LEVEL1_LIFETIME_SUM_OF_GTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 4940b06c-4e9c-59ce-a6c3-6805d7667d47
+          stepCounter: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        transform: SUM(SALESANDREVENUE.SALES)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3b2c91ae-8396-5ace-8373-5a9a97b714fa
+        stepCounter: 42ec30a5-6c6c-5cf6-af02-61ffb1dd956b
+      config: {}
+      dataType: NUMBER(18,4)
+      description: IS THE AMOUNT OF GROSS REVENUE, ALWAYS IN US DOLLARS, OMNIA PARTNERS
+        RECIEVED FOR THE ROW.
+      name: LEVEL1_LIFETIME_SUM_OF_REVENUE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 65c05ab8-6493-5097-90b0-f072d9b9171b
+          stepCounter: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        transform: SUM(SALESANDREVENUE.REVENUE)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2f2a2464-39bf-5f84-806a-6c36d0e6e020
+        stepCounter: 42ec30a5-6c6c-5cf6-af02-61ffb1dd956b
+      config: {}
+      dataType: NUMBER(38,0)
+      description: IS THE RANK BY GROSS TRANSACTION VOLUME (GTV), ASSOCIATED TO THE
+        LEVEL1FORCEID
+      name: LEVEL1_LIFETIME_RANK_BY_GTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 4940b06c-4e9c-59ce-a6c3-6805d7667d47
+          stepCounter: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        transform: RANK() OVER (ORDER BY SUM(SALESANDREVENUE.SALES) DESC)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ba10c21b-762d-52e2-a4e8-96ce2a79cd7f
+        stepCounter: 42ec30a5-6c6c-5cf6-af02-61ffb1dd956b
+      config: {}
+      dataType: NUMBER(38,0)
+      description: IS THE NUMERIC RANK OF A LEVEL1FORCEID BY THE LIFETIME SUM OF REVENUE.
+      name: LEVEL1_LIFETIME_RANK_BY_REVENUE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 65c05ab8-6493-5097-90b0-f072d9b9171b
+          stepCounter: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        transform: RANK() OVER (ORDER BY SUM(SALESANDREVENUE.REVENUE) DESC)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0b388d1b-22fa-52d7-8500-aa1963df07a7
+        stepCounter: 42ec30a5-6c6c-5cf6-af02-61ffb1dd956b
+      config: {}
+      dataType: NUMBER(38,0)
+      description: IS THE DISTINCT COUNT OF FINANCIAL REPORTING SUPPLIER NAMES FOR
+        A LEVEL1FORCEID.
+      name: LEVEL1_LIFETIME_NUM_OF_SUPPLIERS_USED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: f76733d6-ce20-5e7a-9a54-c44759849317
+          stepCounter: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
+        transform: COUNT (DISTINCT CONTRACT.FINANCIALREPORTINGSUPPLIERNAME)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f684fbcc-bb2c-597f-afb1-26eef20181cb
+        stepCounter: 42ec30a5-6c6c-5cf6-af02-61ffb1dd956b
+      config: {}
+      dataType: NUMBER(38,0)
+      description: IS THE LIFETIME "DISTINCT COUNT" OF INITIALCONTRACTID FOR EACH
+        LEVEL1FORCEID.
+      name: LEVEL1_LIFETIME_NUM_OF_CONTRACTS_USED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 6abdec73-3afb-5036-a3c0-490c1b344e3a
+          stepCounter: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
+        transform: COUNT (DISTINCT CASE WHEN CONTRACTRECORDTYPE <> 'MARKETING AGREEMENT'
+          THEN INITIALCONTRACTID ELSE NULL END)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ee8df036-8e7d-5098-98ed-da7f6e518e99
+        stepCounter: 42ec30a5-6c6c-5cf6-af02-61ffb1dd956b
+      config: {}
+      dataType: NUMBER(38,0)
+      description: IS THE LIFETIME "DISTINCT COUNT" OF CONTRACTCATEGORY FOR EACH LEVEL1FORCEID
+      name: LEVEL1_LIFETIME_NUM_OF_CONTRACT_CATEGORIES_USED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 4ada08a3-3f87-50e6-82ff-f7d04302540d
+          stepCounter: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
+        transform: COUNT (DISTINCT CONTRACT.CONTRACTCATEGORY)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 78499b72-e5b1-5eb6-93b9-ef38caff0ae1
+        stepCounter: 42ec30a5-6c6c-5cf6-af02-61ffb1dd956b
+      config: {}
+      dataType: DATE
+      description: IS THE FIRST FINANCIAL PERIOD FOR WHICH OMNIA PARTNERS RECORDED
+        REVENUE FOR EACH LEVEL1FORCEID.
+      name: LEVEL1_LIFETIME_DATE_OF_FIRST_PURCHASE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 47762156-ca0c-5c39-b1d7-ea4fdab3125b
+          stepCounter: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        transform: MIN(SALESANDREVENUE.RECEIPTDATE)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9d1ec833-c8a0-5280-be33-34619b7874ec
+        stepCounter: 42ec30a5-6c6c-5cf6-af02-61ffb1dd956b
+      config: {}
+      dataType: DATE
+      description: IS THE FINANCIAL PERIOD FOR THE MOST RECENT PURCHASE FOR EACH LEVEL1FORCEID.
+      name: LEVEL1_LIFETIME_DATE_OF_MOST_RECENT_PURCHASE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 47762156-ca0c-5c39-b1d7-ea4fdab3125b
+          stepCounter: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        transform: MAX(SALESANDREVENUE.RECEIPTDATE)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6606140b-04aa-5ab4-86e3-3fa721f090a0
+        stepCounter: 42ec30a5-6c6c-5cf6-af02-61ffb1dd956b
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_CREATE_DATE
+      nullable: true
+      isSystemCreateDate: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 93fe222f-4bd2-5e1d-9fc9-fd38e68bc4ad
+        stepCounter: 42ec30a5-6c6c-5cf6-af02-61ffb1dd956b
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_UPDATE_DATE
+      nullable: true
+      isSystemUpdateDate: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        SALESANDREVENUE: 1586c0f4-77ae-5d7b-b13d-c240dea01e18
+        CONTRACT: 1c1decdb-6c99-53a7-8ffd-ee2b440ede2a
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: STAGE
+        nodeName: SALESANDREVENUE
+      - locationName: STAGE
+        nodeName: CONTRACT
+      join:
+        joinCondition: |-
+          FROM {{ ref('STAGE', 'SALESANDREVENUE') }} "SALESANDREVENUE"
+          LEFT JOIN {{ ref('STAGE', 'CONTRACT') }} "CONTRACT"
+            ON "SALESANDREVENUE"."CONTRACTKEY" = "CONTRACT"."CONTRACTKEY"
+      name: AGGLEVEL1_LIFETIME
+      noLinkRefs: []
+  name: AGGLEVEL1_LIFETIME
+  overrideSQL: false
+  schema: ''
+  sqlType: Aggregate
+  type: sql
+  version: 1
+type: Node

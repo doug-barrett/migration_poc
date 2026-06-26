@@ -1,0 +1,219 @@
+fileVersion: 1
+id: c4fc0df2-c508-595f-8c5f-438e5a5767dd
+name: AGGLEVEL1_PY_LTM
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: 'AGGREGATES BY LEVEL1FORCEID, SUM OF SALES, SUM OF REVENUE, # OF FINANCIAL
+    REPORTING SUPPLIER NAME, # OF CONTRACTS, # OF CONTRACT CATEGORIES, DATE OF 1ST
+    PURCHASE, DATE OF MOST RECENT PURCHASE FOR ALL TIME'
+  isMultisource: false
+  locationName: REPORTS
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: bab69a9c-d985-538b-b925-5d01de114abe
+        stepCounter: c4fc0df2-c508-595f-8c5f-438e5a5767dd
+      config: {}
+      dataType: NUMBER(38,0)
+      description: IS THE ULTIMATE PARENT OF A FORCEID, THE TOP OF THE HIERARCHY FOR
+        A MEMBER.
+      name: LEVEL1_FORCE_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: f64a6a0f-f2d2-5054-99b3-2ae60805954e
+          stepCounter: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        transform: ''
+      isBusinessKey: true
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 69a48480-9f56-57b8-a0de-3904b2d6ab9e
+        stepCounter: c4fc0df2-c508-595f-8c5f-438e5a5767dd
+      config: {}
+      dataType: NUMBER(18,4)
+      description: IS THE SALES AMOUNT, OR GROSS TRANSACTION VOLUME (GTV), ASSOCIATED
+        WITH A TRANSACTION IN US DOLLARS. A SALES AMOUNT IS TYPICALLY NOT AN INDIVIDUAL
+        SALE, BUT A MONTHLY AGGREGATE OF ALL SALES FOR A CUSTOMER IN A GIVEN MONTH.
+      name: LEVEL1_PY_LTM_SUM_OF_GTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 4940b06c-4e9c-59ce-a6c3-6805d7667d47
+          stepCounter: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        transform: SUM(SALESANDREVENUE.SALES)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 93078fc8-46e4-5cc1-8874-a1cd7de2a9b8
+        stepCounter: c4fc0df2-c508-595f-8c5f-438e5a5767dd
+      config: {}
+      dataType: NUMBER(18,4)
+      description: IS THE AMOUNT OF GROSS REVENUE, ALWAYS IN US DOLLARS, OMNIA PARTNERS
+        RECIEVED FOR THE ROW.
+      name: LEVEL1_PY_LTM_SUM_OF_REVENUE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 65c05ab8-6493-5097-90b0-f072d9b9171b
+          stepCounter: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        transform: SUM(SALESANDREVENUE.REVENUE)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 051db6d4-2b28-51c2-8701-4942174363c6
+        stepCounter: c4fc0df2-c508-595f-8c5f-438e5a5767dd
+      config: {}
+      dataType: NUMBER(38,0)
+      description: IS THE RANK BY GROSS TRANSACTION VOLUME (GTV), ASSOCIATED TO THE
+        LEVEL1FORCEID
+      name: LEVEL1_PY_LTM_RANK_BY_GTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 4940b06c-4e9c-59ce-a6c3-6805d7667d47
+          stepCounter: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        transform: RANK() OVER (ORDER BY SUM(SALESANDREVENUE.SALES) DESC)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: fd2cbc6b-43b8-5c8d-97dd-d3e07f1694fd
+        stepCounter: c4fc0df2-c508-595f-8c5f-438e5a5767dd
+      config: {}
+      dataType: NUMBER(38,0)
+      description: IS THE NUMERIC RANK OF A LEVEL1FORCEID BY THE LIFETIME SUM OF REVENUE.
+      name: LEVEL1_PY_LTM_RANK_BY_REVENUE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 65c05ab8-6493-5097-90b0-f072d9b9171b
+          stepCounter: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        transform: RANK() OVER (ORDER BY SUM(SALESANDREVENUE.REVENUE) DESC)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 234c7e23-ffd4-5300-a831-d7797821578b
+        stepCounter: c4fc0df2-c508-595f-8c5f-438e5a5767dd
+      config: {}
+      dataType: NUMBER(38,0)
+      description: IS THE DISTINCT COUNT OF FINANCIAL REPORTING SUPPLIER NAMES FOR
+        A LEVEL1FORCEID.
+      name: LEVEL1_PY_LTM_NUM_OF_SUPPLIERS_USED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: f76733d6-ce20-5e7a-9a54-c44759849317
+          stepCounter: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
+        transform: COUNT (DISTINCT CONTRACT.FINANCIALREPORTINGSUPPLIERNAME)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b795515b-1ca1-5b3c-b31e-6fe997b7c1ef
+        stepCounter: c4fc0df2-c508-595f-8c5f-438e5a5767dd
+      config: {}
+      dataType: NUMBER(38,0)
+      description: IS THE LIFETIME "DISTINCT COUNT" OF INITIALCONTRACTID FOR EACH
+        LEVEL1FORCEID.
+      name: LEVEL1_PY_LTM_NUM_OF_CONTRACTS_USED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 6abdec73-3afb-5036-a3c0-490c1b344e3a
+          stepCounter: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
+        transform: COUNT (DISTINCT CASE WHEN CONTRACTRECORDTYPE <> 'MARKETING AGREEMENT'
+          THEN INITIALCONTRACTID ELSE NULL END)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 749f7813-ae4a-509a-83a1-c2a925e2ea94
+        stepCounter: c4fc0df2-c508-595f-8c5f-438e5a5767dd
+      config: {}
+      dataType: NUMBER(38,0)
+      description: IS THE LIFETIME "DISTINCT COUNT" OF CONTRACTCATEGORY FOR EACH LEVEL1FORCEID
+      name: LEVEL1_PY_LTM_NUM_OF_CONTRACT_CATEGORIES_USED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 4ada08a3-3f87-50e6-82ff-f7d04302540d
+          stepCounter: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
+        transform: COUNT (DISTINCT CONTRACT.CONTRACTCATEGORY)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e60b89ed-cf2f-5af4-b855-18cce076fe2e
+        stepCounter: c4fc0df2-c508-595f-8c5f-438e5a5767dd
+      config: {}
+      dataType: TIMESTAMP
+      description: IS THE TIMESTAMP FOR WHEN THIS WAS CREATED.
+      name: DSSCREATE_TIME
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: GETDATE()
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2061e413-31b0-5234-8632-d8371f969cac
+        stepCounter: c4fc0df2-c508-595f-8c5f-438e5a5767dd
+      config: {}
+      dataType: TIMESTAMP
+      description: IS THE TIMESTAMP FOR WHEN THIS LAST UPDATED.
+      name: DSSUPDATE_TIME
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: GETDATE()
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 06a5ac2e-da66-54af-a510-b1cff5690c40
+        stepCounter: c4fc0df2-c508-595f-8c5f-438e5a5767dd
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_CREATE_DATE
+      nullable: true
+      isSystemCreateDate: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: eb9b5325-1995-5f4e-bfed-c0c4574613a5
+        stepCounter: c4fc0df2-c508-595f-8c5f-438e5a5767dd
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_UPDATE_DATE
+      nullable: true
+      isSystemUpdateDate: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        SALESANDREVENUE: 1586c0f4-77ae-5d7b-b13d-c240dea01e18
+        CONTRACT: 1c1decdb-6c99-53a7-8ffd-ee2b440ede2a
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: STAGE
+        nodeName: SALESANDREVENUE
+      - locationName: STAGE
+        nodeName: CONTRACT
+      join:
+        joinCondition: |-
+          FROM {{ ref('STAGE', 'SALESANDREVENUE') }} "SALESANDREVENUE"
+          LEFT JOIN {{ ref('STAGE', 'CONTRACT') }} "CONTRACT"
+            ON "SALESANDREVENUE"."CONTRACTKEY" = "CONTRACT"."CONTRACTKEY"
+      name: AGGLEVEL1_PY_LTM
+      noLinkRefs: []
+  name: AGGLEVEL1_PY_LTM
+  overrideSQL: false
+  schema: ''
+  sqlType: Aggregate
+  type: sql
+  version: 1
+type: Node
