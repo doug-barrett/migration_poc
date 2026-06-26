@@ -263,9 +263,7 @@ operation:
       name: Created_Month
       nullable: true
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: bc0e321b-6286-5ab6-b7a0-bb1523398ff4
-          stepCounter: 0966087d-71be-52bd-b036-c51d5760dec5
+      - columnReferences: []
         transform: LAST_DAY(CONTACT.CREATEDDATE)
     - appliedColumnTests: {}
       columnReference:
@@ -291,9 +289,7 @@ operation:
       name: LastActive
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 15b6e10e-3ac7-55c5-aba4-f7482dfbb619
-          stepCounter: 0966087d-71be-52bd-b036-c51d5760dec5
+      - columnReferences: []
         transform: "CASE \n\\NWHEN LASTACTIVITYDATE IS NULL THEN ''\n\\N\n\\NWHEN\
           \ LASTACTIVITYDATE =CURRENT_DATE THEN 'TODAY'\n\\N\n\\NWHEN DATEDIFF('DAYS',LASTACTIVITYDATE,CURRENT_DATE)=1\
           \ THEN 'YESTERDAY'\n\\N\n\\NWHEN DATEDIFF('DAYS',LASTACTIVITYDATE,CURRENT_DATE)<\
@@ -404,12 +400,21 @@ operation:
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
-    - aliases: {}
+    - aliases:
+        CONTACT: 0966087d-71be-52bd-b036-c51d5760dec5
       customSQL:
         customSQL: ''
-      dependencies: []
+      dependencies:
+      - locationName: DIM
+        nodeName: CONTACT
       join:
-        joinCondition: ''
+        joinCondition: "FROM {{ ref('DIM', 'CONTACT') }} \"CONTACT\"\nWHERE NOT (\n\
+          \      CONTACT.LEVEL1FORCEID IS NULL\n   OR CONTACT.NAME = 'NATIONAL IPA'\n\
+          \   OR CONTACT.FIRSTNAME LIKE '%UNKNOWN%' \n   OR CONTACT.FIRSTNAME LIKE\
+          \ '%OMNIA%'\n   OR CONTACT.LASTNAME  LIKE '%UNKNOWN%'\n   OR CONTACT.LASTNAME\
+          \  LIKE '%OMNIA%'\n   OR CONTACT.DONOTEMAILFLAG      = TRUE \n   OR CONTACT.MARKETINGMAILOPTOUT\
+          \ = TRUE \n   OR CONTACT.ISEMAILBOUNCED      = TRUE \n   OR CONTACT.ISDELETED\
+          \           = TRUE\n)\nAND CONTACT.STATUS = 'ACTIVE'"
       name: OPC_CONTACT
       noLinkRefs: []
   name: OPC_CONTACT
