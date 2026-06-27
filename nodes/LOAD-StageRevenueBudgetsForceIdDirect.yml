@@ -27,7 +27,9 @@ operation:
       name: ForceId
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 02417e9f-531a-5a4a-bcdf-24839fa3d60b
+          stepCounter: 199d8502-0d0a-58a3-9711-f385f566c897
         transform: ''
       isBusinessKey: true
     - appliedColumnTests: {}
@@ -40,7 +42,9 @@ operation:
       name: BudgetDate
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: e4e282a4-590a-5a20-9504-0e3c3aea8a35
+          stepCounter: 199d8502-0d0a-58a3-9711-f385f566c897
         transform: ''
       isBusinessKey: true
     - appliedColumnTests: {}
@@ -53,7 +57,9 @@ operation:
       name: BudgetSalesAmount
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 2dfc5747-6289-5cc3-827d-5a02d2fa9c49
+          stepCounter: 199d8502-0d0a-58a3-9711-f385f566c897
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -65,7 +71,9 @@ operation:
       name: BudgetRevenueAmount
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 61e78a9f-572c-513f-8143-ae41d9cb6763
+          stepCounter: 199d8502-0d0a-58a3-9711-f385f566c897
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -89,7 +97,9 @@ operation:
       name: AccountName
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 4882e7b0-35dd-532f-b99f-83e00170f37d
+          stepCounter: 36da35eb-4d26-55e7-8dde-feec79f6c80a
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -101,7 +111,9 @@ operation:
       name: Level1ForceId
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 6d4d7d48-c241-519c-b874-2a90f60d7f80
+          stepCounter: 36da35eb-4d26-55e7-8dde-feec79f6c80a
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -125,7 +137,9 @@ operation:
       name: TerritoryIdDirect
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: e6b02d63-ef25-5a54-b353-b19c3cfa7cdd
+          stepCounter: 36da35eb-4d26-55e7-8dde-feec79f6c80a
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -138,7 +152,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE("DIRECTSALESTERRITORY"."DIRECTSALESTERRITORYKEY", 0)
+        transform: COALESCE("DirectSalesTerritory"."DIRECTSALESTERRITORYKEY", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 47624ff6-5320-5caf-a0b2-49a31d6795e2
@@ -150,7 +164,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE("DIMBUDGETDATE"."BUDGETDATEKEY", 0)
+        transform: COALESCE("DimBudgetDate"."BUDGETDATEKEY", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e77a8a85-1179-5716-a25e-73c4cf8390c1
@@ -161,7 +175,9 @@ operation:
       name: dss_record_source
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 464e0cc3-546e-50ac-ab41-9c99768ef4da
+          stepCounter: 199d8502-0d0a-58a3-9711-f385f566c897
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -173,7 +189,9 @@ operation:
       name: dss_load_date
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 822e006c-0839-53f2-beda-0e5cb825d502
+          stepCounter: 199d8502-0d0a-58a3-9711-f385f566c897
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -205,6 +223,8 @@ operation:
     - aliases:
         LoadRevenueBudgetsForceIdDirect: 199d8502-0d0a-58a3-9711-f385f566c897
         Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
+        DimBudgetDate: 1c035b59-b6e6-5676-bfa9-0b45cb823cad
+        DirectSalesTerritory: d2a4b769-e5ca-56fe-95d6-627887fe6f61
       customSQL:
         customSQL: ''
       dependencies:
@@ -212,13 +232,22 @@ operation:
         nodeName: LoadRevenueBudgetsForceIdDirect
       - locationName: TABLEAU
         nodeName: Account
+      - locationName: TABLEAU
+        nodeName: DimBudgetDate
+      - locationName: TABLEAU
+        nodeName: DirectSalesTerritory
       join:
         joinCondition: |-
           FROM {{ ref('LOAD', 'LoadRevenueBudgetsForceIdDirect') }} "LoadRevenueBudgetsForceIdDirect"
           LEFT JOIN {{ ref('TABLEAU', 'Account') }} "Account"
             ON LOADREVENUEBUDGETSFORCEIDDIRECT.FORCEID = ACCOUNT.FORCEID
+          LEFT JOIN {{ ref_no_link('TABLEAU', 'AccountHierarchy_OMNIA') }} "AccountHierarchy_OMNIA"
+          LEFT JOIN {{ ref('TABLEAU', 'DimBudgetDate') }} "DimBudgetDate"
+          LEFT JOIN {{ ref('TABLEAU', 'DirectSalesTerritory') }} "DirectSalesTerritory"
       name: StageRevenueBudgetsForceIdDirect
-      noLinkRefs: []
+      noLinkRefs:
+      - locationName: TABLEAU
+        nodeName: AccountHierarchy_OMNIA
   name: StageRevenueBudgetsForceIdDirect
   overrideSQL: false
   schema: ''

@@ -28,7 +28,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE("ACCOUNTHIERARCHY_OMNIA"."ACCOUNTHIERARCHYKEY", 0)
+        transform: COALESCE("AccountHierarchy_OMNIA"."ACCOUNTHIERARCHYKEY", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d01be544-d257-58b5-9b4c-c87ee07365d1
@@ -40,7 +40,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE("ACCOUNT"."ACCOUNTKEY", 0)
+        transform: COALESCE("Account"."ACCOUNTKEY", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 70d4aaca-15b6-5e51-9945-0cdad3c966ce
@@ -51,7 +51,9 @@ operation:
       name: Level1ForceId
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 0cfe3226-7b7d-5724-ab4a-c328676cb380
+          stepCounter: 901b2d53-9fa4-592b-b226-7b9ba6c05e29
         transform: ''
       isBusinessKey: true
     - appliedColumnTests: {}
@@ -65,7 +67,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE("SUPPLIER"."SUPPLIERKEY", 0)
+        transform: COALESCE("Supplier"."SUPPLIERKEY", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 27808072-051a-5d90-b60b-57bd1dfb432f
@@ -76,7 +78,9 @@ operation:
       name: SupplierId
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: a76cf097-832a-5aa9-96cb-112e949c17fd
+          stepCounter: 901b2d53-9fa4-592b-b226-7b9ba6c05e29
         transform: ''
       isBusinessKey: true
     - appliedColumnTests: {}
@@ -89,7 +93,9 @@ operation:
       name: FinancialReportingSupplierName
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 7111f025-278a-57bc-889d-031f8f67c061
+          stepCounter: 901b2d53-9fa4-592b-b226-7b9ba6c05e29
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -101,7 +107,9 @@ operation:
       name: CategoryMaxPotential
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 94f3fb67-ae00-5704-921f-60b64d97a06a
+          stepCounter: 901b2d53-9fa4-592b-b226-7b9ba6c05e29
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -113,7 +121,9 @@ operation:
       name: RemainingCategoryPotential
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 8028793b-61c3-5733-8a6e-990fda8a714d
+          stepCounter: 901b2d53-9fa4-592b-b226-7b9ba6c05e29
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -125,7 +135,9 @@ operation:
       name: RemainingCategoryPotentialPercentage
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: ea8fdf71-b986-5a37-8092-b1e233022438
+          stepCounter: 901b2d53-9fa4-592b-b226-7b9ba6c05e29
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -137,7 +149,9 @@ operation:
       name: ContractCategory
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: fd4aa674-b51c-5706-a93c-0a046e7102a9
+          stepCounter: 901b2d53-9fa4-592b-b226-7b9ba6c05e29
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -168,13 +182,26 @@ operation:
     sourceMapping:
     - aliases:
         StageCustomerPotential: 901b2d53-9fa4-592b-b226-7b9ba6c05e29
+        Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
+        AccountHierarchy_OMNIA: 230b2fbf-77a7-5303-93c8-06b48e487f15
+        Supplier: d53a79d2-fb60-532e-8596-560738ff8f56
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: LOAD
         nodeName: StageCustomerPotential
+      - locationName: TABLEAU
+        nodeName: Account
+      - locationName: TABLEAU
+        nodeName: AccountHierarchy_OMNIA
+      - locationName: TABLEAU
+        nodeName: Supplier
       join:
-        joinCondition: FROM {{ ref('LOAD', 'StageCustomerPotential') }} "StageCustomerPotential"
+        joinCondition: |-
+          FROM {{ ref('LOAD', 'StageCustomerPotential') }} "StageCustomerPotential"
+          LEFT JOIN {{ ref('TABLEAU', 'Account') }} "Account"
+          LEFT JOIN {{ ref('TABLEAU', 'AccountHierarchy_OMNIA') }} "AccountHierarchy_OMNIA"
+          LEFT JOIN {{ ref('TABLEAU', 'Supplier') }} "Supplier"
       name: StageCustomerPotentialAddKeys
       noLinkRefs: []
   name: StageCustomerPotentialAddKeys
