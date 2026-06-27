@@ -1,0 +1,128 @@
+fileVersion: 1
+id: b23f89bd-e0ec-5d46-a2ae-3532701fb545
+name: vwLevel1__ContractOccurences
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: ''
+  isMultisource: false
+  locationName: LOAD
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 1bf2fbf8-b797-517e-ab72-be2ea283c1ee
+        stepCounter: b23f89bd-e0ec-5d46-a2ae-3532701fb545
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: Level1ForceId
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 43d7633d-324d-5543-bb6c-783345e48d04
+        stepCounter: b23f89bd-e0ec-5d46-a2ae-3532701fb545
+      config: {}
+      dataType: DATE
+      description: is the financial period for which OMNIA Partners recorded revenue
+        on a transaction.
+      name: ReceiptDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3271475e-6d8c-5b2e-8de8-7438ac725cb0
+        stepCounter: b23f89bd-e0ec-5d46-a2ae-3532701fb545
+      config: {}
+      dataType: VARCHAR
+      description: ''
+      name: InitialContractId
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 89580cbd-b989-54e0-abdb-ccc569bd82a4
+        stepCounter: b23f89bd-e0ec-5d46-a2ae-3532701fb545
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: ContractOccurence
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ROW_NUMBER () OVER (PARTITION BY LEVEL1FORCEID, INITIALCONTRACTID
+          ORDER BY RECEIPTDATE ASC)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e1b13fe5-4759-5549-be7c-e51a1a8ee71d
+        stepCounter: b23f89bd-e0ec-5d46-a2ae-3532701fb545
+      config: {}
+      dataType: NUMBER(18,4)
+      description: is the sales amount, or gross transaction volume (GTV), associated
+        with a transaction in US Dollars. A Sales amount is typically NOT an individual
+        sale, but a monthly aggregate of all sales for a customer in a given month.
+      name: SumOfGTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUM(SALESANDREVENUE.SALES)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ee3a574d-cf9d-5780-8cbf-0a956bb246a6
+        stepCounter: b23f89bd-e0ec-5d46-a2ae-3532701fb545
+      config: {}
+      dataType: NUMBER(18,4)
+      description: is the amount of gross revenue, always in US Dollars, OMNIA Partners
+        recieved for the row.
+      name: SumOfRevenue
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUM(SALESANDREVENUE.REVENUE)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        Contract: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
+        Revenue: 32556ed7-242a-538a-bd82-5c8c44fd9964
+        Sales: d2bd4d1d-ca67-5642-8661-1e837ea80282
+        SalesAndRevenue: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: TABLEAU
+        nodeName: Contract
+      - locationName: LOAD
+        nodeName: Revenue
+      - locationName: LOAD
+        nodeName: Sales
+      - locationName: LOAD
+        nodeName: SalesAndRevenue
+      join:
+        joinCondition: |-
+          FROM {{ ref('TABLEAU', 'Contract') }} "Contract"
+          JOIN {{ ref('LOAD', 'Revenue') }} "Revenue"
+          JOIN {{ ref('LOAD', 'Sales') }} "Sales"
+          JOIN {{ ref('LOAD', 'SalesAndRevenue') }} "SalesAndRevenue"
+      name: vwLevel1__ContractOccurences
+      noLinkRefs: []
+  name: vwLevel1__ContractOccurences
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

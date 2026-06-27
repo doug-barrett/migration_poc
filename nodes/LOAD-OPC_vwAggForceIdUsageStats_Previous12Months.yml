@@ -1,0 +1,76 @@
+fileVersion: 1
+id: 19c90b4c-ad4e-52b3-bf81-e02d3668704f
+name: OPC_vwAggForceIdUsageStats_Previous12Months
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: Rolling 12 month aggregate usage statistics for each Level1ForceId
+  isMultisource: false
+  locationName: LOAD
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e0935054-6b54-5135-a5cb-7514e5b6e6da
+        stepCounter: 19c90b4c-ad4e-52b3-bf81-e02d3668704f
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Unique identifier for an account. Commonly called the "Force Id"
+      name: ForceId
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: fc75a53a-2721-5746-8f00-99c2dcbd1f81
+        stepCounter: 19c90b4c-ad4e-52b3-bf81-e02d3668704f
+      config: {}
+      dataType: VARCHAR
+      description: ''
+      name: SupplierId
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 26f724cf-4d18-55ef-a949-639885a35be0
+        stepCounter: 19c90b4c-ad4e-52b3-bf81-e02d3668704f
+      config: {}
+      dataType: NUMBER(18,4)
+      description: Previous12Months_SumOfSales
+      name: Previous12Months_SumOfSales
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUM(OPC_SALESANDREVENUE.SALES)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        OPC_SalesAndRevenue: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: LOAD
+        nodeName: OPC_SalesAndRevenue
+      join:
+        joinCondition: |-
+          FROM {{ ref('LOAD', 'OPC_SalesAndRevenue') }} "OPC_SalesAndRevenue"
+          WHERE DATEDIFF(MONTH,OPC_SALESANDREVENUE.TRANSACTIONDATE, OPC_SALESANDREVENUE.MAXREPORTINGPERIODENDDATE) BETWEEN 12 AND 23  GROUP BY OPC_SALESANDREVENUE.FORCEID, OPC_SALESANDREVENUE.SUPPLIERID
+      name: OPC_vwAggForceIdUsageStats_Previous12Months
+      noLinkRefs: []
+  name: OPC_vwAggForceIdUsageStats_Previous12Months
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

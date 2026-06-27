@@ -1,0 +1,132 @@
+fileVersion: 1
+id: 72921db9-422f-56ce-8ad4-d4ff1b71e96d
+name: vwLevel1__SupplierOccurences
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: ''
+  isMultisource: false
+  locationName: LOAD
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 8205b4e4-bcbd-535a-ae9d-294ee3057068
+        stepCounter: 72921db9-422f-56ce-8ad4-d4ff1b71e96d
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: Level1ForceId
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 47e8c4f0-fefc-5fe9-9912-169080968dce
+        stepCounter: 72921db9-422f-56ce-8ad4-d4ff1b71e96d
+      config: {}
+      dataType: DATE
+      description: is the financial period for which OMNIA Partners recorded revenue
+        on a transaction.
+      name: ReceiptDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 586472da-f50d-590c-8d6a-80a130e9f866
+        stepCounter: 72921db9-422f-56ce-8ad4-d4ff1b71e96d
+      config: {}
+      dataType: VARCHAR
+      description: Supplier Name to be used on financial reports
+      name: FinancialReportingSupplierName
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: cd32587e-5f2c-5e1b-8cfb-a37c382eb8bb
+        stepCounter: 72921db9-422f-56ce-8ad4-d4ff1b71e96d
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Supplier Name to be used on financial reports
+      name: SupplierOccurence
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ROW_NUMBER () OVER (PARTITION BY SALESANDREVENUE.LEVEL1FORCEID,
+          CONTRACT.FINANCIALREPORTINGSUPPLIERNAME ORDER BY RECEIPTDATE ASC)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3482c0d8-d210-5577-a5c1-ff7ebbb976fd
+        stepCounter: 72921db9-422f-56ce-8ad4-d4ff1b71e96d
+      config: {}
+      dataType: NUMBER(18,4)
+      description: is the sales amount, or gross transaction volume (GTV), associated
+        with a transaction in US Dollars. A Sales amount is typically NOT an individual
+        sale, but a monthly aggregate of all sales for a customer in a given month.
+      name: SumOfGTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUM(SALESANDREVENUE.SALES)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6ba37261-8ccf-5fe1-a1c1-575578d3cf8d
+        stepCounter: 72921db9-422f-56ce-8ad4-d4ff1b71e96d
+      config: {}
+      dataType: NUMBER(18,4)
+      description: is the amount of gross revenue, always in US Dollars, OMNIA Partners
+        recieved for the row.
+      name: SumOfRevenue
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUM(SALESANDREVENUE.REVENUE)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        Contract: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
+        Revenue: 32556ed7-242a-538a-bd82-5c8c44fd9964
+        Sales: d2bd4d1d-ca67-5642-8661-1e837ea80282
+        SalesAndRevenue: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        Supplier: d53a79d2-fb60-532e-8596-560738ff8f56
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: TABLEAU
+        nodeName: Contract
+      - locationName: LOAD
+        nodeName: Revenue
+      - locationName: LOAD
+        nodeName: Sales
+      - locationName: LOAD
+        nodeName: SalesAndRevenue
+      - locationName: TABLEAU
+        nodeName: Supplier
+      join:
+        joinCondition: |-
+          FROM {{ ref('TABLEAU', 'Contract') }} "Contract"
+          JOIN {{ ref('LOAD', 'Revenue') }} "Revenue"
+          JOIN {{ ref('LOAD', 'Sales') }} "Sales"
+          JOIN {{ ref('LOAD', 'SalesAndRevenue') }} "SalesAndRevenue"
+          JOIN {{ ref('TABLEAU', 'Supplier') }} "Supplier"
+      name: vwLevel1__SupplierOccurences
+      noLinkRefs: []
+  name: vwLevel1__SupplierOccurences
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node
