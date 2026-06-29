@@ -125,9 +125,7 @@ operation:
       name: Level1AccountName
       nullable: true
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: ae81df63-37bf-541f-a4da-bc001f20b5c3
-          stepCounter: 230b2fbf-77a7-5303-93c8-06b48e487f15
+      - columnReferences: []
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -251,7 +249,6 @@ operation:
     - aliases:
         LoadRevenueBudgetsForceId: b7eb02df-3606-5e20-b963-251106aa083e
         Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
-        AccountHierarchy_OMNIA: 230b2fbf-77a7-5303-93c8-06b48e487f15
         DimBudgetDate: 1c035b59-b6e6-5676-bfa9-0b45cb823cad
       customSQL:
         customSQL: ''
@@ -261,19 +258,19 @@ operation:
       - locationName: DIM
         nodeName: Account
       - locationName: DIM
-        nodeName: AccountHierarchy_OMNIA
-      - locationName: DIM
         nodeName: DimBudgetDate
       join:
         joinCondition: |-
           FROM {{ ref('LOAD', 'LoadRevenueBudgetsForceId') }} "LoadRevenueBudgetsForceId"
           LEFT JOIN {{ ref('DIM', 'Account') }} "Account"
             ON LoadRevenueBudgetsForceId.ForceId = Account.ForceId
-          LEFT JOIN {{ ref('DIM', 'AccountHierarchy_OMNIA') }} "AccountHierarchy_OMNIA"
+          LEFT JOIN {{ ref_no_link('DIM', 'AccountHierarchy_OMNIA') }} "AccountHierarchy_OMNIA"
             ON Account.AccountHierarchyKey = AccountHierarchy_OMNIA.AccountHierarchyKey
           LEFT JOIN {{ ref('DIM', 'DimBudgetDate') }} "DimBudgetDate"
       name: StageRevenueBudgetsForceId
-      noLinkRefs: []
+      noLinkRefs:
+      - locationName: DIM
+        nodeName: AccountHierarchy_OMNIA
   name: StageRevenueBudgetsForceId
   overrideSQL: false
   schema: ''

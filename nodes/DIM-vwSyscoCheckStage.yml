@@ -92,8 +92,6 @@ operation:
     - aliases:
         Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
         Contract: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
-        Revenue: 32556ed7-242a-538a-bd82-5c8c44fd9964
-        Sales: d2bd4d1d-ca67-5642-8661-1e837ea80282
         SalesAndRevenue: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
         SourceEntity: fddbea86-7513-5781-b0d9-6db1ec4ab5e4
         StageSalesMerge_BizXForms: b8f89e85-bce5-584a-aa52-bee605f76891
@@ -106,10 +104,6 @@ operation:
       - locationName: DIM
         nodeName: Contract
       - locationName: FACT
-        nodeName: Revenue
-      - locationName: FACT
-        nodeName: Sales
-      - locationName: FACT
         nodeName: SalesAndRevenue
       - locationName: DIM
         nodeName: SourceEntity
@@ -121,14 +115,18 @@ operation:
         joinCondition: |-
           FROM {{ ref('DIM', 'Account') }} "Account"
           JOIN {{ ref('DIM', 'Contract') }} "Contract"
-          JOIN {{ ref('FACT', 'Revenue') }} "Revenue"
-          JOIN {{ ref('FACT', 'Sales') }} "Sales"
+          JOIN {{ ref_no_link('FACT', 'Revenue') }} "Revenue"
+          JOIN {{ ref_no_link('FACT', 'Sales') }} "Sales"
           JOIN {{ ref('FACT', 'SalesAndRevenue') }} "SalesAndRevenue"
           JOIN {{ ref('DIM', 'SourceEntity') }} "SourceEntity"
           JOIN {{ ref('STAGE', 'StageSalesMerge_BizXForms') }} "StageSalesMerge_BizXForms"
           JOIN {{ ref('DIM', 'Supplier') }} "Supplier"
       name: vwSyscoCheckStage
-      noLinkRefs: []
+      noLinkRefs:
+      - locationName: FACT
+        nodeName: Sales
+      - locationName: FACT
+        nodeName: Revenue
   name: vwSyscoCheckStage
   overrideSQL: false
   schema: ''
