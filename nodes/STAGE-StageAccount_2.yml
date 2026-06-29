@@ -28,8 +28,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE  WHEN STAGEACCOUNT_1.ACCOUNTLINEOFBUSINESS ='PUBLIC' THEN
-          1   WHEN STAGEACCOUNT_1.ACCOUNTLINEOFBUSINESS ='PRIVATE' THEN 2  ELSE NULL
+        transform: CASE  WHEN StageAccount_1.AccountLineOfBusiness ='PUBLIC' THEN
+          1   WHEN StageAccount_1.AccountLineOfBusiness ='PRIVATE' THEN 2  ELSE NULL
           END
     - appliedColumnTests: {}
       columnReference:
@@ -450,7 +450,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: '''PLEASE USE ACCOUNT.STRATEGICACCOUNTREASON FIELD'''
+        transform: '''Please Use Account.StrategicAccountReason field'''
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 23b0b554-e23c-59eb-a87d-b48ee2df78e0
@@ -1589,6 +1589,7 @@ operation:
     sourceMapping:
     - aliases:
         StageAccount_1: 0e6d59af-b521-5639-8bf8-448e5aeb2444
+        StageAccountHierarchy: 4f530373-5898-520d-968e-49d6e2edac34
         LoadSalesforceAccount: c80dc2e7-86b0-5d7d-a855-aa290646b51c
         Organization: a209659e-0ef5-5142-8763-8e50f8f22d4c
         StageOPUSACCOUNT2: fd8c2968-8c98-5b70-b84e-a0878317c88d
@@ -1597,6 +1598,8 @@ operation:
       dependencies:
       - locationName: STAGE
         nodeName: StageAccount_1
+      - locationName: STAGE
+        nodeName: StageAccountHierarchy
       - locationName: LOAD
         nodeName: LoadSalesforceAccount
       - locationName: DIM
@@ -1606,18 +1609,16 @@ operation:
       join:
         joinCondition: |-
           FROM {{ ref('STAGE', 'StageAccount_1') }} "StageAccount_1"
-          LEFT JOIN {{ ref_no_link('STAGE', 'StageAccountHierarchy') }} "StageAccountHierarchy"
-            ON STAGEACCOUNT_1.FORCEID = STAGEACCOUNTHIERARCHY.FORCEID AND STAGEACCOUNTHIERARCHY.CHANNELPARTNERFEESHAREPARTNERID=1
+          LEFT JOIN {{ ref('STAGE', 'StageAccountHierarchy') }} "StageAccountHierarchy"
+            ON StageAccount_1.ForceId = StageAccountHierarchy.ForceId and StageAccountHierarchy.ChannelPartnerFeeSharePartnerId=1
           LEFT JOIN {{ ref('LOAD', 'LoadSalesforceAccount') }} "LoadSalesforceAccount"
-            ON STAGEACCOUNT_1.FORCEID = LOADSALESFORCEACCOUNT.FORCE_ID__C
+            ON StageAccount_1.ForceId = LoadSalesforceAccount.Force_ID__c
           LEFT JOIN {{ ref('DIM', 'Organization') }} "Organization"
-            ON STAGEACCOUNT_1.ORGANIZATIONID = ORGANIZATION.ORGANIZATIONID
+            ON StageAccount_1.OrganizationId = Organization.OrganizationId
           LEFT JOIN {{ ref('STAGE', 'StageOPUSACCOUNT2') }} "StageOPUSACCOUNT2"
-            ON STAGEACCOUNT_1.FORCEID = STAGEOPUSACCOUNT2.FORCEID
+            ON StageAccount_1.ForceId = StageOPUSACCOUNT2.ForceId
       name: StageAccount_2
-      noLinkRefs:
-      - locationName: STAGE
-        nodeName: StageAccountHierarchy
+      noLinkRefs: []
   name: StageAccount_2
   overrideSQL: false
   schema: ''

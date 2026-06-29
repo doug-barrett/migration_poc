@@ -26,8 +26,10 @@ operation:
       name: ContractId
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
-        transform: 'NULL'
+      - columnReferences:
+        - columnCounter: 9b1a3c4d-7e9e-56d5-b403-43bf881863a2
+          stepCounter: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        transform: ''
       isBusinessKey: true
     - appliedColumnTests: {}
       columnReference:
@@ -39,8 +41,10 @@ operation:
       name: ReceiptDate
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
-        transform: 'NULL'
+      - columnReferences:
+        - columnCounter: 9e3d3eb5-ca10-574a-b508-0d40e7cc865d
+          stepCounter: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        transform: ''
       isBusinessKey: true
     - appliedColumnTests: {}
       columnReference:
@@ -53,7 +57,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUM(SALESANDREVENUE.SALES)
+        transform: SUM(SalesAndRevenue.Sales)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 84e1d80d-c8e3-55b5-bfc7-900ac3729cba
@@ -64,8 +68,10 @@ operation:
       name: RevenueType
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
-        transform: 'NULL'
+      - columnReferences:
+        - columnCounter: 8b94a7ba-6ebb-5c34-93dc-e0f1be04cdce
+          stepCounter: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        transform: ''
       isBusinessKey: true
     - appliedColumnTests: {}
       columnReference:
@@ -77,8 +83,10 @@ operation:
       name: ForceId
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
-        transform: 'NULL'
+      - columnReferences:
+        - columnCounter: c5f7db56-4850-5c39-abc4-3b1ee98f5285
+          stepCounter: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        transform: ''
       isBusinessKey: true
     - appliedColumnTests: {}
       columnReference:
@@ -90,8 +98,10 @@ operation:
       name: MaxReceiptDate
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
-        transform: 'NULL'
+      - columnReferences:
+        - columnCounter: 41629388-fed3-5ab1-9da7-21fdee205502
+          stepCounter: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
+        transform: ''
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 12d16c6e-e618-5573-856a-cd51bc7044dd
@@ -107,12 +117,17 @@ operation:
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
-    - aliases: {}
+    - aliases:
+        SalesAndRevenue: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
       customSQL:
         customSQL: ''
-      dependencies: []
+      dependencies:
+      - locationName: FACT
+        nodeName: SalesAndRevenue
       join:
-        joinCondition: ''
+        joinCondition: |-
+          FROM {{ ref('FACT', 'SalesAndRevenue') }} "SalesAndRevenue"
+          WHERE DATEDIFF(month,SalesAndRevenue.ReceiptDate,SalesAndRevenue.MaxReceiptDate) BETWEEN 0 AND 35     AND SalesAndRevenue.RevenueType Not in ('Public','Private')  --AND IFNULL(Sales,0) <> 0GROUP BY SalesAndRevenue.AccountId,           SalesAndRevenue.ContractId,            SalesAndRevenue.ReceiptDate,           SalesAndRevenue.RevenueType,           SalesAndRevenue.MaxReceiptDate
       name: AggOPSalesAndRevenueUC
       noLinkRefs: []
   name: AggOPSalesAndRevenueUC

@@ -28,7 +28,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE("OPUS_CONTACT"."OPUS_CONTACTKEY", 0)
+        transform: COALESCE("OPUS_CONTACT"."OPUS_CONTACTKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 850fa152-72c3-511d-973b-04f4e902104f
@@ -40,7 +40,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE("OPUS_PRODUCT"."OPUSPRODUCTKEY", 0)
+        transform: COALESCE("OPUS_PRODUCT"."OPUSProductKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6d458402-d8a1-5c86-bd1b-06bbb8690978
@@ -52,7 +52,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE("OPUS_CART"."OPUSCARTKEY", 0)
+        transform: COALESCE("OPUS_CART"."OPUSCartKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2bd4360f-349e-5bf5-9e05-0e29200bc25b
@@ -64,7 +64,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE("OPUS_BILLING_ADDRESS"."OPUSBILLINGADDRESSKEY", 0)
+        transform: COALESCE("OPUS_BILLING_ADDRESS"."OPUSBillingAddressKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3e231479-a500-5a11-b4bc-522688e1bcb6
@@ -76,7 +76,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE("OPUS_PAYMENT"."OPUSPAYMENTKEY", 0)
+        transform: COALESCE("OPUS_PAYMENT"."OPUSPaymentKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5b1549c9-5d71-53b2-b9f4-541687708ed7
@@ -88,7 +88,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE("OPUS_SUPPLIER"."OPUSSUPPLIERKEY", 0)
+        transform: COALESCE("OPUS_SUPPLIER"."OPUSSupplierKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9fdc69f2-ce0c-54c8-bf9d-ad0216ffb63f
@@ -100,7 +100,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE("OPUS_SHIPPING_ADDRESS"."OPUSSHIPPINGADDRESSKEY", 0)
+        transform: COALESCE("OPUS_SHIPPING_ADDRESS"."OPUSShippingAddressKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b3caabb1-fd64-5221-95c9-125ebddea963
@@ -112,7 +112,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE("Contact"."DIMCONTACTKEY", 0)
+        transform: COALESCE("Contact"."DimContactKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 40847147-25cc-5977-b2b1-68e10d237ac8
@@ -124,7 +124,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE("Account"."ACCOUNTKEY", 0)
+        transform: COALESCE("Account"."AccountKey", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 22d589d5-8c0d-588f-bb7a-1cbce356cc5f
@@ -473,23 +473,23 @@ operation:
         joinCondition: |-
           FROM {{ ref('STAGE', 'StageFACT_OPUS_ORDER') }} "StageFACT_OPUS_ORDER"
           LEFT JOIN {{ ref('DIM', 'OPUS_PRODUCT') }} "OPUS_PRODUCT"
-            ON STAGEFACT_OPUS_ORDER.PRODUCTID = OPUS_PRODUCT.PRODUCTID
+            ON StageFACT_OPUS_ORDER.ProductId = OPUS_PRODUCT.ProductId
           LEFT JOIN {{ ref('DIM', 'OPUS_CART') }} "OPUS_CART"
-            ON STAGEFACT_OPUS_ORDER.CARTID = OPUS_CART.CARTID
+            ON StageFACT_OPUS_ORDER.CartId = OPUS_CART.CartId
           LEFT JOIN {{ ref('DIM', 'OPUS_BILLING_ADDRESS') }} "OPUS_BILLING_ADDRESS"
-            ON STAGEFACT_OPUS_ORDER.BILLINGADDRESSID = OPUS_BILLING_ADDRESS.BILLINGADDRESSID AND STAGEFACT_OPUS_ORDER.ORGANIZATIONID = OPUS_BILLING_ADDRESS.ORGANIZATIONID
+            ON StageFACT_OPUS_ORDER.BillingAddressId = OPUS_BILLING_ADDRESS.BillingAddressId and StageFACT_OPUS_ORDER.OrganizationId = OPUS_Billing_ADDRESS.OrganizationId
           LEFT JOIN {{ ref('DIM', 'OPUS_PAYMENT') }} "OPUS_PAYMENT"
-            ON STAGEFACT_OPUS_ORDER.PAYMENTID = OPUS_PAYMENT.PAYMENTID
+            ON StageFACT_OPUS_ORDER.PaymentId = OPUS_PAYMENT.PaymentId
           LEFT JOIN {{ ref('DIM', 'OPUS_SHIPPING_ADDRESS') }} "OPUS_SHIPPING_ADDRESS"
-            ON STAGEFACT_OPUS_ORDER.SHIPPINGADDRESSID = OPUS_SHIPPING_ADDRESS.SHIPPINGADDRESSID AND STAGEFACT_OPUS_ORDER.ORGANIZATIONID = OPUS_SHIPPING_ADDRESS.ORGANIZATIONID
+            ON StageFACT_OPUS_ORDER.ShippingAddressId = OPUS_SHIPPING_ADDRESS.ShippingAddressId and StageFACT_OPUS_ORDER.OrganizationId = OPUS_SHIPPING_ADDRESS.OrganizationId
           LEFT JOIN {{ ref('DIM', 'Contact') }} "Contact"
-            ON STAGEFACT_OPUS_ORDER.CUSTOMERID = CONTACT.OPUS_CUSTOMER_ID
+            ON StageFACT_OPUS_ORDER.CustomerId = Contact.OPUS_Customer_Id
           LEFT JOIN {{ ref('DIM', 'Account') }} "Account"
-            ON STAGEFACT_OPUS_ORDER.ORGANIZATIONID = ACCOUNT.OPUS_ORGANIZATION_ID
+            ON StageFACT_OPUS_ORDER.OrganizationId = Account.OPUS_Organization_Id
           LEFT JOIN {{ ref('DIM', 'vwOPUS_ORDER_DATE') }} "vwOPUS_ORDER_DATE"
-            ON STAGEFACT_OPUS_ORDER.ORDERDATE = VWOPUS_ORDER_DATE.OPUS_ORDER_CALENDAR_DATE
+            ON StageFACT_OPUS_ORDER.OrderDate = vwOPUS_ORDER_DATE.OPUS_ORDER_CALENDAR_DATE
           LEFT JOIN {{ ref('DIM', 'OPUS_CONTACT') }} "OPUS_CONTACT"
-            ON STAGEFACT_OPUS_ORDER.CUSTOMERID = OPUS_CONTACT.CUSTOMERID AND STAGEFACT_OPUS_ORDER.ORGANIZATIONID = OPUS_CONTACT.ORGANIZATIONID
+            ON StageFACT_OPUS_ORDER.CustomerId = OPUS_CONTACT.CustomerId and StageFACT_OPUS_ORDER.OrganizationId = OPUS_CONTACT.OrganizationId
           LEFT JOIN {{ ref('DIM', 'OPUS_SUPPLIER') }} "OPUS_SUPPLIER"
       name: StageOPUS_ORDER_AddKeys
       noLinkRefs: []

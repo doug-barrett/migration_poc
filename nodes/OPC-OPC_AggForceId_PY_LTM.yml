@@ -27,8 +27,10 @@ operation:
       name: ForceId
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
-        transform: 'NULL'
+      - columnReferences:
+        - columnCounter: f8545c27-2d13-564c-8f70-80494a3b2c69
+          stepCounter: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+        transform: ''
       isBusinessKey: true
     - appliedColumnTests: {}
       columnReference:
@@ -43,7 +45,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUM(OPC_SALESANDREVENUE.SALES)
+        transform: SUM(OPC_SalesAndRevenue.Sales)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 204b04de-98e5-513c-bbc3-15c872edfa37
@@ -56,7 +58,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: RANK() OVER (ORDER BY SUM(OPC_SALESANDREVENUE.SALES) DESC)
+        transform: RANK() OVER (ORDER BY SUM(OPC_SalesAndRevenue.Sales) DESC)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f785643c-2ff2-5f9a-83d4-0ddb564e33ad
@@ -69,7 +71,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT (DISTINCT OPC_SALESANDREVENUE.FINANCIALREPORTINGSUPPLIERNAME)
+        transform: COUNT (DISTINCT OPC_SalesAndRevenue.FinancialReportingSupplierName)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: fffcd2c2-d381-5965-a2f9-e0c858c4fb22
@@ -82,7 +84,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT (DISTINCT OPC_SALESANDREVENUE.INITIALCONTRACTID)
+        transform: COUNT (DISTINCT OPC_SalesAndRevenue.InitialContractId)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 83998782-edd7-5397-a5a0-629f716bb72f
@@ -94,7 +96,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT (DISTINCT OPC_SALESANDREVENUE.CONTRACTCATEGORY)
+        transform: COUNT (DISTINCT OPC_SalesAndRevenue.ContractCategory)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 518ef5c4-f3bc-5d6d-9ae0-1420bd169fa3
@@ -122,15 +124,17 @@ operation:
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
-    - aliases: {}
+    - aliases:
+        OPC_SalesAndRevenue: 0a5a8efb-89dc-5dc3-8675-f235092f3723
       customSQL:
         customSQL: ''
-      dependencies: []
+      dependencies:
+      - locationName: OPC
+        nodeName: OPC_SalesAndRevenue
       join:
-        joinCondition: '
-
-          GROUP BY OPC_SALESANDREVENUE.FORCEID  HAVING SUM(OPC_SALESANDREVENUE.SALES)
-          <> 0'
+        joinCondition: |-
+          FROM {{ ref('OPC', 'OPC_SalesAndRevenue') }} "OPC_SalesAndRevenue"
+          WHERE DATEDIFF(month,TransactionDate,MaxReportingPeriodEndDate) BETWEEN 12 AND 23  GROUP BY OPC_SalesAndRevenue.ForceId  HAVING SUM(OPC_SalesAndRevenue.Sales) <> 0
       name: OPC_AggForceId_PY_LTM
       noLinkRefs: []
   name: OPC_AggForceId_PY_LTM

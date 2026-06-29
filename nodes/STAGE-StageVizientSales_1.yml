@@ -266,7 +266,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(DSSFDCSUPPLIER.SUPPLIERID,LOADVIZIENTSALES.VENDOR_ID)
+        transform: COALESCE(DsSFDCSupplier.SupplierId,LoadVizientSales.VENDOR_ID)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4d5d06d3-e119-5826-9b7b-9766f3aa49b4
@@ -278,7 +278,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(DSSFDCSUPPLIER.SUPPLIERNAME,LOADVIZIENTSALES.VENDOR_NAME)
+        transform: COALESCE(DsSFDCSupplier.SupplierName,LoadVizientSales.VENDOR_NAME)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: fdf731ba-4138-5c32-bde2-d4fbf09bff90
@@ -434,11 +434,12 @@ operation:
         joinCondition: |-
           FROM {{ ref('LOAD', 'LoadVizientSales') }} "LoadVizientSales"
           LEFT JOIN {{ ref('ODS', 'DsSFDCSupplier') }} "DsSFDCSupplier"
-            ON LOADVIZIENTSALES.VENDOR_ID = DSSFDCSUPPLIER.VIZIENTSUPPLIERID
+            ON LoadVizientSales.VENDOR_ID = DsSFDCSupplier.VizientSupplierId
           LEFT JOIN {{ ref('ODS', 'DsCustomersExternalIdXref') }} "DsCustomersExternalIdXref"
-            ON LOADVIZIENTSALES.MEMBER_ID = DSCUSTOMERSEXTERNALIDXREF.EXTERNALCUSTOMERID
+            ON LoadVizientSales.Member_ID = DsCustomersExternalIdXref.ExternalCustomerId
           LEFT JOIN {{ ref('ODS', 'DsAccount') }} "DsAccount"
-            ON DSCUSTOMERSEXTERNALIDXREF.CUSTOMERID = DSACCOUNT.FORCEIDWHERE DSCUSTOMERSEXTERNALIDXREF.SOURCEENTITY = 3 --PROCESS FOR ONLY VIZIENT SOURCE ENTITY
+            ON DsCustomersExternalIdXref.CustomerId = DsAccount.ForceId
+          WHERE DsCustomersExternalIdXref.SourceEntity = 3 --Process for only Vizient Source Entity
       name: StageVizientSales_1
       noLinkRefs: []
   name: StageVizientSales_1
