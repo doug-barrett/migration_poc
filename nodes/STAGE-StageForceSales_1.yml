@@ -197,7 +197,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: UPPER(LoadForceSales.ContractId)
+        transform: UPPER("LoadForceSales"."ContractId")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 353d53f2-0635-5ef5-9ad1-999b0ff61b06
@@ -223,7 +223,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DATE_FROM_PARTS(YEAR(LoadForceSales.TransactionDate), MONTH(LoadForceSales.TransactionDate),
+        transform: DATE_FROM_PARTS(YEAR("LoadForceSales"."TransactionDate"), MONTH("LoadForceSales"."TransactionDate"),
           1)
     - appliedColumnTests: {}
       columnReference:
@@ -759,14 +759,13 @@ operation:
       - locationName: ODS
         nodeName: DsSalesforceContracts
       join:
-        joinCondition: |-
-          FROM {{ ref('LOAD', 'LoadForceSales') }} "LoadForceSales"
-          LEFT JOIN {{ ref('ODS', 'DsAccount') }} "DsAccount"
-            ON LoadForceSales.ReportingCustomerId = DsAccount.ForceId
-          LEFT JOIN {{ ref('ODS', 'DsSFDCSupplier') }} "DsSFDCSupplier"
-            ON LoadForceSales.SupplierId = DsSFDCSupplier.SupplierId
-          LEFT JOIN {{ ref('ODS', 'DsSalesforceContracts') }} "DsSalesforceContracts"
-            ON LoadForceSales.ContractId = DsSalesforceContracts.ContractId
+        joinCondition: "FROM {{ ref('LOAD', 'LoadForceSales') }} \"LoadForceSales\"\
+          \nLEFT JOIN {{ ref('ODS', 'DsAccount') }} \"DsAccount\"\n  ON \"LoadForceSales\"\
+          .\"ReportingCustomerId\" = \"DsAccount\".\"ForceId\"\nLEFT JOIN {{ ref('ODS',\
+          \ 'DsSFDCSupplier') }} \"DsSFDCSupplier\"\n  ON \"LoadForceSales\".\"SupplierId\"\
+          \ = \"DsSFDCSupplier\".\"SupplierId\"\nLEFT JOIN {{ ref('ODS', 'DsSalesforceContracts')\
+          \ }} \"DsSalesforceContracts\"\n  ON \"LoadForceSales\".\"ContractId\" =\
+          \ \"DsSalesforceContracts\".\"ContractId\""
       name: StageForceSales_1
       noLinkRefs: []
   name: StageForceSales_1

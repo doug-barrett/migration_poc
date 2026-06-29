@@ -42,7 +42,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: YEAR(SalesAndRevenue.ReceiptDate)
+        transform: YEAR("SalesAndRevenue"."ReceiptDate")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 378bec9b-9e66-50a7-8ff8-610c99aac930
@@ -54,7 +54,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT (DISTINCT SalesAndRevenue.FinancialReportingSupplierName)
+        transform: COUNT (DISTINCT "SalesAndRevenue"."FinancialReportingSupplierName")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0bd79993-9f4d-58dc-869e-e4de34a0c63a
@@ -68,7 +68,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUM(SalesAndRevenue.Sales)
+        transform: SUM("SalesAndRevenue"."Sales")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: eec0141f-1467-508b-aa4f-f38d303df05a
@@ -81,7 +81,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUM(SalesAndRevenue.Revenue)
+        transform: SUM("SalesAndRevenue"."Revenue")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d94b7ae5-323d-549d-901a-457c4c0608bf
@@ -95,7 +95,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: AVG(SUM(SalesAndRevenue.Sales)) OVER (PARTITION BY Level1ForceId)
+        transform: AVG(SUM("SalesAndRevenue"."Sales")) OVER (PARTITION BY Level1ForceId)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d24f2c01-3588-5aae-902c-6c7307893daa
@@ -108,7 +108,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: AVG(SUM(SalesAndRevenue.Revenue)) OVER (PARTITION BY Level1ForceId)
+        transform: AVG(SUM("SalesAndRevenue"."Revenue")) OVER (PARTITION BY Level1ForceId)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a50b75b6-a3bd-5c9d-a8b8-766e70f074a8
@@ -120,7 +120,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: AVG(COUNT (DISTINCT SalesAndRevenue.FinancialReportingSupplierName))
+        transform: AVG(COUNT (DISTINCT "SalesAndRevenue"."FinancialReportingSupplierName"))
           OVER (PARTITION BY Level1ForceId)
     cteString: ''
     enabledColumnTestIDs: []
@@ -142,11 +142,13 @@ operation:
       - locationName: FACT
         nodeName: SalesAndRevenue
       join:
-        joinCondition: |-
-          FROM {{ ref('DIM', 'Contract') }} "Contract"
-          JOIN {{ ref('FACT', 'Revenue') }} "Revenue"
-          JOIN {{ ref('FACT', 'Sales') }} "Sales"
-          JOIN {{ ref('FACT', 'SalesAndRevenue') }} "SalesAndRevenue"
+        joinCondition: 'FROM {{ ref(''DIM'', ''Contract'') }} "Contract"
+
+          JOIN {{ ref(''FACT'', ''Revenue'') }} "Revenue"
+
+          JOIN {{ ref(''FACT'', ''Sales'') }} "Sales"
+
+          JOIN {{ ref(''FACT'', ''SalesAndRevenue'') }} "SalesAndRevenue"'
       name: vwLevel1AnnualStats
       noLinkRefs: []
   name: vwLevel1AnnualStats

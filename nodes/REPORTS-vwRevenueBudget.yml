@@ -503,7 +503,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IFNULL(SalesTerritory.TerritoryId,RevenueBudgetDetail.TerritoryId)
+        transform: IFNULL("SalesTerritory"."TerritoryId","RevenueBudgetDetail"."TerritoryId")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 25c8a9a1-d6d1-51ad-b79a-f0c1fa0174ab
@@ -921,7 +921,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IFNULL(Contract.ContractNumber,RevenueBudgetDetail.ContractId)
+        transform: IFNULL("Contract"."ContractNumber","RevenueBudgetDetail"."ContractId")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 855376c5-4e97-5ac5-8e85-8f0d766309c9
@@ -1046,9 +1046,9 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN RevenueBudget.ContractKey = -1 THEN     CASE WHEN RevenueBudgetDetail.ContractId
-          LIKE 'UC_S%' THEN 2561936 --UCOP      ELSE Contract.PPA_Level_1_ForceId    END    ELSE
-          Contract.PPA_Level_1_ForceId  END
+        transform: CASE WHEN "RevenueBudget"."ContractKey" = -1 THEN     CASE WHEN
+          "RevenueBudgetDetail"."ContractId" LIKE 'UC_S%' THEN 2561936 --UCOP      ELSE
+          "Contract"."PPA_Level_1_ForceId"    END    ELSE "Contract"."PPA_Level_1_ForceId"  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c836c41e-6804-59a8-92d7-e4495097a210
@@ -1060,10 +1060,10 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN RevenueBudget.ContractKey = -1 THEN     CASE WHEN RevenueBudgetDetail.ContractId
-          LIKE 'UC_S%' THEN (SELECT a.AccountName FROM [TABLEOWNER].[Account] AS a
-          WHERE a.ForceId = 2561936) --UCOP      ELSE Contract.LeadAgencyName    END    ELSE
-          Contract.LeadAgencyName  END
+        transform: CASE WHEN "RevenueBudget"."ContractKey" = -1 THEN     CASE WHEN
+          "RevenueBudgetDetail"."ContractId" LIKE 'UC_S%' THEN (SELECT "a"."AccountName"
+          FROM [TABLEOWNER].[Account] AS a WHERE "a"."ForceId" = 2561936) --UCOP      ELSE
+          "Contract"."LeadAgencyName"    END    ELSE "Contract"."LeadAgencyName"  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 471224ce-85de-5062-a4dc-1768d8a62683
@@ -1089,7 +1089,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DATEADD(year,-1,RevenueBudget.BudgetDate)
+        transform: DATEADD(year,-1,"RevenueBudget"."BudgetDate")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5d2f799e-12bc-5948-b519-5483741f0c20
@@ -1147,20 +1147,20 @@ operation:
       - locationName: DIM
         nodeName: FinancialSalesTerritory
       join:
-        joinCondition: |-
-          FROM {{ ref('FACT', 'RevenueBudget') }} "RevenueBudget"
-          LEFT JOIN {{ ref('DIM', 'RevenueBudgetDetail') }} "RevenueBudgetDetail"
-            ON RevenueBudget.RevenueBudgetDetailKey = RevenueBudgetDetail.RevenueBudgetDetailKey
-          LEFT JOIN {{ ref('DIM', 'AccountHierarchy') }} "AccountHierarchy"
-            ON RevenueBudget.AccountHierarchyKey = AccountHierarchy.AccountHierarchyKey
-          LEFT JOIN {{ ref('DIM', 'Account') }} "Account"
-            ON RevenueBudget.AccountKey = Account.AccountKey
-          LEFT JOIN {{ ref('DIM', 'Contract') }} "Contract"
-            ON RevenueBudget.ContractKey = Contract.ContractKey
-          LEFT JOIN {{ ref('DIM', 'SalesTerritory') }} "SalesTerritory"
-            ON Account.SalesTerritoryKey = SalesTerritory.SalesTerritoryKey
-          LEFT JOIN {{ ref('DIM', 'FinancialSalesTerritory') }} "FinancialSalesTerritory"
-            ON Account.FinancialSalesTerritoryKey = FinancialSalesTerritory.FinancialSalesTerritoryKey
+        joinCondition: "FROM {{ ref('FACT', 'RevenueBudget') }} \"RevenueBudget\"\n\
+          LEFT JOIN {{ ref('DIM', 'RevenueBudgetDetail') }} \"RevenueBudgetDetail\"\
+          \n  ON \"RevenueBudget\".\"RevenueBudgetDetailKey\" = \"RevenueBudgetDetail\"\
+          .\"RevenueBudgetDetailKey\"\nLEFT JOIN {{ ref('DIM', 'AccountHierarchy')\
+          \ }} \"AccountHierarchy\"\n  ON \"RevenueBudget\".\"AccountHierarchyKey\"\
+          \ = \"AccountHierarchy\".\"AccountHierarchyKey\"\nLEFT JOIN {{ ref('DIM',\
+          \ 'Account') }} \"Account\"\n  ON \"RevenueBudget\".\"AccountKey\" = \"\
+          Account\".\"AccountKey\"\nLEFT JOIN {{ ref('DIM', 'Contract') }} \"Contract\"\
+          \n  ON \"RevenueBudget\".\"ContractKey\" = \"Contract\".\"ContractKey\"\n\
+          LEFT JOIN {{ ref('DIM', 'SalesTerritory') }} \"SalesTerritory\"\n  ON \"\
+          Account\".\"SalesTerritoryKey\" = \"SalesTerritory\".\"SalesTerritoryKey\"\
+          \nLEFT JOIN {{ ref('DIM', 'FinancialSalesTerritory') }} \"FinancialSalesTerritory\"\
+          \n  ON \"Account\".\"FinancialSalesTerritoryKey\" = \"FinancialSalesTerritory\"\
+          .\"FinancialSalesTerritoryKey\""
       name: vwRevenueBudget
       noLinkRefs: []
   name: vwRevenueBudget

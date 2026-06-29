@@ -97,7 +97,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IFNULL(StageContract_AddKeys.ContractNumber,StageContract_AddKeys.SalesforceContractNumber)
+        transform: IFNULL("StageContract_AddKeys"."ContractNumber","StageContract_AddKeys"."SalesforceContractNumber")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 75803313-245a-504d-a09d-f7344d4d18ad
@@ -109,7 +109,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IFNULL(StageContract_AddKeys.ContractName,StageContract_AddKeys.PPAContractTitle)
+        transform: IFNULL("StageContract_AddKeys"."ContractName","StageContract_AddKeys"."PPAContractTitle")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5cf6957b-1d11-5144-a973-9ef471072d5a
@@ -415,11 +415,10 @@ operation:
       - locationName: DIM
         nodeName: Account
       join:
-        joinCondition: |-
-          FROM {{ ref('STAGE', 'StageContract_AddKeys') }} "StageContract_AddKeys"
-          LEFT JOIN {{ ref('DIM', 'Account') }} "Account"
-            ON StageContract_AddKeys.ContractAccountId = Account.SalesforceId
-          WHERE StageContract_AddKeys.AccountKey>0
+        joinCondition: "FROM {{ ref('STAGE', 'StageContract_AddKeys') }} \"StageContract_AddKeys\"\
+          \nLEFT JOIN {{ ref('DIM', 'Account') }} \"Account\"\n  ON \"StageContract_AddKeys\"\
+          .\"ContractAccountId\" = \"Account\".\"SalesforceId\"\nWHERE \"StageContract_AddKeys\"\
+          .\"AccountKey\">0"
       name: AccountContract
       noLinkRefs: []
   name: AccountContract

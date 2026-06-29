@@ -46,7 +46,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUM(OPC_SalesAndRevenue.Sales)
+        transform: SUM("OPC_SalesAndRevenue"."Sales")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: baf7d083-994d-58a8-b12a-085067e8f50d
@@ -59,7 +59,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: RANK() OVER (ORDER BY SUM(OPC_SalesAndRevenue.Sales) DESC)
+        transform: RANK() OVER (ORDER BY SUM("OPC_SalesAndRevenue"."Sales") DESC)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 530269b7-9cde-579a-a959-f9487371f70e
@@ -72,7 +72,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT (DISTINCT Contract.FinancialReportingSupplierName)
+        transform: COUNT (DISTINCT "Contract"."FinancialReportingSupplierName")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 525a8d94-dcdb-5118-b55a-6b5cf15c6a8e
@@ -85,7 +85,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT (DISTINCT Contract.InitialContractId)
+        transform: COUNT (DISTINCT "Contract"."InitialContractId")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f3cd9a6f-c960-504f-8eb5-d5b98a87783b
@@ -97,7 +97,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT (DISTINCT Contract.ContractCategory)
+        transform: COUNT (DISTINCT "Contract"."ContractCategory")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 81d77883-569b-519d-b5ea-4eaf65e17d8f
@@ -136,11 +136,11 @@ operation:
       - locationName: DIM
         nodeName: Contract
       join:
-        joinCondition: |-
-          FROM {{ ref('OPC', 'OPC_SalesAndRevenue') }} "OPC_SalesAndRevenue"
-          JOIN {{ ref('DIM', 'Contract') }} "Contract"
-            ON OPC_SalesAndRevenue.ContractKey = Contract.ContractKey
-          WHERE DATEDIFF(month,TransactionDate,MaxReportingPeriodEndDate) BETWEEN 12 AND 23  GROUP BY OPC_SalesAndRevenue.Level1ForceId  HAVING SUM(OPC_SalesAndRevenue.Sales) <> 0
+        joinCondition: "FROM {{ ref('OPC', 'OPC_SalesAndRevenue') }} \"OPC_SalesAndRevenue\"\
+          \nJOIN {{ ref('DIM', 'Contract') }} \"Contract\"\n  ON \"OPC_SalesAndRevenue\"\
+          .\"ContractKey\" = \"Contract\".\"ContractKey\"\nWHERE DATEDIFF(month,TransactionDate,MaxReportingPeriodEndDate)\
+          \ BETWEEN 12 AND 23  GROUP BY \"OPC_SalesAndRevenue\".\"Level1ForceId\"\
+          \  HAVING SUM(\"OPC_SalesAndRevenue\".\"Sales\") <> 0"
       name: OPC_AggLevel1_PY_LTM
       noLinkRefs: []
   name: OPC_AggLevel1_PY_LTM

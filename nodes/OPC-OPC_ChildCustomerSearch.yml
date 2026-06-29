@@ -183,7 +183,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(OPC_Account.StrategicAccountReason,OPC_Account.MemberSegment)
+        transform: COALESCE("OPC_Account"."StrategicAccountReason","OPC_Account"."MemberSegment")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1afa4db4-a12e-51d9-b963-25516554238d
@@ -293,7 +293,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IFNULL(OPC_Account.CUSTOMER_SIZE_BAND,'Unknown')
+        transform: IFNULL("OPC_Account"."CUSTOMER_SIZE_BAND",'Unknown')
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3603d423-334d-5357-a797-247e0243d5f1
@@ -348,7 +348,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ZEROIFNULL(OPC_vwAggForceIdUsageStats_All.Previous12Months_SumOfSales)
+        transform: ZEROIFNULL("OPC_vwAggForceIdUsageStats_All"."Previous12Months_SumOfSales")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 43460ac1-3d68-5285-8542-f9b6176c08e5
@@ -360,7 +360,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ZEROIFNULL(OPC_vwAggForceIdUsageStats_All.Current12Months_SumOfSales)
+        transform: ZEROIFNULL("OPC_vwAggForceIdUsageStats_All"."Current12Months_SumOfSales")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6591963d-b3c0-569f-abe4-54e6777dd83f
@@ -397,7 +397,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ZEROIFNULL(OPC_AggForceId_PY_LTM.ForceId_PY_LTM_NumOfSuppliersUsed)
+        transform: ZEROIFNULL("OPC_AggForceId_PY_LTM"."ForceId_PY_LTM_NumOfSuppliersUsed")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 417013f3-0fe6-53fb-b3c5-0ef622e7b36e
@@ -409,7 +409,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ZEROIFNULL(OPC_AggForceId_LTM.ForceId_LTM_NumOfSuppliersUsed)
+        transform: ZEROIFNULL("OPC_AggForceId_LTM"."ForceId_LTM_NumOfSuppliersUsed")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 41acbba9-ec31-5784-a239-d1f8bfaa607c
@@ -422,8 +422,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ZEROIFNULL(OPC_AggForceId_LTM.ForceId_LTM_NumOfSuppliersUsed) -
-          ZEROIFNULL(OPC_AggForceId_PY_LTM.ForceId_PY_LTM_NumOfSuppliersUsed)
+        transform: ZEROIFNULL("OPC_AggForceId_LTM"."ForceId_LTM_NumOfSuppliersUsed")
+          - ZEROIFNULL("OPC_AggForceId_PY_LTM"."ForceId_PY_LTM_NumOfSuppliersUsed")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a703c9be-4a31-5404-8449-f1d544c073b8
@@ -436,8 +436,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IFNULL((ZEROIFNULL(OPC_AggForceId_LTM.ForceId_LTM_NumOfSuppliersUsed)
-          - ZEROIFNULL(OPC_AggForceId_PY_LTM.ForceId_PY_LTM_NumOfSuppliersUsed)  )/NULLIF(OPC_AggForceId_PY_LTM.ForceId_PY_LTM_NumOfSuppliersUsed,
+        transform: IFNULL((ZEROIFNULL("OPC_AggForceId_LTM"."ForceId_LTM_NumOfSuppliersUsed")
+          - ZEROIFNULL("OPC_AggForceId_PY_LTM"."ForceId_PY_LTM_NumOfSuppliersUsed")  )/NULLIF("OPC_AggForceId_PY_LTM"."ForceId_PY_LTM_NumOfSuppliersUsed",
           0),0)
     - appliedColumnTests: {}
       columnReference:
@@ -553,21 +553,20 @@ operation:
       - locationName: OPC
         nodeName: OPC_AggForceId_PY_LTM
       join:
-        joinCondition: |-
-          FROM {{ ref('OPC', 'OPC_Account') }} "OPC_Account"
-          LEFT JOIN {{ ref('DIM', 'AccountGeography') }} "AccountGeography"
-            ON OPC_Account.ForceId = AccountGeography.ForceId
-          LEFT JOIN {{ ref('DIM', 'Sector') }} "Sector"
-            ON OPC_Account.SectorKey = Sector.SectorKey
-          LEFT JOIN {{ ref('OPC', 'OPC_vwAggForceIdUsageStats_All') }} "OPC_vwAggForceIdUsageStats_All"
-            ON OPC_Account.ForceId = OPC_vwAggForceIdUsageStats_All.ForceId
-          LEFT JOIN {{ ref('OPC', 'OPC_vwAggLevel1ForceIdUsageStats_Lifetime_Contacts') }} "OPC_vwAggLevel1ForceIdUsageStats_Lifetime_Contacts"
-            ON OPC_Account.ForceId = OPC_vwAggLevel1ForceIdUsageStats_Lifetime_Contacts.ForceId
-          LEFT JOIN {{ ref('OPC', 'OPC_AggForceId_LTM') }} "OPC_AggForceId_LTM"
-            ON OPC_Account.ForceId = OPC_AggForceId_LTM.ForceId
-          LEFT JOIN {{ ref('OPC', 'OPC_AggForceId_PY_LTM') }} "OPC_AggForceId_PY_LTM"
-            ON OPC_Account.ForceId = OPC_AggForceId_PY_LTM.ForceId
-          GROUP BY ALL
+        joinCondition: "FROM {{ ref('OPC', 'OPC_Account') }} \"OPC_Account\"\nLEFT\
+          \ JOIN {{ ref('DIM', 'AccountGeography') }} \"AccountGeography\"\n  ON \"\
+          OPC_Account\".\"ForceId\" = \"AccountGeography\".\"ForceId\"\nLEFT JOIN\
+          \ {{ ref('DIM', 'Sector') }} \"Sector\"\n  ON \"OPC_Account\".\"SectorKey\"\
+          \ = \"Sector\".\"SectorKey\"\nLEFT JOIN {{ ref('OPC', 'OPC_vwAggForceIdUsageStats_All')\
+          \ }} \"OPC_vwAggForceIdUsageStats_All\"\n  ON \"OPC_Account\".\"ForceId\"\
+          \ = \"OPC_vwAggForceIdUsageStats_All\".\"ForceId\"\nLEFT JOIN {{ ref('OPC',\
+          \ 'OPC_vwAggLevel1ForceIdUsageStats_Lifetime_Contacts') }} \"OPC_vwAggLevel1ForceIdUsageStats_Lifetime_Contacts\"\
+          \n  ON \"OPC_Account\".\"ForceId\" = \"OPC_vwAggLevel1ForceIdUsageStats_Lifetime_Contacts\"\
+          .\"ForceId\"\nLEFT JOIN {{ ref('OPC', 'OPC_AggForceId_LTM') }} \"OPC_AggForceId_LTM\"\
+          \n  ON \"OPC_Account\".\"ForceId\" = \"OPC_AggForceId_LTM\".\"ForceId\"\n\
+          LEFT JOIN {{ ref('OPC', 'OPC_AggForceId_PY_LTM') }} \"OPC_AggForceId_PY_LTM\"\
+          \n  ON \"OPC_Account\".\"ForceId\" = \"OPC_AggForceId_PY_LTM\".\"ForceId\"\
+          \nGROUP BY ALL"
       name: OPC_ChildCustomerSearch
       noLinkRefs: []
   name: OPC_ChildCustomerSearch

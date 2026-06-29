@@ -127,7 +127,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ZEROIFNULL(Account.AccountKey)
+        transform: ZEROIFNULL("Account"."AccountKey")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 07da3c3b-da8f-5e30-b065-8a0921e7ab47
@@ -173,7 +173,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ZEROIFNULL(Contract.ContractKey)
+        transform: ZEROIFNULL("Contract"."ContractKey")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: bc8f214c-9abe-59ab-ba9d-ee421edfa8bb
@@ -185,7 +185,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ZEROIFNULL(Opportunity.OpportunityKey)
+        transform: ZEROIFNULL("Opportunity"."OpportunityKey")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: be0ffac5-98d7-5226-8a2d-638bd7bce670
@@ -197,7 +197,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ZEROIFNULL(Campaign.CampaignKey)
+        transform: ZEROIFNULL("Campaign"."CampaignKey")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f024ea8b-1c7e-5fa3-936a-9381cf27a95a
@@ -209,7 +209,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ZEROIFNULL(Solicitation.SolicitationKey)
+        transform: ZEROIFNULL("Solicitation"."SolicitationKey")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 729374ec-41aa-593e-b883-46b26cb16af9
@@ -235,7 +235,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ZEROIFNULL(Contact.DimContactKey)
+        transform: ZEROIFNULL("Contact"."DimContactKey")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6666a0ff-37e7-5738-947f-a9fb25d9e57f
@@ -247,7 +247,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ZEROIFNULL(Lead.LeadKey)
+        transform: ZEROIFNULL("Lead"."LeadKey")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 804bdcc6-dbef-5e1e-973a-189c3d24570e
@@ -441,7 +441,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ZEROIFNULL(VoiceCall.VoiceCallKey)
+        transform: ZEROIFNULL("VoiceCall"."VoiceCallKey")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7b4ee31d-422d-5b77-9500-96caa3100f35
@@ -641,24 +641,23 @@ operation:
       - locationName: DIM
         nodeName: VoiceCall
       join:
-        joinCondition: |-
-          FROM {{ ref('LOAD', 'LoadSFDCTask') }} "LoadSFDCTask"
-          LEFT JOIN {{ ref('DIM', 'Account') }} "Account"
-            ON LoadSFDCTask.ACCOUNT_SALESFORCEID = Account.SalesforceId
-          LEFT JOIN {{ ref('DIM', 'Contract') }} "Contract"
-            ON LoadSFDCTask.RELATED_TO_SALESFORCEID = Contract.ContractSalesforceId
-          LEFT JOIN {{ ref('DIM', 'Opportunity') }} "Opportunity"
-            ON LoadSFDCTask.RELATED_TO_SALESFORCEID = Opportunity.OpportunitySalesforceId
-          LEFT JOIN {{ ref('DIM', 'Campaign') }} "Campaign"
-            ON LoadSFDCTask.RELATED_TO_SALESFORCEID = Campaign.CampaignSalesforceId
-          LEFT JOIN {{ ref('DIM', 'Solicitation') }} "Solicitation"
-            ON LoadSFDCTask.RELATED_TO_SALESFORCEID = Solicitation.SolicitationSalesforceId
-          LEFT JOIN {{ ref('DIM', 'Contact') }} "Contact"
-            ON LoadSFDCTask.RELATED_CONTACT_SALESFORCEID = Contact.ContactSalesforceId
-          LEFT JOIN {{ ref('DIM', 'Lead') }} "Lead"
-            ON LoadSFDCTask.RELATED_CONTACT_SALESFORCEID = Lead.Lead_SalesforceId
-          LEFT JOIN {{ ref('DIM', 'VoiceCall') }} "VoiceCall"
-            ON LoadSFDCTask.VOICE_CALL_SALESFORCEID = VoiceCall.VoiceCallSalesforceId
+        joinCondition: "FROM {{ ref('LOAD', 'LoadSFDCTask') }} \"LoadSFDCTask\"\n\
+          LEFT JOIN {{ ref('DIM', 'Account') }} \"Account\"\n  ON \"LoadSFDCTask\"\
+          .\"ACCOUNT_SALESFORCEID\" = \"Account\".\"SalesforceId\"\nLEFT JOIN {{ ref('DIM',\
+          \ 'Contract') }} \"Contract\"\n  ON \"LoadSFDCTask\".\"RELATED_TO_SALESFORCEID\"\
+          \ = \"Contract\".\"ContractSalesforceId\"\nLEFT JOIN {{ ref('DIM', 'Opportunity')\
+          \ }} \"Opportunity\"\n  ON \"LoadSFDCTask\".\"RELATED_TO_SALESFORCEID\"\
+          \ = \"Opportunity\".\"OpportunitySalesforceId\"\nLEFT JOIN {{ ref('DIM',\
+          \ 'Campaign') }} \"Campaign\"\n  ON \"LoadSFDCTask\".\"RELATED_TO_SALESFORCEID\"\
+          \ = \"Campaign\".\"CampaignSalesforceId\"\nLEFT JOIN {{ ref('DIM', 'Solicitation')\
+          \ }} \"Solicitation\"\n  ON \"LoadSFDCTask\".\"RELATED_TO_SALESFORCEID\"\
+          \ = \"Solicitation\".\"SolicitationSalesforceId\"\nLEFT JOIN {{ ref('DIM',\
+          \ 'Contact') }} \"Contact\"\n  ON \"LoadSFDCTask\".\"RELATED_CONTACT_SALESFORCEID\"\
+          \ = \"Contact\".\"ContactSalesforceId\"\nLEFT JOIN {{ ref('DIM', 'Lead')\
+          \ }} \"Lead\"\n  ON \"LoadSFDCTask\".\"RELATED_CONTACT_SALESFORCEID\" =\
+          \ \"Lead\".\"Lead_SalesforceId\"\nLEFT JOIN {{ ref('DIM', 'VoiceCall') }}\
+          \ \"VoiceCall\"\n  ON \"LoadSFDCTask\".\"VOICE_CALL_SALESFORCEID\" = \"\
+          VoiceCall\".\"VoiceCallSalesforceId\""
       name: StageSFDCTask_AddKeys
       noLinkRefs: []
   name: StageSFDCTask_AddKeys

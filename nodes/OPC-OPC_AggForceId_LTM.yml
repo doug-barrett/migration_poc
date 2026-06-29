@@ -45,7 +45,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUM(OPC_SalesAndRevenue.Sales)
+        transform: SUM("OPC_SalesAndRevenue"."Sales")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f3881e05-063f-5368-be61-435fe7078c9d
@@ -58,7 +58,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: RANK() OVER (ORDER BY SUM(OPC_SalesAndRevenue.Sales) DESC)
+        transform: RANK() OVER (ORDER BY SUM("OPC_SalesAndRevenue"."Sales") DESC)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b6745f68-7f16-5d7d-8c34-175dbe9b579c
@@ -71,7 +71,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT (DISTINCT OPC_SalesAndRevenue.FinancialReportingSupplierName)
+        transform: COUNT (DISTINCT "OPC_SalesAndRevenue"."FinancialReportingSupplierName")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 69413cb4-95b3-5f3f-a244-e878084953e0
@@ -84,7 +84,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT (DISTINCT OPC_SalesAndRevenue.InitialContractId)
+        transform: COUNT (DISTINCT "OPC_SalesAndRevenue"."InitialContractId")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 00b34da6-20aa-5150-96ea-251ff8231a3e
@@ -96,7 +96,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT (DISTINCT OPC_SalesAndRevenue.ContractCategory)
+        transform: COUNT (DISTINCT "OPC_SalesAndRevenue"."ContractCategory")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f7fe2c75-869d-511a-872a-d1dd9e591cdb
@@ -132,9 +132,11 @@ operation:
       - locationName: OPC
         nodeName: OPC_SalesAndRevenue
       join:
-        joinCondition: |-
-          FROM {{ ref('OPC', 'OPC_SalesAndRevenue') }} "OPC_SalesAndRevenue"
-          WHERE DATEDIFF(month ,TransactionDate,MaxREportingPeriodEndDate) BETWEEN 0 AND 11  GROUP BY OPC_SalesAndRevenue.ForceId  HAVING SUM(OPC_SalesAndRevenue.Sales) <> 0
+        joinCondition: 'FROM {{ ref(''OPC'', ''OPC_SalesAndRevenue'') }} "OPC_SalesAndRevenue"
+
+          WHERE DATEDIFF(month ,TransactionDate,MaxREportingPeriodEndDate) BETWEEN
+          0 AND 11  GROUP BY "OPC_SalesAndRevenue"."ForceId"  HAVING SUM("OPC_SalesAndRevenue"."Sales")
+          <> 0'
       name: OPC_AggForceId_LTM
       noLinkRefs: []
   name: OPC_AggForceId_LTM

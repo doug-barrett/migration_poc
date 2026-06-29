@@ -98,8 +98,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IIF(LAG(DimReceiptDate.ReceiptDate, 1) OVER (PARTITION BY ForceId,
-          PPAContractNumber ORDER BY ForceId, PPAContractNumber, DimReceiptDate.ReceiptDate)
+        transform: IIF(LAG("DimReceiptDate"."ReceiptDate", 1) OVER (PARTITION BY ForceId,
+          PPAContractNumber ORDER BY ForceId, PPAContractNumber, "DimReceiptDate"."ReceiptDate")
           IS NULL ,1,0)
     - appliedColumnTests: {}
       columnReference:
@@ -112,9 +112,10 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IIF(DATEDIFF(quarter, LAG(DimReceiptDate.ReceiptDate, 1) OVER (PARTITION
-          BY ForceId, PPAContractNumber ORDER BY ForceId, PPAContractNumber, ReceiptDateCalQuarter),
-          DimReceiptDate.ReceiptDate) BETWEEN 1 AND 4, 'Recurring', 'New')
+        transform: IIF(DATEDIFF(quarter, LAG("DimReceiptDate"."ReceiptDate", 1) OVER
+          (PARTITION BY ForceId, PPAContractNumber ORDER BY ForceId, PPAContractNumber,
+          ReceiptDateCalQuarter), "DimReceiptDate"."ReceiptDate") BETWEEN 1 AND 4,
+          'Recurring', 'New')
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1f243701-a232-5585-a45d-dd1bf3328400
@@ -126,9 +127,9 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DATEDIFF(quarter, LAG(DimReceiptDate.ReceiptDate, 1) OVER (PARTITION
-          BY ForceId, PPAContractNumber ORDER BY ForceId, PPAContractNumber, DimReceiptDate.ReceiptDateCalQuarter),
-          DimReceiptDate.ReceiptDate)
+        transform: DATEDIFF(quarter, LAG("DimReceiptDate"."ReceiptDate", 1) OVER (PARTITION
+          BY ForceId, PPAContractNumber ORDER BY ForceId, PPAContractNumber, "DimReceiptDate"."ReceiptDateCalQuarter"),
+          "DimReceiptDate"."ReceiptDate")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c26994c7-aa9f-5c77-b077-5629a33d2a8d
@@ -173,12 +174,15 @@ operation:
       - locationName: FACT
         nodeName: SalesAndRevenue
       join:
-        joinCondition: |-
-          FROM {{ ref('DIM', 'Account') }} "Account"
-          JOIN {{ ref('DIM', 'Contract') }} "Contract"
-          JOIN {{ ref('DIM', 'DimReceiptDate') }} "DimReceiptDate"
-          JOIN {{ ref('FACT', 'SalesAndRevenue') }} "SalesAndRevenue"
-          GROUP BY ALL
+        joinCondition: 'FROM {{ ref(''DIM'', ''Account'') }} "Account"
+
+          JOIN {{ ref(''DIM'', ''Contract'') }} "Contract"
+
+          JOIN {{ ref(''DIM'', ''DimReceiptDate'') }} "DimReceiptDate"
+
+          JOIN {{ ref(''FACT'', ''SalesAndRevenue'') }} "SalesAndRevenue"
+
+          GROUP BY ALL'
       name: AggContractUsageByReceiptDateParentForceId
       noLinkRefs: []
   name: AggContractUsageByReceiptDateParentForceId

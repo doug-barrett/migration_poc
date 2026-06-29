@@ -69,7 +69,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUM(SalesAndRevenue.Sales)
+        transform: SUM("SalesAndRevenue"."Sales")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8acf9e08-a490-597f-a395-ced1714dda69
@@ -82,7 +82,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUM(SalesAndRevenue.Revenue)
+        transform: SUM("SalesAndRevenue"."Revenue")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 17d9562d-5a4d-5ef5-8cfd-7053f9176882
@@ -95,7 +95,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: RANK() OVER (ORDER BY SUM(SalesAndRevenue.Sales) DESC)
+        transform: RANK() OVER (ORDER BY SUM("SalesAndRevenue"."Sales") DESC)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a8381998-22ab-5fc0-beb5-4ccd64dcfa7b
@@ -107,7 +107,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: RANK() OVER (ORDER BY SUM(SalesAndRevenue.Revenue) DESC)
+        transform: RANK() OVER (ORDER BY SUM("SalesAndRevenue"."Revenue") DESC)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 52cf94a3-d4b6-584e-9479-ae04692e3b01
@@ -120,7 +120,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT (DISTINCT Contract.FinancialReportingSupplierName)
+        transform: COUNT (DISTINCT "Contract"."FinancialReportingSupplierName")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 035359a3-73aa-5cce-94e0-fd23b18a6ebf
@@ -146,7 +146,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT (DISTINCT Contract.ContractCategory)
+        transform: COUNT (DISTINCT "Contract"."ContractCategory")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2ee87fd2-f250-5312-b226-5bf2fe144fe1
@@ -159,7 +159,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MIN(SalesAndRevenue.ReceiptDate)
+        transform: MIN("SalesAndRevenue"."ReceiptDate")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a8f0b5e8-81d5-51a7-b132-64c8327020ad
@@ -171,7 +171,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MAX(SalesAndRevenue.ReceiptDate)
+        transform: MAX("SalesAndRevenue"."ReceiptDate")
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
@@ -186,11 +186,10 @@ operation:
       - locationName: DIM
         nodeName: Contract
       join:
-        joinCondition: |-
-          FROM {{ ref('FACT', 'SalesAndRevenue') }} "SalesAndRevenue"
-          JOIN {{ ref('DIM', 'Contract') }} "Contract"
-            ON SalesAndRevenue.ContractKey = Contract.ContractKey
-          GROUP BY SalesAndRevenue.Level1ForceId
+        joinCondition: "FROM {{ ref('FACT', 'SalesAndRevenue') }} \"SalesAndRevenue\"\
+          \nJOIN {{ ref('DIM', 'Contract') }} \"Contract\"\n  ON \"SalesAndRevenue\"\
+          .\"ContractKey\" = \"Contract\".\"ContractKey\"\nGROUP BY \"SalesAndRevenue\"\
+          .\"Level1ForceId\""
       name: AggLevel1_Lifetime
       noLinkRefs: []
   name: AggLevel1_Lifetime

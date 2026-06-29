@@ -211,7 +211,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: UPPER(StageSalesMerge_1.ContractId)
+        transform: UPPER("StageSalesMerge_1"."ContractId")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: bb94b219-26c4-50bc-a667-5dc13475b7b0
@@ -223,7 +223,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DATE_FROM_PARTS(YEAR(StageSalesMerge_1.ReceiptDate),MONTH(StageSalesMerge_1.ReceiptDate),1)
+        transform: DATE_FROM_PARTS(YEAR("StageSalesMerge_1"."ReceiptDate"),MONTH("StageSalesMerge_1"."ReceiptDate"),1)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7b3fa3d3-179a-5914-8618-2caa0b8d5bf8
@@ -235,8 +235,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DATE_FROM_PARTS(IFF(YEAR(StageSalesMerge_1.ReceiptDate) < 2019,
-          2019, YEAR(StageSalesMerge_1.ReceiptDate)), MONTH(StageSalesMerge_1.ReceiptDate),
+        transform: DATE_FROM_PARTS(IFF(YEAR("StageSalesMerge_1"."ReceiptDate") < 2019,
+          2019, YEAR("StageSalesMerge_1"."ReceiptDate")), MONTH("StageSalesMerge_1"."ReceiptDate"),
           1)
     - appliedColumnTests: {}
       columnReference:
@@ -249,7 +249,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DATE_FROM_PARTS(YEAR(StageSalesMerge_1.TransactionDate),MONTH(StageSalesMerge_1.TransactionDate),1)
+        transform: DATE_FROM_PARTS(YEAR("StageSalesMerge_1"."TransactionDate"),MONTH("StageSalesMerge_1"."TransactionDate"),1)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 43e68f17-a782-514c-9574-4b58c69038a4
@@ -289,7 +289,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IFF(ContractsWithMarketingAgreement.ContractId IS NULL,StageSalesMerge_1.Sales,0)
+        transform: IFF("ContractsWithMarketingAgreement"."ContractId" IS NULL,"StageSalesMerge_1"."Sales",0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 52a0d56f-c394-5b1a-adb0-870447ae8a0f
@@ -468,7 +468,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(Contract.SupplierId,StageSalesMerge_1.SupplierId)
+        transform: COALESCE("Contract"."SupplierId","StageSalesMerge_1"."SupplierId")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 216fc2fb-75fe-56ee-bccb-3cc53f6cc535
@@ -756,12 +756,13 @@ operation:
       - locationName: STAGE
         nodeName: StageSalesMerge_1
       join:
-        joinCondition: |-
-          FROM {{ ref('STAGE', 'StageSalesMerge_1') }} "StageSalesMerge_1"
-          LEFT JOIN {{ ref_no_link('DIM', 'ContractsWithMarketingAgreement') }} "ContractsWithMarketingAgreement"
-            ON StageSalesMerge_1.ContractId = ContractsWithMarketingAgreement.ContractId
-          LEFT JOIN {{ ref_no_link('DIM', 'Contract') }} "Contract"
-            ON StageSalesMerge_1.ContractId = Contract.ContractId AND StageSalesMerge_1.dss_source_system_key = Contract.dss_source_system_key
+        joinCondition: "FROM {{ ref('STAGE', 'StageSalesMerge_1') }} \"StageSalesMerge_1\"\
+          \nLEFT JOIN {{ ref_no_link('DIM', 'ContractsWithMarketingAgreement') }}\
+          \ \"ContractsWithMarketingAgreement\"\n  ON \"StageSalesMerge_1\".\"ContractId\"\
+          \ = \"ContractsWithMarketingAgreement\".\"ContractId\"\nLEFT JOIN {{ ref_no_link('DIM',\
+          \ 'Contract') }} \"Contract\"\n  ON \"StageSalesMerge_1\".\"ContractId\"\
+          \ = \"Contract\".\"ContractId\" AND \"StageSalesMerge_1\".\"dss_source_system_key\"\
+          \ = \"Contract\".\"dss_source_system_key\""
       name: StageSalesMerge_BizXForms
       noLinkRefs:
       - locationName: DIM

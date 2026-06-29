@@ -51,7 +51,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MAX(OPSalesAndRevenue.MaxReceiptDate)
+        transform: MAX("OPSalesAndRevenue"."MaxReceiptDate")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f3c8837e-d394-52af-a077-1035b3191c82
@@ -63,7 +63,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MAX(OPSalesAndRevenue.TransactionDate)
+        transform: MAX("OPSalesAndRevenue"."TransactionDate")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 64867895-f3a8-5f73-b183-8036e41addd2
@@ -75,7 +75,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DATEDIFF(month,MAX(OPSalesAndRevenue.TransactionDate),MAX(OPSalesAndRevenue.MaxReceiptDate))
+        transform: DATEDIFF(month,MAX("OPSalesAndRevenue"."TransactionDate"),MAX("OPSalesAndRevenue"."MaxReceiptDate"))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e9e31d13-70b3-5ca8-b369-067bb4dc1f4c
@@ -87,8 +87,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT(DISTINCT OPSalesAndRevenue.FinancialReportingSupplierName)
-          OVER (PARTITION BY OPSalesAndRevenue.Level1ForceId)
+        transform: COUNT(DISTINCT "OPSalesAndRevenue"."FinancialReportingSupplierName")
+          OVER (PARTITION BY "OPSalesAndRevenue"."Level1ForceId")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a5c577c6-7602-5fba-a125-6380d33e110d
@@ -100,7 +100,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT(DISTINCT OPSalesAndRevenue.InitialContractId)
+        transform: COUNT(DISTINCT "OPSalesAndRevenue"."InitialContractId")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 082fe247-ab93-5046-876d-1a31cd78f7a5
@@ -112,7 +112,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT(DISTINCT OPSalesAndRevenue.ContractCategory)
+        transform: COUNT(DISTINCT "OPSalesAndRevenue"."ContractCategory")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b3de3bd0-06c5-5c3f-a1ea-d8526a0d6fc7
@@ -124,7 +124,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUM(OPSalesAndRevenue.Sales)
+        transform: SUM("OPSalesAndRevenue"."Sales")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 28f8f49e-e36a-5040-9fc3-8e679ac57710
@@ -136,7 +136,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUM(OPSalesAndRevenue.Revenue)
+        transform: SUM("OPSalesAndRevenue"."Revenue")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 203cb2ff-b48d-5126-a55b-78035f73ecce
@@ -148,7 +148,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: RANK() OVER (ORDER BY SUM(OPSalesAndRevenue.Sales) DESC)
+        transform: RANK() OVER (ORDER BY SUM("OPSalesAndRevenue"."Sales") DESC)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 27f691ba-6076-5de8-bc2d-32b99fafe02f
@@ -160,7 +160,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: RANK() OVER (ORDER BY SUM(OPSalesAndRevenue.Revenue) DESC)
+        transform: RANK() OVER (ORDER BY SUM("OPSalesAndRevenue"."Revenue") DESC)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f73c3c10-1d9e-5fe4-9215-7c10c47c3c9f
@@ -172,7 +172,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT (DISTINCT Contact.DimContactKey)
+        transform: COUNT (DISTINCT "Contact"."DimContactKey")
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
@@ -187,11 +187,12 @@ operation:
       - locationName: DIM
         nodeName: Contact
       join:
-        joinCondition: |-
-          FROM {{ ref('OP', 'OPSalesAndRevenue') }} "OPSalesAndRevenue"
-          LEFT JOIN {{ ref('DIM', 'Contact') }} "Contact"
-            ON OPSalesAndRevenue.Level1ForceId = Contact.Level1ForceId
-          WHERE DATEDIFF(year,OPSalesAndRevenue.TransactionDate,OPSalesAndRevenue.MaxReceiptDate) = 0  GROUP BY OPSalesAndRevenue.Level1ForceId,OPSalesAndRevenue.SupplierId, OPSalesAndRevenue.FinancialReportingSupplierName
+        joinCondition: "FROM {{ ref('OP', 'OPSalesAndRevenue') }} \"OPSalesAndRevenue\"\
+          \nLEFT JOIN {{ ref('DIM', 'Contact') }} \"Contact\"\n  ON \"OPSalesAndRevenue\"\
+          .\"Level1ForceId\" = \"Contact\".\"Level1ForceId\"\nWHERE DATEDIFF(year,\"\
+          OPSalesAndRevenue\".\"TransactionDate\",\"OPSalesAndRevenue\".\"MaxReceiptDate\"\
+          ) = 0  GROUP BY \"OPSalesAndRevenue\".\"Level1ForceId\",\"OPSalesAndRevenue\"\
+          .\"SupplierId\", \"OPSalesAndRevenue\".\"FinancialReportingSupplierName\""
       name: OPC_vwAggLevel1ForceIdUsageStats_CurrentYTD
       noLinkRefs: []
   name: OPC_vwAggLevel1ForceIdUsageStats_CurrentYTD

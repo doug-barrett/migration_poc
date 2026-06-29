@@ -82,7 +82,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(Account.AccountKey,0)
+        transform: COALESCE("Account"."AccountKey",0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 53af20d8-30c7-5b48-b75a-aa02991c28e5
@@ -106,7 +106,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(Supplier.SupplierKey,0)
+        transform: COALESCE("Supplier"."SupplierKey",0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 782b5fe6-33e7-552f-bd81-de37122e4e73
@@ -2017,17 +2017,15 @@ operation:
       - locationName: DIM
         nodeName: SourceEntity
       join:
-        joinCondition: |-
-          FROM {{ ref('STAGE', 'StageContract_BizXForms') }} "StageContract_BizXForms"
-          LEFT JOIN {{ ref('DIM', 'Supplier') }} "Supplier"
-            ON StageContract_BizXForms.ContractAccountId = Supplier.SalesforceId
-          LEFT JOIN {{ ref_no_link('DIM', 'Account') }} "Account"
-            ON StageContract_BizXForms.ContractAccountId = Account.SalesforceId
-          LEFT JOIN {{ ref('DIM', 'DimContractFinalEndDate') }} "DimContractFinalEndDate"
-          LEFT JOIN {{ ref('DIM', 'DimContractStartDate') }} "DimContractStartDate"
-          LEFT JOIN {{ ref('DIM', 'DimContractTermEndDate') }} "DimContractTermEndDate"
-          LEFT JOIN {{ ref('DIM', 'Organization') }} "Organization"
-          LEFT JOIN {{ ref('DIM', 'SourceEntity') }} "SourceEntity"
+        joinCondition: "FROM {{ ref('STAGE', 'StageContract_BizXForms') }} \"StageContract_BizXForms\"\
+          \nLEFT JOIN {{ ref('DIM', 'Supplier') }} \"Supplier\"\n  ON \"StageContract_BizXForms\"\
+          .\"ContractAccountId\" = \"Supplier\".\"SalesforceId\"\nLEFT JOIN {{ ref_no_link('DIM',\
+          \ 'Account') }} \"Account\"\n  ON \"StageContract_BizXForms\".\"ContractAccountId\"\
+          \ = \"Account\".\"SalesforceId\"\nLEFT JOIN {{ ref('DIM', 'DimContractFinalEndDate')\
+          \ }} \"DimContractFinalEndDate\"\nLEFT JOIN {{ ref('DIM', 'DimContractStartDate')\
+          \ }} \"DimContractStartDate\"\nLEFT JOIN {{ ref('DIM', 'DimContractTermEndDate')\
+          \ }} \"DimContractTermEndDate\"\nLEFT JOIN {{ ref('DIM', 'Organization')\
+          \ }} \"Organization\"\nLEFT JOIN {{ ref('DIM', 'SourceEntity') }} \"SourceEntity\""
       name: StageContract_AddKeys
       noLinkRefs:
       - locationName: DIM

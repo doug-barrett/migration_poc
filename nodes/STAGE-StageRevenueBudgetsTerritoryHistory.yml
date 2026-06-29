@@ -28,7 +28,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IFNULL(TerritoryHistory.TerritoryHistoryKey,0)
+        transform: IFNULL("TerritoryHistory"."TerritoryHistoryKey",0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9fc14e5f-4e07-5346-bf35-07faf02ca98d
@@ -264,11 +264,13 @@ operation:
       - locationName: DIM
         nodeName: DimBudgetDate
       join:
-        joinCondition: |-
-          FROM {{ ref('LOAD', 'LoadRevenueBudgetsTerritory') }} "LoadRevenueBudgetsTerritory"
-          LEFT JOIN {{ ref('DIM', 'TerritoryHistory') }} "TerritoryHistory"
-            ON LoadRevenueBudgetsTerritory.TerritoryId = TerritoryHistory.TerritoryId AND LoadRevenueBudgetsTerritory.BudgetDate BETWEEN TerritoryHistory.TerritoryManagerStartDate AND TerritoryHistory.TerritoryManagerEndDate
-          LEFT JOIN {{ ref('DIM', 'DimBudgetDate') }} "DimBudgetDate"
+        joinCondition: "FROM {{ ref('LOAD', 'LoadRevenueBudgetsTerritory') }} \"LoadRevenueBudgetsTerritory\"\
+          \nLEFT JOIN {{ ref('DIM', 'TerritoryHistory') }} \"TerritoryHistory\"\n\
+          \  ON \"LoadRevenueBudgetsTerritory\".\"TerritoryId\" = \"TerritoryHistory\"\
+          .\"TerritoryId\" AND \"LoadRevenueBudgetsTerritory\".\"BudgetDate\" BETWEEN\
+          \ \"TerritoryHistory\".\"TerritoryManagerStartDate\" AND \"TerritoryHistory\"\
+          .\"TerritoryManagerEndDate\"\nLEFT JOIN {{ ref('DIM', 'DimBudgetDate') }}\
+          \ \"DimBudgetDate\""
       name: StageRevenueBudgetsTerritoryHistory
       noLinkRefs: []
   name: StageRevenueBudgetsTerritoryHistory

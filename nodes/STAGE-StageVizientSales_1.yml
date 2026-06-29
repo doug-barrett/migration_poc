@@ -266,7 +266,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(DsSFDCSupplier.SupplierId,LoadVizientSales.VENDOR_ID)
+        transform: COALESCE("DsSFDCSupplier"."SupplierId","LoadVizientSales"."VENDOR_ID")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4d5d06d3-e119-5826-9b7b-9766f3aa49b4
@@ -278,7 +278,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(DsSFDCSupplier.SupplierName,LoadVizientSales.VENDOR_NAME)
+        transform: COALESCE("DsSFDCSupplier"."SupplierName","LoadVizientSales"."VENDOR_NAME")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: fdf731ba-4138-5c32-bde2-d4fbf09bff90
@@ -431,15 +431,15 @@ operation:
       - locationName: ODS
         nodeName: DsAccount
       join:
-        joinCondition: |-
-          FROM {{ ref('LOAD', 'LoadVizientSales') }} "LoadVizientSales"
-          LEFT JOIN {{ ref('ODS', 'DsSFDCSupplier') }} "DsSFDCSupplier"
-            ON LoadVizientSales.VENDOR_ID = DsSFDCSupplier.VizientSupplierId
-          LEFT JOIN {{ ref('ODS', 'DsCustomersExternalIdXref') }} "DsCustomersExternalIdXref"
-            ON LoadVizientSales.Member_ID = DsCustomersExternalIdXref.ExternalCustomerId
-          LEFT JOIN {{ ref('ODS', 'DsAccount') }} "DsAccount"
-            ON DsCustomersExternalIdXref.CustomerId = DsAccount.ForceId
-          WHERE DsCustomersExternalIdXref.SourceEntity = 3 --Process for only Vizient Source Entity
+        joinCondition: "FROM {{ ref('LOAD', 'LoadVizientSales') }} \"LoadVizientSales\"\
+          \nLEFT JOIN {{ ref('ODS', 'DsSFDCSupplier') }} \"DsSFDCSupplier\"\n  ON\
+          \ \"LoadVizientSales\".\"VENDOR_ID\" = \"DsSFDCSupplier\".\"VizientSupplierId\"\
+          \nLEFT JOIN {{ ref('ODS', 'DsCustomersExternalIdXref') }} \"DsCustomersExternalIdXref\"\
+          \n  ON \"LoadVizientSales\".\"Member_ID\" = \"DsCustomersExternalIdXref\"\
+          .\"ExternalCustomerId\"\nLEFT JOIN {{ ref('ODS', 'DsAccount') }} \"DsAccount\"\
+          \n  ON \"DsCustomersExternalIdXref\".\"CustomerId\" = \"DsAccount\".\"ForceId\"\
+          \nWHERE \"DsCustomersExternalIdXref\".\"SourceEntity\" = 3 --Process for\
+          \ only Vizient Source Entity"
       name: StageVizientSales_1
       noLinkRefs: []
   name: StageVizientSales_1

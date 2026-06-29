@@ -86,7 +86,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IFNULL(Account.AccountKey,0)
+        transform: IFNULL("Account"."AccountKey",0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: bf128c43-c7d8-5df5-bed2-649c48e67f09
@@ -146,7 +146,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IFNULL(Account.SalesTerritoryKey,0)
+        transform: IFNULL("Account"."SalesTerritoryKey",0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9918769a-6522-5e87-928d-5f0ffaafb5f5
@@ -170,7 +170,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IFNULL(Account.FinancialSalesTerritoryKey,0)
+        transform: IFNULL("Account"."FinancialSalesTerritoryKey",0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 92de2e1d-651a-52a1-9d76-f44f33529fee
@@ -249,13 +249,12 @@ operation:
       - locationName: DIM
         nodeName: DimBudgetDate
       join:
-        joinCondition: |-
-          FROM {{ ref('LOAD', 'LoadRevenueBudgetsForceId') }} "LoadRevenueBudgetsForceId"
-          LEFT JOIN {{ ref_no_link('DIM', 'Account') }} "Account"
-            ON LoadRevenueBudgetsForceId.ForceId = Account.ForceId
-          LEFT JOIN {{ ref_no_link('DIM', 'AccountHierarchy_OMNIA') }} "AccountHierarchy_OMNIA"
-            ON Account.AccountHierarchyKey = AccountHierarchy_OMNIA.AccountHierarchyKey
-          LEFT JOIN {{ ref('DIM', 'DimBudgetDate') }} "DimBudgetDate"
+        joinCondition: "FROM {{ ref('LOAD', 'LoadRevenueBudgetsForceId') }} \"LoadRevenueBudgetsForceId\"\
+          \nLEFT JOIN {{ ref_no_link('DIM', 'Account') }} \"Account\"\n  ON \"LoadRevenueBudgetsForceId\"\
+          .\"ForceId\" = \"Account\".\"ForceId\"\nLEFT JOIN {{ ref_no_link('DIM',\
+          \ 'AccountHierarchy_OMNIA') }} \"AccountHierarchy_OMNIA\"\n  ON \"Account\"\
+          .\"AccountHierarchyKey\" = \"AccountHierarchy_OMNIA\".\"AccountHierarchyKey\"\
+          \nLEFT JOIN {{ ref('DIM', 'DimBudgetDate') }} \"DimBudgetDate\""
       name: StageRevenueBudgetsForceId
       noLinkRefs:
       - locationName: DIM

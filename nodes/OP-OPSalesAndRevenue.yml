@@ -1331,7 +1331,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: base64_encode(SalesAndRevenue_DSR.FinancialReportingSupplierName)
+        transform: base64_encode("SalesAndRevenue_DSR"."FinancialReportingSupplierName")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 547f20c1-f342-5d38-889a-b69b825d27c0
@@ -4736,10 +4736,14 @@ operation:
       - locationName: REPORTS
         nodeName: SalesAndRevenue_DSR
       join:
-        joinCondition: |-
-          FROM {{ ref('REPORTS', 'SalesAndRevenue_DSR') }} "SalesAndRevenue_DSR"
-          WHERE SalesAndRevenue_DSR.ChannelPartnerFeesharePartnerId = 1 --include OMNIA Hierarchy only  --include unprocessed registrations for OMNIA hierarchy or another (as they could end up in OMNIA hierarchy too)  OR (SalesAndRevenue_DSR.ForceId IS NULL AND SalesAndRevenue_DSR.RegistrationId IS NOT NULL)
-          GROUP BY ALL
+        joinCondition: 'FROM {{ ref(''REPORTS'', ''SalesAndRevenue_DSR'') }} "SalesAndRevenue_DSR"
+
+          WHERE "SalesAndRevenue_DSR"."ChannelPartnerFeesharePartnerId" = 1 --include
+          OMNIA Hierarchy only  --include unprocessed registrations for OMNIA hierarchy
+          or another (as they could end up in OMNIA hierarchy too)  OR ("SalesAndRevenue_DSR"."ForceId"
+          IS NULL AND "SalesAndRevenue_DSR"."RegistrationId" IS NOT NULL)
+
+          GROUP BY ALL'
       name: OPSalesAndRevenue
       noLinkRefs: []
   name: OPSalesAndRevenue

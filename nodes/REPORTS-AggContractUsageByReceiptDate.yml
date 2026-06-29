@@ -72,7 +72,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUM(SalesAndRevenue.Sales)
+        transform: SUM("SalesAndRevenue"."Sales")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: eb6c3971-f47c-5a7b-9733-b6a279389f37
@@ -84,7 +84,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUM(SalesAndRevenue.Revenue)
+        transform: SUM("SalesAndRevenue"."Revenue")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 041d07e6-26b1-5cb9-b3a9-393e2663bd06
@@ -97,9 +97,9 @@ operation:
       sourceColumnReferences:
       - columnReferences: []
         transform: -- Is this the very 1st time using this contract?  IFF(LAG(ReceiptDateCalQuarter,
-          1) OVER(      PARTITION BY ForceId, Contract.PPAContractNumber          ORDER
-          BY ForceId, Contract.PPAContractNumber,ReceiptDateCalQuarter) IS NULL, 1,
-          0)
+          1) OVER(      PARTITION BY ForceId, "Contract"."PPAContractNumber"          ORDER
+          BY ForceId, "Contract"."PPAContractNumber",ReceiptDateCalQuarter) IS NULL,
+          1, 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 90861e7c-b64b-57f6-8338-9795d54ad4cf
@@ -111,13 +111,13 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: --New or Recurring in a Rolling 4 Quarter Timeline    IFF(    DATEDIFF(quarter,     LAG(    TO_DATE(CONCAT(CAST(LEFT(DimReceiptDate.ReceiptDateCalQuarter,
-          4) AS VARCHAR(10)),     CASE RIGHT(CAST(DimReceiptDate.ReceiptDateCalQuarter
+        transform: --New or Recurring in a Rolling 4 Quarter Timeline    IFF(    DATEDIFF(quarter,     LAG(    TO_DATE(CONCAT(CAST(LEFT("DimReceiptDate"."ReceiptDateCalQuarter",
+          4) AS VARCHAR(10)),     CASE RIGHT(CAST("DimReceiptDate"."ReceiptDateCalQuarter"
           AS VARCHAR(10)), 2)        WHEN '01' THEN '03'        WHEN '02' THEN '06'        WHEN
           '03' THEN '09'        ELSE '12'    END, '01')), 1) OVER(        PARTITION
-          BY ForceId, Contract.PPAContractNumber            ORDER BY ForceId, Contract.PPAContractNumber,
-          DimReceiptDate.ReceiptDateCalQuarter),     TO_DATE(CONCAT(CAST(LEFT(DimReceiptDate.ReceiptDateCalQuarter,
-          4) AS VARCHAR(10)),     CASE RIGHT(CAST(DimReceiptDate.ReceiptDateCalQuarter
+          BY ForceId, "Contract"."PPAContractNumber"            ORDER BY ForceId,
+          "Contract"."PPAContractNumber", "DimReceiptDate"."ReceiptDateCalQuarter"),     TO_DATE(CONCAT(CAST(LEFT("DimReceiptDate"."ReceiptDateCalQuarter",
+          4) AS VARCHAR(10)),     CASE RIGHT(CAST("DimReceiptDate"."ReceiptDateCalQuarter"
           AS VARCHAR(10)), 2)        WHEN '01' THEN '03'        WHEN '02' THEN '06'        WHEN
           '03' THEN '09'        ELSE '12'    END, '01'))) <= 4, 'Recurring', 'New')
     - appliedColumnTests: {}
@@ -131,12 +131,13 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: --Quarters Since Last Use     DATEDIFF(quarter,     LAG(    TO_DATE(CONCAT(CAST(LEFT(DimReceiptDate.ReceiptDateCalQuarter,
-          4) AS VARCHAR(10)),     CASE RIGHT(CAST(DimReceiptDate.ReceiptDateCalQuarter
+        transform: --Quarters Since Last Use     DATEDIFF(quarter,     LAG(    TO_DATE(CONCAT(CAST(LEFT("DimReceiptDate"."ReceiptDateCalQuarter",
+          4) AS VARCHAR(10)),     CASE RIGHT(CAST("DimReceiptDate"."ReceiptDateCalQuarter"
           AS VARCHAR(10)), 2)        WHEN '01' THEN '03'        WHEN '02' THEN '06'        WHEN
           '03' THEN '09'        ELSE '12'    END, '01')), 1) OVER(        PARTITION
-          BY ForceId, Contract.PPAContractNumber            ORDER BY ForceId, Contract.PPAContractNumber,DimReceiptDate.ReceiptDateCalQuarter),     TO_DATE(CONCAT(CAST(LEFT(DimReceiptDate.ReceiptDateCalQuarter,
-          4) AS VARCHAR(10)),     CASE RIGHT(CAST(DimReceiptDate.ReceiptDateCalQuarter
+          BY ForceId, "Contract"."PPAContractNumber"            ORDER BY ForceId,
+          "Contract"."PPAContractNumber","DimReceiptDate"."ReceiptDateCalQuarter"),     TO_DATE(CONCAT(CAST(LEFT("DimReceiptDate"."ReceiptDateCalQuarter",
+          4) AS VARCHAR(10)),     CASE RIGHT(CAST("DimReceiptDate"."ReceiptDateCalQuarter"
           AS VARCHAR(10)), 2)        WHEN '01' THEN '03'        WHEN '02' THEN '06'        WHEN
           '03' THEN '09'        ELSE '12'    END, '01')))
     - appliedColumnTests: {}
@@ -183,15 +184,15 @@ operation:
       - locationName: DIM
         nodeName: DimReceiptDate
       join:
-        joinCondition: |-
-          FROM {{ ref('FACT', 'SalesAndRevenue') }} "SalesAndRevenue"
-          LEFT JOIN {{ ref('DIM', 'Account') }} "Account"
-            ON SalesAndRevenue.AccountKey = Account.AccountKey
-          LEFT JOIN {{ ref('DIM', 'Contract') }} "Contract"
-            ON SalesAndRevenue.ContractKey = Contract.ContractKey
-          LEFT JOIN {{ ref('DIM', 'DimReceiptDate') }} "DimReceiptDate"
-            ON SalesAndRevenue.ReceiptDateKey = DimReceiptDate.ReceiptDateKey
-          GROUP BY Account.ForceId, Contract.PPAContractNumber, DimReceiptDate.ReceiptDateCalQuarter  ORDER BY Account.ForceId, Contract.PPAContractNumber, DimReceiptDate.ReceiptDateCalQuarter
+        joinCondition: "FROM {{ ref('FACT', 'SalesAndRevenue') }} \"SalesAndRevenue\"\
+          \nLEFT JOIN {{ ref('DIM', 'Account') }} \"Account\"\n  ON \"SalesAndRevenue\"\
+          .\"AccountKey\" = \"Account\".\"AccountKey\"\nLEFT JOIN {{ ref('DIM', 'Contract')\
+          \ }} \"Contract\"\n  ON \"SalesAndRevenue\".\"ContractKey\" = \"Contract\"\
+          .\"ContractKey\"\nLEFT JOIN {{ ref('DIM', 'DimReceiptDate') }} \"DimReceiptDate\"\
+          \n  ON \"SalesAndRevenue\".\"ReceiptDateKey\" = \"DimReceiptDate\".\"ReceiptDateKey\"\
+          \nGROUP BY \"Account\".\"ForceId\", \"Contract\".\"PPAContractNumber\",\
+          \ \"DimReceiptDate\".\"ReceiptDateCalQuarter\"  ORDER BY \"Account\".\"\
+          ForceId\", \"Contract\".\"PPAContractNumber\", \"DimReceiptDate\".\"ReceiptDateCalQuarter\""
       name: AggContractUsageByReceiptDate
       noLinkRefs: []
   name: AggContractUsageByReceiptDate

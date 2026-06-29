@@ -84,7 +84,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUM(SalesAndRevenue.Sales)
+        transform: SUM("SalesAndRevenue"."Sales")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2044a205-945a-5afb-8364-c8b64fa67204
@@ -97,7 +97,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUM(SalesAndRevenue.Revenue)
+        transform: SUM("SalesAndRevenue"."Revenue")
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
@@ -115,13 +115,14 @@ operation:
       - locationName: DIM
         nodeName: UCCampus
       join:
-        joinCondition: |-
-          FROM {{ ref('FACT', 'SalesAndRevenue') }} "SalesAndRevenue"
-          JOIN {{ ref('DIM', 'AccountHierarchy') }} "AccountHierarchy"
-            ON SalesAndRevenue.AccountHierarchyKey = AccountHierarchy.AccountHierarchyKey
-          JOIN {{ ref('DIM', 'UCCampus') }} "UCCampus"
-            ON AccountHierarchy.Level1ForceId = UCCampus.OPCampusForceId
-          GROUP BY SalesAndRevenue.ContractKey,           SalesAndRevenue.TransactionDateKey,           SalesAndRevenue.ContractId,           UCCampus.UCCampusKey
+        joinCondition: "FROM {{ ref('FACT', 'SalesAndRevenue') }} \"SalesAndRevenue\"\
+          \nJOIN {{ ref('DIM', 'AccountHierarchy') }} \"AccountHierarchy\"\n  ON \"\
+          SalesAndRevenue\".\"AccountHierarchyKey\" = \"AccountHierarchy\".\"AccountHierarchyKey\"\
+          \nJOIN {{ ref('DIM', 'UCCampus') }} \"UCCampus\"\n  ON \"AccountHierarchy\"\
+          .\"Level1ForceId\" = \"UCCampus\".\"OPCampusForceId\"\nGROUP BY \"SalesAndRevenue\"\
+          .\"ContractKey\",           \"SalesAndRevenue\".\"TransactionDateKey\",\
+          \           \"SalesAndRevenue\".\"ContractId\",           \"UCCampus\".\"\
+          UCCampusKey\""
       name: AggOPSalesAndRevenueByContract
       noLinkRefs: []
   name: AggOPSalesAndRevenueByContract

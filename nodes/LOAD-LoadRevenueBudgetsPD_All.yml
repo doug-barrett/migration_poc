@@ -27,7 +27,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(LoadRevenueBudgetsPD.ContractId,LoadRevenueBudgetsPDBoard.ContractId,LoadRevenueBudgetsPDModel.ContractId)
+        transform: COALESCE("LoadRevenueBudgetsPD"."ContractId","LoadRevenueBudgetsPDBoard"."ContractId","LoadRevenueBudgetsPDModel"."ContractId")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4aa24902-fc72-5711-9c53-442dbbbc1f6c
@@ -39,7 +39,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(LoadRevenueBudgetsPD.BudgetDate,LoadRevenueBudgetsPDBoard.BudgetDate,LoadRevenueBudgetsPDModel.BudgetDate)
+        transform: COALESCE("LoadRevenueBudgetsPD"."BudgetDate","LoadRevenueBudgetsPDBoard"."BudgetDate","LoadRevenueBudgetsPDModel"."BudgetDate")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4546d207-4e39-5617-b375-00c77b5700fb
@@ -165,12 +165,14 @@ operation:
       - locationName: LOAD
         nodeName: LoadRevenueBudgetsPDModel
       join:
-        joinCondition: |-
-          FROM {{ ref('LOAD', 'LoadRevenueBudgetsPD') }} "LoadRevenueBudgetsPD"
-          FULL JOIN {{ ref('LOAD', 'LoadRevenueBudgetsPDBoard') }} "LoadRevenueBudgetsPDBoard"
-            ON LoadRevenueBudgetsPD.ContractId = LoadRevenueBudgetsPDBoard.ContractId AND LoadRevenueBudgetsPD.BudgetDate = LoadRevenueBudgetsPDBoard.BudgetDate
-          FULL JOIN {{ ref('LOAD', 'LoadRevenueBudgetsPDModel') }} "LoadRevenueBudgetsPDModel"
-            ON LoadRevenueBudgetsPD.ContractId = LoadRevenueBudgetsPDModel.ContractId AND LoadRevenueBudgetsPD.BudgetDate = LoadRevenueBudgetsPDModel.BudgetDate
+        joinCondition: "FROM {{ ref('LOAD', 'LoadRevenueBudgetsPD') }} \"LoadRevenueBudgetsPD\"\
+          \nFULL JOIN {{ ref('LOAD', 'LoadRevenueBudgetsPDBoard') }} \"LoadRevenueBudgetsPDBoard\"\
+          \n  ON \"LoadRevenueBudgetsPD\".\"ContractId\" = \"LoadRevenueBudgetsPDBoard\"\
+          .\"ContractId\" AND \"LoadRevenueBudgetsPD\".\"BudgetDate\" = \"LoadRevenueBudgetsPDBoard\"\
+          .\"BudgetDate\"\nFULL JOIN {{ ref('LOAD', 'LoadRevenueBudgetsPDModel') }}\
+          \ \"LoadRevenueBudgetsPDModel\"\n  ON \"LoadRevenueBudgetsPD\".\"ContractId\"\
+          \ = \"LoadRevenueBudgetsPDModel\".\"ContractId\" AND \"LoadRevenueBudgetsPD\"\
+          .\"BudgetDate\" = \"LoadRevenueBudgetsPDModel\".\"BudgetDate\""
       name: LoadRevenueBudgetsPD_All
       noLinkRefs: []
   name: LoadRevenueBudgetsPD_All

@@ -28,7 +28,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IFNULL(Contract.SupplierKey,0)
+        transform: IFNULL("Contract"."SupplierKey",0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0575bf4c-72cd-58cc-a464-c01eb068434a
@@ -110,7 +110,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IFNULL(Contract.ContractKey,-1)
+        transform: IFNULL("Contract"."ContractKey",-1)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d54c0707-9ea8-5a64-82e0-450a82c3d355
@@ -306,13 +306,11 @@ operation:
       - locationName: DIM
         nodeName: DimBudgetDate
       join:
-        joinCondition: |-
-          FROM {{ ref('LOAD', 'LoadRevenueBudgetsPD_All') }} "LoadRevenueBudgetsPD_All"
-          LEFT JOIN {{ ref_no_link('DIM', 'Contract') }} "Contract"
-            ON LoadRevenueBudgetsPD_All.ContractId = Contract.ContractId
-          LEFT JOIN {{ ref('DIM', 'Supplier') }} "Supplier"
-            ON Contract.SupplierKey = Supplier.SupplierKey
-          LEFT JOIN {{ ref('DIM', 'DimBudgetDate') }} "DimBudgetDate"
+        joinCondition: "FROM {{ ref('LOAD', 'LoadRevenueBudgetsPD_All') }} \"LoadRevenueBudgetsPD_All\"\
+          \nLEFT JOIN {{ ref_no_link('DIM', 'Contract') }} \"Contract\"\n  ON \"LoadRevenueBudgetsPD_All\"\
+          .\"ContractId\" = \"Contract\".\"ContractId\"\nLEFT JOIN {{ ref('DIM', 'Supplier')\
+          \ }} \"Supplier\"\n  ON \"Contract\".\"SupplierKey\" = \"Supplier\".\"SupplierKey\"\
+          \nLEFT JOIN {{ ref('DIM', 'DimBudgetDate') }} \"DimBudgetDate\""
       name: StageRevenueBudgetsPD
       noLinkRefs:
       - locationName: DIM

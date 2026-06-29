@@ -46,7 +46,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUM(OPC_SalesAndRevenue.Sales)
+        transform: SUM("OPC_SalesAndRevenue"."Sales")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ed226fca-fba3-55a4-9780-8be63f88d3c9
@@ -59,7 +59,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: RANK() OVER (ORDER BY SUM(OPC_SalesAndRevenue.Sales) DESC)
+        transform: RANK() OVER (ORDER BY SUM("OPC_SalesAndRevenue"."Sales") DESC)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7512b94b-7e17-59c9-a50f-fd4a2516a593
@@ -72,7 +72,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT (DISTINCT Contract.FinancialReportingSupplierName)
+        transform: COUNT (DISTINCT "Contract"."FinancialReportingSupplierName")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 18982605-a5c0-57a2-a878-d151d891ded9
@@ -85,7 +85,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT (DISTINCT Contract.InitialContractId)
+        transform: COUNT (DISTINCT "Contract"."InitialContractId")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c48701aa-2d34-55fa-bbb1-1f5056849834
@@ -97,7 +97,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COUNT (DISTINCT Contract.ContractCategory)
+        transform: COUNT (DISTINCT "Contract"."ContractCategory")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f15e314e-f250-50e2-842b-f3bf4c159b37
@@ -110,7 +110,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MIN(OPC_SalesAndRevenue.TransactionDate)
+        transform: MIN("OPC_SalesAndRevenue"."TransactionDate")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5ec7ea67-1a45-56f8-8746-fb9f9e3f599e
@@ -122,7 +122,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MAX(OPC_SalesAndRevenue.TransactionDate)
+        transform: MAX("OPC_SalesAndRevenue"."TransactionDate")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: eb76ff82-5d99-5c6a-add6-5ed38d55a405
@@ -161,11 +161,10 @@ operation:
       - locationName: DIM
         nodeName: Contract
       join:
-        joinCondition: |-
-          FROM {{ ref('OPC', 'OPC_SalesAndRevenue') }} "OPC_SalesAndRevenue"
-          JOIN {{ ref('DIM', 'Contract') }} "Contract"
-            ON OPC_SalesAndRevenue.ContractKey = Contract.ContractKey
-          GROUP BY OPC_SalesAndRevenue.Level1ForceId  HAVING SUM(OPC_SalesAndRevenue.Sales) <> 0
+        joinCondition: "FROM {{ ref('OPC', 'OPC_SalesAndRevenue') }} \"OPC_SalesAndRevenue\"\
+          \nJOIN {{ ref('DIM', 'Contract') }} \"Contract\"\n  ON \"OPC_SalesAndRevenue\"\
+          .\"ContractKey\" = \"Contract\".\"ContractKey\"\nGROUP BY \"OPC_SalesAndRevenue\"\
+          .\"Level1ForceId\"  HAVING SUM(\"OPC_SalesAndRevenue\".\"Sales\") <> 0"
       name: OPC_AggLevel1_Lifetime
       noLinkRefs: []
   name: OPC_AggLevel1_Lifetime

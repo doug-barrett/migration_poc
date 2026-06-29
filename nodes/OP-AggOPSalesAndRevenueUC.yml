@@ -57,7 +57,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUM(SalesAndRevenue.Sales)
+        transform: SUM("SalesAndRevenue"."Sales")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 84e1d80d-c8e3-55b5-bfc7-900ac3729cba
@@ -125,9 +125,11 @@ operation:
       - locationName: FACT
         nodeName: SalesAndRevenue
       join:
-        joinCondition: |-
-          FROM {{ ref('FACT', 'SalesAndRevenue') }} "SalesAndRevenue"
-          WHERE DATEDIFF(month,SalesAndRevenue.ReceiptDate,SalesAndRevenue.MaxReceiptDate) BETWEEN 0 AND 35     AND SalesAndRevenue.RevenueType Not in ('Public','Private')  --AND IFNULL(Sales,0) <> 0GROUP BY SalesAndRevenue.AccountId,           SalesAndRevenue.ContractId,            SalesAndRevenue.ReceiptDate,           SalesAndRevenue.RevenueType,           SalesAndRevenue.MaxReceiptDate
+        joinCondition: 'FROM {{ ref(''FACT'', ''SalesAndRevenue'') }} "SalesAndRevenue"
+
+          WHERE DATEDIFF(month,"SalesAndRevenue"."ReceiptDate","SalesAndRevenue"."MaxReceiptDate")
+          BETWEEN 0 AND 35     AND "SalesAndRevenue"."RevenueType" Not in (''Public'',''Private'')  --AND
+          IFNULL(Sales,0) <> 0GROUP BY "SalesAndRevenue"."AccountId",           "SalesAndRevenue"."ContractId",            "SalesAndRevenue"."ReceiptDate",           "SalesAndRevenue"."RevenueType",           "SalesAndRevenue"."MaxReceiptDate"'
       name: AggOPSalesAndRevenueUC
       noLinkRefs: []
   name: AggOPSalesAndRevenueUC

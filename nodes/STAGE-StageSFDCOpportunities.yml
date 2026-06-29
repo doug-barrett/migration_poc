@@ -791,7 +791,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(Account.AccountKey,0)
+        transform: COALESCE("Account"."AccountKey",0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4801b846-4e1f-54df-8c80-582a2a8a4dee
@@ -803,7 +803,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(Contract.ContractKey,0)
+        transform: COALESCE("Contract"."ContractKey",0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 37f8435c-7749-52ac-9cfa-b6ca754da845
@@ -1008,14 +1008,13 @@ operation:
       - locationName: DIM
         nodeName: Campaign
       join:
-        joinCondition: |-
-          FROM {{ ref('LOAD', 'LoadSFDCOpportunities') }} "LoadSFDCOpportunities"
-          LEFT JOIN {{ ref_no_link('DIM', 'Account') }} "Account"
-            ON LoadSFDCOpportunities.OpportunityAccountForceId = Account.ForceId
-          LEFT JOIN {{ ref_no_link('DIM', 'Contract') }} "Contract"
-            ON LoadSFDCOpportunities.OpportunityContractSalesforceId = Contract.ContractSalesforceId
-          LEFT JOIN {{ ref('DIM', 'Campaign') }} "Campaign"
-            ON LoadSFDCOpportunities.CampaignId = Campaign.CampaignSalesforceId
+        joinCondition: "FROM {{ ref('LOAD', 'LoadSFDCOpportunities') }} \"LoadSFDCOpportunities\"\
+          \nLEFT JOIN {{ ref_no_link('DIM', 'Account') }} \"Account\"\n  ON \"LoadSFDCOpportunities\"\
+          .\"OpportunityAccountForceId\" = \"Account\".\"ForceId\"\nLEFT JOIN {{ ref_no_link('DIM',\
+          \ 'Contract') }} \"Contract\"\n  ON \"LoadSFDCOpportunities\".\"OpportunityContractSalesforceId\"\
+          \ = \"Contract\".\"ContractSalesforceId\"\nLEFT JOIN {{ ref('DIM', 'Campaign')\
+          \ }} \"Campaign\"\n  ON \"LoadSFDCOpportunities\".\"CampaignId\" = \"Campaign\"\
+          .\"CampaignSalesforceId\""
       name: StageSFDCOpportunities
       noLinkRefs:
       - locationName: DIM

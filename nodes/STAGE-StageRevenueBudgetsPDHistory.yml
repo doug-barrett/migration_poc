@@ -28,7 +28,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IFNULL(SupplierPDHistory.SupplierPDHistoryKey,0)
+        transform: IFNULL("SupplierPDHistory"."SupplierPDHistoryKey",0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f6e2a523-87b3-5a37-919d-ecaf13d75e0a
@@ -40,7 +40,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IFNULL(Contract.SupplierKey,0)
+        transform: IFNULL("Contract"."SupplierKey",0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 89c801a3-1f1d-579c-a965-31dcd3049274
@@ -138,7 +138,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: IFNULL(Contract.ContractKey,0)
+        transform: IFNULL("Contract"."ContractKey",0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 87c63ba2-284d-5ca3-b2ee-a497a91881f2
@@ -282,15 +282,15 @@ operation:
       - locationName: DIM
         nodeName: DimBudgetDate
       join:
-        joinCondition: |-
-          FROM {{ ref('LOAD', 'LoadRevenueBudgetsPD') }} "LoadRevenueBudgetsPD"
-          LEFT JOIN {{ ref('DIM', 'Contract') }} "Contract"
-            ON LoadRevenueBudgetsPD.ContractId = Contract.ContractId
-          LEFT JOIN {{ ref('DIM', 'Supplier') }} "Supplier"
-            ON Contract.SupplierKey = Supplier.SupplierKey
-          LEFT JOIN {{ ref('DIM', 'SupplierPDHistory') }} "SupplierPDHistory"
-            ON Contract.SupplierKey = SupplierPDHistory.SupplierKey AND LoadRevenueBudgetsPD.BudgetDate BETWEEN SupplierPDHistory.StartDate AND SupplierPDHistory.EndDate
-          LEFT JOIN {{ ref('DIM', 'DimBudgetDate') }} "DimBudgetDate"
+        joinCondition: "FROM {{ ref('LOAD', 'LoadRevenueBudgetsPD') }} \"LoadRevenueBudgetsPD\"\
+          \nLEFT JOIN {{ ref('DIM', 'Contract') }} \"Contract\"\n  ON \"LoadRevenueBudgetsPD\"\
+          .\"ContractId\" = \"Contract\".\"ContractId\"\nLEFT JOIN {{ ref('DIM', 'Supplier')\
+          \ }} \"Supplier\"\n  ON \"Contract\".\"SupplierKey\" = \"Supplier\".\"SupplierKey\"\
+          \nLEFT JOIN {{ ref('DIM', 'SupplierPDHistory') }} \"SupplierPDHistory\"\n\
+          \  ON \"Contract\".\"SupplierKey\" = \"SupplierPDHistory\".\"SupplierKey\"\
+          \ AND \"LoadRevenueBudgetsPD\".\"BudgetDate\" BETWEEN \"SupplierPDHistory\"\
+          .\"StartDate\" AND \"SupplierPDHistory\".\"EndDate\"\nLEFT JOIN {{ ref('DIM',\
+          \ 'DimBudgetDate') }} \"DimBudgetDate\""
       name: StageRevenueBudgetsPDHistory
       noLinkRefs: []
   name: StageRevenueBudgetsPDHistory

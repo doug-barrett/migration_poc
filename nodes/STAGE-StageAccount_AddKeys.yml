@@ -125,7 +125,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(AccountHierarchy_OMNIA.AccountHierarchyKey,0)
+        transform: COALESCE("AccountHierarchy_OMNIA"."AccountHierarchyKey",0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: bc781303-bedb-5be4-80e4-4819d34ae554
@@ -1652,9 +1652,9 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE SalesTerritory.TerritoryDivisionName      WHEN 'Non-Profit'      THEN
-          'Public'      WHEN 'Channel Partner' THEN AccountHierarchy_OMNIA.Level1_LineOfBusiness      ELSE
-          SalesTerritory.TerritoryDivisionName END
+        transform: CASE "SalesTerritory"."TerritoryDivisionName"      WHEN 'Non-Profit'      THEN
+          'Public'      WHEN 'Channel Partner' THEN "AccountHierarchy_OMNIA"."Level1_LineOfBusiness"      ELSE
+          "SalesTerritory"."TerritoryDivisionName" END
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
@@ -1687,16 +1687,23 @@ operation:
       - locationName: DIM
         nodeName: Sector
       join:
-        joinCondition: |-
-          FROM {{ ref('STAGE', 'StageAccount_BizXForms') }} "StageAccount_BizXForms"
-          LEFT JOIN {{ ref('DIM', 'AccountGeography') }} "AccountGeography"
-          LEFT JOIN {{ ref_no_link('DIM', 'AccountHierarchy_OMNIA') }} "AccountHierarchy_OMNIA"
-          LEFT JOIN {{ ref('DIM', 'DimStartDate') }} "DimStartDate"
-          LEFT JOIN {{ ref('DIM', 'DimTerminationDate') }} "DimTerminationDate"
-          LEFT JOIN {{ ref('DIM', 'FinancialSalesTerritory') }} "FinancialSalesTerritory"
-          LEFT JOIN {{ ref('DIM', 'Organization') }} "Organization"
-          LEFT JOIN {{ ref('DIM', 'SalesTerritory') }} "SalesTerritory"
-          LEFT JOIN {{ ref('DIM', 'Sector') }} "Sector"
+        joinCondition: 'FROM {{ ref(''STAGE'', ''StageAccount_BizXForms'') }} "StageAccount_BizXForms"
+
+          LEFT JOIN {{ ref(''DIM'', ''AccountGeography'') }} "AccountGeography"
+
+          LEFT JOIN {{ ref_no_link(''DIM'', ''AccountHierarchy_OMNIA'') }} "AccountHierarchy_OMNIA"
+
+          LEFT JOIN {{ ref(''DIM'', ''DimStartDate'') }} "DimStartDate"
+
+          LEFT JOIN {{ ref(''DIM'', ''DimTerminationDate'') }} "DimTerminationDate"
+
+          LEFT JOIN {{ ref(''DIM'', ''FinancialSalesTerritory'') }} "FinancialSalesTerritory"
+
+          LEFT JOIN {{ ref(''DIM'', ''Organization'') }} "Organization"
+
+          LEFT JOIN {{ ref(''DIM'', ''SalesTerritory'') }} "SalesTerritory"
+
+          LEFT JOIN {{ ref(''DIM'', ''Sector'') }} "Sector"'
       name: StageAccount_AddKeys
       noLinkRefs:
       - locationName: DIM
