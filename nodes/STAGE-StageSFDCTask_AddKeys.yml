@@ -611,6 +611,7 @@ operation:
     sourceMapping:
     - aliases:
         LoadSFDCTask: 106cfb42-f03d-5bd7-9512-fde2004ceceb
+        Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
         Contract: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
         Opportunity: c30a7081-d03c-5ef5-99be-f5529867885a
         Campaign: b745f6a7-7747-56cc-bd08-2b4fdbcb415e
@@ -623,6 +624,8 @@ operation:
       dependencies:
       - locationName: LOAD
         nodeName: LoadSFDCTask
+      - locationName: DIM
+        nodeName: Account
       - locationName: DIM
         nodeName: Contract
       - locationName: DIM
@@ -640,7 +643,7 @@ operation:
       join:
         joinCondition: |-
           FROM {{ ref('LOAD', 'LoadSFDCTask') }} "LoadSFDCTask"
-          LEFT JOIN {{ ref_no_link('DIM', 'Account') }} "Account"
+          LEFT JOIN {{ ref('DIM', 'Account') }} "Account"
             ON LoadSFDCTask.ACCOUNT_SALESFORCEID = Account.SalesforceId
           LEFT JOIN {{ ref('DIM', 'Contract') }} "Contract"
             ON LoadSFDCTask.RELATED_TO_SALESFORCEID = Contract.ContractSalesforceId
@@ -657,9 +660,7 @@ operation:
           LEFT JOIN {{ ref('DIM', 'VoiceCall') }} "VoiceCall"
             ON LoadSFDCTask.VOICE_CALL_SALESFORCEID = VoiceCall.VoiceCallSalesforceId
       name: StageSFDCTask_AddKeys
-      noLinkRefs:
-      - locationName: DIM
-        nodeName: Account
+      noLinkRefs: []
   name: StageSFDCTask_AddKeys
   overrideSQL: false
   schema: ''
