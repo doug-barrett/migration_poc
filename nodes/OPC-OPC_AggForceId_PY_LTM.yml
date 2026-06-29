@@ -1,0 +1,139 @@
+fileVersion: 1
+id: 65746ff2-935c-57d2-9cb7-08ccced08869
+name: OPC_AggForceId_PY_LTM
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: 'Aggregates by Level1ForceId, sum of sales, sum of revenue, # of financial
+    reporting supplier name, # of contracts, # of contract categories, date of 1st
+    purchase, date of most recent purchase for all time'
+  isMultisource: false
+  locationName: OPC
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7ee3261f-b70c-5b18-9763-86cef06a5ce7
+        stepCounter: 65746ff2-935c-57d2-9cb7-08ccced08869
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Account Id
+      name: ForceId
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: 'NULL'
+      isBusinessKey: true
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 467b79a7-2ace-5b5a-9993-1f25f6fd89d7
+        stepCounter: 65746ff2-935c-57d2-9cb7-08ccced08869
+      config: {}
+      dataType: NUMBER(18,4)
+      description: is the sales amount, or gross transaction volume (GTV), associated
+        with a transaction in US Dollars. A Sales amount is typically NOT an individual
+        sale, but a monthly aggregate of all sales for a customer in a given month.
+      name: ForceId_PY_LTM_SumOfGTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUM(OPC_SALESANDREVENUE.SALES)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 204b04de-98e5-513c-bbc3-15c872edfa37
+        stepCounter: 65746ff2-935c-57d2-9cb7-08ccced08869
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the rank by gross transaction volume (GTV), associated to the
+        Level1ForceId
+      name: ForceId_PY_LTM_RankByGTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: RANK() OVER (ORDER BY SUM(OPC_SALESANDREVENUE.SALES) DESC)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f785643c-2ff2-5f9a-83d4-0ddb564e33ad
+        stepCounter: 65746ff2-935c-57d2-9cb7-08ccced08869
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the distinct count of Financial Reporting Supplier Names for
+        a Level1ForceId.
+      name: ForceId_PY_LTM_NumOfSuppliersUsed
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COUNT (DISTINCT OPC_SALESANDREVENUE.FINANCIALREPORTINGSUPPLIERNAME)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: fffcd2c2-d381-5965-a2f9-e0c858c4fb22
+        stepCounter: 65746ff2-935c-57d2-9cb7-08ccced08869
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the lifetime "distinct count" of InitialContractId for each
+        Level1ForceId.
+      name: ForceId_PY_LTM_NumOfContractsUsed
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COUNT (DISTINCT OPC_SALESANDREVENUE.INITIALCONTRACTID)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 83998782-edd7-5397-a5a0-629f716bb72f
+        stepCounter: 65746ff2-935c-57d2-9cb7-08ccced08869
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the lifetime "distinct count" of ContractCategory for each Level1ForceId
+      name: ForceId_PY_LTM_NumOfContractCategoriesUsed
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COUNT (DISTINCT OPC_SALESANDREVENUE.CONTRACTCATEGORY)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 518ef5c4-f3bc-5d6d-9ae0-1420bd169fa3
+        stepCounter: 65746ff2-935c-57d2-9cb7-08ccced08869
+      config: {}
+      dataType: TIMESTAMP
+      description: is the timestamp for when this was created.
+      name: DSSCreateTime
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: GETDATE()
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 8b6e6266-e3ca-5eeb-a474-68e76f32b177
+        stepCounter: 65746ff2-935c-57d2-9cb7-08ccced08869
+      config: {}
+      dataType: TIMESTAMP
+      description: is the timestamp for when this last updated.
+      name: DSSUpdateTime
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: GETDATE()
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases: {}
+      customSQL:
+        customSQL: ''
+      dependencies: []
+      join:
+        joinCondition: ''
+      name: OPC_AggForceId_PY_LTM
+      noLinkRefs: []
+  name: OPC_AggForceId_PY_LTM
+  overrideSQL: false
+  schema: ''
+  sqlType: '390'
+  type: sql
+  version: 1
+type: Node

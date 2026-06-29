@@ -1,0 +1,116 @@
+fileVersion: 1
+id: 4e9dd89c-5524-5a20-ab16-98c48c7af40d
+name: LoadRevenueBudgetsPD
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: See Notes
+  isMultisource: false
+  locationName: LOAD
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 323ea8ac-b3e6-5d94-b1a0-b458ed1518ac
+        stepCounter: 4e9dd89c-5524-5a20-ab16-98c48c7af40d
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: ContractId
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: bf47d5a9-e942-5acc-8a99-f8a3569d314e
+          stepCounter: aac9672e-429f-5a67-98b5-173b4f900433
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 43ecc704-ae7e-5d58-9783-4bac2de1dd6e
+        stepCounter: 4e9dd89c-5524-5a20-ab16-98c48c7af40d
+      config: {}
+      dataType: DATE
+      description: ''
+      name: BudgetDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 720f3181-8c19-517b-a5c9-5bbbdf066409
+          stepCounter: aac9672e-429f-5a67-98b5-173b4f900433
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9367b1b1-1200-53d7-b7b0-7b115beda36c
+        stepCounter: 4e9dd89c-5524-5a20-ab16-98c48c7af40d
+      config: {}
+      dataType: FLOAT
+      description: ''
+      name: BudgetSalesAmount
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUM(LOADREVENUEBUDGETS.BUDGETSALESAMOUNT) AS BUDGETSALESAMOUNT
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7af5cd7c-65a2-5411-a368-640b7b811b11
+        stepCounter: 4e9dd89c-5524-5a20-ab16-98c48c7af40d
+      config: {}
+      dataType: FLOAT
+      description: ''
+      name: BudgetRevenueAmount
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUM(LOADREVENUEBUDGETS.BUDGETREVENUEAMOUNT) AS BUDGETREVENUEAMOUNT
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: bbc0af80-7457-55c5-aa3e-5c0f45b342df
+        stepCounter: 4e9dd89c-5524-5a20-ab16-98c48c7af40d
+      config: {}
+      dataType: VARCHAR
+      description: Record source.
+      name: dss_record_source
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '''FORCE.DBO.VWREVENUEBUDGETS'''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 14fa7fd4-7fd0-51b2-ab7d-1f37abb619ee
+        stepCounter: 4e9dd89c-5524-5a20-ab16-98c48c7af40d
+      config: {}
+      dataType: TIMESTAMP
+      description: Load date.
+      name: dss_load_date
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        LoadRevenueBudgets: aac9672e-429f-5a67-98b5-173b4f900433
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: LOAD
+        nodeName: LoadRevenueBudgets
+      join:
+        joinCondition: |-
+          FROM {{ ref('LOAD', 'LoadRevenueBudgets') }} "LoadRevenueBudgets"
+          WHERE LOADREVENUEBUDGETS.BUDGETTYPELABEL = 'PD BUDGET'     OR  (LOADREVENUEBUDGETS.BUDGETTYPELABEL LIKE 'BUDGET - %' AND NOT LOADREVENUEBUDGETS.BUDGETTYPE LIKE 'BUDGET - ISO P%') --EXCLUDE ISO FROM PD BUDGET  GROUP BY LOADREVENUEBUDGETS.CONTRACTID, LOADREVENUEBUDGETS.BUDGETDATE
+      name: LoadRevenueBudgetsPD
+      noLinkRefs: []
+  name: LoadRevenueBudgetsPD
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

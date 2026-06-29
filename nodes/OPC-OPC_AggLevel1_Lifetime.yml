@@ -1,0 +1,176 @@
+fileVersion: 1
+id: 5b635234-a485-5f0f-ad0c-925fd81749b2
+name: OPC_AggLevel1_Lifetime
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: 'Aggregates by Level1ForceId, sum of sales, sum of revenue, # of financial
+    reporting supplier name, # of contracts, # of contract categories, date of 1st
+    purchase, date of most recent purchase for all time'
+  isMultisource: false
+  locationName: OPC
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b2625bc9-2684-5e35-8f55-86b29aa5e652
+        stepCounter: 5b635234-a485-5f0f-ad0c-925fd81749b2
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the ultimate parent of a ForceId, the top of the hierarchy for
+        a member.
+      name: Level1ForceId
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 87741a7a-16b3-51fd-9e5b-d8cceaf2eafb
+          stepCounter: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+        transform: ''
+      isBusinessKey: true
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 22222826-604e-54b5-be65-b44fc34ede77
+        stepCounter: 5b635234-a485-5f0f-ad0c-925fd81749b2
+      config: {}
+      dataType: NUMBER(18,4)
+      description: is the sales amount, or gross transaction volume (GTV), associated
+        with a transaction in US Dollars. A Sales amount is typically NOT an individual
+        sale, but a monthly aggregate of all sales for a customer in a given month.
+      name: Level1_Lifetime_SumOfGTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUM(OPC_SALESANDREVENUE.SALES)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ed226fca-fba3-55a4-9780-8be63f88d3c9
+        stepCounter: 5b635234-a485-5f0f-ad0c-925fd81749b2
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the rank by gross transaction volume (GTV), associated to the
+        Level1ForceId
+      name: Level1_Lifetime_RankByGTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: RANK() OVER (ORDER BY SUM(OPC_SALESANDREVENUE.SALES) DESC)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7512b94b-7e17-59c9-a50f-fd4a2516a593
+        stepCounter: 5b635234-a485-5f0f-ad0c-925fd81749b2
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the distinct count of Financial Reporting Supplier Names for
+        a Level1ForceId.
+      name: Level1_Lifetime_NumOfSuppliersUsed
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COUNT (DISTINCT CONTRACT.FINANCIALREPORTINGSUPPLIERNAME)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 18982605-a5c0-57a2-a878-d151d891ded9
+        stepCounter: 5b635234-a485-5f0f-ad0c-925fd81749b2
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the lifetime "distinct count" of InitialContractId for each
+        Level1ForceId.
+      name: Level1_Lifetime_NumOfContractsUsed
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COUNT (DISTINCT CONTRACT.INITIALCONTRACTID)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c48701aa-2d34-55fa-bbb1-1f5056849834
+        stepCounter: 5b635234-a485-5f0f-ad0c-925fd81749b2
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the lifetime "distinct count" of ContractCategory for each Level1ForceId
+      name: Level1_Lifetime_NumOfContractCategoriesUsed
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COUNT (DISTINCT CONTRACT.CONTRACTCATEGORY)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f15e314e-f250-50e2-842b-f3bf4c159b37
+        stepCounter: 5b635234-a485-5f0f-ad0c-925fd81749b2
+      config: {}
+      dataType: DATE
+      description: is the first financial period for which OMNIA Partners recorded
+        revenue for each Level1ForceId.
+      name: Level1_Lifetime_DateOfFirstPurchase
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: MIN(OPC_SALESANDREVENUE.TRANSACTIONDATE)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5ec7ea67-1a45-56f8-8746-fb9f9e3f599e
+        stepCounter: 5b635234-a485-5f0f-ad0c-925fd81749b2
+      config: {}
+      dataType: DATE
+      description: is the financial period for the most recent purchase for each Level1ForceId.
+      name: Level1_Lifetime_DateOfMostRecentPurchase
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: MAX(OPC_SALESANDREVENUE.TRANSACTIONDATE)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: eb76ff82-5d99-5c6a-add6-5ed38d55a405
+        stepCounter: 5b635234-a485-5f0f-ad0c-925fd81749b2
+      config: {}
+      dataType: TIMESTAMP
+      description: is the timestamp for when this was created.
+      name: DSSCreateTime
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: GETDATE()
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 92bddfac-64c5-527c-89d9-7d464e1062e9
+        stepCounter: 5b635234-a485-5f0f-ad0c-925fd81749b2
+      config: {}
+      dataType: TIMESTAMP
+      description: is the timestamp for when this last updated.
+      name: DSSUpdateTime
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: GETDATE()
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        OPC_SalesAndRevenue: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+        Contract: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: OPC
+        nodeName: OPC_SalesAndRevenue
+      - locationName: DIM
+        nodeName: Contract
+      join:
+        joinCondition: |-
+          FROM {{ ref('OPC', 'OPC_SalesAndRevenue') }} "OPC_SalesAndRevenue"
+          JOIN {{ ref('DIM', 'Contract') }} "Contract"
+            ON OPC_SALESANDREVENUE.CONTRACTKEY = CONTRACT.CONTRACTKEYGROUP BY OPC_SALESANDREVENUE.LEVEL1FORCEID HAVING SUM(OPC_SALESANDREVENUE.SALES) <> 0
+      name: OPC_AggLevel1_Lifetime
+      noLinkRefs: []
+  name: OPC_AggLevel1_Lifetime
+  overrideSQL: false
+  schema: ''
+  sqlType: '390'
+  type: sql
+  version: 1
+type: Node
