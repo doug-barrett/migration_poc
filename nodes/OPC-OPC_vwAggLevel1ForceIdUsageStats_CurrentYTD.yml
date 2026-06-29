@@ -6,6 +6,7 @@ operation:
     postSQL: ''
     preSQL: ''
     testsEnabled: true
+    insertStrategy: UNION
   database: ''
   deployEnabled: true
   description: YTD aggregate usage statistics for each Level1ForceId
@@ -26,7 +27,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: ''
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 76e8f929-e652-51f1-9f53-b4b9fd699a53
@@ -38,7 +39,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: ''
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e019d397-c49e-5093-b3c4-15d0b3c1ab80
@@ -186,11 +187,11 @@ operation:
       - locationName: DIM
         nodeName: Contact
       join:
-        joinCondition: "FROM {{ ref('OP', 'OPSalesAndRevenue') }} \"OPSalesAndRevenue\"\
-          \nLEFT JOIN {{ ref('DIM', 'Contact') }} \"Contact\"\n  ON OPSalesAndRevenue.Level1ForceId\
-          \ = Contact.Level1ForceId\nWHERE DATEDIFF(year,OPSalesAndRevenue.TransactionDate,OPSalesAndRevenue.MaxReceiptDate)\
-          \ = 0  GROUP BY OPSalesAndRevenue.Level1ForceId,OPSalesAndRevenue.SupplierId,\
-          \ OPSalesAndRevenue.FinancialReportingSupplierName"
+        joinCondition: |-
+          FROM {{ ref('OP', 'OPSalesAndRevenue') }} "OPSalesAndRevenue"
+          LEFT JOIN {{ ref('DIM', 'Contact') }} "Contact"
+            ON OPSalesAndRevenue.Level1ForceId = Contact.Level1ForceId
+          WHERE DATEDIFF(year,OPSalesAndRevenue.TransactionDate,OPSalesAndRevenue.MaxReceiptDate) = 0  GROUP BY OPSalesAndRevenue.Level1ForceId,OPSalesAndRevenue.SupplierId, OPSalesAndRevenue.FinancialReportingSupplierName
       name: OPC_vwAggLevel1ForceIdUsageStats_CurrentYTD
       noLinkRefs: []
   name: OPC_vwAggLevel1ForceIdUsageStats_CurrentYTD

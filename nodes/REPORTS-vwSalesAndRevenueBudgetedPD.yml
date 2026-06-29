@@ -6,6 +6,7 @@ operation:
     postSQL: ''
     preSQL: ''
     testsEnabled: true
+    insertStrategy: UNION
   database: ''
   deployEnabled: true
   description: Primary report table view.
@@ -3628,7 +3629,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: ''
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7a55d553-2014-5ee3-8a30-111921c43a1c
@@ -4205,19 +4206,21 @@ operation:
       - locationName: DIM
         nodeName: Solicitation
       join:
-        joinCondition: "FROM {{ ref('FACT', 'RevenueBudgetPD') }} \"RevenueBudgetPD\"\
-          \nLEFT JOIN {{ ref('DIM', 'RevenueBudgetPDDetail') }} \"RevenueBudgetPDDetail\"\
-          \n  ON RevenueBudgetPD.RevenueBudgetPDDetailKey = RevenueBudgetPDDetail.RevenueBudgetPDDetailKey\n\
-          LEFT JOIN {{ ref('DIM', 'DimReceiptDate') }} \"DimReceiptDate\"\n  ON DimReceiptDate.ReceiptDateKey\
-          \ = RevenueBudgetPD.BudgetDateKey\nLEFT JOIN {{ ref('DIM', 'Contract') }}\
-          \ \"Contract\"\n  ON Contract.ContractKey = RevenueBudgetPD.ContractKey\n\
-          LEFT JOIN {{ ref('DIM', 'Supplier') }} \"Supplier\"\n  ON Supplier.SupplierKey\
-          \ = Contract.SupplierKey --\nLEFT JOIN {{ ref('FACT', 'SalesAndRevenue')\
-          \ }} \"SalesAndRevenue\"\n  ON RevenueBudgetPD.ContractKey = SalesAndRevenue.ContractKey\
-          \ AND RevenueBudgetPD.BudgetDateKey = SalesAndRevenue.ReceiptDateKey\nLEFT\
-          \ JOIN {{ ref('DIM', 'Solicitation') }} \"Solicitation\"\n  ON RevenueBudgetPD.ContractId\
-          \ = Solicitation.SolicitationNumber\nWHERE  SalesAndRevenue.ContractKey\
-          \ IS NULL"
+        joinCondition: |-
+          FROM {{ ref('FACT', 'RevenueBudgetPD') }} "RevenueBudgetPD"
+          LEFT JOIN {{ ref('DIM', 'RevenueBudgetPDDetail') }} "RevenueBudgetPDDetail"
+            ON RevenueBudgetPD.RevenueBudgetPDDetailKey = RevenueBudgetPDDetail.RevenueBudgetPDDetailKey
+          LEFT JOIN {{ ref('DIM', 'DimReceiptDate') }} "DimReceiptDate"
+            ON DimReceiptDate.ReceiptDateKey = RevenueBudgetPD.BudgetDateKey
+          LEFT JOIN {{ ref('DIM', 'Contract') }} "Contract"
+            ON Contract.ContractKey = RevenueBudgetPD.ContractKey
+          LEFT JOIN {{ ref('DIM', 'Supplier') }} "Supplier"
+            ON Supplier.SupplierKey = Contract.SupplierKey --
+          LEFT JOIN {{ ref('FACT', 'SalesAndRevenue') }} "SalesAndRevenue"
+            ON RevenueBudgetPD.ContractKey = SalesAndRevenue.ContractKey AND RevenueBudgetPD.BudgetDateKey = SalesAndRevenue.ReceiptDateKey
+          LEFT JOIN {{ ref('DIM', 'Solicitation') }} "Solicitation"
+            ON RevenueBudgetPD.ContractId = Solicitation.SolicitationNumber
+          WHERE  SalesAndRevenue.ContractKey IS NULL
       name: vwSalesAndRevenueBudgetedPD
       noLinkRefs: []
   name: vwSalesAndRevenueBudgetedPD
