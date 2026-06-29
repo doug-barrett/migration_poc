@@ -412,9 +412,7 @@ operation:
       name: SalesUnitOfMeasure
       nullable: true
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 920b7ab8-6215-5849-a4be-b3e6f5c9ce75
-          stepCounter: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
+      - columnReferences: []
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -752,26 +750,24 @@ operation:
     sourceMapping:
     - aliases:
         StageSalesMerge_1: cc8fb3bf-f909-5f19-8da2-f288dc7eb20f
-        ContractsWithMarketingAgreement: 924bbef0-e98f-5e35-88f1-57ff7863045b
-        Contract: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: STAGE
         nodeName: StageSalesMerge_1
-      - locationName: DIM
-        nodeName: ContractsWithMarketingAgreement
-      - locationName: DIM
-        nodeName: Contract
       join:
         joinCondition: |-
           FROM {{ ref('STAGE', 'StageSalesMerge_1') }} "StageSalesMerge_1"
-          LEFT JOIN {{ ref('DIM', 'ContractsWithMarketingAgreement') }} "ContractsWithMarketingAgreement"
+          LEFT JOIN {{ ref_no_link('DIM', 'ContractsWithMarketingAgreement') }} "ContractsWithMarketingAgreement"
             ON StageSalesMerge_1.ContractId = ContractsWithMarketingAgreement.ContractId
-          LEFT JOIN {{ ref('DIM', 'Contract') }} "Contract"
+          LEFT JOIN {{ ref_no_link('DIM', 'Contract') }} "Contract"
             ON StageSalesMerge_1.ContractId = Contract.ContractId AND StageSalesMerge_1.dss_source_system_key = Contract.dss_source_system_key
       name: StageSalesMerge_BizXForms
-      noLinkRefs: []
+      noLinkRefs:
+      - locationName: DIM
+        nodeName: Contract
+      - locationName: DIM
+        nodeName: ContractsWithMarketingAgreement
   name: StageSalesMerge_BizXForms
   overrideSQL: false
   schema: ''

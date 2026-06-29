@@ -39,9 +39,7 @@ operation:
       name: SupplierId
       nullable: true
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 5633fd10-0724-58ab-87bf-e5f6dc357648
-          stepCounter: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
+      - columnReferences: []
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -296,7 +294,6 @@ operation:
     sourceMapping:
     - aliases:
         LoadRevenueBudgetsPD_All: 56212d4e-c506-5b1e-9026-c8d5f3b2936e
-        Contract: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
         Supplier: d53a79d2-fb60-532e-8596-560738ff8f56
         DimBudgetDate: 1c035b59-b6e6-5676-bfa9-0b45cb823cad
       customSQL:
@@ -305,21 +302,21 @@ operation:
       - locationName: LOAD
         nodeName: LoadRevenueBudgetsPD_All
       - locationName: DIM
-        nodeName: Contract
-      - locationName: DIM
         nodeName: Supplier
       - locationName: DIM
         nodeName: DimBudgetDate
       join:
         joinCondition: |-
           FROM {{ ref('LOAD', 'LoadRevenueBudgetsPD_All') }} "LoadRevenueBudgetsPD_All"
-          LEFT JOIN {{ ref('DIM', 'Contract') }} "Contract"
+          LEFT JOIN {{ ref_no_link('DIM', 'Contract') }} "Contract"
             ON LoadRevenueBudgetsPD_All.ContractId = Contract.ContractId
           LEFT JOIN {{ ref('DIM', 'Supplier') }} "Supplier"
             ON Contract.SupplierKey = Supplier.SupplierKey
           LEFT JOIN {{ ref('DIM', 'DimBudgetDate') }} "DimBudgetDate"
       name: StageRevenueBudgetsPD
-      noLinkRefs: []
+      noLinkRefs:
+      - locationName: DIM
+        nodeName: Contract
   name: StageRevenueBudgetsPD
   overrideSQL: false
   schema: ''
