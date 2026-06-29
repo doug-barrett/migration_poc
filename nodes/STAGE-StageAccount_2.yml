@@ -1589,7 +1589,6 @@ operation:
     sourceMapping:
     - aliases:
         StageAccount_1: 0e6d59af-b521-5639-8bf8-448e5aeb2444
-        StageAccountHierarchy: 4f530373-5898-520d-968e-49d6e2edac34
         LoadSalesforceAccount: c80dc2e7-86b0-5d7d-a855-aa290646b51c
         Organization: a209659e-0ef5-5142-8763-8e50f8f22d4c
         StageOPUSACCOUNT2: fd8c2968-8c98-5b70-b84e-a0878317c88d
@@ -1598,8 +1597,6 @@ operation:
       dependencies:
       - locationName: STAGE
         nodeName: StageAccount_1
-      - locationName: STAGE
-        nodeName: StageAccountHierarchy
       - locationName: LOAD
         nodeName: LoadSalesforceAccount
       - locationName: DIM
@@ -1609,7 +1606,7 @@ operation:
       join:
         joinCondition: |-
           FROM {{ ref('STAGE', 'StageAccount_1') }} "StageAccount_1"
-          LEFT JOIN {{ ref('STAGE', 'StageAccountHierarchy') }} "StageAccountHierarchy"
+          LEFT JOIN {{ ref_no_link('STAGE', 'StageAccountHierarchy') }} "StageAccountHierarchy"
             ON STAGEACCOUNT_1.FORCEID = STAGEACCOUNTHIERARCHY.FORCEID AND STAGEACCOUNTHIERARCHY.CHANNELPARTNERFEESHAREPARTNERID=1
           LEFT JOIN {{ ref('LOAD', 'LoadSalesforceAccount') }} "LoadSalesforceAccount"
             ON STAGEACCOUNT_1.FORCEID = LOADSALESFORCEACCOUNT.FORCE_ID__C
@@ -1618,7 +1615,9 @@ operation:
           LEFT JOIN {{ ref('STAGE', 'StageOPUSACCOUNT2') }} "StageOPUSACCOUNT2"
             ON STAGEACCOUNT_1.FORCEID = STAGEOPUSACCOUNT2.FORCEID
       name: StageAccount_2
-      noLinkRefs: []
+      noLinkRefs:
+      - locationName: STAGE
+        nodeName: StageAccountHierarchy
   name: StageAccount_2
   overrideSQL: false
   schema: ''
