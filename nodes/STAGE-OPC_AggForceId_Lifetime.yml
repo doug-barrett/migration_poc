@@ -1,0 +1,164 @@
+fileVersion: 1
+id: 50680457-e451-56e5-b6d3-7f7e6f2ca324
+name: OPC_AggForceId_Lifetime
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: 'Aggregates by ForceId, sum of sales, sum of revenue, # of financial
+    reporting supplier name, # of contracts, # of contract categories, date of 1st
+    purchase, date of most recent purchase for all time'
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 838b959a-5f0b-534c-bc9c-c7b8651133c5
+        stepCounter: 50680457-e451-56e5-b6d3-7f7e6f2ca324
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Account Id
+      name: ForceId
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: 'NULL'
+      isBusinessKey: true
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 50775611-d3c7-5725-a831-18ffb456210d
+        stepCounter: 50680457-e451-56e5-b6d3-7f7e6f2ca324
+      config: {}
+      dataType: NUMBER(18,4)
+      description: is the sales amount, or gross transaction volume (GTV), associated
+        with a transaction in US Dollars. A Sales amount is typically NOT an individual
+        sale, but a monthly aggregate of all sales for a customer in a given month.
+      name: ForceId_Lifetime_SumOfGTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUM(OPC_SALESANDREVENUE.SALES)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 329cf30c-6eb4-504c-8534-1b7b9298c112
+        stepCounter: 50680457-e451-56e5-b6d3-7f7e6f2ca324
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the rank by gross transaction volume (GTV), associated to the
+        Level1ForceId
+      name: ForceId_Lifetime_RankByGTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: RANK() OVER (ORDER BY SUM(OPC_SALESANDREVENUE.SALES) DESC)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: fbd9f400-f18f-564d-9920-2fd447df3992
+        stepCounter: 50680457-e451-56e5-b6d3-7f7e6f2ca324
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the distinct count of Financial Reporting Supplier Names for
+        a Level1ForceId.
+      name: ForceId_Lifetime_NumOfSuppliersUsed
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COUNT (DISTINCT OPC_SALESANDREVENUE.FINANCIALREPORTINGSUPPLIERNAME)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c5748d18-8bb7-5951-bb39-19818d4b3da0
+        stepCounter: 50680457-e451-56e5-b6d3-7f7e6f2ca324
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the lifetime "distinct count" of InitialContractId for each
+        Level1ForceId.
+      name: ForceId_Lifetime_NumOfContractsUsed
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COUNT (DISTINCT OPC_SALESANDREVENUE.INITIALCONTRACTID)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: bd3df3c2-e1da-5ef2-9149-a24f1eb19aff
+        stepCounter: 50680457-e451-56e5-b6d3-7f7e6f2ca324
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the lifetime "distinct count" of ContractCategory for each Level1ForceId
+      name: ForceId_Lifetime_NumOfContractCategoriesUsed
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COUNT (DISTINCT OPC_SALESANDREVENUE.CONTRACTCATEGORY)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d0e6be61-8e89-5fab-9c16-9c9a180633be
+        stepCounter: 50680457-e451-56e5-b6d3-7f7e6f2ca324
+      config: {}
+      dataType: DATE
+      description: is the first financial period for which OMNIA Partners recorded
+        revenue for each Level1ForceId.
+      name: ForceId_Lifetime_DateOfFirstPurchase
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: MIN(OPC_SALESANDREVENUE.TRANSACTIONDATE)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e286f8a3-4182-5c9a-93b6-e3d4df7bf3f2
+        stepCounter: 50680457-e451-56e5-b6d3-7f7e6f2ca324
+      config: {}
+      dataType: DATE
+      description: is the financial period for the most recent purchase for each Level1ForceId.
+      name: ForceId_Lifetime_DateOfMostRecentPurchase
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: MAX(OPC_SALESANDREVENUE.TRANSACTIONDATE)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4496a9f8-fdd7-54f0-9b59-81dd739d5ff0
+        stepCounter: 50680457-e451-56e5-b6d3-7f7e6f2ca324
+      config: {}
+      dataType: TIMESTAMP
+      description: is the timestamp for when this was created.
+      name: DSSCreateTime
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: GETDATE()
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: db957881-964c-5276-9a9a-87ce992b5529
+        stepCounter: 50680457-e451-56e5-b6d3-7f7e6f2ca324
+      config: {}
+      dataType: TIMESTAMP
+      description: is the timestamp for when this last updated.
+      name: DSSUpdateTime
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: GETDATE()
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases: {}
+      customSQL:
+        customSQL: ''
+      dependencies: []
+      join:
+        joinCondition: ''
+      name: OPC_AggForceId_Lifetime
+      noLinkRefs: []
+  name: OPC_AggForceId_Lifetime
+  overrideSQL: false
+  schema: ''
+  sqlType: '390'
+  type: sql
+  version: 1
+type: Node

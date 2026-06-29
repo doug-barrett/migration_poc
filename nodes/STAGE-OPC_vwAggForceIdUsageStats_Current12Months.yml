@@ -1,0 +1,80 @@
+fileVersion: 1
+id: f51218f0-fced-5afc-9526-8b86ac5d6bf6
+name: OPC_vwAggForceIdUsageStats_Current12Months
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: Rolling 12 month aggregate usage statistics for each Level1ForceId
+  isMultisource: false
+  locationName: STAGE
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7802e18f-363c-5236-a5f8-0e3715951056
+        stepCounter: f51218f0-fced-5afc-9526-8b86ac5d6bf6
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Unique identifier for an account. Commonly called the "Force Id"
+      name: ForceId
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: f8545c27-2d13-564c-8f70-80494a3b2c69
+          stepCounter: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 97cefc42-9fb4-58d8-946f-7646583b813a
+        stepCounter: f51218f0-fced-5afc-9526-8b86ac5d6bf6
+      config: {}
+      dataType: VARCHAR
+      description: ''
+      name: SupplierId
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: c82d1cfd-4f7a-5d10-adff-a9270a79a4a6
+          stepCounter: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: fdcdfaef-e0c9-52d3-b6cd-25a95dff6bca
+        stepCounter: f51218f0-fced-5afc-9526-8b86ac5d6bf6
+      config: {}
+      dataType: NUMBER(18,4)
+      description: Current12Months_SumOfSales
+      name: Current12Months_SumOfSales
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUM(OPC_SALESANDREVENUE.SALES)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        OPC_SalesAndRevenue: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: STAGE
+        nodeName: OPC_SalesAndRevenue
+      join:
+        joinCondition: |-
+          FROM {{ ref('STAGE', 'OPC_SalesAndRevenue') }} "OPC_SalesAndRevenue"
+          WHERE DATEDIFF(MONTH,OPC_SALESANDREVENUE.TRANSACTIONDATE,OPC_SALESANDREVENUE.MAXRECEIPTDATE) BETWEEN 0 AND 11  GROUP BY OPC_SALESANDREVENUE.FORCEID, OPC_SALESANDREVENUE.SUPPLIERID
+      name: OPC_vwAggForceIdUsageStats_Current12Months
+      noLinkRefs: []
+  name: OPC_vwAggForceIdUsageStats_Current12Months
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

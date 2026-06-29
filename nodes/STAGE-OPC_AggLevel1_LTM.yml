@@ -1,0 +1,151 @@
+fileVersion: 1
+id: 09bd2851-9935-5385-a85e-f28677e34859
+name: OPC_AggLevel1_LTM
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: 'Aggregates by Level1ForceId, sum of sales, sum of revenue, # of financial
+    reporting supplier name, # of contracts, # of contract categories, date of 1st
+    purchase, date of most recent purchase for all time'
+  isMultisource: false
+  locationName: STAGE
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d6b29619-3270-5685-b895-6472147c7063
+        stepCounter: 09bd2851-9935-5385-a85e-f28677e34859
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the ultimate parent of a ForceId, the top of the hierarchy for
+        a member.
+      name: Level1ForceId
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 87741a7a-16b3-51fd-9e5b-d8cceaf2eafb
+          stepCounter: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+        transform: ''
+      isBusinessKey: true
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 39d13157-e8c0-52db-b351-a105f457c1bf
+        stepCounter: 09bd2851-9935-5385-a85e-f28677e34859
+      config: {}
+      dataType: NUMBER(18,4)
+      description: is the sales amount, or gross transaction volume (GTV), associated
+        with a transaction in US Dollars. A Sales amount is typically NOT an individual
+        sale, but a monthly aggregate of all sales for a customer in a given month.
+      name: Level1_LTM_SumOfGTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUM(OPC_SALESANDREVENUE.SALES)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f5858004-dfb2-5e0f-b77a-b4042d031a19
+        stepCounter: 09bd2851-9935-5385-a85e-f28677e34859
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the rank by gross transaction volume (GTV), associated to the
+        Level1ForceId
+      name: Level1_LTM_RankByGTV
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: RANK() OVER (ORDER BY SUM(OPC_SALESANDREVENUE.SALES) DESC)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5a179119-da09-588b-bcb6-dbef6b7c99f2
+        stepCounter: 09bd2851-9935-5385-a85e-f28677e34859
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the distinct count of Financial Reporting Supplier Names for
+        a Level1ForceId.
+      name: Level1_LTM_NumOfSuppliersUsed
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COUNT (DISTINCT CONTRACT.FINANCIALREPORTINGSUPPLIERNAME)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 195a5899-764f-5fa2-ac9a-599fb5e9f6d7
+        stepCounter: 09bd2851-9935-5385-a85e-f28677e34859
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the lifetime "distinct count" of InitialContractId for each
+        Level1ForceId.
+      name: Level1_LTM_NumOfContractsUsed
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COUNT (DISTINCT CONTRACT.INITIALCONTRACTID)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5eda52f9-4adc-548a-87b9-03f7c9ba2554
+        stepCounter: 09bd2851-9935-5385-a85e-f28677e34859
+      config: {}
+      dataType: NUMBER(38,0)
+      description: is the lifetime "distinct count" of ContractCategory for each Level1ForceId
+      name: Level1_LTM_NumOfContractCategoriesUsed
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COUNT (DISTINCT CONTRACT.CONTRACTCATEGORY)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: afb547cd-e47d-5d5f-9898-10f9fde8ac45
+        stepCounter: 09bd2851-9935-5385-a85e-f28677e34859
+      config: {}
+      dataType: TIMESTAMP
+      description: is the timestamp for when this was created.
+      name: DSSCreateTime
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: GETDATE()
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 8177da4d-62db-5b10-a6c0-12b1a8504fcf
+        stepCounter: 09bd2851-9935-5385-a85e-f28677e34859
+      config: {}
+      dataType: TIMESTAMP
+      description: is the timestamp for when this last updated.
+      name: DSSUpdateTime
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: GETDATE()
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        OPC_SalesAndRevenue: 0a5a8efb-89dc-5dc3-8675-f235092f3723
+        Contract: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: STAGE
+        nodeName: OPC_SalesAndRevenue
+      - locationName: TABLEAU
+        nodeName: Contract
+      join:
+        joinCondition: |-
+          FROM {{ ref('STAGE', 'OPC_SalesAndRevenue') }} "OPC_SalesAndRevenue"
+          JOIN {{ ref('TABLEAU', 'Contract') }} "Contract"
+            ON OPC_SALESANDREVENUE.CONTRACTKEY = CONTRACT.CONTRACTKEYWHERE DATEDIFF(MONTH,TRANSACTIONDATE,MAXREPORTINGPERIODENDDATE) BETWEEN 0 AND 11 GROUP BY OPC_SALESANDREVENUE.LEVEL1FORCEID HAVING SUM(OPC_SALESANDREVENUE.SALES) <> 0
+      name: OPC_AggLevel1_LTM
+      noLinkRefs: []
+  name: OPC_AggLevel1_LTM
+  overrideSQL: false
+  schema: ''
+  sqlType: '390'
+  type: sql
+  version: 1
+type: Node
