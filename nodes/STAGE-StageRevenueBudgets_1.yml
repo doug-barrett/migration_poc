@@ -525,7 +525,6 @@ operation:
         Contract: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
         TerritoryHistory: 97aea2fa-d86d-560e-a322-21afbb75fcbe
         SupplierPDHistory: c8b09081-b1d8-5292-b962-89133449de11
-        Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
         DimBudgetDate: 1c035b59-b6e6-5676-bfa9-0b45cb823cad
       customSQL:
         customSQL: ''
@@ -541,8 +540,6 @@ operation:
       - locationName: DIM
         nodeName: SupplierPDHistory
       - locationName: DIM
-        nodeName: Account
-      - locationName: DIM
         nodeName: DimBudgetDate
       join:
         joinCondition: |-
@@ -555,10 +552,12 @@ operation:
             ON LoadRevenueBudgets.TerritoryId = TerritoryHistory.TerritoryId AND LoadRevenueBudgets.BudgetDate BETWEEN TerritoryHistory.TerritoryManagerStartDate AND TerritoryHistory.TerritoryManagerEndDate
           LEFT JOIN {{ ref('DIM', 'SupplierPDHistory') }} "SupplierPDHistory"
             ON Contract.SupplierKey = SupplierPDHistory.SupplierKey AND LoadRevenueBudgets.BudgetDate BETWEEN SupplierPDHistory.StartDate AND SupplierPDHistory.EndDate
-          LEFT JOIN {{ ref('DIM', 'Account') }} "Account"
+          LEFT JOIN {{ ref_no_link('DIM', 'Account') }} "Account"
           LEFT JOIN {{ ref('DIM', 'DimBudgetDate') }} "DimBudgetDate"
       name: StageRevenueBudgets_1
-      noLinkRefs: []
+      noLinkRefs:
+      - locationName: DIM
+        nodeName: Account
   name: StageRevenueBudgets_1
   overrideSQL: false
   schema: ''

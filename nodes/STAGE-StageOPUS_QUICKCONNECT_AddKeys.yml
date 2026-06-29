@@ -318,7 +318,6 @@ operation:
         vwOPUS_QC_DATE: 4cbc53ac-5faa-588a-a5cc-1bc9728315f4
         OPUS_PRODUCT: f7af927a-ae42-57d9-af21-9c97e2d66d69
         Contact: 0966087d-71be-52bd-b036-c51d5760dec5
-        Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
         OPUS_CONTACT: e544e9bb-f1db-5eb8-804a-e26ddcae5787
         OPUS_SUPPLIER: 80a727b5-db9a-5b1d-bb46-6e459aef9a6d
       customSQL:
@@ -333,8 +332,6 @@ operation:
       - locationName: DIM
         nodeName: Contact
       - locationName: DIM
-        nodeName: Account
-      - locationName: DIM
         nodeName: OPUS_CONTACT
       - locationName: DIM
         nodeName: OPUS_SUPPLIER
@@ -347,13 +344,15 @@ operation:
             ON StageFACT_OPUS_QUICKCONNECT.ProductId = OPUS_PRODUCT.ProductId
           LEFT JOIN {{ ref('DIM', 'Contact') }} "Contact"
             ON StageFACT_OPUS_QUICKCONNECT.CustomerId = Contact.OPUS_Customer_Id
-          LEFT JOIN {{ ref('DIM', 'Account') }} "Account"
+          LEFT JOIN {{ ref_no_link('DIM', 'Account') }} "Account"
             ON StageFACT_OPUS_QUICKCONNECT.OrganizationId = Account.OPUS_Organization_Id
           LEFT JOIN {{ ref('DIM', 'OPUS_CONTACT') }} "OPUS_CONTACT"
             ON StageFACT_OPUS_QUICKCONNECT.CustomerId = OPUS_CONTACT.CustomerId and StageFACT_OPUS_QUICKCONNECT.OrganizationId = OPUS_CONTACT.OrganizationId
           LEFT JOIN {{ ref('DIM', 'OPUS_SUPPLIER') }} "OPUS_SUPPLIER"
       name: StageOPUS_QUICKCONNECT_AddKeys
-      noLinkRefs: []
+      noLinkRefs:
+      - locationName: DIM
+        nodeName: Account
   name: StageOPUS_QUICKCONNECT_AddKeys
   overrideSQL: false
   schema: ''

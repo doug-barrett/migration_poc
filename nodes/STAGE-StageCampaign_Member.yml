@@ -500,7 +500,6 @@ operation:
     sourceMapping:
     - aliases:
         LoadCampaign_Member: 1ef1385c-230a-58c3-99a7-b329d12bf08b
-        Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
         Campaign: b745f6a7-7747-56cc-bd08-2b4fdbcb415e
         Contact: 0966087d-71be-52bd-b036-c51d5760dec5
         Lead: 4e73b2e1-035a-50d4-95d1-29bc8730bfa2
@@ -510,8 +509,6 @@ operation:
       - locationName: LOAD
         nodeName: LoadCampaign_Member
       - locationName: DIM
-        nodeName: Account
-      - locationName: DIM
         nodeName: Campaign
       - locationName: DIM
         nodeName: Contact
@@ -520,13 +517,15 @@ operation:
       join:
         joinCondition: |-
           FROM {{ ref('LOAD', 'LoadCampaign_Member') }} "LoadCampaign_Member"
-          LEFT JOIN {{ ref('DIM', 'Account') }} "Account"
+          LEFT JOIN {{ ref_no_link('DIM', 'Account') }} "Account"
             ON LoadCampaign_Member.ACCOUNT_ID_C = account.SalesforceId
           LEFT JOIN {{ ref('DIM', 'Campaign') }} "Campaign"
           LEFT JOIN {{ ref('DIM', 'Contact') }} "Contact"
           LEFT JOIN {{ ref('DIM', 'Lead') }} "Lead"
       name: StageCampaign_Member
-      noLinkRefs: []
+      noLinkRefs:
+      - locationName: DIM
+        nodeName: Account
   name: StageCampaign_Member
   overrideSQL: false
   schema: ''
