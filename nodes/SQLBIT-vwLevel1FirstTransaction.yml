@@ -118,34 +118,22 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        Contract: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
-        Revenue: 32556ed7-242a-538a-bd82-5c8c44fd9964
-        Sales: d2bd4d1d-ca67-5642-8661-1e837ea80282
         SalesAndRevenue: 69d50cc6-5ffc-5695-aab8-fd6955aa8058
-        Supplier: d53a79d2-fb60-532e-8596-560738ff8f56
+        Contract: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
       customSQL:
         customSQL: ''
       dependencies:
-      - locationName: DIM
-        nodeName: Contract
-      - locationName: FACT
-        nodeName: Revenue
-      - locationName: FACT
-        nodeName: Sales
       - locationName: FACT
         nodeName: SalesAndRevenue
       - locationName: DIM
-        nodeName: Supplier
+        nodeName: Contract
       join:
-        joinCondition: 'FROM {{ ref(''DIM'', ''Contract'') }} "Contract"
-
-          JOIN {{ ref(''FACT'', ''Revenue'') }} "Revenue"
-
-          JOIN {{ ref(''FACT'', ''Sales'') }} "Sales"
-
-          JOIN {{ ref(''FACT'', ''SalesAndRevenue'') }} "SalesAndRevenue"
-
-          JOIN {{ ref(''DIM'', ''Supplier'') }} "Supplier"'
+        joinCondition: |-
+          FROM {{ ref('FACT', 'SalesAndRevenue') }} "SalesAndRevenue"
+          INNER JOIN {{ ref('DIM', 'Contract') }} "Contract"
+            ON "SalesAndRevenue"."ContractKey" = "Contract"."ContractKey"
+          WHERE IFNULL("SalesAndRevenue"."Revenue",0) <> 0 AND IFNULL("SalesAndRevenue"."Sales",0) <> 0 AND YEAR("SalesAndRevenue"."ReceiptDate") >= 2016
+          GROUP BY "SalesAndRevenue"."Level1ForceId", "SalesAndRevenue"."ReceiptDate", "Contract"."InitialContractId", "SalesAndRevenue"."TransactionDate", "SalesAndRevenue"."FinancialReportingSupplierName"
       name: vwLevel1FirstTransaction
       noLinkRefs: []
   name: vwLevel1FirstTransaction
