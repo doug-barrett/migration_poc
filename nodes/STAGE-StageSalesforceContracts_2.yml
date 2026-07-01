@@ -47,9 +47,7 @@ operation:
         stepCounter: 241154f3-2753-5a4a-83a2-c89eaed2f15e
       config: {}
       dataType: VARCHAR
-      description: |-
-        If PPA Contract, Account Name = Supplier.
-        If Participant Rebate Agreement, Account Name = Customer.
+      description: ''
       name: SupplierName
       nullable: true
       sourceColumnReferences:
@@ -534,7 +532,12 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: "CASE \n    WHEN StageSalesforceContracts_1.Force_Contract_ID__c\
+          \ IS NULL THEN\n        CASE StageSalesforceContracts_1.Sourcing_Entity__c\n\
+          \             WHEN 'Vizient' THEN StageSalesforceContracts_1.Contract_Number__c\n\
+          \             ELSE CAST(StageSalesforceContracts_1.Force_Contract_ID__c\
+          \ AS varchar(50))\n        END\n    ELSE CAST(StageSalesforceContracts_1.Force_Contract_ID__c\
+          \ AS varchar(50))\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1b8a7647-ef5d-5d97-8427-5eeb79131434
@@ -546,7 +549,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: IFNULL(CAST(StageSalesforceContracts_1.ForceSupplierId AS varchar(50)),StageSalesforceContracts_1.VizientSupplierId)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b408520c-6c99-537b-be08-8ff0341a3caa
@@ -559,6 +562,7 @@ operation:
       sourceColumnReferences:
       - columnReferences: []
         transform: 'NULL'
+      isBusinessKey: true
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 53473f44-130c-5ebf-8e1e-01f3c529fd5d
@@ -1345,31 +1349,31 @@ operation:
         stepCounter: 241154f3-2753-5a4a-83a2-c89eaed2f15e
       config: {}
       dataType: TIMESTAMP
-      description: Date and time the row was updated in the data warehouse.
+      description: ''
       name: DSSUpdateTime
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 14e0a7c9-ac6d-5cc2-b859-d9db01d854ca
         stepCounter: 241154f3-2753-5a4a-83a2-c89eaed2f15e
       config: {}
       dataType: TIMESTAMP
-      description: Date and time the row was created in the data warehouse.
+      description: ''
       name: DSSCreateTime
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 354cafc7-20ab-5461-864c-eee46a27adfc
         stepCounter: 241154f3-2753-5a4a-83a2-c89eaed2f15e
       config: {}
       dataType: VARCHAR
-      description: Record source.
+      description: ''
       name: dss_record_source
       nullable: true
       sourceColumnReferences:
@@ -1381,7 +1385,7 @@ operation:
         stepCounter: 241154f3-2753-5a4a-83a2-c89eaed2f15e
       config: {}
       dataType: TIMESTAMP
-      description: Load date.
+      description: ''
       name: dss_load_date
       nullable: true
       sourceColumnReferences:
@@ -1398,19 +1402,34 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: |-
+          CASE StageSalesforceContracts_1.Sourcing_Entity__c
+            WHEN 'Corporate United' THEN 2
+            WHEN 'OMNIA Private Sector' THEN 3
+            WHEN 'OMNIA Public Sector' THEN 6
+            WHEN 'Prime Advantage' THEN 4
+            WHEN 'TCPN' THEN 1
+            WHEN 'National IPA' THEN 1
+            WHEN 'US Communities' THEN 5
+            WHEN 'Vizient' THEN 1
+            ELSE 0
+          END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6e826875-2f6e-5ecf-bd7f-2312871f3a27
         stepCounter: 241154f3-2753-5a4a-83a2-c89eaed2f15e
       config: {}
       dataType: NUMBER(38,0)
-      description: Artificial key for the dss source system table.
+      description: ''
       name: dss_source_system_key
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: "CASE \n    WHEN StageSalesforceContracts_1.Force_Contract_ID__c\
+          \ IS NULL THEN\n        CASE StageSalesforceContracts_1.Sourcing_Entity__c\n\
+          \             WHEN 'Vizient' THEN 4\n             ELSE 3\n        END\n\
+          \    ELSE 3\nEND"
+      isBusinessKey: true
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9e103955-9688-5c97-ab73-6bb7dcc06c59
@@ -1561,8 +1580,7 @@ operation:
         stepCounter: 241154f3-2753-5a4a-83a2-c89eaed2f15e
       config: {}
       dataType: VARCHAR(500)
-      description: is the rebate language for contracts in the Participant Rebate
-        Agreement record type only.
+      description: ''
       name: Rebate_Language
       nullable: true
       sourceColumnReferences:
@@ -1607,15 +1625,12 @@ operation:
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
-    - aliases:
-        StageSalesforceContracts_1: 3a99b0f6-2887-5428-a7d2-dd623656d247
+    - aliases: {}
       customSQL:
         customSQL: ''
-      dependencies:
-      - locationName: STAGE
-        nodeName: StageSalesforceContracts_1
+      dependencies: []
       join:
-        joinCondition: FROM {{ ref('STAGE', 'StageSalesforceContracts_1') }} "StageSalesforceContracts_1"
+        joinCondition: ''
       name: StageSalesforceContracts_2
       noLinkRefs: []
   name: StageSalesforceContracts_2

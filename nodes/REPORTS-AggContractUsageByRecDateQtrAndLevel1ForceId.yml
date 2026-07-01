@@ -21,7 +21,7 @@ operation:
         stepCounter: ccc3f671-17e0-5a5e-82e6-a3d09567768d
       config: {}
       dataType: NUMBER(18,4)
-      description: SalesAndRevenue
+      description: ''
       name: Sales
       nullable: true
       sourceColumnReferences:
@@ -33,7 +33,7 @@ operation:
         stepCounter: ccc3f671-17e0-5a5e-82e6-a3d09567768d
       config: {}
       dataType: NUMBER(18,4)
-      description: SalesAndRevenue
+      description: ''
       name: Revenue
       nullable: true
       sourceColumnReferences:
@@ -50,7 +50,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 903f518f-4254-5887-bd4d-9032ac727768
@@ -62,26 +62,28 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 74e2cd4b-0172-57e4-a3ed-2c19acc09249
         stepCounter: ccc3f671-17e0-5a5e-82e6-a3d09567768d
       config: {}
       dataType: NUMBER(38,0)
-      description: SalesAndRevenue
+      description: ''
       name: QuartersSinceContractUse
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: DATEDIFF(quarter, LAG(DimReceiptDate.ReceiptDate, 1) OVER (PARTITION
+          BY ForceId, PPAContractNumber ORDER BY ForceId, PPAContractNumber, DimReceiptDate.ReceiptDateCalQuarter),
+          DimReceiptDate.ReceiptDate)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f122b97a-7441-5c6b-891f-b163ec062426
         stepCounter: ccc3f671-17e0-5a5e-82e6-a3d09567768d
       config: {}
       dataType: VARCHAR
-      description: Contract
+      description: ''
       name: InitialContractId
       nullable: true
       sourceColumnReferences:
@@ -93,31 +95,35 @@ operation:
         stepCounter: ccc3f671-17e0-5a5e-82e6-a3d09567768d
       config: {}
       dataType: BOOLEAN
-      description: SalesAndRevenue
+      description: ''
       name: IsFirstTimeUsingContract
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: IIF(LAG(DimReceiptDate.ReceiptDate, 1) OVER (PARTITION BY ForceId,
+          PPAContractNumber ORDER BY ForceId, PPAContractNumber, DimReceiptDate.ReceiptDate)
+          IS NULL ,1,0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 094f99fd-7354-5f9e-954e-7bd2b7c46d04
         stepCounter: ccc3f671-17e0-5a5e-82e6-a3d09567768d
       config: {}
       dataType: VARCHAR
-      description: SalesAndRevenue
+      description: ''
       name: IsContractUseNewOrRecurringInTrailing12Months
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: IIF(DATEDIFF(quarter, LAG(DimReceiptDate.ReceiptDate, 1) OVER (PARTITION
+          BY ForceId, PPAContractNumber ORDER BY ForceId, PPAContractNumber, ReceiptDateCalQuarter),
+          DimReceiptDate.ReceiptDate) BETWEEN 1 AND 4, 'Recurring', 'New')
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 29e63a1f-3c91-5508-ba8f-5bc37116ec02
         stepCounter: ccc3f671-17e0-5a5e-82e6-a3d09567768d
       config: {}
       dataType: NUMBER(38,0)
-      description: DimReceiptDate
+      description: ''
       name: ReceiptDateCalQuarter
       nullable: true
       sourceColumnReferences:
@@ -129,25 +135,27 @@ operation:
         stepCounter: ccc3f671-17e0-5a5e-82e6-a3d09567768d
       config: {}
       dataType: NUMBER(38,0)
-      description: Account
+      description: ''
       name: Level1ForceId
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
-        transform: 'NULL'
+      - columnReferences:
+        - columnCounter: c4de0c6e-c0bc-5768-9452-001d63013629
+          stepCounter: 36da35eb-4d26-55e7-8dde-feec79f6c80a
+        transform: ''
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        UCSpend: 477016a1-ecb6-5ba7-88f8-d53ef4d69cff
+        Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
       customSQL:
         customSQL: ''
       dependencies:
-      - locationName: FACT
-        nodeName: UCSpend
+      - locationName: DIM
+        nodeName: Account
       join:
         joinCondition: |-
-          FROM {{ ref('FACT', 'UCSpend') }} "UCSpend"
+          FROM {{ ref('DIM', 'Account') }} "Account"
           GROUP BY ALL
       name: AggContractUsageByRecDateQtrAndLevel1ForceId
       noLinkRefs: []

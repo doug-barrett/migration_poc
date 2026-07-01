@@ -9,7 +9,7 @@ operation:
     insertStrategy: UNION
   database: ''
   deployEnabled: true
-  description: YTD aggregate usage statistics for each Level1ForceId
+  description: ''
   isMultisource: false
   locationName: OPC
   materializationType: view
@@ -22,7 +22,7 @@ operation:
         stepCounter: a9160a27-7c1d-5f90-8588-0fa976cd353d
       config: {}
       dataType: NUMBER(38,0)
-      description: Level1ForceId
+      description: ''
       name: Level1ForceId
       nullable: true
       sourceColumnReferences:
@@ -34,7 +34,7 @@ operation:
         stepCounter: a9160a27-7c1d-5f90-8588-0fa976cd353d
       config: {}
       dataType: VARCHAR
-      description: SupplierId
+      description: ''
       name: SupplierId
       nullable: true
       sourceColumnReferences:
@@ -46,144 +46,145 @@ operation:
         stepCounter: a9160a27-7c1d-5f90-8588-0fa976cd353d
       config: {}
       dataType: NUMBER(38,0)
-      description: FinancialReportingSupplierName
+      description: ''
       name: CurrentYTD_NumOfSuppliersUsed
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: COUNT(DISTINCT OPSalesAndRevenue.FinancialReportingSupplierName)
+          OVER (PARTITION BY OPSalesAndRevenue.Level1ForceId)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a5c577c6-7602-5fba-a125-6380d33e110d
         stepCounter: a9160a27-7c1d-5f90-8588-0fa976cd353d
       config: {}
       dataType: NUMBER(38,0)
-      description: InitialContractId
+      description: ''
       name: CurrentYTD_NumOfContractsUsed
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: COUNT(DISTINCT OPSalesAndRevenue.InitialContractId)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 082fe247-ab93-5046-876d-1a31cd78f7a5
         stepCounter: a9160a27-7c1d-5f90-8588-0fa976cd353d
       config: {}
       dataType: NUMBER(38,0)
-      description: ContractCategory
+      description: ''
       name: CurrentYTD_NumOfContractCategoriesUsed
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: COUNT(DISTINCT OPSalesAndRevenue.ContractCategory)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 64867895-f3a8-5f73-b183-8036e41addd2
         stepCounter: a9160a27-7c1d-5f90-8588-0fa976cd353d
       config: {}
       dataType: NUMBER(38,0)
-      description: TransactionDate
+      description: ''
       name: CurrentYTD_MonthsSinceLastTransaction
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: DATEDIFF(month,MAX(OPSalesAndRevenue.TransactionDate),MAX(OPSalesAndRevenue.MaxReceiptDate))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f3c8837e-d394-52af-a077-1035b3191c82
         stepCounter: a9160a27-7c1d-5f90-8588-0fa976cd353d
       config: {}
       dataType: DATE
-      description: TransactionDate
+      description: ''
       name: CurrentYTD_MostRecentTransactionDate
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: MAX(OPSalesAndRevenue.TransactionDate)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e019d397-c49e-5093-b3c4-15d0b3c1ab80
         stepCounter: a9160a27-7c1d-5f90-8588-0fa976cd353d
       config: {}
       dataType: DATE
-      description: MaxReceiptDate
+      description: ''
       name: DSSMaxTransactionDate
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: MAX(OPSalesAndRevenue.MaxReceiptDate)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b3de3bd0-06c5-5c3f-a1ea-d8526a0d6fc7
         stepCounter: a9160a27-7c1d-5f90-8588-0fa976cd353d
       config: {}
       dataType: NUMBER(38,0)
-      description: Sales
+      description: ''
       name: CurrentYTD_SumOfSales
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: SUM(OPSalesAndRevenue.Sales)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 28f8f49e-e36a-5040-9fc3-8e679ac57710
         stepCounter: a9160a27-7c1d-5f90-8588-0fa976cd353d
       config: {}
       dataType: NUMBER(38,0)
-      description: Revenue
+      description: ''
       name: CurrentYTD_SumOfRevenue
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: SUM(OPSalesAndRevenue.Revenue)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 27f691ba-6076-5de8-bc2d-32b99fafe02f
         stepCounter: a9160a27-7c1d-5f90-8588-0fa976cd353d
       config: {}
       dataType: NUMBER(38,0)
-      description: Revenue
+      description: ''
       name: CurrentYTD_RankbyRevenue
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: RANK() OVER (ORDER BY SUM(OPSalesAndRevenue.Revenue) DESC)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 203cb2ff-b48d-5126-a55b-78035f73ecce
         stepCounter: a9160a27-7c1d-5f90-8588-0fa976cd353d
       config: {}
       dataType: NUMBER(38,0)
-      description: Sales
+      description: ''
       name: CurrentYTD_RankbySales
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: RANK() OVER (ORDER BY SUM(OPSalesAndRevenue.Sales) DESC)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f73c3c10-1d9e-5fe4-9215-7c10c47c3c9f
         stepCounter: a9160a27-7c1d-5f90-8588-0fa976cd353d
       config: {}
       dataType: NUMBER(38,0)
-      description: DimContactKey
+      description: ''
       name: CurrentYTD_NumOfContacts
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: COUNT (DISTINCT Contact.DimContactKey)
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        OPC_AggLevel1_LTM: 09bd2851-9935-5385-a85e-f28677e34859
+        Contact: 0966087d-71be-52bd-b036-c51d5760dec5
       customSQL:
         customSQL: ''
       dependencies:
-      - locationName: OPC
-        nodeName: OPC_AggLevel1_LTM
+      - locationName: DIM
+        nodeName: Contact
       join:
-        joinCondition: FROM {{ ref('OPC', 'OPC_AggLevel1_LTM') }} "OPC_AggLevel1_LTM"
+        joinCondition: FROM {{ ref('DIM', 'Contact') }} "Contact"
       name: OPC_vwAggLevel1ForceIdUsageStats_CurrentYTD
       noLinkRefs: []
   name: OPC_vwAggLevel1ForceIdUsageStats_CurrentYTD

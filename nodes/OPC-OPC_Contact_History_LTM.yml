@@ -9,7 +9,7 @@ operation:
     insertStrategy: UNION
   database: ''
   deployEnabled: true
-  description: Y
+  description: ''
   isMultisource: false
   locationName: OPC
   materializationType: view
@@ -22,7 +22,7 @@ operation:
         stepCounter: 0712b59e-3ea1-5ea6-a3c7-b2cbf044a4ec
       config: {}
       dataType: NUMBER(38,0)
-      description: Level 1 Force Id
+      description: ''
       name: Level1ForceId
       nullable: true
       sourceColumnReferences:
@@ -34,7 +34,7 @@ operation:
         stepCounter: 0712b59e-3ea1-5ea6-a3c7-b2cbf044a4ec
       config: {}
       dataType: DATE
-      description: Contact Created Month
+      description: ''
       name: Created_Month
       nullable: true
       sourceColumnReferences:
@@ -46,7 +46,7 @@ operation:
         stepCounter: 0712b59e-3ea1-5ea6-a3c7-b2cbf044a4ec
       config: {}
       dataType: NUMBER(38,0)
-      description: Running Contact Count by ForceId, Contact Created Date
+      description: ''
       name: Running_Contact_Count
       nullable: true
       sourceColumnReferences:
@@ -58,7 +58,7 @@ operation:
         stepCounter: 0712b59e-3ea1-5ea6-a3c7-b2cbf044a4ec
       config: {}
       dataType: NUMBER(38,0)
-      description: Contact Count by ForceId, Contact Created Month
+      description: ''
       name: Contact_Count
       nullable: true
       sourceColumnReferences:
@@ -71,13 +71,15 @@ operation:
         OPC_Contact_History: dc28cb9d-e125-5f3f-b15b-757dc3376d55
       customSQL:
         customSQL: ''
-      dependencies: []
-      join:
-        joinCondition: FROM {{ ref_no_link('OPC', 'OPC_Contact_History') }} "OPC_Contact_History"
-      name: OPC_Contact_History_LTM
-      noLinkRefs:
+      dependencies:
       - locationName: OPC
         nodeName: OPC_Contact_History
+      join:
+        joinCondition: |-
+          FROM {{ ref('OPC', 'OPC_Contact_History') }} "OPC_Contact_History"
+          WHERE DATEDIFF('MONTH',OPC_Contact_History.Created_Month,LAST_DAY(CURRENT_DATE())) BETWEEN 1 AND 12
+      name: OPC_Contact_History_LTM
+      noLinkRefs: []
   name: OPC_Contact_History_LTM
   overrideSQL: false
   schema: ''

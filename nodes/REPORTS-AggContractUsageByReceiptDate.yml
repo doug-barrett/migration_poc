@@ -21,24 +21,24 @@ operation:
         stepCounter: 70490da1-3a1a-518a-a404-910ed3465033
       config: {}
       dataType: NUMBER(18,4)
-      description: SalesAndRevenue
+      description: ''
       name: Sales
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: SUM(SalesAndRevenue.Sales)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: eb6c3971-f47c-5a7b-9733-b6a279389f37
         stepCounter: 70490da1-3a1a-518a-a404-910ed3465033
       config: {}
       dataType: NUMBER(18,4)
-      description: SalesAndRevenue
+      description: ''
       name: Revenue
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: SUM(SalesAndRevenue.Revenue)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f34ee894-6a6c-5922-9c07-2a3b9a44ccb6
@@ -50,7 +50,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c1e0e938-83ef-5691-a6ef-0b23fa124d6b
@@ -62,38 +62,49 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8a6fc32a-b2dc-5296-a71c-c77452bbf06f
         stepCounter: 70490da1-3a1a-518a-a404-910ed3465033
       config: {}
       dataType: NUMBER(38,0)
-      description: SalesAndRevenue
+      description: ''
       name: QuartersSinceContractUse
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: "--Quarters Since Last Use \n  DATEDIFF(quarter, \n  LAG(\n  TO_DATE(CONCAT(CAST(LEFT(DimReceiptDate.ReceiptDateCalQuarter,\
+          \ 4) AS VARCHAR(10)), \n  CASE RIGHT(CAST(DimReceiptDate.ReceiptDateCalQuarter\
+          \ AS VARCHAR(10)), 2)\n      WHEN '01' THEN '03'\n      WHEN '02' THEN '06'\n\
+          \      WHEN '03' THEN '09'\n      ELSE '12'\n  END, '01')), 1) OVER(\n \
+          \     PARTITION BY ForceId, Contract.PPAContractNumber\n          ORDER\
+          \ BY ForceId, Contract.PPAContractNumber,DimReceiptDate.ReceiptDateCalQuarter),\
+          \ \n  TO_DATE(CONCAT(CAST(LEFT(DimReceiptDate.ReceiptDateCalQuarter, 4)\
+          \ AS VARCHAR(10)), \n  CASE RIGHT(CAST(DimReceiptDate.ReceiptDateCalQuarter\
+          \ AS VARCHAR(10)), 2)\n      WHEN '01' THEN '03'\n      WHEN '02' THEN '06'\n\
+          \      WHEN '03' THEN '09'\n      ELSE '12'\n  END, '01')))"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 67658541-e273-56a1-b6b2-c703fc74b9aa
         stepCounter: 70490da1-3a1a-518a-a404-910ed3465033
       config: {}
       dataType: NUMBER(38,0)
-      description: Account
+      description: ''
       name: ForceId
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
-        transform: 'NULL'
+      - columnReferences:
+        - columnCounter: fd5aa4dc-cd0d-5355-8fd4-b04e3712b0ba
+          stepCounter: 36da35eb-4d26-55e7-8dde-feec79f6c80a
+        transform: ''
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 858d55f0-48a7-51fb-9305-06daf36bf788
         stepCounter: 70490da1-3a1a-518a-a404-910ed3465033
       config: {}
       dataType: VARCHAR
-      description: Contract
+      description: ''
       name: PPAContractNumber
       nullable: true
       sourceColumnReferences:
@@ -105,31 +116,46 @@ operation:
         stepCounter: 70490da1-3a1a-518a-a404-910ed3465033
       config: {}
       dataType: BOOLEAN
-      description: SalesAndRevenue
+      description: ''
       name: IsFirstTimeUsingContract
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: |-
+          -- Is this the very 1st time using this contract?
+          IFF(LAG(ReceiptDateCalQuarter, 1) OVER(
+              PARTITION BY ForceId, Contract.PPAContractNumber
+                  ORDER BY ForceId, Contract.PPAContractNumber,ReceiptDateCalQuarter) IS NULL, 1, 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 90861e7c-b64b-57f6-8338-9795d54ad4cf
         stepCounter: 70490da1-3a1a-518a-a404-910ed3465033
       config: {}
       dataType: VARCHAR
-      description: SalesAndRevenue
+      description: ''
       name: IsContractUseNewOrRecurringInTrailing12Months
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: "--New or Recurring in a Rolling 4 Quarter Timeline\n  IFF(\n \
+          \ DATEDIFF(quarter, \n  LAG(\n  TO_DATE(CONCAT(CAST(LEFT(DimReceiptDate.ReceiptDateCalQuarter,\
+          \ 4) AS VARCHAR(10)), \n  CASE RIGHT(CAST(DimReceiptDate.ReceiptDateCalQuarter\
+          \ AS VARCHAR(10)), 2)\n      WHEN '01' THEN '03'\n      WHEN '02' THEN '06'\n\
+          \      WHEN '03' THEN '09'\n      ELSE '12'\n  END, '01')), 1) OVER(\n \
+          \     PARTITION BY ForceId, Contract.PPAContractNumber\n          ORDER\
+          \ BY ForceId, Contract.PPAContractNumber, DimReceiptDate.ReceiptDateCalQuarter),\
+          \ \n  TO_DATE(CONCAT(CAST(LEFT(DimReceiptDate.ReceiptDateCalQuarter, 4)\
+          \ AS VARCHAR(10)), \n  CASE RIGHT(CAST(DimReceiptDate.ReceiptDateCalQuarter\
+          \ AS VARCHAR(10)), 2)\n      WHEN '01' THEN '03'\n      WHEN '02' THEN '06'\n\
+          \      WHEN '03' THEN '09'\n      ELSE '12'\n  END, '01'))) <= 4, 'Recurring',\
+          \ 'New')"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7c689d9a-7fac-5302-8c5b-e93df1742b94
         stepCounter: 70490da1-3a1a-518a-a404-910ed3465033
       config: {}
       dataType: NUMBER(38,0)
-      description: DimReceiptDate
+      description: ''
       name: ReceiptDateCalQuarter
       nullable: true
       sourceColumnReferences:
@@ -139,15 +165,15 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        AggContractUsageByReceiptDateParentForceId: 4dfd867b-74c7-5810-8f15-896d1bc23c1a
+        Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
       customSQL:
         customSQL: ''
       dependencies:
-      - locationName: REPORTS
-        nodeName: AggContractUsageByReceiptDateParentForceId
+      - locationName: DIM
+        nodeName: Account
       join:
         joinCondition: |-
-          FROM {{ ref('REPORTS', 'AggContractUsageByReceiptDateParentForceId') }} "AggContractUsageByReceiptDateParentForceId"
+          FROM {{ ref('DIM', 'Account') }} "Account"
           GROUP BY ALL
       name: AggContractUsageByReceiptDate
       noLinkRefs: []

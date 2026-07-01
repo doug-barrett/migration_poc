@@ -21,7 +21,7 @@ operation:
         stepCounter: 9e605875-617d-5f2d-90a9-384835a203e8
       config: {}
       dataType: NUMBER(38,0)
-      description: SalesAndRevenue
+      description: ''
       name: Level1ForceId
       nullable: true
       sourceColumnReferences:
@@ -33,84 +33,85 @@ operation:
         stepCounter: 9e605875-617d-5f2d-90a9-384835a203e8
       config: {}
       dataType: NUMBER(18,4)
-      description: SalesAndRevenue
+      description: ''
       name: Level1_LTM_SumOfGTV
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: SUM(SalesAndRevenue.Sales)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6bdfb50d-bd5c-5f79-b321-d9a31a7e6f57
         stepCounter: 9e605875-617d-5f2d-90a9-384835a203e8
       config: {}
       dataType: NUMBER(18,4)
-      description: SalesAndRevenue
+      description: ''
       name: Level1_LTM_SumOfRevenue
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: SUM(SalesAndRevenue.Revenue)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 63e2c6c9-b860-5ec4-8d13-e74541a59e45
         stepCounter: 9e605875-617d-5f2d-90a9-384835a203e8
       config: {}
       dataType: NUMBER(38,0)
-      description: SalesAndRevenue
+      description: ''
       name: Level1_LTM_RankByGTV
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: RANK() OVER (ORDER BY SUM(SalesAndRevenue.Sales) DESC)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e497f8c3-5670-58cf-94d6-74e038d07f29
         stepCounter: 9e605875-617d-5f2d-90a9-384835a203e8
       config: {}
       dataType: NUMBER(38,0)
-      description: SalesAndRevenue
+      description: ''
       name: Level1_LTM_RankByRevenue
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: RANK() OVER (ORDER BY SUM(SalesAndRevenue.Revenue) DESC)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: eb8e7763-108d-5a67-bc6f-3e2bf5e850e1
         stepCounter: 9e605875-617d-5f2d-90a9-384835a203e8
       config: {}
       dataType: NUMBER(38,0)
-      description: Contract
+      description: ''
       name: Level1_LTM_NumOfSuppliersUsed
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: COUNT (DISTINCT Contract.FinancialReportingSupplierName)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9725e0dc-9539-5d26-9a3a-43b7043b9dd3
         stepCounter: 9e605875-617d-5f2d-90a9-384835a203e8
       config: {}
       dataType: NUMBER(38,0)
-      description: Contract
+      description: ''
       name: Level1_LTM_NumOfContractsUsed
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: COUNT (DISTINCT CASE WHEN ContractRecordType <> 'Marketing Agreement'
+          THEN InitialContractId ELSE NULL END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b4ecc032-516b-5638-845d-1f632830fcdd
         stepCounter: 9e605875-617d-5f2d-90a9-384835a203e8
       config: {}
       dataType: NUMBER(38,0)
-      description: Contract
+      description: ''
       name: Level1_LTM_NumOfContractCategoriesUsed
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: COUNT (DISTINCT Contract.ContractCategory)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 83f80404-a994-5c23-9a2d-ebdd9cf7fd0d
@@ -122,7 +123,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: GETDATE()
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b3822bf8-b3d2-565f-b19c-b810c2c8c8b8
@@ -134,20 +135,20 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: GETDATE()
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        OPC_AggLevel1_LTM: 09bd2851-9935-5385-a85e-f28677e34859
+        Contract: 63e1094e-8cb8-5f3a-b33e-58ff02391bc8
       customSQL:
         customSQL: ''
       dependencies:
-      - locationName: OPC
-        nodeName: OPC_AggLevel1_LTM
+      - locationName: DIM
+        nodeName: Contract
       join:
         joinCondition: |-
-          FROM {{ ref('OPC', 'OPC_AggLevel1_LTM') }} "OPC_AggLevel1_LTM"
+          FROM {{ ref('DIM', 'Contract') }} "Contract"
           GROUP BY ALL
       name: AggLevel1_LTM
       noLinkRefs: []

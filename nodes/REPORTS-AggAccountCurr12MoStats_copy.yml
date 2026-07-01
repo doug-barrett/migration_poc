@@ -21,60 +21,60 @@ operation:
         stepCounter: fcf3c677-4dd1-57f0-8e99-55f068c6746e
       config: {}
       dataType: NUMBER(38,0)
-      description: SalesAndRevenue
+      description: ''
       name: Curr12MoNumofSuppliersUsed
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: COUNT (DISTINCT SupplierId)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9fcd65a7-478e-5049-bab6-134bce77b185
         stepCounter: fcf3c677-4dd1-57f0-8e99-55f068c6746e
       config: {}
       dataType: NUMBER(38,0)
-      description: SalesAndRevenue
+      description: ''
       name: Curr12MoNumOfContractsUsed
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: COUNT (DISTINCT ContractId)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b22eb122-9136-5dce-9d34-3884af8474fe
         stepCounter: fcf3c677-4dd1-57f0-8e99-55f068c6746e
       config: {}
       dataType: TIMESTAMP
-      description: SalesAndRevenue
+      description: ''
       name: Curr12MoLastTransactionDate
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: MAX(TransactionDate)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3d0b79b3-dff4-507c-9dbe-49c2a221760a
         stepCounter: fcf3c677-4dd1-57f0-8e99-55f068c6746e
       config: {}
       dataType: NUMBER(18,4)
-      description: SalesAndRevenue
+      description: ''
       name: Curr12MoSales
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: SUM(Sales)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 95897be2-444d-5a6a-a16b-7d966e36aeb0
         stepCounter: fcf3c677-4dd1-57f0-8e99-55f068c6746e
       config: {}
       dataType: NUMBER(18,4)
-      description: SalesAndRevenue
+      description: ''
       name: Curr12MoRevenue
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: SUM(Revenue)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 52757534-b499-5dc4-a023-1bf05ba0c6d8
@@ -86,7 +86,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4e689cdc-6148-58cb-979e-55efde083d45
@@ -98,59 +98,61 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a3272ca3-4c91-5f38-a647-32bb6a788214
         stepCounter: fcf3c677-4dd1-57f0-8e99-55f068c6746e
       config: {}
       dataType: TIMESTAMP
-      description: SalesAndRevenue
+      description: ''
       name: LastTransactionDate
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: MAX(ReceiptDate)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: aa90a700-3d9d-5212-80b3-2566719bd9d6
         stepCounter: fcf3c677-4dd1-57f0-8e99-55f068c6746e
       config: {}
       dataType: NUMBER(38,0)
-      description: SalesAndRevenue
+      description: ''
       name: MonthsSinceLastTransaction
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: DATEDIFF(month, MAX(TransactionDate), MAX(MaxReceiptDate))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 83fb8c56-4004-50e2-a7d6-7d294b547a95
         stepCounter: fcf3c677-4dd1-57f0-8e99-55f068c6746e
       config: {}
       dataType: NUMBER(38,0)
-      description: Account
+      description: ''
       name: AccountKey
       nullable: true
       sourceColumnReferences:
-      - columnReferences: []
-        transform: 'NULL'
+      - columnReferences:
+        - columnCounter: 1d517a10-4d17-5fdb-94ed-c9af134c0dab
+          stepCounter: 36da35eb-4d26-55e7-8dde-feec79f6c80a
+        transform: ''
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        AggAccountCurr12MoStats: 10fe4ab7-83ef-58c8-aca7-fee34c1afd0b
+        Account: 36da35eb-4d26-55e7-8dde-feec79f6c80a
       customSQL:
         customSQL: ''
-      dependencies: []
+      dependencies:
+      - locationName: DIM
+        nodeName: Account
       join:
         joinCondition: |-
-          FROM {{ ref_no_link('REPORTS', 'AggAccountCurr12MoStats') }} "AggAccountCurr12MoStats"
+          FROM {{ ref('DIM', 'Account') }} "Account"
           GROUP BY ALL
       name: AggAccountCurr12MoStats_copy
-      noLinkRefs:
-      - locationName: REPORTS
-        nodeName: AggAccountCurr12MoStats
+      noLinkRefs: []
   name: AggAccountCurr12MoStats_copy
   overrideSQL: false
   schema: ''

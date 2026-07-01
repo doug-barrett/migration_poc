@@ -29,6 +29,7 @@ operation:
       sourceColumnReferences:
       - columnReferences: []
         transform: 'NULL'
+      isBusinessKey: true
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 839d7753-e111-5e12-91df-23bdaa182306
@@ -107,7 +108,7 @@ operation:
         stepCounter: e5c5599d-4c72-50dd-a035-a589b08287ee
       config: {}
       dataType: VARCHAR(64)
-      description: Record source.
+      description: ''
       name: dss_record_source
       nullable: true
       sourceColumnReferences:
@@ -119,7 +120,7 @@ operation:
         stepCounter: e5c5599d-4c72-50dd-a035-a589b08287ee
       config: {}
       dataType: TIMESTAMP
-      description: Load date.
+      description: ''
       name: dss_load_date
       nullable: true
       sourceColumnReferences:
@@ -131,24 +132,24 @@ operation:
         stepCounter: e5c5599d-4c72-50dd-a035-a589b08287ee
       config: {}
       dataType: TIMESTAMP
-      description: Date and time the row was updated in the data warehouse.
+      description: ''
       name: DSSUpdateTime
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9c5e754e-2c22-5fa4-8efc-824f460eaba2
         stepCounter: e5c5599d-4c72-50dd-a035-a589b08287ee
       config: {}
       dataType: TIMESTAMP
-      description: Date and time the row was created in the data warehouse.
+      description: ''
       name: DSSCreateTime
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ce02cfc1-95e3-51b7-a8bd-46a0036aa0a9
@@ -160,7 +161,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: "CASE LoadOPUSACCOUNT.TAXEXEMPT \n When 0\n  Then 'FALSE'\n When\
+          \ 1\n  Then 'TRUE'\nELSE NULL\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a05ca622-a268-5a4a-8239-96a71c4ffc81
@@ -172,21 +174,19 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: ROW_NUMBER() OVER(PARTITION BY LoadOPUSACCOUNT.FORCEID Order By
+          LoadOPUSACCOUNT.CREATEDDATE)
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
-    - aliases:
-        LoadOPUSACCOUNT: c848b4a7-0317-55f5-a223-da8bdda17964
+    - aliases: {}
       customSQL:
         customSQL: ''
-      dependencies:
-      - locationName: LOAD
-        nodeName: LoadOPUSACCOUNT
+      dependencies: []
       join:
-        joinCondition: |-
-          FROM {{ ref('LOAD', 'LoadOPUSACCOUNT') }} "LoadOPUSACCOUNT"
-          Where TRY_TO_NUMBER("LoadOPUSACCOUNT"."FORCEID") IS NOT NULL~
+        joinCondition: |2-
+
+          Where TRY_TO_NUMBER(LoadOPUSACCOUNT.FORCEID) IS NOT NULL~
       name: StageOPUSACCOUNT
       noLinkRefs: []
   name: StageOPUSACCOUNT
