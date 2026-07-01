@@ -242,7 +242,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: '0'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f4a30303-7d0c-58c8-bd71-9cbf70bca754
@@ -254,7 +254,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: '0'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c54334b7-06c4-574f-b5cb-447e8fbc538c
@@ -302,7 +302,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: '0'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b975d8fc-7464-52eb-8dd1-3a79168863b9
@@ -314,7 +314,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: '0'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6b35ef2a-f9d5-5960-b93b-999f6207dd36
@@ -702,12 +702,70 @@ operation:
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
-    - aliases: {}
+    - aliases:
+        OPC_Account: 693c644a-ee30-572c-9f62-d60e7b40502f
+        Sector: 07596b2d-bee7-500c-87de-dea1033bd2fe
+        AccountGeography: 1071dd2d-aef7-53a0-9ed4-a5c3b3dfe3f1
+        SalesTerritory: 1fe14bc6-9177-56ee-a85f-9451ca0deebb
+        Employee: dd3a8487-445c-5517-aadc-5269638bb66a
+        OPC_vwAggLevel1ForceIdUsageStats_Lifetime_Contacts: ee64df16-87cf-5d7c-b39e-1b76d6fdf2da
+        OPC_vwAggLevel1ForceIdUsageStats_All: f4ffe4a4-b391-5969-aa1f-56429f26d4e3
+        OMNIA_Score: 2c2d5e22-4744-5165-83ca-f32cd6936440
+        OPC_AggLevel1_LTM: 09bd2851-9935-5385-a85e-f28677e34859
+        OPC_AggLevel1_PY_LTM: 647d02ba-ae59-5cbb-bcb9-039a55064daa
+        Supplier: d53a79d2-fb60-532e-8596-560738ff8f56
+        OPC_AccountTeamMember: c0133a5b-8f72-56fd-8ef9-9ad83b5f7433
       customSQL:
         customSQL: ''
-      dependencies: []
+      dependencies:
+      - locationName: OPC
+        nodeName: OPC_Account
+      - locationName: DIM
+        nodeName: Sector
+      - locationName: DIM
+        nodeName: AccountGeography
+      - locationName: DIM
+        nodeName: SalesTerritory
+      - locationName: DIM
+        nodeName: Employee
+      - locationName: OPC
+        nodeName: OPC_vwAggLevel1ForceIdUsageStats_Lifetime_Contacts
+      - locationName: OPC
+        nodeName: OPC_vwAggLevel1ForceIdUsageStats_All
+      - locationName: DIM
+        nodeName: OMNIA_Score
+      - locationName: OPC
+        nodeName: OPC_AggLevel1_LTM
+      - locationName: OPC
+        nodeName: OPC_AggLevel1_PY_LTM
+      - locationName: DIM
+        nodeName: Supplier
+      - locationName: DIM
+        nodeName: OPC_AccountTeamMember
       join:
-        joinCondition: ''
+        joinCondition: "FROM {{ ref('OPC', 'OPC_Account') }} \"OPC_Account\"\nLEFT\
+          \ JOIN {{ ref('DIM', 'Sector') }} \"Sector\"\n  ON OPC_Account.SectorKey\
+          \ = Sector.SectorKey\nLEFT JOIN {{ ref('DIM', 'AccountGeography') }} \"\
+          AccountGeography\"\n  ON OPC_Account.AccountGeographyKey = AccountGeography.AccountGeographyKey\n\
+          LEFT JOIN {{ ref('DIM', 'SalesTerritory') }} \"SalesTerritory\"\n  ON OPC_Account.SalesTerritoryKey\
+          \ = SalesTerritory.SalesTerritoryKey\nLEFT JOIN {{ ref('DIM', 'Employee')\
+          \ }} \"Employee\"\n  ON SalesTerritory.TerritoryManagerUPN = Employee.UserPrincipalName\n\
+          LEFT JOIN {{ ref('OPC', 'OPC_vwAggLevel1ForceIdUsageStats_Lifetime_Contacts')\
+          \ }} \"OPC_vwAggLevel1ForceIdUsageStats_Lifetime_Contacts\"\n  ON OPC_Account.Level1ForceId\
+          \ = OPC_vwAggLevel1ForceIdUsageStats_Lifetime_Contacts.ForceId\nLEFT JOIN\
+          \ {{ ref('OPC', 'OPC_vwAggLevel1ForceIdUsageStats_All') }} \"OPC_vwAggLevel1ForceIdUsageStats_All\"\
+          \n  ON OPC_Account.Level1ForceId = OPC_vwAggLevel1ForceIdUsageStats_All.Level1ForceId\n\
+          LEFT JOIN {{ ref('DIM', 'OMNIA_Score') }} \"OMNIA_Score\"\n  ON OPC_Account.AccountKey\
+          \ = OMNIA_Score.AccountKey\nLEFT JOIN {{ ref('OPC', 'OPC_AggLevel1_LTM')\
+          \ }} \"OPC_AggLevel1_LTM\"\n  ON OPC_Account.Level1ForceId = OPC_AggLevel1_LTM.Level1ForceId\n\
+          LEFT JOIN {{ ref('OPC', 'OPC_AggLevel1_PY_LTM') }} \"OPC_AggLevel1_PY_LTM\"\
+          \n  ON OPC_Account.Level1ForceId = OPC_AggLevel1_PY_LTM.Level1ForceId\n\
+          LEFT JOIN {{ ref('DIM', 'Supplier') }} \"Supplier\"\n  ON OPC_vwAggLevel1ForceIdUsageStats_All.SupplierId\
+          \ = Supplier.SupplierId\nJOIN {{ ref('DIM', 'OPC_AccountTeamMember') }}\
+          \ \"OPC_AccountTeamMember\"\n  ON OPC_Account.AccountKey = OPC_AccountTeamMember.AccountKey\n\
+          WHERE OPC_Account.RecordDesignation = 'Account' \nOR (OPC_Account.RecordDesignation\
+          \ = 'Prospect' AND OPC_Account.Participating_Program = 'Club 25 Agency')\n\
+          GROUP BY ALL"
       name: OPC_Level1CustomerSearch
       noLinkRefs: []
   name: OPC_Level1CustomerSearch

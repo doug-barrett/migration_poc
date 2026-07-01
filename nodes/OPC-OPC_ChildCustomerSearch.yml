@@ -218,7 +218,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: '0'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 417013f3-0fe6-53fb-b3c5-0ef622e7b36e
@@ -242,7 +242,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: '0'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a108603c-daff-507e-a2bf-3bc99dab2a15
@@ -278,7 +278,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: '0'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c48da99b-32e8-5f13-8b13-6640e2d33f3d
@@ -290,7 +290,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'NULL'
+        transform: '0'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 41acbba9-ec31-5784-a239-d1f8bfaa607c
@@ -462,12 +462,47 @@ operation:
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
-    - aliases: {}
+    - aliases:
+        OPC_Account: 693c644a-ee30-572c-9f62-d60e7b40502f
+        AccountGeography: 1071dd2d-aef7-53a0-9ed4-a5c3b3dfe3f1
+        Sector: 07596b2d-bee7-500c-87de-dea1033bd2fe
+        OPC_vwAggForceIdUsageStats_All: b303e02e-46e5-53cf-bf84-f69643e3a5b0
+        OPC_vwAggLevel1ForceIdUsageStats_Lifetime_Contacts: ee64df16-87cf-5d7c-b39e-1b76d6fdf2da
+        OPC_AggForceId_LTM: d91ed17f-52c4-5a10-bfca-c28b38b4230a
+        OPC_AggForceId_PY_LTM: 65746ff2-935c-57d2-9cb7-08ccced08869
       customSQL:
         customSQL: ''
-      dependencies: []
+      dependencies:
+      - locationName: OPC
+        nodeName: OPC_Account
+      - locationName: DIM
+        nodeName: AccountGeography
+      - locationName: DIM
+        nodeName: Sector
+      - locationName: OPC
+        nodeName: OPC_vwAggForceIdUsageStats_All
+      - locationName: OPC
+        nodeName: OPC_vwAggLevel1ForceIdUsageStats_Lifetime_Contacts
+      - locationName: OPC
+        nodeName: OPC_AggForceId_LTM
+      - locationName: OPC
+        nodeName: OPC_AggForceId_PY_LTM
       join:
-        joinCondition: ''
+        joinCondition: |-
+          FROM {{ ref('OPC', 'OPC_Account') }} "OPC_Account"
+          LEFT JOIN {{ ref('DIM', 'AccountGeography') }} "AccountGeography"
+            ON OPC_Account.ForceId = AccountGeography.ForceId
+          LEFT JOIN {{ ref('DIM', 'Sector') }} "Sector"
+            ON OPC_Account.SectorKey = Sector.SectorKey
+          LEFT JOIN {{ ref('OPC', 'OPC_vwAggForceIdUsageStats_All') }} "OPC_vwAggForceIdUsageStats_All"
+            ON OPC_Account.ForceId = OPC_vwAggForceIdUsageStats_All.ForceId
+          LEFT JOIN {{ ref('OPC', 'OPC_vwAggLevel1ForceIdUsageStats_Lifetime_Contacts') }} "OPC_vwAggLevel1ForceIdUsageStats_Lifetime_Contacts"
+            ON OPC_Account.ForceId = OPC_vwAggLevel1ForceIdUsageStats_Lifetime_Contacts.ForceId
+          LEFT JOIN {{ ref('OPC', 'OPC_AggForceId_LTM') }} "OPC_AggForceId_LTM"
+            ON OPC_Account.ForceId = OPC_AggForceId_LTM.ForceId
+          LEFT JOIN {{ ref('OPC', 'OPC_AggForceId_PY_LTM') }} "OPC_AggForceId_PY_LTM"
+            ON OPC_Account.ForceId = OPC_AggForceId_PY_LTM.ForceId
+          GROUP BY ALL
       name: OPC_ChildCustomerSearch
       noLinkRefs: []
   name: OPC_ChildCustomerSearch
