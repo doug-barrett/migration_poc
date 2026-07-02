@@ -538,18 +538,35 @@ operation:
       - locationName: BRONZE
         nodeName: CREATEDBY
       join:
-        joinCondition: |-
-          FROM {{ ref('SILVER', 'I_BMPLoadPeriod') }} "I_BMPLoadPeriod"
-          JOIN {{ ref('SILVER', 'I_NPS_DepartmentMap') }} "I_NPS_DepartmentMap"
-          JOIN {{ ref('SILVER', 'I_NPS_Investigation') }} "I_NPS_Investigation"
-          JOIN {{ ref('SILVER', 'I_NPS_InvestigationEvent') }} "I_NPS_InvestigationEvent"
-          JOIN {{ ref('SILVER', 'I_NPS_OccurrenceIncident') }} "I_NPS_OccurrenceIncident"
-          JOIN {{ ref('SILVER', 'I_NPS_OccurrenceIncidentRiskAssessment') }} "I_NPS_OccurrenceIncidentRiskAssessment"
-          JOIN {{ ref('BRONZE', 'L_NPS_OccurrenceIncident') }} "L_NPS_OccurrenceIncident"
-          JOIN {{ ref('BRONZE', 'L_NPS_OccurrenceIncidentAction') }} "L_NPS_OccurrenceIncidentAction"
-          JOIN {{ ref('BRONZE', 'L_NPS_OccurrenceIncidentStage') }} "L_NPS_OccurrenceIncidentStage"
-          JOIN {{ ref('BRONZE', 'L_NPS_Person') }} "L_NPS_Person"
-          JOIN {{ ref('BRONZE', 'L_NPS_yOccurrenceIncidentStageType') }} "L_NPS_yOccurrenceIncidentStageType"
+        joinCondition: "FROM {{ ref('BRONZE', 'L_NPS_OccurrenceIncidentAction') }}\
+          \ \"L_NPS_OccurrenceIncidentAction\"\nLEFT JOIN {{ ref('BRONZE', 'L_NPS_Person')\
+          \ }} \"L_NPS_Person\"\n  ON \"L_NPS_OccurrenceIncidentAction\".\"OwnerPersonID\"\
+          \ = \"L_NPS_Person\".\"ID\"\nLEFT JOIN {{ ref('BRONZE', 'CREATEDBY') }}\
+          \ \"CreatedBy\"\n  ON \"L_NPS_OccurrenceIncidentAction\".\"CreatedByPersonID\"\
+          \ = \"CreatedBy\".\"ID\"\nLEFT JOIN {{ ref('BRONZE', 'L_NPS_OccurrenceIncidentStage')\
+          \ }} \"L_NPS_OccurrenceIncidentStage\"\n  ON \"L_NPS_OccurrenceIncidentAction\"\
+          .\"StageID\" = \"L_NPS_OccurrenceIncidentStage\".\"ID\"\nLEFT JOIN {{ ref('BRONZE',\
+          \ 'L_NPS_yOccurrenceIncidentStageType') }} \"L_NPS_yOccurrenceIncidentStageType\"\
+          \n  ON \"L_NPS_OccurrenceIncidentStage\".\"StageTypeID\" = \"L_NPS_yOccurrenceIncidentStageType\"\
+          .\"ID\"\nLEFT JOIN {{ ref('BRONZE', 'L_NPS_OccurrenceIncident') }} \"L_NPS_OccurrenceIncident\"\
+          \n  ON \"L_NPS_OccurrenceIncidentStage\".\"IncidentID\" = \"L_NPS_OccurrenceIncident\"\
+          .\"ID\"\nLEFT JOIN {{ ref('SILVER', 'I_NPS_InvestigationEvent') }} \"I_NPS_InvestigationEvent\"\
+          \n  ON \"L_NPS_OccurrenceIncidentStage\".\"IncidentID\" = \"I_NPS_InvestigationEvent\"\
+          .\"InvestigationID\"\nLEFT JOIN {{ ref('SILVER', 'I_NPS_OccurrenceIncident')\
+          \ }} \"I_NPS_OccurrenceIncident\"\n  ON \"L_NPS_OccurrenceIncidentStage\"\
+          .\"IncidentID\" = \"I_NPS_OccurrenceIncident\".\"ID\"\nLEFT JOIN {{ ref('SILVER',\
+          \ 'I_BMPLoadPeriod') }} \"I_BMPLoadPeriod\"\n  ON MONTH(COALESCE(\"L_NPS_OccurrenceIncidentAction\"\
+          .\"ClosedDate\", CURRENT_TIMESTAMP())) = \"I_BMPLoadPeriod\".\"CalendarMonth\"\
+          \n  AND YEAR(COALESCE(\"L_NPS_OccurrenceIncidentAction\".\"ClosedDate\"\
+          , CURRENT_TIMESTAMP())) = \"I_BMPLoadPeriod\".\"CalendarYear\"\nLEFT JOIN\
+          \ {{ ref('SILVER', 'I_NPS_DepartmentMap') }} \"I_NPS_DepartmentMap\"\n \
+          \ ON \"I_NPS_OccurrenceIncident\".\"DepartmentID\" = \"I_NPS_DepartmentMap\"\
+          .\"ID\"\nLEFT JOIN {{ ref('SILVER', 'I_NPS_OccurrenceIncidentRiskAssessment')\
+          \ }} \"I_NPS_OccurrenceIncidentRiskAssessment\"\n  ON \"I_NPS_OccurrenceIncident\"\
+          .\"ID\" = \"I_NPS_OccurrenceIncidentRiskAssessment\".\"IncidentID\"\nLEFT\
+          \ JOIN {{ ref('SILVER', 'I_NPS_Investigation') }} \"I_NPS_Investigation\"\
+          \n  ON \"I_NPS_InvestigationEvent\".\"InvestigationID\" = \"I_NPS_Investigation\"\
+          .\"InvestigationID\" "
       name: I_NPS_Action
       noLinkRefs: []
   name: I_NPS_Action

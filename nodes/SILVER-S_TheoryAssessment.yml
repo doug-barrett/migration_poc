@@ -154,7 +154,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: ''
+        transform: COALESCE("D_Date"."D_Date_key", -1)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b9e66f71-b276-51f1-a742-adcc6feee6f8
@@ -255,7 +255,18 @@ operation:
       - locationName: GOLD
         nodeName: D_Employee
       join:
-        joinCondition: FROM {{ ref('SILVER', 'I_CS_TheoryQuestionStatus') }} "I_CS_TheoryQuestionStatus"
+        joinCondition: |-
+          FROM {{ ref('SILVER', 'I_CS_TheoryQuestionStatus') }} "I_CS_TheoryQuestionStatus"
+          LEFT JOIN {{ ref('GOLD', 'D_Employee') }} "D_Employee"
+            ON "S_TheoryAssessment"."EmployeeCode" = "D_Employee"."EmployeeCode"
+          LEFT JOIN {{ ref('GOLD', 'D_BusinessUnit') }} "D_BusinessUnit"
+            ON "S_TheoryAssessment"."BusinessUnitCode" = "D_BusinessUnit"."BusinessUnitCode"
+          LEFT JOIN {{ ref('GOLD', 'D_CRCCompetency') }} "D_CRCCompetency"
+            ON "S_TheoryAssessment"."CompetencyCode" = "D_CRCCompetency"."CompetencyCode"
+          LEFT JOIN {{ ref('GOLD', 'D_AssessmentQuestion') }} "D_AssessmentQuestion"
+            ON "S_TheoryAssessment"."CompetencyCode" = "D_AssessmentQuestion"."CompetencyCode" AND "S_TheoryAssessment"."QuestionNumber" = "D_AssessmentQuestion"."QuestionNumber"
+          LEFT JOIN {{ ref('BRONZE', 'D_Date') }} "D_Date"
+            ON "S_TheoryAssessment"."CompletionDate" = "D_Date"."CalendarDate"
       name: S_TheoryAssessment
       noLinkRefs: []
   name: S_TheoryAssessment
