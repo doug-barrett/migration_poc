@@ -58,8 +58,8 @@ operation:
       sourceColumnReferences:
       - columnReferences: []
         transform: CASE   --THERE IS SUPPOSED TO BE A " - " SEPERATING THE CODE AND
-          DESCRIPTION   WHEN CHARINDEX(' - ',ASSESSMENTNAME) < 1   THEN ASSESSMENTNAME   ELSE
-          LEFT(ASSESSMENTNAME,CHARINDEX(' - ',ASSESSMENTNAME)-1)  END
+          DESCRIPTION   WHEN POSITION(' - ' IN ASSESSMENTNAME) < 1   THEN ASSESSMENTNAME   ELSE
+          LEFT(ASSESSMENTNAME,POSITION(' - ' IN ASSESSMENTNAME)-1)  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 121048ca-8c9f-50a0-a101-985ef0027f57
@@ -85,7 +85,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CAST(ATTEMPTDATE,103 AS DATETIME)
+        transform: CAST("AttemptDate" AS DATETIME)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 940e43cc-5c82-5c37-816c-7b3563acb939
@@ -125,7 +125,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: LEFT(L_CS_ASSESSMENTQUESTIONS.QUESTIONNUMBEANDDESCRIPTION,2000)
+        transform: LEFT("L_CS_ASSESSMENTQUESTIONS".""QuestionNumbeAndDescription"",2000)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d8971b7d-10ee-50e6-9163-3c0251e36ce5
@@ -138,9 +138,9 @@ operation:
       sourceColumnReferences:
       - columnReferences: []
         transform: CASE   --THERE IS SUPPOSED TO BE A ". " SEPERATING THE NUMBER AND
-          DESCRIPTION   WHEN CHARINDEX('. ',QUESTIONNUMBEANDDESCRIPTION) < 1   THEN
-          QUESTIONNUMBEANDDESCRIPTION   ELSE LEFT(QUESTIONNUMBEANDDESCRIPTION,CHARINDEX('.
-          ',QUESTIONNUMBEANDDESCRIPTION)-1)  END
+          DESCRIPTION   WHEN POSITION('. ' IN QUESTIONNUMBEANDDESCRIPTION) < 1   THEN
+          QUESTIONNUMBEANDDESCRIPTION   ELSE LEFT(QUESTIONNUMBEANDDESCRIPTION,POSITION('.
+          ' IN QUESTIONNUMBEANDDESCRIPTION)-1)  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 204b52d2-b21e-5d8e-abdc-e4d1b8c541d0
@@ -197,7 +197,7 @@ operation:
           FROM {{ ref('GOLD', 'D_Employee') }} "D_Employee"
           INNER JOIN {{ ref('BRONZE', 'L_CS_AssessmentQuestions') }} "L_CS_AssessmentQuestions"
             ON D_EMPLOYEE.EMPLOYEECODE = L_CS_ASSESSMENTQUESTIONS.EMPLOYEENUMBER
-          WHERE ISNULL(QUESTIONNUMBEANDDESCRIPTION,'') <> ''  AND D_EMPLOYEE.TERMINATED = 0
+          WHERE COALESCE(QUESTIONNUMBEANDDESCRIPTION,'') <> ''  AND D_EMPLOYEE.TERMINATED = 0
       name: I_CS_AssessmentQuestions
       noLinkRefs: []
   name: I_CS_AssessmentQuestions

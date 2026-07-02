@@ -99,7 +99,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(DEPARTMENTMAP.JDEBUSINESSUNIT,I_NPS_DEPARTMENTMAP.JDEBUSINESSUNIT)
+        transform: COALESCE("DEPARTMENTMAP".""JDEBusinessUnit"","I_NPS_DEPARTMENTMAP".""JDEBusinessUnit"")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4244d91a-b233-597e-bb78-9f933d90ce80
@@ -139,8 +139,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE  WHEN L_NPS_PERSON.ID IS NULL THEN 'UNKNOWN'  ELSE COALESCE(L_NPS_PERSON.FIRSTNAME,'')
-          + ' ' + COALESCE(L_NPS_PERSON.LASTNAME,'')  END
+        transform: CASE  WHEN "L_NPS_PERSON"."ID" IS NULL THEN 'UNKNOWN'  ELSE COALESCE("L_NPS_PERSON".""FirstName"",'')
+          + ' ' + COALESCE("L_NPS_PERSON".""LastName"",'')  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2543b496-2ac7-5fc1-9122-86f2a77deb18
@@ -180,10 +180,11 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID = 6 THEN IMPROVEMENTSUBCATEGORY   WHEN
-          L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID IN (12,13) THEN EVENTTYPE   WHEN
-          L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID = 22 THEN CRITICALEVENTTYPE  ELSE
-          CAST(L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID AS VARCHAR(100)) END
+        transform: CASE   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID"" = 6 THEN
+          "ImprovementSubCategory"   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID""
+          IN (12,13) THEN "EventType"   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID""
+          = 22 THEN "CriticalEventType"  ELSE CAST("L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID""
+          AS VARCHAR(100)) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1e187f79-fd55-52c7-807b-a4367582fb0b
@@ -209,8 +210,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE  WHEN RECORDEDBY.ID IS NULL THEN 'UNKNOWN'  ELSE COALESCE(RECORDEDBY.FIRSTNAME,'')
-          + ' ' + COALESCE(RECORDEDBY.LASTNAME,'')  END
+        transform: CASE  WHEN ""RecordedBy""."ID" IS NULL THEN 'UNKNOWN'  ELSE COALESCE(""RecordedBy"".""FirstName"",'')
+          + ' ' + COALESCE(""RecordedBy"".""LastName"",'')  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: fcd5a842-64db-5622-8a68-bca3fd90ace0
@@ -306,7 +307,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(I_NPS_EVENTOUTCOME.EVENTOUTCOME,'UNKNOWN')
+        transform: COALESCE("I_NPS_EVENTOUTCOME".""EventOutcome"",'UNKNOWN')
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 093d5d58-9c17-5d20-9aad-ba2a05b8dfad
@@ -332,11 +333,11 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE   --WHEN OTHER NETWORK IS CHOSEN   WHEN L_NPS_NPSELOCCURRENCEVIEW.CUSTOMERNETWORK
-          = '28'   --THEN JOIN ON THE VALUE IN THE DESCRITION FIELD   THEN      CASE
-          WHEN COALESCE(L_NPS_NPSELOCCURRENCEVIEW.OTHERNETWORK,'') = ''      THEN
-          'NOT SPECIFIED'      ELSE L_NPS_NPSELOCCURRENCEVIEW.OTHERNETWORK     END   --
-          ELSE USE THE MAIN CUSTOMER NUMBER FOR BOTH KEY FIELDS   ELSE CAST(L_NPS_NPSELOCCURRENCEVIEW.CUSTOMERNETWORK
+        transform: CASE   --WHEN OTHER "network" IS CHOSEN   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""CustomerNetwork""
+          = '28'   --THEN JOIN ON THE "Value" IN THE DESCRITION FIELD   THEN      CASE
+          WHEN COALESCE("L_NPS_NPSELOCCURRENCEVIEW".""OtherNetwork"",'') = ''      THEN
+          'NOT SPECIFIED'      ELSE "L_NPS_NPSELOCCURRENCEVIEW".""OtherNetwork""     END   --
+          ELSE USE THE MAIN "Customer" NUMBER FOR BOTH KEY FIELDS   ELSE CAST("L_NPS_NPSELOCCURRENCEVIEW".""CustomerNetwork""
           AS VARCHAR(200))  END
     - appliedColumnTests: {}
       columnReference:
@@ -349,9 +350,10 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE   --WHEN REPORT TYPE IS NOT AN EVENT, WE ARE NOT EXPECTING
-          A VALUE   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID <> 12   AND L_NPS_NPSELOCCURRENCEVIEW.INJUREDPERSONTYPE
-          IS NULL   -- HARD CODE TO 'NO INJURY'   THEN 'NO INJURY'   ELSE L_NPS_NPSELOCCURRENCEVIEW.INJUREDPERSONTYPE  END
+        transform: CASE   --WHEN REPORT "Type" IS NOT AN EVENT, WE ARE NOT EXPECTING
+          A "Value"   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID"" <> 12   AND
+          "L_NPS_NPSELOCCURRENCEVIEW".""InjuredPersonType"" IS NULL   -- HARD "Code"
+          TO 'NO INJURY'   THEN 'NO INJURY'   ELSE "L_NPS_NPSELOCCURRENCEVIEW".""InjuredPersonType""  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: df9f12a4-a598-50e6-9a0e-bd40058f06be
@@ -391,12 +393,12 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: --SAME CODING AS USED FOR INJURY COUNTS  CASE   --REPORT TYPE =
-          EVENT   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID = 12   --STATUS IN NEW
-          OR ACCEPTED   AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID IN (1,2)   AND EVENTTYPE
-          = 'INCIDENT'   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTOUTCOME LIKE '%INJURY
-          / ILLNESS%'   THEN L_NPS_NPSELOCCURRENCEVIEW.INJURYSEVERITY   --ELSE NOT
-          APPLICABLE   ELSE -1  END
+        transform: --SAME CODING AS USED FOR INJURY COUNTS  CASE   --REPORT "Type"
+          = EVENT   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID"" = 12   --"Status"
+          IN NEW OR ACCEPTED   AND "L_NPS_NPSELOCCURRENCEVIEW".""StatusID"" IN (1,2)   AND
+          "EventType" = 'INCIDENT'   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventOutcome""
+          LIKE '%INJURY / ILLNESS%'   THEN "L_NPS_NPSELOCCURRENCEVIEW".""InjurySeverity""   --ELSE
+          NOT APPLICABLE   ELSE -1  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d3f2f5fb-d856-5cd4-b0ed-ce0d5f095267
@@ -422,7 +424,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(L_NPS_NPSELOCCURRENCEVIEW.WORKSAFENOTIFIABLE,'UNKNOWN')
+        transform: COALESCE("L_NPS_NPSELOCCURRENCEVIEW".""WorkSafeNotifiable"",'UNKNOWN')
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 732c865e-736a-509e-b1c7-8fb344be3552
@@ -434,7 +436,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(L_NPS_NPSELOCCURRENCEVIEW.CUSTOMERTRIFR,'UNKNOWN')
+        transform: COALESCE("L_NPS_NPSELOCCURRENCEVIEW".""CustomerTRIFR"",'UNKNOWN')
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 76c46ad7-d2b4-5827-aa31-8e025a6ff94d
@@ -448,7 +450,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(L_NPS_NPSELOCCURRENCEVIEW.NOTINVOLVINGNORTHPOWER, 'FALSE')
+        transform: COALESCE("L_NPS_NPSELOCCURRENCEVIEW".""NotInvolvingNorthpower"",
+          'FALSE')
     - appliedColumnTests: {}
       columnReference:
         columnCounter: bca72cb4-dab7-55c5-b008-f841d4be3634
@@ -460,11 +463,11 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: --SAME CODING AS USED FOR INJURY COUNTS  CASE   --REPORT TYPE =
-          EVENT   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID = 12   --STATUS IN NEW
-          OR ACCEPTED   AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID IN (1,2)   AND EVENTTYPE
-          = 'INCIDENT'   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTOUTCOME LIKE '%INJURY
-          / ILLNESS%'   THEN L_NPS_NPSELOCCURRENCEVIEW.INJURYCLASSIFICATION   ELSE
+        transform: --SAME CODING AS USED FOR INJURY COUNTS  CASE   --REPORT "Type"
+          = EVENT   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID"" = 12   --"Status"
+          IN NEW OR ACCEPTED   AND "L_NPS_NPSELOCCURRENCEVIEW".""StatusID"" IN (1,2)   AND
+          "EventType" = 'INCIDENT'   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventOutcome""
+          LIKE '%INJURY / ILLNESS%'   THEN "L_NPS_NPSELOCCURRENCEVIEW".""InjuryClassification""   ELSE
           'NOT APPLICABLE'  END
     - appliedColumnTests: {}
       columnReference:
@@ -520,8 +523,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: --REPORT TYPE = EVENT AND STATUS IN NEW OR ACCEPTED  CASE   WHEN
-          L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID = 12 AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID
+        transform: --REPORT "Type" = EVENT AND "Status" IN NEW OR ACCEPTED  CASE   WHEN
+          "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID"" = 12 AND "L_NPS_NPSELOCCURRENCEVIEW".""StatusID""
           IN (1,2)   THEN 1   ELSE 0  END
     - appliedColumnTests: {}
       columnReference:
@@ -535,7 +538,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: --STATUS = NEW  CASE   WHEN L_NPS_NPSELOCCURRENCEVIEW.STATUSID
+        transform: --"Status" = NEW  CASE   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""StatusID""
           = 1   THEN 1   ELSE 0  END
     - appliedColumnTests: {}
       columnReference:
@@ -549,8 +552,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: --REPORT TYPE = EVENT AND STATUS = NEW  CASE   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID
-          = 12 AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID = 1   THEN 1   ELSE 0  END
+        transform: --REPORT "Type" = EVENT AND "Status" = NEW  CASE   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID""
+          = 12 AND "L_NPS_NPSELOCCURRENCEVIEW".""StatusID"" = 1   THEN 1   ELSE 0  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4f92444a-d975-53f0-b808-9f9dab9766ee
@@ -564,7 +567,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: --STATUS = ACCEPTED  CASE   WHEN L_NPS_NPSELOCCURRENCEVIEW.STATUSID
+        transform: --"Status" = ACCEPTED  CASE   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""StatusID""
           = 2   THEN 1   ELSE 0  END
     - appliedColumnTests: {}
       columnReference:
@@ -578,8 +581,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: --REPORT TYPE = EVENT AND STATUS = ACCEPTED  CASE   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID
-          = 12 AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID = 2   THEN 1   ELSE 0  END
+        transform: --REPORT "Type" = EVENT AND "Status" = ACCEPTED  CASE   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID""
+          = 12 AND "L_NPS_NPSELOCCURRENCEVIEW".""StatusID"" = 2   THEN 1   ELSE 0  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 81613b25-baee-59d0-843c-dc7e6879dd14
@@ -593,7 +596,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: --STATUS = REJECTED  CASE   WHEN L_NPS_NPSELOCCURRENCEVIEW.STATUSID
+        transform: --"Status" = REJECTED  CASE   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""StatusID""
           = 3   THEN 1   ELSE 0  END
     - appliedColumnTests: {}
       columnReference:
@@ -607,8 +610,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: --REPORT TYPE = EVENT AND STATUS = REJECTED  CASE   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID
-          = 12 AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID = 3   THEN 1   ELSE 0  END
+        transform: --REPORT "Type" = EVENT AND "Status" = REJECTED  CASE   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID""
+          = 12 AND "L_NPS_NPSELOCCURRENCEVIEW".""StatusID"" = 3   THEN 1   ELSE 0  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0aa9562a-2e54-5ad5-9ab4-4d5b0b2a8b73
@@ -620,13 +623,14 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE   --REPORT TYPE = EVENT   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID
-          = 12   --STATUS IN NEW OR ACCEPTED   AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID
-          IN (1,2)   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTTYPE = 'INCIDENT'   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTOUTCOME
-          LIKE '%INJURY / ILLNESS%'   -- IN THE SAD INSTANCE WHERE WE HAVE A FATALITY   --
-          I'M ASSUMMING THEY WOULD WANT THIS COUNTER RESET   AND INJURYCLASSIFICATION
-          IN ('FATALITY','LTI')   THEN DATEDIFF(DAY,L_NPS_NPSELOCCURRENCEVIEW.REPORTEDDATE,
-          CURRENT_TIMESTAMP())   ELSE NULL  END
+        transform: CASE   --REPORT "Type" = EVENT   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID""
+          = 12   --"Status" IN NEW OR ACCEPTED   AND "L_NPS_NPSELOCCURRENCEVIEW".""StatusID""
+          IN (1,2)   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventType"" = 'INCIDENT'   AND
+          "L_NPS_NPSELOCCURRENCEVIEW".""EventOutcome"" LIKE '%INJURY / ILLNESS%'   --
+          IN THE SAD "Instance" WHERE WE HAVE A "Fatality"   -- I'M ASSUMMING THEY
+          WOULD WANT THIS COUNTER RESET   AND INJURYCLASSIFICATION IN ('"Fatality"','LTI')   THEN
+          DATEDIFF(DAY,"L_NPS_NPSELOCCURRENCEVIEW".""ReportedDate"", CURRENT_TIMESTAMP())   ELSE
+          NULL  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 11b8d3dc-0bde-572f-b5be-b86c90ef5eaf
@@ -638,12 +642,12 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE   --REPORT TYPE = EVENT   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID
-          = 12   --STATUS IN NEW OR ACCEPTED   AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID
-          IN (1,2)   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTTYPE = 'INCIDENT'   AND COALESCE(NOTINVOLVINGNORTHPOWER,'FALSE')
-          = 'FALSE'   AND COALESCE(NONWORKRELATED,'FALSE') = 'FALSE'   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTOUTCOME
-          LIKE '%INJURY / ILLNESS%'   AND INJURYCLASSIFICATION = 'FATALITY'   THEN
-          1   ELSE 0  END
+        transform: CASE   --REPORT "Type" = EVENT   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID""
+          = 12   --"Status" IN NEW OR ACCEPTED   AND "L_NPS_NPSELOCCURRENCEVIEW".""StatusID""
+          IN (1,2)   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventType"" = 'INCIDENT'   AND
+          COALESCE("NotInvolvingNorthpower",'FALSE') = 'FALSE'   AND COALESCE("NonWorkRelated",'FALSE')
+          = 'FALSE'   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventOutcome"" LIKE '%INJURY
+          / ILLNESS%'   AND "InjuryClassification" = 'FATALITY'   THEN 1   ELSE 0  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a8221230-5aa4-57a1-af2e-39efd92a66b8
@@ -655,12 +659,12 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE   --REPORT TYPE = EVENT   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID
-          = 12   --STATUS IN NEW OR ACCEPTED   AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID
-          IN (1,2)   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTTYPE = 'INCIDENT'   AND COALESCE(NOTINVOLVINGNORTHPOWER,'FALSE')
-          = 'FALSE'   AND COALESCE(NONWORKRELATED,'FALSE') = 'FALSE'   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTOUTCOME
-          LIKE '%INJURY / ILLNESS%'   AND INJURYCLASSIFICATION = 'LTI'   THEN 1   ELSE
-          0  END
+        transform: CASE   --REPORT "Type" = EVENT   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID""
+          = 12   --"Status" IN NEW OR ACCEPTED   AND "L_NPS_NPSELOCCURRENCEVIEW".""StatusID""
+          IN (1,2)   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventType"" = 'INCIDENT'   AND
+          COALESCE("NotInvolvingNorthpower",'FALSE') = 'FALSE'   AND COALESCE("NonWorkRelated",'FALSE')
+          = 'FALSE'   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventOutcome"" LIKE '%INJURY
+          / ILLNESS%'   AND "InjuryClassification" = 'LTI'   THEN 1   ELSE 0  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1ccc1823-c66b-5a20-8fa3-fcf65b11d5d7
@@ -672,12 +676,12 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE   --REPORT TYPE = EVENT   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID
-          = 12   --STATUS IN NEW OR ACCEPTED   AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID
-          IN (1,2)   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTTYPE = 'INCIDENT'   AND COALESCE(NOTINVOLVINGNORTHPOWER,'FALSE')
-          = 'FALSE'   AND COALESCE(NONWORKRELATED,'FALSE') = 'FALSE'   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTOUTCOME
-          LIKE '%INJURY / ILLNESS%'   AND INJURYCLASSIFICATION = 'MTI'   THEN 1   ELSE
-          0  END
+        transform: CASE   --REPORT "Type" = EVENT   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID""
+          = 12   --"Status" IN NEW OR ACCEPTED   AND "L_NPS_NPSELOCCURRENCEVIEW".""StatusID""
+          IN (1,2)   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventType"" = 'INCIDENT'   AND
+          COALESCE("NotInvolvingNorthpower",'FALSE') = 'FALSE'   AND COALESCE("NonWorkRelated",'FALSE')
+          = 'FALSE'   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventOutcome"" LIKE '%INJURY
+          / ILLNESS%'   AND "InjuryClassification" = 'MTI'   THEN 1   ELSE 0  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9a6756ac-9fb3-5663-9908-c399a95fe5b0
@@ -689,12 +693,12 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE   --REPORT TYPE = EVENT   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID
-          = 12   --STATUS IN NEW OR ACCEPTED   AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID
-          IN (1,2)   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTTYPE = 'INCIDENT'   AND COALESCE(NOTINVOLVINGNORTHPOWER,'FALSE')
-          = 'FALSE'   AND COALESCE(NONWORKRELATED,'FALSE') = 'FALSE'   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTOUTCOME
-          LIKE '%INJURY / ILLNESS%'   AND INJURYCLASSIFICATION = 'FAI'   THEN 1   ELSE
-          0  END
+        transform: CASE   --REPORT "Type" = EVENT   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID""
+          = 12   --"Status" IN NEW OR ACCEPTED   AND "L_NPS_NPSELOCCURRENCEVIEW".""StatusID""
+          IN (1,2)   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventType"" = 'INCIDENT'   AND
+          COALESCE("NotInvolvingNorthpower",'FALSE') = 'FALSE'   AND COALESCE("NonWorkRelated",'FALSE')
+          = 'FALSE'   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventOutcome"" LIKE '%INJURY
+          / ILLNESS%'   AND "InjuryClassification" = 'FAI'   THEN 1   ELSE 0  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ef68a17b-1429-5923-a21b-20458ee20222
@@ -706,12 +710,12 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE   --REPORT TYPE = EVENT   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID
-          = 12   --STATUS IN NEW OR ACCEPTED   AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID
-          IN (1,2)   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTTYPE = 'INCIDENT'   AND COALESCE(NOTINVOLVINGNORTHPOWER,'FALSE')
-          = 'FALSE'   AND COALESCE(NONWORKRELATED,'FALSE') = 'FALSE'   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTOUTCOME
-          LIKE '%INJURY / ILLNESS%'   AND INJURYCLASSIFICATION = 'RWI'   THEN 1   ELSE
-          0  END
+        transform: CASE   --REPORT "Type" = EVENT   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID""
+          = 12   --"Status" IN NEW OR ACCEPTED   AND "L_NPS_NPSELOCCURRENCEVIEW".""StatusID""
+          IN (1,2)   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventType"" = 'INCIDENT'   AND
+          COALESCE("NotInvolvingNorthpower",'FALSE') = 'FALSE'   AND COALESCE("NonWorkRelated",'FALSE')
+          = 'FALSE'   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventOutcome"" LIKE '%INJURY
+          / ILLNESS%'   AND "InjuryClassification" = 'RWI'   THEN 1   ELSE 0  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 80448b53-dbdb-53ea-9a3f-f0e4f40a2992
@@ -723,11 +727,12 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE   --REPORT TYPE = EVENT   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID
-          = 12   --STATUS IN NEW OR ACCEPTED   AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID
-          IN (1,2)   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTTYPE = 'INCIDENT'   AND COALESCE(NOTINVOLVINGNORTHPOWER,'FALSE')
-          = 'FALSE'   AND COALESCE(NONWORKRELATED,'FALSE') = 'FALSE'   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTOUTCOME
-          LIKE '%INJURY / ILLNESS%'   AND INJURYCLASSIFICATION NOT IN ('FATALITY','LTI','MTI','FAI','RWI','NO
+        transform: CASE   --REPORT "Type" = EVENT   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID""
+          = 12   --"Status" IN NEW OR ACCEPTED   AND "L_NPS_NPSELOCCURRENCEVIEW".""StatusID""
+          IN (1,2)   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventType"" = 'INCIDENT'   AND
+          COALESCE("NotInvolvingNorthpower",'FALSE') = 'FALSE'   AND COALESCE("NonWorkRelated",'FALSE')
+          = 'FALSE'   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventOutcome"" LIKE '%INJURY
+          / ILLNESS%'   AND "InjuryClassification" NOT IN ('FATALITY','LTI','MTI','FAI','RWI','NO
           INJURY')   THEN 1   ELSE 0  END
     - appliedColumnTests: {}
       columnReference:
@@ -740,9 +745,9 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE   --REPORT TYPE = EVENT   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID
-          = 12   --STATUS IN NEW OR ACCEPTED   AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID
-          IN (1,2)   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTTYPE = 'NEAR MISS'   THEN
+        transform: CASE   --REPORT "Type" = EVENT   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID""
+          = 12   --"Status" IN NEW OR ACCEPTED   AND "L_NPS_NPSELOCCURRENCEVIEW".""StatusID""
+          IN (1,2)   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventType"" = 'NEAR MISS'   THEN
           1   ELSE 0  END
     - appliedColumnTests: {}
       columnReference:
@@ -756,11 +761,11 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE   --REPORT TYPE = EVENT   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID
-          = 12   --STATUS IN NEW OR ACCEPTED   AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID
-          IN (1,2)   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTTYPE IN ('NEAR MISS','INCIDENT')   AND
-          COALESCE(NOTINVOLVINGNORTHPOWER,'FALSE') = 'FALSE'   AND COALESCE(NONWORKRELATED,'FALSE')
-          = 'FALSE'   AND EVENTPRIORITY = 3 --HIGH / HPE   THEN 1   ELSE 0  END
+        transform: CASE   --REPORT "Type" = EVENT   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID""
+          = 12   --"Status" IN NEW OR ACCEPTED   AND "L_NPS_NPSELOCCURRENCEVIEW".""StatusID""
+          IN (1,2)   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventType"" IN ('NEAR MISS','INCIDENT')   AND
+          COALESCE("NotInvolvingNorthpower",'FALSE') = 'FALSE'   AND COALESCE("NonWorkRelated",'FALSE')
+          = 'FALSE'   AND "EventPriority" = 3 --HIGH / HPE   THEN 1   ELSE 0  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f318a98b-aec7-5a6d-85d9-0c23e1202947
@@ -774,14 +779,15 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'CASE   --REPORT TYPE = EVENT   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID
-          = 12   --STATUS IN NEW OR ACCEPTED   AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID
-          IN (1,2)   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTTYPE IN (''NEAR MISS'',''INCIDENT'')   AND
-          COALESCE(NOTINVOLVINGNORTHPOWER,''FALSE'') = ''FALSE''   AND COALESCE(NONWORKRELATED,''FALSE'')
-          = ''FALSE''   AND EVENTPRIORITY = 3 --HIGH / HPE      -- COUNT ONLY IF BOTH:      --   1.
-          IT''S PUBLIC SAFETY (RISKCATEGORY = 69)      --   2. REPEAT EVENT IS ASSET
-          FAILURE-RELATED      AND RISKCATEGORY = 69      AND D_REPEATEVENTS.REPEATEVENTS
-          LIKE ''ASSET FAILURE%''   THEN 1   ELSE 0  END'
+        transform: 'CASE   --REPORT "Type" = EVENT   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID""
+          = 12   --"Status" IN NEW OR ACCEPTED   AND "L_NPS_NPSELOCCURRENCEVIEW".""StatusID""
+          IN (1,2)   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventType"" IN (''NEAR MISS'',''INCIDENT'')   AND
+          COALESCE("NotInvolvingNorthpower",''FALSE'') = ''FALSE''   AND COALESCE("NonWorkRelated",''FALSE'')
+          = ''FALSE''   AND "EventPriority" = 3 --HIGH / HPE      -- COUNT ONLY IF
+          BOTH:      --   1. IT''S PUBLIC SAFETY (RISKCATEGORY = 69)      --   2.
+          REPEAT EVENT IS ASSET FAILURE-RELATED      AND RISKCATEGORY = 69      AND
+          "D_REPEATEVENTS"."REPEATEVENTS" LIKE ''"Asset" FAILURE%''   THEN 1   ELSE
+          0  END'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 180c568d-b06e-5cad-aff7-8a6f12833e37
@@ -795,16 +801,16 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'CASE   --REPORT TYPE = EVENT   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTTYPEID
-          = 12   --STATUS IN NEW OR ACCEPTED   AND L_NPS_NPSELOCCURRENCEVIEW.STATUSID
-          IN (1,2)   AND L_NPS_NPSELOCCURRENCEVIEW.EVENTTYPE IN (''NEAR MISS'',''INCIDENT'')   AND
-          COALESCE(NOTINVOLVINGNORTHPOWER,''FALSE'') = ''FALSE''   AND COALESCE(NONWORKRELATED,''FALSE'')
-          = ''FALSE''   AND EVENTPRIORITY = 3 --HIGH / HPE      -- INCLUDE THE RECORD
-          UNLESS BOTH CONDITIONS ARE TRUE:      --   1. IT''S NOT PUBLIC SAFETY (RISKCATEGORY
-          69)      --   2. THE REPEAT EVENT IS NOT ASSET FAILURE-RELATED      -- SO
-          WE KEEP THE RECORD IF EITHER:      --   A) IT''S PUBLIC SAFETY      --   B)
-          THE REPEAT EVENT IS ASSET FAILURE-RELATED      AND (        RISKCATEGORY
-          <> 69 OR        D_REPEATEVENTS.REPEATEVENTS NOT LIKE ''ASSET FAILURE%''      )   THEN
+        transform: 'CASE   --REPORT "Type" = EVENT   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportTypeID""
+          = 12   --"Status" IN NEW OR ACCEPTED   AND "L_NPS_NPSELOCCURRENCEVIEW".""StatusID""
+          IN (1,2)   AND "L_NPS_NPSELOCCURRENCEVIEW".""EventType"" IN (''NEAR MISS'',''INCIDENT'')   AND
+          COALESCE("NotInvolvingNorthpower",''FALSE'') = ''FALSE''   AND COALESCE("NonWorkRelated",''FALSE'')
+          = ''FALSE''   AND "EventPriority" = 3 --HIGH / HPE      -- "include" THE
+          RECORD UNLESS BOTH CONDITIONS ARE TRUE:      --   1. IT''S NOT PUBLIC SAFETY
+          (RISKCATEGORY 69)      --   2. THE REPEAT EVENT IS NOT ASSET FAILURE-RELATED      --
+          SO WE KEEP THE RECORD IF EITHER:      --   A) IT''S PUBLIC SAFETY      --   B)
+          THE REPEAT EVENT IS "Asset" FAILURE-RELATED      AND (        "RiskCategory"
+          <> 69 OR        "D_REPEATEVENTS".""RepeatEvents"" NOT LIKE ''ASSET FAILURE%''      )   THEN
           1   ELSE 0  END'
     - appliedColumnTests: {}
       columnReference:
@@ -863,8 +869,9 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN I_NPS_OCCURRENCEINCIDENTRISKASSESSMENT.ID IS NULL THEN
-          0   ELSE I_NPS_OCCURRENCEINCIDENTRISKASSESSMENT.CONSEQUENCECODE END
+        transform: CASE WHEN "I_NPS_OCCURRENCEINCIDENTRISKASSESSMENT"."ID" IS NULL
+          THEN 0   ELSE "I_NPS_OCCURRENCEINCIDENTRISKASSESSMENT".""ConsequenceCode""
+          END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 01032bf9-f99b-5494-9cc3-bbebe11b0b5f
@@ -876,8 +883,9 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN I_NPS_OCCURRENCEINCIDENTRISKASSESSMENT.ID IS NULL THEN
-          0   ELSE I_NPS_OCCURRENCEINCIDENTRISKASSESSMENT.LIKELIHOODCODE END
+        transform: CASE WHEN "I_NPS_OCCURRENCEINCIDENTRISKASSESSMENT"."ID" IS NULL
+          THEN 0   ELSE "I_NPS_OCCURRENCEINCIDENTRISKASSESSMENT".""LikelihoodCode""
+          END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f0413824-920b-5bc8-810d-df91f5bb259c
@@ -890,12 +898,12 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE   WHEN L_NPS_NPSELOCCURRENCEVIEW.REPORTEDDATE >= L_NPS_NPSELOCCURRENCEVIEW.RECORDEDDATE  THEN
-          0 ELSE   DATEDIFF(HOUR,L_NPS_NPSELOCCURRENCEVIEW.REPORTEDDATE, L_NPS_NPSELOCCURRENCEVIEW.RECORDEDDATE)   +
+        transform: CASE   WHEN "L_NPS_NPSELOCCURRENCEVIEW".""ReportedDate"" >= "L_NPS_NPSELOCCURRENCEVIEW".""RecordedDate""  THEN
+          0 ELSE   DATEDIFF(HOUR,"L_NPS_NPSELOCCURRENCEVIEW".""ReportedDate"", "L_NPS_NPSELOCCURRENCEVIEW".""RecordedDate"")   +
           CASE WHEN   --IF THE EVENT HAPPENED EARLIER IN THE HOUR THAN IT WAS ENTERED
-          INTO THE SYSTEM   -- ENSURE THE HOURS ARE ROUNDED UP   DATEDIFF(MINUTE,
-          DATEADD(HOUR, DATEDIFF(HOUR, RECORDEDDATE, REPORTEDDATE), RECORDEDDATE),
-          REPORTEDDATE) < 0   THEN 1 ELSE 0 END    END
+          INTO THE SYSTEM   -- ENSURE THE "Hours" ARE ROUNDED UP   DATEDIFF(MINUTE,
+          DATEADD(HOUR, DATEDIFF(HOUR, "RecordedDate", "ReportedDate"), "RecordedDate"),
+          "ReportedDate") < 0   THEN 1 ELSE 0 END    END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5f4e5dbc-e519-5ec6-92f4-f4fa567b2c63
@@ -964,7 +972,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(L_NPS_NPSELOCCURRENCEVIEW.CRITICALCONTROLITEM,-1)
+        transform: COALESCE("L_NPS_NPSELOCCURRENCEVIEW".""CriticalControlItem"",-1)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 86f85673-503d-5bbf-bc2f-78e37b3acd23
@@ -1044,7 +1052,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(L_NPS_NPSELOCCURRENCEVIEW.REVIEWED,'UNKNOWN')
+        transform: COALESCE("L_NPS_NPSELOCCURRENCEVIEW".""Reviewed"",'UNKNOWN')
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9c8fb7b1-8107-5a80-93d1-66baadc83f82
@@ -1099,7 +1107,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(L_NPS_NPSELOCCURRENCEVIEW.FORFOLLOWUP,'UNKNOWN')
+        transform: COALESCE("L_NPS_NPSELOCCURRENCEVIEW".""ForFollowup"",'UNKNOWN')
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f37aef1c-9e2f-58e2-a66e-933c916f239a

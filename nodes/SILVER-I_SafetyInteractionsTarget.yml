@@ -45,13 +45,13 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MIN(CASE   -- IF THE TABLE DOES NOT SPECIFY A COST CENTRE, USE
-          THE EMPLOYEE'S BUSINESS UNIT   WHEN L_SHP_LSINOMINEE.COSTCENTRE IS NULL
-          THEN D_EMPLOYEE.BUSINESSUNITCODE     -- NETWORK AND CORPORATE BUSINESS UNITS
-          ARE THE SAME AS THE COST CENTRE  WHEN LEFT(L_SHP_LSINOMINEE.COSTCENTRE,1)
-          IN ('A','B') THEN L_SHP_LSINOMINEE.COSTCENTRE     -- CONTRACTING BUSINESS
+        transform: MIN(CASE   -- IF THE TABLE DOES NOT SPECIFY A "Cost" CENTRE, USE
+          THE EMPLOYEE'S BUSINESS UNIT   WHEN "L_SHP_LSINOMINEE"."COSTCENTRE" IS NULL
+          THEN "D_EMPLOYEE"."BUSINESSUNITCODE"     -- NETWORK AND CORPORATE BUSINESS
+          UNITS ARE THE SAME AS THE COST CENTRE  WHEN LEFT("L_SHP_LSINOMINEE"."COSTCENTRE",1)
+          IN ('A','B') THEN "L_SHP_LSINOMINEE"."COSTCENTRE"     -- CONTRACTING BUSINESS
           UNITS ARE 6 DIGITS, STARTING WITH THE COST CENTRE CODE, SO WE WILL ASSIGN
-          THIS DATA TO ONE   ELSE L_SHP_LSINOMINEE.COSTCENTRE + '905'  END)
+          THIS DATA TO ONE   ELSE "L_SHP_LSINOMINEE"."COSTCENTRE" + '905'  END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1e911738-b28c-5314-a52c-4c632c1e6a06
@@ -63,7 +63,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: EOMONTH(CALENDARDATE)
+        transform: EOMONTH("CalendarDate")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e31d3302-f45b-58ac-982f-0e38bd984226
@@ -88,7 +88,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MIN(D_EMPLOYEE.COMPUTERLOGIN)
+        transform: MIN("D_EMPLOYEE".""ComputerLogin"")
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 82f6290f-dded-56f1-b18d-cb18ffe4b584
@@ -101,7 +101,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUM(CAST(L_SHP_LSINOMINEE.TARGET AS INTEGER))
+        transform: SUM(CAST("L_SHP_LSINOMINEE".""Target"" AS INTEGER))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b83d85fd-710f-5a23-9356-3aa7569a36be
@@ -160,7 +160,7 @@ operation:
         joinCondition: |-
           FROM {{ ref('GOLD', 'D_Employee') }} "D_Employee"
           INNER JOIN {{ ref('BRONZE', 'D_Date') }} "D_Date"
-            ON CALENDARDATE = CONVERT(DATE,GETDATE())
+            ON CALENDARDATE = CAST(CURRENT_TIMESTAMP( AS DATE))
           INNER JOIN {{ ref('BRONZE', 'L_SHP_LSINominee') }} "L_SHP_LSINominee"
             ON USERPRINCIPALNAME = NOMINEE
           WHERE D_EMPLOYEE.TERMINATED = 0  AND ISDELETED = 'FALSE'  GROUP BY     D_EMPLOYEE.EMPLOYEECODE,  EOMONTH(CALENDARDATE) ,  D_DATE.PERIODNUMBER,  L_SHP_LSINOMINEE.INTERATIONTYPE

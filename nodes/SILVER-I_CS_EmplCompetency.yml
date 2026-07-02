@@ -27,7 +27,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: L_CS_USERCOMPETENCY.USERID
+        transform: '"L_CS_USERCOMPETENCY".""UserID""'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 648f70ba-a36d-5bf2-be14-7d8a54380e40
@@ -40,7 +40,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: L_CS_USERCOMPETENCY.CERTIFICATIONTITLE
+        transform: '"L_CS_USERCOMPETENCY".""CertificationTitle""'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 971af0e3-b31f-5c9d-8206-5d4d442c835c
@@ -65,10 +65,10 @@ operation:
       sourceColumnReferences:
       - columnReferences: []
         transform: --WE'RE NOT INTERESTED IN THE TIME OF CERTIFICATION  CASE   WHEN
-          L_CS_USERCOMPETENCY.CERTIFICATIONPERIODFIRSTCOMPLETIONDATE <> ''   THEN    CAST(LEFT(CERTIFICATIONPERIODFIRSTCOMPLETIONDATE,10
-          AS DATETIME),103)   WHEN L_CS_USERCOMPETENCY.CERTIFICATIONPERIODDUEDATE
-          <> ''   THEN    CAST(LEFT(L_CS_USERCOMPETENCY.CERTIFICATIONPERIODDUEDATE,10
-          AS DATETIME),103)   ELSE --USE THE EXPIRY DATE IS WE HAVE NOTHING ELSE    CAST(LEFT(L_CS_USERCOMPETENCY.CERTIFICATIONPERIODEXPIRYDATE,10
+          "L_CS_USERCOMPETENCY"."CERTIFICATIONPERIODFIRSTCOMPLETIONDATE" <> ''   THEN    CAST(LEFT(CERTIFICATIONPERIODFIRSTCOMPLETIONDATE
+          AS DATETIME),103)   WHEN "L_CS_USERCOMPETENCY"."CERTIFICATIONPERIODDUEDATE"
+          <> ''   THEN    CAST(LEFT("L_CS_USERCOMPETENCY".""CertificationPeriodDueDate""
+          AS DATETIME),103)   ELSE --USE THE EXPIRY DATE IS WE HAVE NOTHING ELSE    CAST(LEFT("L_CS_USERCOMPETENCY".""CertificationPeriodExpiryDate""
           AS DATETIME),103)  END
     - appliedColumnTests: {}
       columnReference:
@@ -82,16 +82,17 @@ operation:
       sourceColumnReferences:
       - columnReferences: []
         transform: --WE'RE NOT INTERESTED IN THE TIME OF CERTIFICATION  CASE WHEN
-          L_CS_USERCOMPETENCY.CERTIFICATIONPERIODEXPIRYDATE <> ''  THEN   CAST(LEFT(L_CS_USERCOMPETENCY.CERTIFICATIONPERIODEXPIRYDATE,10
+          "L_CS_USERCOMPETENCY"."CERTIFICATIONPERIODEXPIRYDATE" <> ''  THEN   CAST(LEFT("L_CS_USERCOMPETENCY"."CERTIFICATIONPERIODEXPIRYDATE"
           AS DATETIME),103)  ELSE  --SET THE EXPIRY DATE TO THE DATE THAT IT SHOULD
           HAVE BEEN REQUIRED  --LATER WE SET ANYTHING WITHIN 90 DAYS TO BE EXCLUDED
           FROM REPORTING  -- AS IT CAN TAKE THIS LONG TO GET THE PRACTICAL ASSESSMENTS
           COMPLETED  CASE   --WHEN A PL OR CRC COMPETENCY, USE THEIR START DATE UNLESS
-          THEY HAVE BEEN HERE FROM THE START OF THE ROLL OUT   WHEN D_COMPETENCY.COMPETENCYGROUP
+          THEY HAVE BEEN HERE FROM THE START OF THE ROLL OUT   WHEN "D_COMPETENCY"."COMPETENCYGROUP"
           IN ('PRACTICING LICENSE','LIVE ELECTRICITY COMPETENCIES')   THEN CASE WHEN
-          D_EMPLOYEE.STARTDATE < '2020-04-01' THEN '2020-04-01' ELSE STARTDATE END   --WHEN
-          ANOTHER COMPETENCY, THEN USE THE DATE ASSIGNED IN THE TRAINING MODULE   ELSE
-          CAST(LEFT(L_CS_USERCOMPETENCY.CERTIFICATIONPERIODDUEDATE,10 AS DATETIME),103)   END  END
+          "D_EMPLOYEE"."STARTDATE" < '2020-04-01' THEN '2020-04-01' ELSE "StartDate"
+          END   --WHEN ANOTHER "Competency", THEN USE THE DATE ASSIGNED IN THE "Training"
+          "Module"   ELSE CAST(LEFT("L_CS_USERCOMPETENCY".""CertificationPeriodDueDate""
+          AS DATETIME),103)   END  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6c07c7a6-1689-5969-9087-e217b4d72838
@@ -152,7 +153,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CAST(LEFT(CERTIFICATIONPERIODDUEDATE,10 AS DATETIME),103)
+        transform: CAST(LEFT("CertificationPeriodDueDate" AS DATETIME))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 86f7d0ab-4e5e-5a7f-ae19-cf93ee08ae83
@@ -164,7 +165,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CAST(LEFT(CERTIFICATIONPERIODFIRSTCOMPLETIONDATE,10 AS DATETIME),103)
+        transform: CAST(LEFT("CertificationPeriodFirstCompletionDate" AS DATETIME))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: eaa92511-78d6-56b0-a82d-166f15e1ca65
@@ -176,7 +177,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CAST(LEFT(CERTIFICATIONPERIODEXPIRYDATE,10 AS DATETIME),103)
+        transform: CAST(LEFT("CertificationPeriodExpiryDate" AS DATETIME))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3f5c2cf6-12ad-5910-8e3e-98c615f928da
@@ -201,8 +202,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN L_CS_USERCOMPETENCY.CERTIFICATIONPERIODEXPIRYDATE = ''   THEN
-          'TRAINING'   ELSE 'CERTIFICATION'  END
+        transform: CASE WHEN "L_CS_USERCOMPETENCY".""CertificationPeriodExpiryDate""
+          = ''   THEN 'TRAINING'   ELSE 'CERTIFICATION'  END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c35052d5-ed18-5e97-9a0f-545b8821d3ee
@@ -216,8 +217,9 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ROW_NUMBER () OVER (PARTITION BY L_CS_USERCOMPETENCY.USERID, L_CS_USERCOMPETENCY.CERTIFICATIONTITLE
-          ORDER BY L_CS_USERCOMPETENCY.CERTIFICATIONPERIODDUEDATE DESC)
+        transform: ROW_NUMBER () OVER (PARTITION BY "L_CS_USERCOMPETENCY".""UserID"",
+          "L_CS_USERCOMPETENCY".""CertificationTitle"" ORDER BY "L_CS_USERCOMPETENCY".""CertificationPeriodDueDate""
+          DESC)
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
