@@ -1,0 +1,645 @@
+fileVersion: 1
+id: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+name: FCT_JOBDETAILS
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: "Fact: JobDetails\n\nDAX Measures (for Semantic View):\n  - Job Count:\
+    \   COUNTROWS(JobDetails)\n  - Sales Job Count:  CALCULATE([Job Count], USERELATIONSHIP('Date'[Date],\
+    \ JobDetails[CreatedDate]))\n  - Sales Head Count:  COUNTROWS(FILTER(VALUES(Jobs[SalesmanName]),\
+    \ [Sales Job Count]>0))\n  - Sales Tech Head Count:  [Tech Head Count]\n  - CSR\
+    \ Job Count:  CALCULATE([Job Count], Jobs[JobStatus] IN {\"Void\", \"Quote\",\
+    \ \"Work Order\", \"Invoice\"}, USERELATIONSHIP('Date'[Date], Job\n  - CSR Head\
+    \ Count:  COUNTROWS(FILTER(VALUES(Jobs[CSRName]), [CSR Job Count]>0))\n  - CSR\
+    \ Tech Head Count:  [Tech Head Count]\n  - Dispatcher Job Count:  CALCULATE([Job\
+    \ Count], Jobs[JobStatus] IN {\"Work Order\", \"Invoice\"}, USERELATIONSHIP('Date'[Date],\
+    \ JobDetails[WorkOrder\n  - Dispatcher Head Count:  COUNTROWS(FILTER(VALUES(Jobs[DispatcherName]),\
+    \ [Dispatcher Job Count]>0))\n  - Dispatcher Tech Head Count:  [Tech Head Count]\n\
+    \  - Biller Job Count:  CALCULATE([Job Count], Jobs[JobStatus] IN {\"Invoice\"\
+    }, USERELATIONSHIP('Date'[Date], JobDetails[InvoiceDate]))\n  - Biller Head Count:\
+    \  COUNTROWS(FILTER(VALUES(Jobs[BillerName]), [Biller Job Count]>0))\n  - Biller\
+    \ Tech Head Count:  [Tech Head Count]\n  - Tech/Sales Jobs %:  DIVIDE([Tech Job\
+    \ Count], [Sales Job Count])\n  - Tech/Dispatcher Jobs %:  DIVIDE([Tech Job Count],\
+    \ [Dispatcher Job Count])\n  - CSR/Sales Jobs %:  DIVIDE([CSR Job Count] , [Sales\
+    \ Job Count])\n  - Dispatcher/CSR Jobs %:  DIVIDE([Dispatcher Job Count], [CSR\
+    \ Job Count])\n  - Biller/Tech Jobs %:  DIVIDE([Biller Job Count], [Tech Job Count])\n\
+    \  - Biller/Sales Jobs %:  DIVIDE([Biller Job Count], [Sales Job Count])\n  -\
+    \ Average Sales Jobs:  DIVIDE([Sales Job Count], [Sales Head Count])\n  - Average\
+    \ Sales Jobs per Tech:  DIVIDE([Sales Job Count], [Sales Tech Head Count])\n \
+    \ - Average CSR Jobs:  DIVIDE([CSR Job Count], [CSR Head Count])\n  - Average\
+    \ CSR Jobs per Tech:  DIVIDE([CSR Job Count], [CSR Tech Head Count])\n  - Average\
+    \ Biller Jobs:  DIVIDE([Biller Job Count], [Biller Head Count])\n  - Average Biller\
+    \ Jobs per Tech:  DIVIDE([Biller Job Count], [Biller Tech Head Count])\n  - Average\
+    \ Daily Sales Jobs:  DIVIDE([Average Sales Jobs], CALCULATE([Working Days]))\n\
+    \  - Average Daily Sales Jobs per Tech:  DIVIDE([Average Sales Jobs per Tech],\
+    \ CALCULATE([Working Days]))\n  - Average Daily CSR Jobs:  DIVIDE([Average CSR\
+    \ Jobs], CALCULATE([Working Days]))\n  - Average Daily CSR Jobs per Tech:  DIVIDE([Average\
+    \ CSR Jobs per Tech], CALCULATE([Working Days]))\n  - Average Dispatcher Jobs:\
+    \  DIVIDE([Dispatcher Job Count], [Dispatcher Head Count])\n  - Average Dispatcher\
+    \ Jobs per Tech:  DIVIDE([Dispatcher Job Count], [Dispatcher Tech Head Count])\n\
+    \  - Average Daily Dispatcher Jobs:  DIVIDE([Average Dispatcher Jobs], CALCULATE([Working\
+    \ Days]))\n  - Average Daily Dispatcher Jobs per Tech:  DIVIDE([Average Dispatcher\
+    \ Jobs per Tech], CALCULATE([Working Days]))\n  - Average Daily Biller Jobs: \
+    \ DIVIDE([Average Biller Jobs], CALCULATE([Working Days]))\n  - Average Daily\
+    \ Biller Jobs per Tech:  DIVIDE([Average Biller Jobs per Tech], CALCULATE([Working\
+    \ Days]))\n  - Total WO To TechEnd CT:  CALCULATE(AVERAGE(JobDetails[WOEnded]),JobDetails[Woended]>1&&JobDetails[Woended]<300)\n\
+    \  - Total WO To Invoiced CT:  CALCULATE(AVERAGE(JobDetails[WOInvoiced]),JobDetails[Woinvoiced]>1&&JobDetails[Woinvoiced]<300)\n\
+    \  - Total Creation To Appt CT: CALCULATE( AVERAGE(JobDetails[CreatedSched]),JobDetails[Createdsched]>1&&JobDetails[Createdsched]<300)\n\
+    \  - Total Appt To WO CT:  CALCULATE(AVERAGE(JobDetails[SchedWO]),JobDetails[Schedwo]>1&&JobDetails[Schedwo]<300)\
+    \ \n  - Total TechEnd to Invoice CT:  CALCULATE(AVERAGE(JobDetails[EndedInvoiced]),JobDetails[Endedinvoiced]>1&&JobDetails[Endedinvoiced]<300)\n\
+    \  - Total Cycle Time:  CALCULATE(AVERAGE(JobDetails[TotalCycleTime]),JobDetails[Totalcycletime]>0)\n\
+    \  - Creation to WO Cycle Time: CALCULATE( AVERAGE(JobDetails[CreatedWO]),JobDetails[CreatedWO]>0)\n\
+    \  - WO to Appt Cycle Time: CALCULATE( AVERAGE(JobDetails[WOSched]),JobDetails[WOSched]>0)\n\
+    \  - Appt To TechEnd Cycle Time:  CALCULATE(AVERAGE(JobDetails[SchedEnded]),JobDetails[SchedEnded]>0)\n\
+    \  - Appt To Invoiced Cycle Time:       CALCULATE(         AVERAGE(JobDetails[SchedInvoiced]),\
+    \         JobDetails[SchedInvoiced] > 0     )\n  - TechEnd to Invoice Cycle Time:\
+    \  CALCULATE(AVERAGE(JobDetails[EndedInvoiced]),JobDetails[Endedinvoiced]>0)\n\
+    \  - Hold Time:  CALCULATE(AVERAGE(JobDetails[HoldTime]),JobDetails[Holdtime]>0)\n\
+    \  - Ops Cycle Time:  [Total Cycle Time] - [Hold Time]\n  - Creation to TechEnd\
+    \ Cycle Time: CALCULATE( AVERAGE(JobDetails[Createdended]),JobDetails[Createdended]>0)\n\
+    \  - Creation to TechEnd Cycle Time (Ex Hold):  [Creation to TechEnd Cycle Time]\
+    \ - [Hold Time]\n"
+  isMultisource: false
+  locationName: GOLD
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0d9c9aaf-e12d-5e3e-9ced-5f8947c8cfd1
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: NUMBER(38,4)
+      defaultValue: ''
+      description: ''
+      name: INVOICEBALANCE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 667aab21-6f12-59c3-b2e0-4c8e0488674f
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: dfbe98fe-1fc4-5c16-a796-538fa14457f9
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: NUMBER(38,4)
+      defaultValue: ''
+      description: ''
+      name: INVOICEAMOUNT
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 69300554-5138-5357-a815-0c7fc3534105
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f73fbfe8-d55e-5e88-b177-b13fe94fd3a8
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: NUMBER(38,4)
+      defaultValue: ''
+      description: ''
+      name: INVOICEDISCOUNT
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 61c079dc-ea48-5988-9415-22712478308f
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ae10d497-c96b-5e82-b1ec-e4645831a932
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: NUMBER(38,4)
+      defaultValue: ''
+      description: ''
+      name: INVOICETAX
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 5a18eeb5-c1c3-55e6-b7ea-ddec1ee257f2
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 008ba45f-23a9-5702-b060-01f1e6a7843f
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: NUMBER(38,4)
+      defaultValue: ''
+      description: ''
+      name: INVOICEPAYMENTRECEIVED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 4e627c0c-045a-5abd-be3d-4ed1872686f9
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b8968896-65e6-5b41-a04e-9c8e26409ead
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: NUMBER(38,4)
+      defaultValue: ''
+      description: ''
+      name: PARTSCOST
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 3d8b1ef1-bf40-50c1-9a3a-a7c8f4151a1a
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 181338d6-97d7-53da-bd15-06097480437d
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: NUMBER(38,4)
+      defaultValue: ''
+      description: ''
+      name: LABORCOST
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 98065005-ad65-54d6-8f15-090cd1673295
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e27900e9-136f-54f0-aaf5-81805c523e01
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: NUMBER(38,4)
+      defaultValue: ''
+      description: ''
+      name: FREIGHTCOST
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: ef21b4ad-74f2-58c2-89b4-973e7efafa14
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: fff2340a-017e-510f-89d2-a3350c2454fc
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: NUMBER(38,0)
+      defaultValue: ''
+      description: ''
+      name: LOCATIONID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 8408096d-6cc2-5eba-91cd-fe07d1fdeb86
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e3f59f3d-825b-5f49-8bc8-74e5e4625f1e
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: NUMBER(38,4)
+      defaultValue: ''
+      description: ''
+      name: ACCOUNTBALANCEDUE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 7274befc-627b-59cc-872a-869d2a16fb18
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: bf34f4bf-3070-5b57-afad-5c30e4c204a7
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: NUMBER(38,0)
+      defaultValue: ''
+      description: ''
+      name: SALESITEMID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: d3d83367-5d4a-51f3-90db-bab0a847e808
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 21b8c2c3-3842-510d-8160-f987f038164f
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: NUMBER(38,0)
+      defaultValue: ''
+      description: ''
+      name: JOBID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: ef89e425-aa3a-531e-a828-f327f2a323fb
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 10dabdde-0ab4-5efc-bb35-e86ad25f112e
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: NUMBER(38,0)
+      defaultValue: ''
+      description: ''
+      name: COMPANYID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: f77c7fee-7aa5-5862-95ed-32181177b0e4
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: bacbeca8-0521-574c-bb6d-5a22ef526733
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: INVOICEDATE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 3212e7e3-fa5c-5ebb-815d-a734e34470ab
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: da499626-7987-5fc0-b7a8-0ec717536b5e
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: VARCHAR
+      defaultValue: ''
+      description: ''
+      name: TECHUSERNAME
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 26816b78-2659-50df-ad21-846a289b7987
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0ffeb978-916a-5019-a985-9311ac71d824
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: CREATEDDATE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 383c633e-2903-58b4-a931-ccd5f4acc244
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6d85ac85-afcd-587d-8f05-d10aec0f2449
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: WORKORDERDATE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 3afde1a0-a51a-57e5-ad80-666c969b0268
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 1af70289-c40b-5410-ad52-7d572b370e20
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: QUOTEDDATE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 93f28084-4203-5851-8679-25cedda4b8d5
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: edf5a077-3000-5bcb-aa66-5d8895f5bca1
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: FLOAT
+      defaultValue: ''
+      description: ''
+      name: WOENDED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 9e587e87-3cfb-5069-9e56-fa9de4e7a76e
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6efca422-ac6b-5271-bb4c-f67865cad5f0
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: FLOAT
+      defaultValue: ''
+      description: ''
+      name: WOINVOICED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 763d2b7c-907a-5032-9b92-9b9b0479ee8c
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 1c1e6180-9612-58d4-9d0b-dd765d43a30a
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: FLOAT
+      defaultValue: ''
+      description: ''
+      name: CREATEDSCHED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 8dd13f2f-4b04-5010-8186-d4177523eaa9
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 58975a27-b6c8-5de5-9d30-cd951b641736
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: FLOAT
+      defaultValue: ''
+      description: ''
+      name: SCHEDWO
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 4d78e021-c302-55aa-89f7-fd47a0d5ebae
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3d8e8e09-ceb3-5914-9e68-ef2b20c6015a
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: FLOAT
+      defaultValue: ''
+      description: ''
+      name: ENDEDINVOICED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: f8741ec5-ec0d-5ee5-b88b-a52dcba4fdb6
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a872ebf8-0b5e-5990-b17b-cb9e76415167
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: FLOAT
+      defaultValue: ''
+      description: ''
+      name: TOTALCYCLETIME
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 9bcb2008-ca85-54d9-b95c-8d26046d94fd
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9462a707-dc31-5476-8569-e3e5296dc8a0
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: FLOAT
+      defaultValue: ''
+      description: ''
+      name: CREATEDWO
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 4929ca4f-aff8-59fc-8e64-1a4153e81f05
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 498e93eb-f8eb-5e0b-8f31-62c82ee8a1c2
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: FLOAT
+      defaultValue: ''
+      description: ''
+      name: WOSCHED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: d6749f85-4d8c-570a-b9c7-8e0c8823e90a
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 86a072b4-af45-5414-be47-e4f25e5e514e
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: FLOAT
+      defaultValue: ''
+      description: ''
+      name: SCHEDENDED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 7561b8b6-cb17-5e0d-8448-d9cab581e4a6
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3cde6e29-b176-5b43-bcd3-d017e4b52405
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: FLOAT
+      defaultValue: ''
+      description: ''
+      name: SCHEDINVOICED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 7ab54bc5-7bad-5c55-876f-65469781156b
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d8390b7a-bed2-582a-9a72-3db03eea9443
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: FLOAT
+      defaultValue: ''
+      description: ''
+      name: HOLDTIME
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 989a5857-20dc-5a63-811c-e2277166c6d4
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: eb07829f-cd5e-5f77-a885-338848027c3b
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: FLOAT
+      defaultValue: ''
+      description: ''
+      name: CREATEDENDED
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 391c7077-c3f2-5151-8d03-a980d9c0ebe9
+          stepCounter: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 00206029-4714-5a13-bc10-07952935b560
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: |-
+        DAX:  Var varJobId = JobDetails[JobId]     Var varInvoiceDate = JobDetails[InvoiceDate]    Var varApptCount = CALCULATE(COUNTROWS(AppointmentDetails),ALL(AppointmentDetails),Jobs[JobId]=varJobId,AppointmentDetails[Status] IN {"OPEN","HOLD"})    Var varMaxCloseAptDate = CALCULATE([Latest Closed Appointment Date],ALL(AppointmentDetails),Jobs[JobId]=varJobId)     --Var varApptDate = IF(ISBLANK(varInvoiceDate)  , if(varApptCount>0,varMaxCloseAptDate),varMaxCloseAptDate)  Var varApptDate = IF(ISBLANK(varInvoiceDate)  , if(varApptCount>0,Blank(),varMaxCloseAptDate), if(varMaxCloseAptDate<varInvoiceDate,varMaxCloseAptDate,varInvoiceDate))   --IF(ISBLANK(varApptDate),varInvoiceDate,varApptDate)  Return varApptDate
+      name: COMPLETEDDATE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: |-
+          /* DAX: Var varJobId = JobDetails[JobId]     Var varInvoiceDate = JobDetails[InvoiceDate]    Var varApptCount = CALCULATE(COUNTROWS(AppointmentDetails),ALL(AppointmentDetails),Jobs[JobId]=varJobId,AppointmentDetails[Status] IN {"OPEN","HOLD"})    Var varMaxCloseAptDate = CALCULATE([Latest Closed Appointment Date],ALL(AppointmentDetails),Jobs[JobId]=varJobId)     --Var varApptDate = IF(ISBLANK(varInvoiceDate)  , if(varApptCount>0,varMaxCloseAptDate),varMaxCloseAptDate)  Var varApptDate = IF(ISBLANK(varInvoiceDate)  , if(varApptCount>0,Blank(),varMaxCloseAptDate), if(varMaxCloseAptDate<varInvoiceDate,varMaxCloseAptDate,varInvoiceDate))   --IF(ISBLANK(varApptDate),varInvoiceDate,varApptDate)  Return varApptDate */ NULL
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ce00e5be-e403-5979-aa1d-853b0b275561
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: |-
+        DAX: IF(ISBLANK(JobDetails[InvoiceDate]),IF(ISBLANK(JobDetails[CompletedDate]),IF(ISBLANK(JobDetails[WorkOrderDate]),JobDetails[CreatedDate],JobDetails[WorkOrderDate]),JobDetails[CompletedDate]),JobDetails[InvoiceDate])
+      name: JOBDATE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: |-
+          /* DAX: IF(ISBLANK(JobDetails[InvoiceDate]),IF(ISBLANK(JobDetails[CompletedDate]),IF(ISBLANK(JobDetails[WorkOrderDate]),JobDetails[CreatedDate],JobDetails[WorkOrderDate]),JobDetails[CompletedDate]),JobDetails[InvoiceDate]) */ NULL
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 40925d24-6ce9-581e-a98a-4858192964dc
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: VARCHAR
+      defaultValue: ''
+      description: |-
+        DAX:  SWITCH(     TRUE(),     ISBLANK(JobDetails[TotalCycleTime]), BLANK(),     JobDetails[TotalCycleTime] < 0, "<0 Days - Review",     JobDetails[TotalCycleTime] <= 240, "0-10 days",     JobDetails[TotalCycleTime] <= 360, "11-15 days",     JobDetails[TotalCycleTime] <= 480, "16-20 days",     ">20 days" )
+      name: TOTALCYCELTIMEBUCKET
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: |-
+          /* DAX: SWITCH(     TRUE(),     ISBLANK(JobDetails[TotalCycleTime]), BLANK(),     JobDetails[TotalCycleTime] < 0, "<0 Days - Review",     JobDetails[TotalCycleTime] <= 240, "0-10 days",     JobDetails[TotalCycleTime] <= 360, "11-15 days",     JobDetails[TotalCycleTime] <= 480, "16-20 days",     ">20 days" ) */ NULL
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 96677c78-82e8-520c-8575-b23f0a7c034d
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: VARCHAR
+      defaultValue: ''
+      description: |-
+        DAX:  IF(     ISBLANK(JobDetails[CreatedWO]) || JobDetails[CreatedWO] <= 0 ||     ISBLANK(JobDetails[WOSched]) || JobDetails[WOSched] <= 0 ||     ISBLANK(JobDetails[SchedEnded]) || JobDetails[SchedEnded] <= 0 ||     ISBLANK(JobDetails[EndedInvoiced]) || JobDetails[EndedInvoiced] <= 0,     "Missing CT Phases",     "Filled CT Phases" )
+      name: CYCLESTATUS
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: |-
+          /* DAX: IF(     ISBLANK(JobDetails[CreatedWO]) || JobDetails[CreatedWO] <= 0 ||     ISBLANK(JobDetails[WOSched]) || JobDetails[WOSched] <= 0 ||     ISBLANK(JobDetails[SchedEnded]) || JobDetails[SchedEnded] <= 0 ||     ISBLANK(JobDetails[EndedInvoiced]) || JobDetails[EndedInvoiced] <= 0,     "Missing CT Phases",     "Filled CT Phases" ) */ NULL
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 823e6d7e-47c6-5d73-b83e-70b72f6aa5e7
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: VARCHAR
+      defaultValue: ''
+      description: |-
+        DAX:  IF(     ISBLANK(JobDetails[HoldTime]) || JobDetails[HoldTime] <= 0,     "No",     "Yes" )
+      name: ISHOLD
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: |-
+          /* DAX: IF(     ISBLANK(JobDetails[HoldTime]) || JobDetails[HoldTime] <= 0,     "No",     "Yes" ) */ NULL
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ff5a759b-48cb-595c-a9a6-2e02958c10ea
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_CREATE_DATE
+      nullable: true
+      isSystemCreateDate: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 1960421e-6dd5-5eef-b645-809179fad00f
+        stepCounter: 2e3e6007-d7cb-5f38-8501-3e98ce72bc35
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_UPDATE_DATE
+      nullable: true
+      isSystemUpdateDate: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        STG_JOBDETAILS: 40c3a3bc-7252-5f4e-9fc0-542728cb5b45
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: SILVER
+        nodeName: STG_JOBDETAILS
+      join:
+        joinCondition: FROM {{ ref('SILVER', 'STG_JOBDETAILS') }} "STG_JOBDETAILS"
+      name: FCT_JOBDETAILS
+      noLinkRefs: []
+  name: FCT_JOBDETAILS
+  overrideSQL: false
+  schema: ''
+  sqlType: Fact
+  type: sql
+  version: 1
+type: Node
