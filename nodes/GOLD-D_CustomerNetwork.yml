@@ -1,0 +1,249 @@
+fileVersion: 1
+id: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
+name: D_CustomerNetwork
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    businessKeyColumns:
+    - CustomerNetworkCode
+    - OtherCustomerCode
+  database: ''
+  deployEnabled: true
+  description: List of the main customer networks Northpower does work on.
+  isMultisource: false
+  locationName: GOLD
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 23353d42-2504-5031-9571-e1ae195e6cc9
+        stepCounter: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
+      config: {}
+      dataType: INTEGER IDENTITY(1,1)
+      description: Generated artificial key
+      name: D_CustomerNetwork_key
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 37a84641-ac5a-5f3b-9114-e419f7d9f4ef
+        stepCounter: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
+      config: {}
+      dataType: VARCHAR(15)
+      description: The database ID of the NPSafe record
+      name: CustomerNetworkCode
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: a982aaa9-bc6c-5967-9e48-3e8a013788e4
+          stepCounter: bea659c1-2338-57af-93cc-634228a3308a
+        transform: ''
+      isBusinessKey: true
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f935ccb9-65e7-5c4e-b147-f492741f8ccf
+        stepCounter: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
+      config: {}
+      dataType: VARCHAR(200)
+      description: Where Other Customer is specified, then we will drill down to the
+        smaller less frequent netwoks using this key
+      name: OtherCustomerCode
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: --WHEN OTHER NETWORK  CASE WHEN L_NPS_NPSELOCCURRENCEVIEW.CUSTOMERNETWORK
+          = 28   THEN      CASE WHEN COALESCE(L_NPS_NPSELOCCURRENCEVIEW.OTHERNETWORK,'')
+          = ''      THEN 'NOT SPECIFIED'      ELSE L_NPS_NPSELOCCURRENCEVIEW.OTHERNETWORK     END   --USE
+          MAIN NETWORK CODE AGAIN RATHER THAN DESCRIPTION   ELSE CAST(I_NPS_CUSTOMERNETWORK.CUSTOMERNETWORKCODE
+          AS VARCHAR(15))  END
+      isBusinessKey: true
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e74a5944-da69-53cd-acf4-9a7e1a38df5c
+        stepCounter: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
+      config: {}
+      dataType: VARCHAR(200)
+      description: List of Customer Networks as set up in the NPSafe database.
+      name: MainNetwork
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: a337e822-4de0-5f22-8504-d17aeaf2d844
+          stepCounter: bea659c1-2338-57af-93cc-634228a3308a
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a00594cc-143a-5abe-af51-8717aef5852e
+        stepCounter: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
+      config: {}
+      dataType: VARCHAR(200)
+      description: This attribute splits out the smaller "Other" networks
+      name: AllNetworks
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: -- WHEN OTHER NETWORK  CASE WHEN L_NPS_NPSELOCCURRENCEVIEW.CUSTOMERNETWORK
+          = 28   THEN      CASE WHEN COALESCE(L_NPS_NPSELOCCURRENCEVIEW.OTHERNETWORK,'')
+          = ''      THEN 'NOT SPECIFIED'      ELSE L_NPS_NPSELOCCURRENCEVIEW.OTHERNETWORK     END   --
+          REPORT THE DESCRIPTION OF THE MAIN CUSTOMER IF NOT AN "OTHER" CUSTOMER NETWORK   ELSE
+          I_NPS_CUSTOMERNETWORK.CUSTOMERNETWORK  END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a4f7f306-2a86-5048-bb53-5f019ae55a5c
+        stepCounter: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
+      config: {}
+      dataType: VARCHAR(200)
+      description: This attribute holds the name of Networks for which we can calculate
+        TRIFR. All other Networks are grouped into "Other".  In order to do this,
+        we need to record both employee and contractor hours by this Network. Currently
+        we can only do this for Northpower Network, Northpower Fibre, Vector, Wellington
+        Electricity and Transpower.
+      name: TRIFRNetworks
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: -- NETWORKS OF INTEREST  CASE WHEN I_NPS_CUSTOMERNETWORK.CUSTOMERNETWORKCODE
+          IN (17,20,21,23,27)  -- 17 VECTOR, 20 TRANSPOWER, 21 NORTHPOWER NETWORK,
+          23 WELLINGTON ELECTRICITY, 27 NORTHPOWER FIBRE   THEN      I_NPS_CUSTOMERNETWORK.CUSTOMERNETWORK   --
+          REPORT THE DESCRIPTION AS OTHER IF NOT ONE OF THE ONES WE CAN CALCULATE
+          THE TRIFR FOR   ELSE 'OTHER'  END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9983ffc5-e705-57fb-b987-9f3101da9bd7
+        stepCounter: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was created in the data warehouse.
+      name: ODSCreateDate
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4ec140d9-3d3f-5fa2-a64d-a3359f38491e
+        stepCounter: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was updated in the data warehouse.
+      name: ODSUpdateDate
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ac2967dd-363b-58a1-8d7c-0c03d0f168f7
+        stepCounter: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
+      config: {}
+      dataType: NUMBER
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_VERSION
+      nullable: true
+      isSystemVersion: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 386a2a71-237b-5116-ae66-bc9039feaa79
+        stepCounter: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
+      config: {}
+      dataType: VARCHAR
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_CURRENT_FLAG
+      nullable: true
+      isSystemCurrentFlag: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f83b3793-797c-5548-b0ab-5e1447d5c4e9
+        stepCounter: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_START_DATE
+      nullable: true
+      isSystemStartDate: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: fd0cd39b-574e-5a80-8c3b-aaab2123b703
+        stepCounter: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_END_DATE
+      nullable: true
+      isSystemEndDate: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST('2999-12-31 00:00:00' AS TIMESTAMP)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4a8f7d5c-d947-5e69-9949-73e8965d0b41
+        stepCounter: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_CREATE_DATE
+      nullable: true
+      isSystemCreateDate: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 217c1963-428f-58a9-a39c-481fdf8f4bb7
+        stepCounter: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_UPDATE_DATE
+      nullable: true
+      isSystemUpdateDate: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        I_NPS_CustomerNetwork: bea659c1-2338-57af-93cc-634228a3308a
+        L_NPS_NPSelOccurrenceView: 6fd72d9a-a857-5a43-98b2-7637e06c37b9
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: SILVER
+        nodeName: I_NPS_CustomerNetwork
+      - locationName: BRONZE
+        nodeName: L_NPS_NPSelOccurrenceView
+      join:
+        joinCondition: |-
+          FROM {{ ref('SILVER', 'I_NPS_CustomerNetwork') }} "I_NPS_CustomerNetwork"
+          JOIN {{ ref('BRONZE', 'L_NPS_NPSelOccurrenceView') }} "L_NPS_NPSelOccurrenceView"
+      name: D_CustomerNetwork
+      noLinkRefs: []
+  name: D_CustomerNetwork
+  overrideSQL: false
+  schema: ''
+  sqlType: Dimension
+  type: sql
+  version: 1
+type: Node

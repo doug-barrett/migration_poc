@@ -1,0 +1,147 @@
+fileVersion: 1
+id: 6bbe5b51-bb6e-52b8-a6a6-40b4153df1b3
+name: I_EmployeeCountByLocationAndCostGroup
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: UNION
+  database: ''
+  deployEnabled: true
+  description: The current number of employees at each location and for each cost
+    group.
+  isMultisource: false
+  locationName: SILVER
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0506f804-ff3a-5511-b8d6-5a60f023d0c3
+        stepCounter: 6bbe5b51-bb6e-52b8-a6a6-40b4153df1b3
+      config: {}
+      dataType: NUMBER(38,0)
+      description: S_EmployeeCount.LocationCode=D_Location.LocationCode
+      name: D_Location_key
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 576195a6-07e6-5e89-b908-9898ae9cb75c
+          stepCounter: 20b6212a-2f3f-51ab-80d8-38731bfde0ec
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c8ec99c4-e17f-532d-8ff7-d05a799805d7
+        stepCounter: 6bbe5b51-bb6e-52b8-a6a6-40b4153df1b3
+      config: {}
+      dataType: VARCHAR(12)
+      description: ''
+      name: LocationCode
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 0ee5dd7e-bf33-5ccf-bd37-0ab811a22288
+          stepCounter: 2f82b4fa-d3b8-5afd-926e-d150ab1fe157
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2c076f5b-feeb-5206-bdb5-364f9954ecd0
+        stepCounter: 6bbe5b51-bb6e-52b8-a6a6-40b4153df1b3
+      config: {}
+      dataType: VARCHAR(30)
+      description: ''
+      name: Location
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 10faaf2a-eb44-59db-beaa-02db2919c271
+          stepCounter: 2f82b4fa-d3b8-5afd-926e-d150ab1fe157
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c6d78675-4d1c-5b4f-a0b0-b47837a19324
+        stepCounter: 6bbe5b51-bb6e-52b8-a6a6-40b4153df1b3
+      config: {}
+      dataType: NUMBER(38,0)
+      description: S_EmployeeCount.EmployeeCostGroup=D_EmployeeCostGroup.EmployeeCostGroup
+      name: D_EmployeeCostGroup_key
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 52b8e21c-383d-5a1a-acb7-551ac2f7bc17
+          stepCounter: 20b6212a-2f3f-51ab-80d8-38731bfde0ec
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2fe65b0a-4d6d-5884-9900-563bdbf8a6f5
+        stepCounter: 6bbe5b51-bb6e-52b8-a6a6-40b4153df1b3
+      config: {}
+      dataType: VARCHAR(50)
+      description: Employee costs are grouped into four categories. Field Staff, Admin/Management,
+        Engineering/Construction and Control Operators
+      name: EmployeeCostGroup
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b2cfe200-cb87-58e4-94ee-8cd5a8d16704
+        stepCounter: 6bbe5b51-bb6e-52b8-a6a6-40b4153df1b3
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Number of Employees excluding Casual and Directors
+      name: EmployeeCount
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUM(F_EMPLOYEECOUNT.EMPLOYEECOUNT)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f9becd47-f251-5a4e-963f-386c23c9542d
+        stepCounter: 6bbe5b51-bb6e-52b8-a6a6-40b4153df1b3
+      config: {}
+      dataType: VARCHAR(12)
+      description: The Business Unit with the most employees at this location.
+      name: BusinessUnitCode
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 822972ae-361c-558d-9f6d-5f9bf5743ca3
+          stepCounter: 2f82b4fa-d3b8-5afd-926e-d150ab1fe157
+        transform: ''
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        F_EmployeeCount: 20b6212a-2f3f-51ab-80d8-38731bfde0ec
+        D_Location: 2f82b4fa-d3b8-5afd-926e-d150ab1fe157
+        D_EmployeeCostGroup: 5a9f9d0f-9ddc-5405-97b9-5942ace7eded
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: GOLD
+        nodeName: F_EmployeeCount
+      - locationName: GOLD
+        nodeName: D_Location
+      - locationName: BRONZE
+        nodeName: D_EmployeeCostGroup
+      join:
+        joinCondition: |-
+          FROM {{ ref('GOLD', 'F_EmployeeCount') }} "F_EmployeeCount"
+          LEFT JOIN {{ ref('GOLD', 'D_Location') }} "D_Location"
+            ON F_EMPLOYEECOUNT.D_LOCATION_KEY = D_LOCATION.D_LOCATION_KEY
+          LEFT JOIN {{ ref('BRONZE', 'D_EmployeeCostGroup') }} "D_EmployeeCostGroup"
+            ON F_EMPLOYEECOUNT.D_EMPLOYEECOSTGROUP_KEY = D_EMPLOYEECOSTGROUP.D_EMPLOYEECOSTGROUP_KEY
+          GROUP BY F_EMPLOYEECOUNT.D_LOCATION_KEY  , F_EMPLOYEECOUNT.D_EMPLOYEECOSTGROUP_KEY  , D_LOCATION.LOCATION  , D_LOCATION.LOCATIONCODE  , D_LOCATION.BUSINESSUNITCODE  , D_EMPLOYEECOSTGROUP.EMPLOYEECOSTGROUP
+      name: I_EmployeeCountByLocationAndCostGroup
+      noLinkRefs: []
+  name: I_EmployeeCountByLocationAndCostGroup
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,91 @@
+fileVersion: 1
+id: 932a2478-8cc6-58f8-8ff4-b6aa05144bf7
+name: I_NPS_InvestigationEventCount
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: UNION
+  database: ''
+  deployEnabled: true
+  description: Allows us to record the number of reports that are associated with
+    an investigation
+  isMultisource: false
+  locationName: SILVER
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c8fdc84f-650a-5087-acfb-9d24de37842b
+        stepCounter: 932a2478-8cc6-58f8-8ff4-b6aa05144bf7
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: InvestigationID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: f9d8ffc8-39ff-5514-a407-21285c10ddf0
+          stepCounter: b6752540-26b8-59f5-bbc2-1e37beda334c
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9c6c143b-73c9-58b6-b551-d5b09bb8c9e6
+        stepCounter: 932a2478-8cc6-58f8-8ff4-b6aa05144bf7
+      config: {}
+      dataType: VARCHAR(15)
+      description: ''
+      name: ODSSourceSystem
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 218d4843-2242-55e0-aa7a-5b831521b021
+          stepCounter: b6752540-26b8-59f5-bbc2-1e37beda334c
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 32c414fc-73be-5233-81d5-de7a693cf691
+        stepCounter: 932a2478-8cc6-58f8-8ff4-b6aa05144bf7
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Number of reports (incidents, near misses or suggestions for approvals)
+        associated with this investigation.
+      name: ReportCount
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: --NOTE EVENT COUNT IN THIS TABLE IS COUNTING ALL REPORTS  -- INCLUDING
+          SUGGESTIONS FOR IMPROVEMENT AND NEAR MISS  SUM(I_NPS_INVESTIGATIONEVENT.EVENTCOUNT)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        I_NPS_Investigation: fa151488-7c52-5ad6-86af-3f75f48aaf1b
+        I_NPS_InvestigationEvent: b6752540-26b8-59f5-bbc2-1e37beda334c
+        ODSSourceSystem: 62c14cd9-c7cb-5e23-a903-f6636c7a09af
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: SILVER
+        nodeName: I_NPS_Investigation
+      - locationName: SILVER
+        nodeName: I_NPS_InvestigationEvent
+      - locationName: BRONZE
+        nodeName: ODSSourceSystem
+      join:
+        joinCondition: |-
+          FROM {{ ref('SILVER', 'I_NPS_Investigation') }} "I_NPS_Investigation"
+          JOIN {{ ref('SILVER', 'I_NPS_InvestigationEvent') }} "I_NPS_InvestigationEvent"
+          JOIN {{ ref('BRONZE', 'ODSSourceSystem') }} "ODSSourceSystem"
+      name: I_NPS_InvestigationEventCount
+      noLinkRefs: []
+  name: I_NPS_InvestigationEventCount
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

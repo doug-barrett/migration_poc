@@ -1,0 +1,138 @@
+fileVersion: 1
+id: 1245cf7f-27db-50a2-8c71-e8c4cfd97431
+name: F_ExposureHours
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: UNION
+  database: ''
+  deployEnabled: true
+  description: View of the Payroll Transactions that allow us to limit the history
+    to the same periods as displayed for the QPulse event data.
+  isMultisource: false
+  locationName: SILVER
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: aad3500a-8ecb-5d55-8ef0-5663b3dc0031
+        stepCounter: 1245cf7f-27db-50a2-8c71-e8c4cfd97431
+      config: {}
+      dataType: NUMBER(38,0)
+      description: S_PayrollTransactions.Date=D_Date.CalendarDate
+      name: D_Date_key
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 27bb8864-0548-5872-a905-64c20f8c1714
+        stepCounter: 1245cf7f-27db-50a2-8c71-e8c4cfd97431
+      config: {}
+      dataType: NUMBER(38,0)
+      description: S_PayrollTransactions.EmployeeCode=D_Employee.EmployeeCode
+      name: D_Employee_key
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 05a6ab0f-1072-5c10-b542-b529b159d425
+        stepCounter: 1245cf7f-27db-50a2-8c71-e8c4cfd97431
+      config: {}
+      dataType: NUMBER(38,0)
+      description: S_PayrollTransactions.TransactionPeriod=D_Period.PeriodNumber
+      name: D_Period_key
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5847b3a7-6ebc-5230-bf1d-e554d7ed9d3e
+        stepCounter: 1245cf7f-27db-50a2-8c71-e8c4cfd97431
+      config: {}
+      dataType: NUMBER(38,0)
+      description: S_PayrollTransactions.BusinessUnitCode=D_BusinessUnit.BusinessUnitCode
+      name: D_BusinessUnit_key
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 57e8cbb3-7fe3-55e6-bb97-f5455f446702
+        stepCounter: 1245cf7f-27db-50a2-8c71-e8c4cfd97431
+      config: {}
+      dataType: NUMBER(38,0)
+      description: S_PayrollTransactions.CustomerNetworkCode=D_CustomerNetwork.CustomerNetworkCode  S_PayrollTransactions.CustomerNetworkCode=D_CustomerNetwork.OtherCustomerCode
+      name: D_CustomerNetwork_key
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: afe05a5e-8517-5c5e-a18c-193cfe902a21
+        stepCounter: 1245cf7f-27db-50a2-8c71-e8c4cfd97431
+      config: {}
+      dataType: NUMBER(9,2)
+      description: Work related hours for employees (both paid and unpaid) during
+        which work related injuries or illnesses would be considered recordable.
+      name: ExposureHours
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUM(F_PAYROLLTRANSACTIONS.EXPOSUREHOURS)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        D_BusinessUnit: 4c3b91fd-dd4a-5161-9f32-188db32020e3
+        D_Customer: 8c1e16e4-9bbd-56e7-8791-064c43277a29
+        D_CustomerNetwork: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
+        D_Date: c8d0c2c2-197f-55ad-b02d-eba1fb4c0900
+        D_Employee: bf28ab53-5f37-59cc-bcc9-56f04b96ba76
+        D_Period: 7b68d3ca-afb2-508b-bc98-8238728756a1
+        F_PayrollTransactions: e72a0eeb-62d1-5529-8206-ec85a1368319
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: GOLD
+        nodeName: D_BusinessUnit
+      - locationName: GOLD
+        nodeName: D_Customer
+      - locationName: GOLD
+        nodeName: D_CustomerNetwork
+      - locationName: BRONZE
+        nodeName: D_Date
+      - locationName: GOLD
+        nodeName: D_Employee
+      - locationName: GOLD
+        nodeName: D_Period
+      - locationName: BRONZE
+        nodeName: F_PayrollTransactions
+      join:
+        joinCondition: |-
+          FROM {{ ref('GOLD', 'D_BusinessUnit') }} "D_BusinessUnit"
+          JOIN {{ ref('GOLD', 'D_Customer') }} "D_Customer"
+          JOIN {{ ref('GOLD', 'D_CustomerNetwork') }} "D_CustomerNetwork"
+          JOIN {{ ref('BRONZE', 'D_Date') }} "D_Date"
+          JOIN {{ ref('GOLD', 'D_Employee') }} "D_Employee"
+          JOIN {{ ref('GOLD', 'D_Period') }} "D_Period"
+          JOIN {{ ref('BRONZE', 'F_PayrollTransactions') }} "F_PayrollTransactions"
+      name: F_ExposureHours
+      noLinkRefs: []
+  name: F_ExposureHours
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

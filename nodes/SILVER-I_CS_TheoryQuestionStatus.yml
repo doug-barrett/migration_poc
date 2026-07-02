@@ -1,0 +1,135 @@
+fileVersion: 1
+id: b1455aba-c714-5da5-905a-e86a4c6b895b
+name: I_CS_TheoryQuestionStatus
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: UNION
+  database: ''
+  deployEnabled: true
+  description: Finds the results for each questions and the number of attempts the
+    person had to get that result.  If the result is a failure, then the person would
+    have had two attempts, but only one record is sent in the file.
+  isMultisource: false
+  locationName: SILVER
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e7b6b400-1804-5804-9cd2-0bb7904d2741
+        stepCounter: b1455aba-c714-5da5-905a-e86a4c6b895b
+      config: {}
+      dataType: VARCHAR(50)
+      description: ''
+      name: EmployeeCode
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 093b10dd-98ba-5d2c-82e0-044742258a30
+          stepCounter: 92ee5007-636d-5879-9db7-d12817b17e7c
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: cb6aad4b-97a6-50f4-8c5f-a6b5ef82d029
+        stepCounter: b1455aba-c714-5da5-905a-e86a4c6b895b
+      config: {}
+      dataType: VARCHAR(50)
+      description: They have named the competency codes the same as the learning modules,
+        so we should be able to see that these match.
+      name: CompetencyCode
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: e6f78459-5460-56c9-933c-3a611aff9bd1
+          stepCounter: 92ee5007-636d-5879-9db7-d12817b17e7c
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 80890c5f-3412-5dcb-bb0d-cd1a4d5b1dbd
+        stepCounter: b1455aba-c714-5da5-905a-e86a4c6b895b
+      config: {}
+      dataType: DATE
+      description: The date the theory test was attempted
+      name: CompletionDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 862075d6-d52a-57fe-86b9-8099aaef99ba
+          stepCounter: 92ee5007-636d-5879-9db7-d12817b17e7c
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5f1d4e91-30cd-5879-8ade-16ed38e94d65
+        stepCounter: b1455aba-c714-5da5-905a-e86a4c6b895b
+      config: {}
+      dataType: VARCHAR(2000)
+      description: ''
+      name: QuestionNumber
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: d8971b7d-10ee-50e6-9163-3c0251e36ce5
+          stepCounter: 7e32d897-57e5-58d3-8aab-4eb00687301a
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 66132738-cde6-5753-87c1-98402d8ff84e
+        stepCounter: b1455aba-c714-5da5-905a-e86a4c6b895b
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 1 for Pass, 0 for Failure
+      name: Result
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: MAX(CASE WHEN ANSWERSTATUS = 'CORRECT' THEN 1 ELSE 0 END)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6adadfa0-0484-5c56-a0f0-35313bbccad1
+        stepCounter: b1455aba-c714-5da5-905a-e86a4c6b895b
+      config: {}
+      dataType: NUMBER(38,0)
+      description: The number of attempts the person had to get the recorded result
+      name: NumberOfAttempts
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN MAX(ANSWERSTATUS) = 'INCORRECT' THEN 2 ELSE COUNT(*)
+          END
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        I_CS_AssessmentQuestions: 7e32d897-57e5-58d3-8aab-4eb00687301a
+        I_CS_LatestTheoryAssessment: 92ee5007-636d-5879-9db7-d12817b17e7c
+        S_Competency: 6ee2e74d-9a06-5326-9986-f8136cfe4b54
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: SILVER
+        nodeName: I_CS_AssessmentQuestions
+      - locationName: SILVER
+        nodeName: I_CS_LatestTheoryAssessment
+      - locationName: SILVER
+        nodeName: S_Competency
+      join:
+        joinCondition: |-
+          FROM {{ ref('SILVER', 'I_CS_AssessmentQuestions') }} "I_CS_AssessmentQuestions"
+          JOIN {{ ref('SILVER', 'I_CS_LatestTheoryAssessment') }} "I_CS_LatestTheoryAssessment"
+          JOIN {{ ref('SILVER', 'S_Competency') }} "S_Competency"
+          JOIN {{ ref_no_link('SILVER', 'S_TheoryAssessment') }} "S_TheoryAssessment"
+      name: I_CS_TheoryQuestionStatus
+      noLinkRefs:
+      - locationName: SILVER
+        nodeName: S_TheoryAssessment
+  name: I_CS_TheoryQuestionStatus
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

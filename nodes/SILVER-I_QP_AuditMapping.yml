@@ -1,0 +1,156 @@
+fileVersion: 1
+id: 40da444f-8d96-5150-9a33-2325e32cce7f
+name: I_QP_AuditMapping
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: INSERT
+    truncateBefore: true
+  database: ''
+  deployEnabled: true
+  description: Table to map the audit data to the old F1 cost centre and new JDE Business
+    Unit.
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e473da82-2e81-5e39-813e-adf675db8dbe
+        stepCounter: 40da444f-8d96-5150-9a33-2325e32cce7f
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 1ea8e60a-e257-5781-85e6-ef89a0856ed1
+          stepCounter: 2fa87423-1333-5e87-806b-9c80757a5461
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7857cd79-1664-5147-9a49-ae3b7781803d
+        stepCounter: 40da444f-8d96-5150-9a33-2325e32cce7f
+      config: {}
+      dataType: VARCHAR(2000)
+      description: ''
+      name: Title
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: e994d308-4d5c-5cd8-89a5-3eb8322b8447
+          stepCounter: 2fa87423-1333-5e87-806b-9c80757a5461
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f46f661d-5d84-5c0c-b4f2-3d31b518bc27
+        stepCounter: 40da444f-8d96-5150-9a33-2325e32cce7f
+      config: {}
+      dataType: VARCHAR(2000)
+      description: ''
+      name: OriginalMapping
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE  WHEN SUBSTRING(L_QP_AUDIT.TITLE, 1,4) LIKE '%[0-9]%'   THEN
+          'UNKNOWN'  WHEN SUBSTRING(L_QP_AUDIT.TITLE, 1,3) LIKE '%-%'   THEN 'UNKNOWN'  WHEN
+          SUBSTRING(L_QP_AUDIT.TITLE, 1,3) LIKE '%&%'   THEN 'UNKNOWN'  WHEN SUBSTRING(L_QP_AUDIT.TITLE,
+          1,4 )='JOB'    THEN 'UNKNOWN'  WHEN SUBSTRING(L_QP_AUDIT.TITLE, 1,4 )='ISO'    THEN
+          'UNKNOWN'  WHEN SUBSTRING(L_QP_AUDIT.TITLE, 1,4 )='HSE'    THEN 'UNKNOWN'  WHEN
+          SUBSTRING(L_QP_AUDIT.TITLE, 1,4 )='PWC'    THEN 'UNKNOWN'  WHEN SUBSTRING(L_QP_AUDIT.TITLE,
+          4,1 )= ' '    THEN SUBSTRING(L_QP_AUDIT.TITLE, 1,3 )  ELSE 'UNKNOWN'  END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: da21aec6-ea0e-5fbf-a995-d764a0504583
+        stepCounter: 40da444f-8d96-5150-9a33-2325e32cce7f
+      config: {}
+      dataType: VARCHAR(200)
+      description: This field will be populated where the title is populated with
+        a new JDE Business unit. (As long as the new Business Unit existed at the
+        time of migration).
+      name: F1CostCentre
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: MAX(  COALESCE(CAST(I_JDE_COSTCENTRE_MAP.F1COSTCENTRE AS VARCHAR(200)),  CASE  WHEN
+          SUBSTRING(L_QP_AUDIT.TITLE, 1,4) LIKE '%[0-9]%'   THEN 'UNKNOWN'  WHEN SUBSTRING(L_QP_AUDIT.TITLE,
+          1,3) LIKE '%-%'   THEN 'UNKNOWN'  WHEN SUBSTRING(L_QP_AUDIT.TITLE, 1,3)
+          LIKE '%&%'   THEN 'UNKNOWN'  WHEN SUBSTRING(L_QP_AUDIT.TITLE, 1,4 )='JOB'    THEN
+          'UNKNOWN'  WHEN SUBSTRING(L_QP_AUDIT.TITLE, 1,4 )='ISO'    THEN 'UNKNOWN'  WHEN
+          SUBSTRING(L_QP_AUDIT.TITLE, 1,4 )='HSE'    THEN 'UNKNOWN'  WHEN SUBSTRING(L_QP_AUDIT.TITLE,
+          1,4 )='PWC'    THEN 'UNKNOWN'  WHEN SUBSTRING(L_QP_AUDIT.TITLE, 4,1 )= '
+          '    THEN SUBSTRING(L_QP_AUDIT.TITLE, 1,3 )  ELSE 'UNKNOWN'  END  )  )
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e74cc6b7-9fd8-5bf7-bd19-84f94bc1a2a0
+        stepCounter: 40da444f-8d96-5150-9a33-2325e32cce7f
+      config: {}
+      dataType: VARCHAR(200)
+      description: This field will be populated where the title is populated with
+        the old F1 Cost Centre code, unless it is so old, that it did not exist for
+        migration.
+      name: JDEBusinessUnit
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: MAX(  COALESCE(CAST(L_REF_JDEMAPF1COSTCENTRE.JDEBUSUNIT AS VARCHAR(200)),  CASE  WHEN
+          SUBSTRING(L_QP_AUDIT.TITLE, 1,4) LIKE '%[0-9]%'   THEN 'UNKNOWN'  WHEN SUBSTRING(L_QP_AUDIT.TITLE,
+          1,3) LIKE '%-%'   THEN 'UNKNOWN'  WHEN SUBSTRING(L_QP_AUDIT.TITLE, 1,3)
+          LIKE '%&%'   THEN 'UNKNOWN'  WHEN SUBSTRING(L_QP_AUDIT.TITLE, 1,4 )='JOB'    THEN
+          'UNKNOWN'  WHEN SUBSTRING(L_QP_AUDIT.TITLE, 1,4 )='ISO'    THEN 'UNKNOWN'  WHEN
+          SUBSTRING(L_QP_AUDIT.TITLE, 1,4 )='HSE'    THEN 'UNKNOWN'  WHEN SUBSTRING(L_QP_AUDIT.TITLE,
+          1,4 )='PWC'    THEN 'UNKNOWN'  WHEN SUBSTRING(L_QP_AUDIT.TITLE, 4,1 )= '
+          '    THEN SUBSTRING(L_QP_AUDIT.TITLE, 1,3 )  ELSE 'UNKNOWN'  END  )  --ADD
+          905 TO CONTRACTING BUSINESS UNIT CODES  + CASE     WHEN LEFT(COALESCE(L_REF_JDEMAPF1COSTCENTRE.JDEBUSUNIT,L_QP_AUDIT.TITLE),1)
+          IN ('A','B')     THEN '' ELSE '905' END  )
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 88989475-5225-5933-94ea-700668ac55fa
+        stepCounter: 40da444f-8d96-5150-9a33-2325e32cce7f
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was updated in the data warehouse.
+      name: ODSUpdateDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        D_CostCentre: c838cd86-2cfe-5a4c-89a2-891b4c9c7ce3
+        I_JDE_CostCentre_Map: 9497d5ae-a802-563d-b26d-2274a9b2cd5c
+        L_QP_Audit: 2fa87423-1333-5e87-806b-9c80757a5461
+        L_Ref_JDEMapF1CostCentre: dff26b4e-ddbc-574c-9a96-c75d9edb871b
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: GOLD
+        nodeName: D_CostCentre
+      - locationName: BRONZE
+        nodeName: I_JDE_CostCentre_Map
+      - locationName: BRONZE
+        nodeName: L_QP_Audit
+      - locationName: BRONZE
+        nodeName: L_Ref_JDEMapF1CostCentre
+      join:
+        joinCondition: |-
+          FROM {{ ref('GOLD', 'D_CostCentre') }} "D_CostCentre"
+          JOIN {{ ref('BRONZE', 'I_JDE_CostCentre_Map') }} "I_JDE_CostCentre_Map"
+          JOIN {{ ref('BRONZE', 'L_QP_Audit') }} "L_QP_Audit"
+          JOIN {{ ref('BRONZE', 'L_Ref_JDEMapF1CostCentre') }} "L_Ref_JDEMapF1CostCentre"
+      name: I_QP_AuditMapping
+      noLinkRefs: []
+  name: I_QP_AuditMapping
+  overrideSQL: false
+  schema: ''
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

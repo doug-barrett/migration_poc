@@ -1,0 +1,506 @@
+fileVersion: 1
+id: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+name: I_EmployeeCount_CurrentPeriod
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: INSERT
+    truncateBefore: true
+  database: ''
+  deployEnabled: true
+  description: Current Period Data for Employee Counts
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 193eb4b3-d197-5888-856d-fbc9c5e889cc
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: VARCHAR(15)
+      description: Four digit employee number
+      name: EmployeeCode
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+      isBusinessKey: true
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 30f961f3-6544-5145-844f-fd80c8a0ef4e
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: A separate number is assigned to each period used in the ODS to
+        be used as the business key. A period is a financial month.
+      name: PeriodNumber
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: bb64dd3d-c8eb-578a-82db-19dbb19a237b
+          stepCounter: 7b68d3ca-afb2-508b-bc98-8238728756a1
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d29b7191-6a82-509f-947d-00bec9e82bb0
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: DATE
+      description: The last day of the month as a date so we can link to the Date
+        Dimension
+      name: MonthDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 09230629-93c7-56b6-ab0e-976d0d12b033
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: VARCHAR(15)
+      description: Unique identifier for the Business Unit. This is the field recorded
+        against every posted GL ledger transaction.
+      name: BusinessUnitCode
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: --NORTHPOWER FIBRE LTD EMPLOYEES ARE PAID VIA SBF905 ON THEIR BEHALF
+          SINCE 2015  -- BUT WE WANT TO COUNT THEIR NUMBERS CORRECTLY IN THE FIBRE
+          COMPANY  --CASE  -- WHEN I_PG_EMPLOYEE.BUSINESSUNITCODE = 'SBF905' THEN
+          'NFLI'  -- ELSE I_PG_EMPLOYEE.BUSINESSUNITCODE  --END  I_PG_EMPLOYEE.BUSINESSUNITCODE
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b9b08c1b-6622-5be5-b7b0-05201186d218
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: VARCHAR(12)
+      description: ''
+      name: LocationCode
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c567f31c-5412-56bf-ae45-776353bd5d94
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: VARCHAR(50)
+      description: Employee costs are grouped into four categories. Field Staff, Admin/Management,
+        Engineering/Construction and Control Operators
+      name: EmployeeCostGroup
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b64c9099-dda6-5e8c-a9a6-963f5335fb84
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: VARCHAR(15)
+      description: Default object account code for this employee's wages or salary
+        costs.
+      name: ObjectAccountCode
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f812cac4-e657-5ccf-8394-d49519a4211b
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: VARCHAR(15)
+      description: Pay Type from PayGlobal, possible values are Waged or Salaried
+      name: PayType
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 82a9dd10-0397-508c-ad63-12ba40324d2b
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Number of Salaried Employees
+      name: SalariedEmployeeCount
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE  --EXCLUDE EMPLOYEES THAT HAVE LEFT THIS MONTH   WHEN I_PG_EMPLOYEE.TERMINATED
+          = 0   AND I_PG_EMPLOYEE.PAYTYPE = 'SALARIED'  THEN 1 ELSE 0 END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f4e8d09f-62b5-58a8-baa6-0820e315e68d
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Number of Waged Employees
+      name: WagedEmployeeCount
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE  --EXCLUDE EMPLOYEES THAT HAVE LEFT THIS MONTH   WHEN I_PG_EMPLOYEE.TERMINATED
+          = 0   AND I_PG_EMPLOYEE.PAYTYPE = 'WAGED'  THEN 1 ELSE 0 END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d07fa1de-b5cf-5d44-adf6-16adf9f81744
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: VARCHAR(30)
+      description: Employee Status e.g. Full Time, Part Time, Casual
+      name: EmployeeStatus
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ea04a3c6-86f2-5de2-837b-bd1a476e27fb
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Number of Full Time Employees
+      name: FullTimeEmployees
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE   WHEN I_PG_EMPLOYEE.TERMINATED = 0   AND I_PG_EMPLOYEE.EMPLOYEESTATUS
+          = 'FULL-TIME'  THEN 1 ELSE 0 END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ba72cd95-7ebd-55dc-a58d-929eab98bd05
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Number of Part Time Employees
+      name: PartTimeEmployees
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE   WHEN I_PG_EMPLOYEE.TERMINATED = 0   AND I_PG_EMPLOYEE.EMPLOYEESTATUS
+          = 'PART-TIME'  THEN 1 ELSE 0 END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b7d30897-f227-54e2-8c8c-117668d32b51
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Number of Fixed Term Employees
+      name: FixedTermEmployees
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE   WHEN I_PG_EMPLOYEE.TERMINATED = 0   AND I_PG_EMPLOYEE.EMPLOYEESTATUS
+          LIKE 'FIXED TERM%'  THEN 1 ELSE 0 END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2520dada-9c97-5ef4-924c-f21c071d0f88
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Number of Casual Employees
+      name: CasualEmployees
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE   WHEN I_PG_EMPLOYEE.TERMINATED = 0   AND I_PG_EMPLOYEE.EMPLOYEESTATUS
+          LIKE 'CASUAL%'  THEN 1 ELSE 0 END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 8444bb90-a460-5d5f-8ded-de1c3450183a
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Number of Employees excluding Casual and Directors
+      name: EmployeeCount
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE   WHEN I_PG_EMPLOYEE.TERMINATED = 0   AND I_PG_EMPLOYEE.EMPLOYEESTATUS
+          NOT LIKE 'CASUAL%'  THEN 1 ELSE 0 END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2cebc6cb-b48a-5cb1-9f15-d10b27a6d5d5
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: NUMBER(11,2)
+      description: The employees profiled hours as a percentage of 40.
+      name: FTE
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE   WHEN I_PG_EMPLOYEE.TERMINATED = 0  THEN I_PG_EMPLOYEE.FTE
+          ELSE 0 END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ee2bd2b5-9fcf-5c08-87a0-0ecac861ee45
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: DATE
+      description: Date the employee started at Northpower
+      name: StartDate
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ed75d0b8-faa9-5d6c-a822-a94cbba7abf3
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Number of Employees that started work with us during the month
+      name: Starters
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE   WHEN I_PG_EMPLOYEE.EMPLOYEESTATUS LIKE 'CASUAL%' THEN 0   WHEN
+          I_PG_EMPLOYEE.STARTDATE BETWEEN CAST(('01 ' + D_PERIOD.MONTHNAMEYEAR AS
+          DATE)) AND EOMONTH(CAST(('01 ' + D_PERIOD.MONTHNAMEYEAR AS DATE))) THEN
+          1  ELSE 0 END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6f9d8215-3c7d-5b6b-9818-1b99036619c9
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: DATE
+      description: Date the employee left Northpower. If the employee is still at
+        Northpower, then the date will be 1 Jan 9999.
+      name: TerminationDate
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COALESCE(I_PG_EMPLOYEE.TERMINATIONDATE,'9999-01-01')
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 09713d97-6aca-5ce2-b7ed-886268a90ba6
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Number of Employees that finished work with us during the month
+      name: Leavers
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE   WHEN I_PG_EMPLOYEE.EMPLOYEESTATUS LIKE 'CASUAL%' THEN 0   WHEN
+          I_PG_EMPLOYEE.TERMINATIONDATE BETWEEN CAST(('01 ' + D_PERIOD.MONTHNAMEYEAR
+          AS DATE)) AND EOMONTH(CAST(('01 ' + D_PERIOD.MONTHNAMEYEAR AS DATE))) THEN
+          1   --CHECK IF THERE IS A RECORD ALREADY FOR LEAVERS IN PRIOR MONTH, IF
+          NOT ADD A RECORD FOR THIS MONTH, DUE TO BACK DATING OF TERMINATION DATE   WHEN
+          I_PG_EMPLOYEE.TERMINATIONDATE BETWEEN DATEADD(MONTH, -1, CAST(('01 ' + D_PERIOD.MONTHNAMEYEAR
+          AS DATE))) AND EOMONTH(CAST(('01 ' + D_PERIOD.MONTHNAMEYEAR AS DATE))) AND    I_EMPLOYEECOUNT_HIST.LEAVERS
+          = 0 THEN 1   ELSE 0  END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 31fbeb97-23e9-5e5f-8a43-33b9648a5bd0
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: VARCHAR(60)
+      description: 'This is a way to group our employees into a hierarchy, possible
+        values are:   Directors, ELT (Executive Leadership Team), SMT (Senior Management
+        Team), Manager, No Direct Reports.'
+      name: ManagementLevel
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE   WHEN I_PG_EMPLOYEE.TERMINATED = 1   THEN I_EMPLOYEECOUNT_HIST.MANAGEMENTLEVEL   ELSE
+          I_PG_EMPLOYEE.MANAGEMENTLEVEL  END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3c239f8d-4c70-5727-a480-c83d2567b89a
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: VARCHAR(15)
+      description: The employee number of the employees manager as seen on the Organisation
+        chart.
+      name: ManagerCode
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE   WHEN I_PG_EMPLOYEE.TERMINATED = 1   THEN I_EMPLOYEECOUNT_HIST.MANAGERCODE   ELSE
+          I_PG_EMPLOYEE.CORRECTMANAGERCODE  END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ac3617df-802b-571f-ace7-bd85d590c994
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: VARCHAR(256)
+      description: UserPrincipalName imported from active directory
+      name: UserPrincipalName
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6e784e00-ba12-51c1-922f-2b1e2d82ca68
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: VARCHAR(256)
+      description: Active directory account name
+      name: ComputerLogin
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7ee0b92d-e0fe-5f79-b3b7-c74f39d998f2
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Number of people directly reporting to this person, every employee
+        has a record, even if the number of reports is zero.
+      name: DirectReports
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9081559b-3850-5636-b9de-18d7fcae7908
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Total number of people reporting to this person, both directly
+        and indirectly, every employee has a record, even if the number of reports
+        is zero.
+      name: IndirectReports
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 958aed88-3e20-5e72-a2de-eff7de2bb450
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: VARCHAR(15)
+      description: Unique identifier for the Business Unit. This is the field recorded
+        against every posted GL ledger transaction.
+      name: BusinessUnitCodePriorPeriod
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 66c486f7-b26a-5bfc-a57c-5c3ff51aa15d
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Number of Transfers into a Business Unit
+      name: TransferIn
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE    WHEN I_PG_EMPLOYEE.EMPLOYEESTATUS LIKE 'CASUAL%' THEN 0  WHEN
+          I_PG_EMPLOYEE.BUSINESSUNITCODE <> I_EMPLOYEECOUNT_PRIORPERIOD.BUSINESSUNITCODE
+          AND I_EMPLOYEECOUNT_PRIORPERIOD.BUSINESSUNITCODE IS NOT NULL THEN 1 ELSE
+          0 END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: dc5b7b42-049b-5bde-b462-21a20abb7411
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Number of Transfers out of a Business Unit
+      name: TransferOut
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '0'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 976c22aa-2a46-5622-8673-e1e7b9464a94
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Number of Transfers into and out of a Business Unit. Transfers
+        in are 1 and Transfers out are -1
+      name: TransferCount
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE    WHEN I_PG_EMPLOYEE.EMPLOYEESTATUS LIKE 'CASUAL%' THEN 0  WHEN
+          I_PG_EMPLOYEE.BUSINESSUNITCODE <> I_EMPLOYEECOUNT_PRIORPERIOD.BUSINESSUNITCODE
+          AND I_EMPLOYEECOUNT_PRIORPERIOD.BUSINESSUNITCODE IS NOT NULL THEN 1 ELSE
+          0 END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6cdb0a8f-dea4-53cf-841f-8a7c234ee624
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was created in the data warehouse.
+      name: ODSCreateDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 91417679-e9f2-53ef-988c-a0281b7e5f45
+        stepCounter: 39933788-cbcc-5ca5-ba70-128bf9fa0a0a
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was updated in the data warehouse.
+      name: ODSUpdateDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        D_Date: c8d0c2c2-197f-55ad-b02d-eba1fb4c0900
+        D_Employee: bf28ab53-5f37-59cc-bcc9-56f04b96ba76
+        D_Period: 7b68d3ca-afb2-508b-bc98-8238728756a1
+        I_EmployeeCount_PriorPeriod: 340142a9-7ff9-58fd-b883-525a93e45c4a
+        I_EmployeeDirectAndIndirectReports: 790590ad-f1a4-512c-8cd6-fddf572f3672
+        I_PG_Employee: c1e41698-4209-5d45-b6c5-73d1dee49715
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: BRONZE
+        nodeName: D_Date
+      - locationName: GOLD
+        nodeName: D_Employee
+      - locationName: GOLD
+        nodeName: D_Period
+      - locationName: BRONZE
+        nodeName: I_EmployeeCount_PriorPeriod
+      - locationName: BRONZE
+        nodeName: I_EmployeeDirectAndIndirectReports
+      - locationName: BRONZE
+        nodeName: I_PG_Employee
+      join:
+        joinCondition: |-
+          FROM {{ ref('BRONZE', 'D_Date') }} "D_Date"
+          JOIN {{ ref('GOLD', 'D_Employee') }} "D_Employee"
+          JOIN {{ ref('GOLD', 'D_Period') }} "D_Period"
+          JOIN {{ ref_no_link('SILVER', 'I_EmployeeCount_Hist') }} "I_EmployeeCount_Hist"
+          JOIN {{ ref('BRONZE', 'I_EmployeeCount_PriorPeriod') }} "I_EmployeeCount_PriorPeriod"
+          JOIN {{ ref('BRONZE', 'I_EmployeeDirectAndIndirectReports') }} "I_EmployeeDirectAndIndirectReports"
+          JOIN {{ ref('BRONZE', 'I_PG_Employee') }} "I_PG_Employee"
+      name: I_EmployeeCount_CurrentPeriod
+      noLinkRefs:
+      - locationName: SILVER
+        nodeName: I_EmployeeCount_Hist
+  name: I_EmployeeCount_CurrentPeriod
+  overrideSQL: false
+  schema: ''
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

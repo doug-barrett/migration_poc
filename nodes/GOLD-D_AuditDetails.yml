@@ -1,0 +1,352 @@
+fileVersion: 1
+id: adad0333-5c17-536a-bb0a-e599ecc26ea7
+name: D_AuditDetails
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    businessKeyColumns:
+    - AuditCode
+    - ODSSourceSystemName
+  database: ''
+  deployEnabled: true
+  description: Junk dimension holding Audit Overview details
+  isMultisource: false
+  locationName: GOLD
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 40d72367-5bb9-50ac-8574-9af2e48c4e58
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: INTEGER IDENTITY(0,1)
+      description: Generated artificial key
+      name: D_AuditDetails_key
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 670e19d3-b035-5de6-9cf9-1644ec4ab00b
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: VARCHAR(15)
+      description: ''
+      name: AuditCode
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 666689e4-0d8a-52e6-bffc-e6623024b450
+          stepCounter: c231ec20-724b-59cb-a15c-0e4263ae54e6
+        transform: ''
+      isBusinessKey: true
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 358a2059-a0e5-5391-b7f4-1f73e69efe38
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: VARCHAR(200)
+      description: ''
+      name: AuditNumber
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COALESCE(I_AUDITDETAILS.NUMBER,'UNKNOWN')
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a562603b-13ef-5a48-aa9e-fe409df07eba
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: VARCHAR(2000)
+      description: ''
+      name: AuditTitle
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COALESCE(I_AUDITDETAILS.TITLE,'UNKNOWN')
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: bf0e3430-8421-535c-a606-bfe3cef58403
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: VARCHAR(2000)
+      description: ''
+      name: AuditOverview
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COALESCE(LEFT(CAST(I_AUDITDETAILS.OVERVIEW AS VARCHAR(2000)),2000),'UNKNOWN')
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f9d49b68-cee2-539b-aed7-14539cadb992
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: TIMESTAMP
+      description: The scheduled end date for this audit.
+      name: ScheduledDate
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 41eb5c40-bdd0-5c5b-9e98-3efe0621fa3d
+          stepCounter: c231ec20-724b-59cb-a15c-0e4263ae54e6
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: efe438bb-fb8b-5d33-af65-8a702b554392
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: TIMESTAMP
+      description: The date the audit moved to the "performed" status. Usually the
+        date the audit was conducted.
+      name: ActualDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COALESCE(I_AUDITDETAILS.ACTUALENDDATE,I_AUDITDETAILS.ACTUALSTARTDATE)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 1a5c0e03-25ba-5ca4-ab59-80a40188616f
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: TIMESTAMP
+      description: Date the Audit is closed, it can only be closed once all associated
+        non conformances are also closed.
+      name: ClosedDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 1e999517-7a02-5d0a-a4f9-313f9e76d61c
+          stepCounter: c231ec20-724b-59cb-a15c-0e4263ae54e6
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0bbd4f3a-9c4a-593a-8518-dbd7315b31f8
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: VARCHAR(2000)
+      description: ''
+      name: AuditForm
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COALESCE(I_AUDITDETAILS.AUDITFORM,'UNKNOWN')
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a15817ea-a08d-5d6a-af73-cca2dce76ed3
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: VARCHAR(25)
+      description: A way to identify specific Audit types, currenly only Onsite Observations.
+        This is currently hardcoded in the data warehouse, not read from the source
+        systems.
+      name: AuditType
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE   WHEN I_AUDITDETAILS.AUDITFORM IS NULL THEN 'UNKNOWN'   WHEN
+          I_AUDITDETAILS.AUDITFORM LIKE '%ONSITE%OBSERVATION%'    AND ODSSOURCESYSTEMNAME
+          = 'NPSAFE'    THEN 'ONSITE OBSERVATION'   ELSE 'OTHER AUDIT'  END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 57d8bba3-8291-529a-a27a-8cea654c4795
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: VARCHAR(25)
+      description: A way to identify Group CRC Audits and Non-CRC Audits. This grouping
+        is needed to group both CRC Audits and Onsite Observations as both are a CRC
+        Audit Type. Hardcoded in the data warehouse.
+      name: AuditGroup
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE    WHEN AUDITFORM IS NULL THEN 'UNKNOWN'    --ENDS WITH (CRC)
+          THIS IS THE NEW GROUPING FOR CRC AUDITS    WHEN AUDITFORM LIKE '%(CRC)'
+          AND     ODSSOURCESYSTEMNAME = 'NPSAFE' THEN 'CRC AUDIT'    --ONSITE OBSERVATIONS
+          ARE ALSO CRC AUDITS, THIS LINE NEEDS TO BE REMOVED WHEN THE HISTORICAL DATA
+          HAS BEEN UPDATED    WHEN AUDITFORM LIKE '%ONSITE%OBSERVATION%' AND     ODSSOURCESYSTEMNAME
+          = 'NPSAFE' THEN 'CRC AUDIT'    --STARTS WITH CRC CURRENT, THIS LINE NEEDS
+          TO BE REMOVED WHEN THE HISTORICAL DATA HAS BEEN UPDATED    WHEN AUDITFORM
+          LIKE 'CRC%' AND     ODSSOURCESYSTEMNAME = 'NPSAFE' THEN 'CRC AUDIT'    --EXACT
+          FORM NAME, THIS LINE NEEDS TO BE REMOVED WHEN THE HISTORICAL DATA HAS BEEN
+          UPDATED TO HAVE (CRC) AT THE END    WHEN AUDITFORM LIKE 'PERMIT AND MINOR
+          WORKS MANAGEMENT AUDIT%' THEN 'CRC AUDIT'    ELSE 'NON-CRC AUDIT'   END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a704dc34-403e-549b-aafe-1db52a81dd9a
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: VARCHAR(100)
+      description: The lead auditor for this audit
+      name: Auditor
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COALESCE(I_AUDITDETAILS.AUDITOR,'UNKNOWN')
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: fb926f4a-174c-5b9f-9e23-56605af85403
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: VARCHAR(100)
+      description: For Northpower employees, this is Northpower, but for external
+        auditors, their own company will be stored here.
+      name: AuditorCompany
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COALESCE(I_AUDITDETAILS.AUDITORCOMPANY   , CASE   WHEN I_AUDITDETAILS.AUDITOREMPLOYEECODE
+          IS NOT NULL   THEN 'NORTHPOWER'   ELSE 'UNKNOWN'   END)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f17310bb-52be-5e16-9a30-41857525abaa
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: VARCHAR(15)
+      description: ''
+      name: ODSSourceSystemName
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: d8122510-3389-5f34-8bf8-a00aea78ea95
+          stepCounter: c231ec20-724b-59cb-a15c-0e4263ae54e6
+        transform: ''
+      isBusinessKey: true
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e51ca508-c9c0-5450-82d7-7fccf7a5ff3e
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was created in the data warehouse
+      name: ODSCreateDate
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c15f9df8-e28d-553a-8918-b7b6ae10eec4
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was updated in the data warehouse
+      name: ODSUpdateDate
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e98f429a-f778-5c41-9f09-9cd4dbf0880e
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: NUMBER
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_VERSION
+      nullable: true
+      isSystemVersion: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: cbf8e14d-3f07-5f1d-ac3f-77b78d51eb78
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: VARCHAR
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_CURRENT_FLAG
+      nullable: true
+      isSystemCurrentFlag: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a77c1cef-eec5-5af8-84b9-697feb820f62
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_START_DATE
+      nullable: true
+      isSystemStartDate: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4225b70f-4c69-56ab-b03a-fdf059493a32
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_END_DATE
+      nullable: true
+      isSystemEndDate: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST('2999-12-31 00:00:00' AS TIMESTAMP)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c1a8d5d1-a412-53ed-b253-4f431114aeb1
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_CREATE_DATE
+      nullable: true
+      isSystemCreateDate: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: fac2cf56-6aa6-5c38-904c-6519c4dec36d
+        stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      name: SYSTEM_UPDATE_DATE
+      nullable: true
+      isSystemUpdateDate: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        I_Audit: addaecb4-e97c-56f6-b193-eb41a335bf79
+        I_AuditDetails: c231ec20-724b-59cb-a15c-0e4263ae54e6
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: SILVER
+        nodeName: I_Audit
+      - locationName: SILVER
+        nodeName: I_AuditDetails
+      join:
+        joinCondition: |-
+          FROM {{ ref('SILVER', 'I_Audit') }} "I_Audit"
+          JOIN {{ ref('SILVER', 'I_AuditDetails') }} "I_AuditDetails"
+      name: D_AuditDetails
+      noLinkRefs: []
+  name: D_AuditDetails
+  overrideSQL: false
+  schema: ''
+  sqlType: Dimension
+  type: sql
+  version: 1
+type: Node

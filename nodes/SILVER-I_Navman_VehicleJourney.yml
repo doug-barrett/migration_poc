@@ -1,0 +1,324 @@
+fileVersion: 1
+id: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+name: I_Navman_VehicleJourney
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: INSERT
+    truncateBefore: true
+  database: ''
+  deployEnabled: true
+  description: Navman Journey using ignition on and ignition off activity
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 1eacc053-854b-5ad2-b66a-7821dc1d335b
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: VARCHAR(36)
+      description: Activity Log ID
+      name: ActivityLogID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 55905186-0fc4-5d3f-9cfb-8ae750c2eaff
+          stepCounter: c2d9c480-8d26-5993-a515-2298721416cc
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c1ffb733-c0aa-5659-b0c7-96770aa44037
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: VARCHAR(36)
+      description: End Activity Log ID
+      name: EndActivityLogID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: --NEED END LOG ID SO THESE RECORDS CAN THEN BE DELETED FROM LOAD
+          TABLE  CASE    WHEN LEAD(EVENTSUBTYPE, 1) OVER (PARTITION BY REGISTRATION
+          ORDER BY ACTIVITYDATETIME, REGISTRATION) = 'SMDP_EVENT_IGNITION_OFF' AND     CASE      WHEN
+          RIGHT(EVENTSUBTYPE, 4) <> '_OFF' THEN LEAD(ACTIVITYDATETIME, 1) OVER (PARTITION
+          BY REGISTRATION ORDER BY ACTIVITYDATETIME, REGISTRATION)      ELSE NULL     END
+          IS NOT NULL THEN LEAD(ACTIVITYLOGID, 1) OVER (PARTITION BY REGISTRATION
+          ORDER BY ACTIVITYDATETIME, REGISTRATION)     ELSE NULL     END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 314e11cc-bb7c-5d3e-a268-1c95a6dfff49
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: TIMESTAMP
+      description: Activity Start Date Time
+      name: ActivityStartDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE    WHEN EVENTSUBTYPE = 'SMDP_EVENT_IGNITION_ON' THEN ACTIVITYDATETIME    ELSE
+          NULL   END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 532c462f-e78c-57ae-9f4f-db42ddc10c73
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: TIMESTAMP
+      description: Activity End Date
+      name: ActivityEndDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE    WHEN LEAD(EVENTSUBTYPE, 1) OVER (PARTITION BY REGISTRATION
+          ORDER BY ACTIVITYDATETIME, REGISTRATION) = 'SMDP_EVENT_IGNITION_OFF' THEN
+          LEAD(ACTIVITYDATETIME, 1) OVER (PARTITION BY REGISTRATION ORDER BY ACTIVITYDATETIME,
+          REGISTRATION)    WHEN EVENTSUBTYPE = 'SMDP_EVENT_IGNITION_OFF' AND     LAG(EVENTSUBTYPE,
+          1) OVER (PARTITION BY REGISTRATION ORDER BY ACTIVITYDATETIME, REGISTRATION)
+          IS NULL THEN ACTIVITYDATETIME    ELSE NULL   END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 78542f84-d908-58a8-8c38-6ef55e1cf66f
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: VARCHAR(15)
+      description: Navman Employee ID
+      name: EmployeeCode
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE    WHEN LEAD(EVENTSUBTYPE, 1) OVER (PARTITION BY REGISTRATION
+          ORDER BY ACTIVITYDATETIME, REGISTRATION) = 'SMDP_EVENT_IGNITION_OFF' THEN
+          COALESCE(LEAD(EMPLOYEECODE, 1) OVER (PARTITION BY REGISTRATION ORDER BY
+          ACTIVITYDATETIME, REGISTRATION), EMPLOYEECODE)    ELSE EMPLOYEECODE   END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 8346d95d-6a5a-5eb4-9e7e-ecd8953344e5
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: VARCHAR(80)
+      description: Vehicle Registration
+      name: Registration
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: a1ed4cb1-be6d-5b9c-8e61-e3a3208580cf
+          stepCounter: c2d9c480-8d26-5993-a515-2298721416cc
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0afcd3fd-8dc4-5711-b02c-e33133b69ba2
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: VARCHAR(8)
+      description: Vehicle number as set up in Finance1
+      name: VehicleNumber
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: e4b4fa01-27b5-51ca-9a4a-9d1df5fdfa39
+          stepCounter: c2d9c480-8d26-5993-a515-2298721416cc
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 387dc2bd-a48b-5aff-9c6c-028185aa68d9
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: NUMBER(18,2)
+      description: Trip Distance
+      name: TripDistance
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE    WHEN LEAD(EVENTSUBTYPE, 1) OVER (PARTITION BY REGISTRATION
+          ORDER BY ACTIVITYDATETIME, REGISTRATION) = 'SMDP_EVENT_IGNITION_OFF' THEN
+          LEAD(TRIPDISTANCE, 1) OVER (PARTITION BY REGISTRATION ORDER BY ACTIVITYDATETIME,
+          REGISTRATION)    ELSE NULL   END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 8cf48628-df37-5f37-a489-d0989f32eaf4
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Driver Not Logged In
+      name: DriverNotLoggedIn
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE    WHEN LEAD(EVENTSUBTYPE, 1) OVER (PARTITION BY REGISTRATION
+          ORDER BY ACTIVITYDATETIME, REGISTRATION) = 'SMDP_EVENT_IGNITION_OFF' THEN
+          CASE      WHEN COALESCE(CASE        WHEN EMPLOYEECODE = 'UNKNOWN' THEN NULL        ELSE
+          EMPLOYEECODE       END, CASE        WHEN LEAD(EVENTSUBTYPE, 1) OVER (PARTITION
+          BY REGISTRATION ORDER BY ACTIVITYDATETIME, REGISTRATION) = 'SMDP_EVENT_IGNITION_OFF'
+          THEN LEAD(EMPLOYEECODE, 1) OVER (PARTITION BY REGISTRATION ORDER BY ACTIVITYDATETIME,
+          REGISTRATION)        ELSE NULL       END) IS NULL THEN 1      ELSE 0     END    ELSE
+          0   END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2e400262-be93-57d5-b3ec-4c03e21bb8cc
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Trip Count
+      name: TripCount
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE    WHEN LEAD(EVENTSUBTYPE, 1) OVER (PARTITION BY REGISTRATION
+          ORDER BY ACTIVITYDATETIME, REGISTRATION) = 'SMDP_EVENT_IGNITION_OFF' AND     CASE      WHEN
+          RIGHT(EVENTSUBTYPE, 4) <> '_OFF' THEN LEAD(ACTIVITYDATETIME, 1) OVER (PARTITION
+          BY REGISTRATION ORDER BY ACTIVITYDATETIME, REGISTRATION)      ELSE NULL     END
+          IS NOT NULL THEN 1    ELSE 0     END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 585967e5-0e0c-5fed-bbac-fcc127e7859d
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: NUMBER(18,2)
+      description: Trip Duration Seconds
+      name: TripDurationSeconds
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: DATEDIFF(SECOND, ACTIVITYDATETIME, CASE    WHEN LEAD(EVENTSUBTYPE,
+          1) OVER (PARTITION BY REGISTRATION ORDER BY ACTIVITYDATETIME, REGISTRATION)
+          = 'SMDP_EVENT_IGNITION_OFF' THEN LEAD(ACTIVITYDATETIME, 1) OVER (PARTITION
+          BY REGISTRATION ORDER BY ACTIVITYDATETIME, REGISTRATION)    ELSE NULL   END)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ec1da452-4bd7-5bb8-984e-80a166841358
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: VARCHAR(16777216)
+      description: Location
+      name: Location
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE    WHEN EVENTSUBTYPE = 'SMDP_EVENT_IGNITION_ON' THEN LOCATION    ELSE
+          NULL   END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: baeb7e85-06cb-571f-aee3-6b6708104cad
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: VARCHAR(16777216)
+      description: Location
+      name: EndLocation
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE    WHEN LEAD(EVENTSUBTYPE, 1) OVER (PARTITION BY REGISTRATION
+          ORDER BY ACTIVITYDATETIME, REGISTRATION) = 'SMDP_EVENT_IGNITION_OFF' THEN
+          LEAD(LOCATION, 1) OVER (PARTITION BY REGISTRATION ORDER BY ACTIVITYDATETIME,
+          REGISTRATION)    WHEN EVENTSUBTYPE = 'SMDP_EVENT_IGNITION_OFF' AND     LAG(EVENTSUBTYPE,
+          1) OVER (PARTITION BY REGISTRATION ORDER BY ACTIVITYDATETIME, REGISTRATION)
+          IS NULL THEN LOCATION    ELSE NULL   END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: aa933081-c296-5c7b-9c47-519674fa82c3
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: NUMBER(8,6)
+      description: Start Latitude
+      name: StartLatitude
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE    WHEN EVENTSUBTYPE = 'SMDP_EVENT_IGNITION_ON' THEN LATITUDE    ELSE
+          NULL   END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: dc56140c-e1c8-5430-acfc-870ad44bb749
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: NUMBER(9,6)
+      description: Start Longitude
+      name: StartLongitude
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE    WHEN EVENTSUBTYPE = 'SMDP_EVENT_IGNITION_ON' THEN LONGITUDE    ELSE
+          NULL   END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: de15fe80-8d7f-586c-89b3-4a1e14d906aa
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: NUMBER(8,6)
+      description: End Latitude
+      name: EndLatitude
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE   WHEN LEAD(EVENTSUBTYPE, 1) OVER (PARTITION BY REGISTRATION
+          ORDER BY ACTIVITYDATETIME, REGISTRATION) = 'SMDP_EVENT_IGNITION_OFF'            THEN
+          LEAD(LATITUDE, 1) OVER (PARTITION BY REGISTRATION ORDER BY ACTIVITYDATETIME,
+          REGISTRATION)   WHEN EVENTSUBTYPE = 'SMDP_EVENT_IGNITION_OFF' AND    LAG(EVENTSUBTYPE,
+          1) OVER (PARTITION BY REGISTRATION ORDER BY ACTIVITYDATETIME, REGISTRATION)
+          IS NULL THEN LATITUDE   ELSE NULL  END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d82f2eee-c406-5a42-afb4-6a4958c9181f
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: NUMBER(9,6)
+      description: End Longitude
+      name: EndLongitude
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE   WHEN LEAD(EVENTSUBTYPE, 1) OVER (PARTITION BY REGISTRATION
+          ORDER BY ACTIVITYDATETIME, REGISTRATION) = 'SMDP_EVENT_IGNITION_OFF'             THEN
+          LEAD(LONGITUDE, 1) OVER (PARTITION BY REGISTRATION ORDER BY ACTIVITYDATETIME,
+          REGISTRATION)   WHEN EVENTSUBTYPE = 'SMDP_EVENT_IGNITION_OFF' AND    LAG(EVENTSUBTYPE,
+          1) OVER (PARTITION BY REGISTRATION ORDER BY ACTIVITYDATETIME, REGISTRATION)
+          IS NULL THEN LONGITUDE   ELSE NULL  END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 319e7265-d531-5a94-8581-1e5134d0a6f5
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was created in the data warehouse.
+      name: ODSCreateDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c0201042-6b93-5a99-8715-bdeeb252e8e7
+        stepCounter: a141f0c4-9605-54ba-93ac-b43c7b8c210d
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was updated in the data warehouse.
+      name: ODSUpdateDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        I_Navman_AllVehicleJourney: c2d9c480-8d26-5993-a515-2298721416cc
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: SILVER
+        nodeName: I_Navman_AllVehicleJourney
+      join:
+        joinCondition: FROM {{ ref('SILVER', 'I_Navman_AllVehicleJourney') }} "I_Navman_AllVehicleJourney"
+      name: I_Navman_VehicleJourney
+      noLinkRefs: []
+  name: I_Navman_VehicleJourney
+  overrideSQL: false
+  schema: ''
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

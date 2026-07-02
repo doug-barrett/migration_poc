@@ -1,0 +1,95 @@
+fileVersion: 1
+id: b0a24074-2593-5f95-baab-76c714514b49
+name: I_QP_Auditor
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: INSERT
+    truncateBefore: true
+  database: ''
+  deployEnabled: true
+  description: List of Auditors filtered to lead Auditors
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 56609fd0-98cc-57c3-93e6-2aec4178a161
+        stepCounter: b0a24074-2593-5f95-baab-76c714514b49
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: AuditorPersonID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: c60b83c9-e0cf-5917-8fe7-6b4b4935bdb0
+          stepCounter: a2cf16b2-2117-5bc7-9737-3c1e199a4bb8
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f4b72457-261e-5d3a-bf1b-b993a53fdc4d
+        stepCounter: b0a24074-2593-5f95-baab-76c714514b49
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: AuditID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 1a9b80c1-70b8-5712-a951-f1a8cf9bac7f
+          stepCounter: a2cf16b2-2117-5bc7-9737-3c1e199a4bb8
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b3236368-cb24-5384-abad-40abba4d5aa6
+        stepCounter: b0a24074-2593-5f95-baab-76c714514b49
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Order the records so that the one we want to use is in position
+        1, there may be more than one auditor per audit, and the there should only
+        be one lead auditor, but there might be multiple or none.
+      name: RowNumber
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ROW_NUMBER () OVER (PARTITION BY AUDITID ORDER BY ISLEADAUDITOR
+          DESC, PERSONID DESC)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ce276620-f52c-5fae-a71b-e3c06a90904f
+        stepCounter: b0a24074-2593-5f95-baab-76c714514b49
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was updated in the data warehouse
+      name: ODSUpdateDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        L_QP_xAuditor: a2cf16b2-2117-5bc7-9737-3c1e199a4bb8
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: BRONZE
+        nodeName: L_QP_xAuditor
+      join:
+        joinCondition: FROM {{ ref('BRONZE', 'L_QP_xAuditor') }} "L_QP_xAuditor"
+      name: I_QP_Auditor
+      noLinkRefs: []
+  name: I_QP_Auditor
+  overrideSQL: false
+  schema: ''
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

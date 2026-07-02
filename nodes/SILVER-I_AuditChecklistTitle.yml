@@ -1,0 +1,76 @@
+fileVersion: 1
+id: 6bc330a2-2003-5dcb-8f9a-77ba88d83d53
+name: I_AuditChecklistTitle
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: UNION
+  database: ''
+  deployEnabled: true
+  description: ''
+  isMultisource: false
+  locationName: SILVER
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: fbfdeb7a-a943-5c76-8938-eddea78a905b
+        stepCounter: 6bc330a2-2003-5dcb-8f9a-77ba88d83d53
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: AuditID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 8a71f277-1b5d-57bd-ab4b-f8e8b331ef7d
+          stepCounter: 484e8fb7-da44-5c09-ba8a-c1572dc424eb
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: be66150f-f9b6-5c0b-85f9-22a7415762d6
+        stepCounter: 6bc330a2-2003-5dcb-8f9a-77ba88d83d53
+      config: {}
+      dataType: VARCHAR(2000)
+      description: ''
+      name: Title
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: MIN(CASE    WHEN PATINDEX('%- U%', L_NPS_AUDITCHECKLIST.TITLE)
+          > 0 THEN SUBSTRING(L_NPS_AUDITCHECKLIST.TITLE, 0, PATINDEX('%- U%', L_NPS_AUDITCHECKLIST.TITLE))      ELSE
+          L_NPS_AUDITCHECKLIST.TITLE   END)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        L_NPS_Audit: ed9f72da-de13-52ce-9a03-47a4a6c5f77e
+        L_NPS_AuditChecklist: 484e8fb7-da44-5c09-ba8a-c1572dc424eb
+        S_Audit: da15284d-ddab-58ed-8f89-73c63976999c
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: BRONZE
+        nodeName: L_NPS_Audit
+      - locationName: BRONZE
+        nodeName: L_NPS_AuditChecklist
+      - locationName: SILVER
+        nodeName: S_Audit
+      join:
+        joinCondition: |-
+          FROM {{ ref('BRONZE', 'L_NPS_Audit') }} "L_NPS_Audit"
+          JOIN {{ ref('BRONZE', 'L_NPS_AuditChecklist') }} "L_NPS_AuditChecklist"
+          JOIN {{ ref('SILVER', 'S_Audit') }} "S_Audit"
+      name: I_AuditChecklistTitle
+      noLinkRefs: []
+  name: I_AuditChecklistTitle
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

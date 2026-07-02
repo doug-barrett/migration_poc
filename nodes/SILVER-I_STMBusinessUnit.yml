@@ -1,0 +1,141 @@
+fileVersion: 1
+id: 21845575-3cbf-506a-a72e-73d4b3a0da1e
+name: I_STMBusinessUnit
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: INSERT
+    truncateBefore: true
+  database: ''
+  deployEnabled: true
+  description: Take the meeting attendees and find their most common business unit.
+    This is assumed to be the business unit for the meeting.
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4bd72fd3-c62c-5dc3-beda-7282c0a21ef3
+        stepCounter: 21845575-3cbf-506a-a72e-73d4b3a0da1e
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ID of type Counter
+      name: MeetingID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUMMARY.MEETINGID
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 294c8f08-9b40-5222-9a61-c0414815fe35
+        stepCounter: 21845575-3cbf-506a-a72e-73d4b3a0da1e
+      config: {}
+      dataType: VARCHAR(50)
+      description: The Sharepoint List that the record came from
+      name: SourceTable
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUMMARY.SOURCETABLE
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 1c8c8ec7-79d6-5bac-863e-b29e3162210a
+        stepCounter: 21845575-3cbf-506a-a72e-73d4b3a0da1e
+      config: {}
+      dataType: VARCHAR(15)
+      description: The business code code for the employeee
+      name: BusinessUnitCode
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUMMARY.BUSINESSUNITCODE
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 72c19e38-23fc-5339-a900-b90f82008082
+        stepCounter: 21845575-3cbf-506a-a72e-73d4b3a0da1e
+      config: {}
+      dataType: NUMBER(38,0)
+      description: The number of employees attending this meeting
+      name: MeetingEmployeeCount
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: SUMMARY.EMPLOYEECOUNT
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4e4ce997-b755-5f92-abd4-ca7a667c5e73
+        stepCounter: 21845575-3cbf-506a-a72e-73d4b3a0da1e
+      config: {}
+      dataType: NUMBER(38,0)
+      description: The cost centre order based on the most empooyees associated with
+        it
+      name: SortOrder
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ROW_NUMBER() OVER( PARTITION BY SUMMARY.SOURCETABLE, SUMMARY.MEETINGID                     ORDER
+          BY CASE WHEN SUMMARY.BUSINESSUNITCODE = 'UNKNOWN' THEN 1 ELSE 0 END,                                 SUMMARY.EMPLOYEECOUNT
+          DESC                   )
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9a4ec87b-0cc8-5744-a968-8b99b7582543
+        stepCounter: 21845575-3cbf-506a-a72e-73d4b3a0da1e
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was created in the data warehouse.
+      name: ODSCreateDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4d2c8ca6-ca4b-514e-9163-9db5a1d0f4e3
+        stepCounter: 21845575-3cbf-506a-a72e-73d4b3a0da1e
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was updated in the data warehouse.
+      name: ODSUpdateDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        D_BusinessUnit: 4c3b91fd-dd4a-5161-9f32-188db32020e3
+        I_STMAttendance: ea8e1876-40f6-5a4d-bd2b-60ed2072366b
+        I_STMAttendanceMapped: 9a75150d-fa01-5e71-bc8b-70801dac61f8
+        S_EmployeeCount: a9b565df-357f-553a-aa6e-b2b2fb8bc266
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: GOLD
+        nodeName: D_BusinessUnit
+      - locationName: SILVER
+        nodeName: I_STMAttendance
+      - locationName: SILVER
+        nodeName: I_STMAttendanceMapped
+      - locationName: SILVER
+        nodeName: S_EmployeeCount
+      join:
+        joinCondition: |-
+          FROM {{ ref('GOLD', 'D_BusinessUnit') }} "D_BusinessUnit"
+          JOIN {{ ref('SILVER', 'I_STMAttendance') }} "I_STMAttendance"
+          JOIN {{ ref('SILVER', 'I_STMAttendanceMapped') }} "I_STMAttendanceMapped"
+          JOIN {{ ref('SILVER', 'S_EmployeeCount') }} "S_EmployeeCount"
+      name: I_STMBusinessUnit
+      noLinkRefs: []
+  name: I_STMBusinessUnit
+  overrideSQL: false
+  schema: ''
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,142 @@
+fileVersion: 1
+id: 32d8b286-22f8-5cab-98c1-f65848a0c25c
+name: I_CS_ObservationSummary
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: INSERT
+    truncateBefore: true
+  database: ''
+  deployEnabled: true
+  description: List of people who need to have these competencies
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9a591348-45e3-5031-872b-397cbe85a33a
+        stepCounter: 32d8b286-22f8-5cab-98c1-f65848a0c25c
+      config: {}
+      dataType: VARCHAR(50)
+      description: Employee Code
+      name: EmployeeCode
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 223e03a8-acf1-58a1-a65f-16822567fab3
+          stepCounter: bf28ab53-5f37-59cc-bcc9-56f04b96ba76
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 07342da3-14b1-52f2-84b2-5e135a45ad0a
+        stepCounter: 32d8b286-22f8-5cab-98c1-f65848a0c25c
+      config: {}
+      dataType: VARCHAR(50)
+      description: The Competency Code that this training item is associated with
+      name: CompetencyCode
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 38781399-6b97-52a1-945d-dc5fa71415ed
+          stepCounter: 96a96b31-86a6-5ee4-9d4c-a1df5048d238
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: dbb9aa5e-4bd6-58f0-90d5-3b8640d7d751
+        stepCounter: 32d8b286-22f8-5cab-98c1-f65848a0c25c
+      config: {}
+      dataType: VARCHAR(50)
+      description: The competency code for people doing Theory only have a trailing
+        " T". To join this to the theory question recults we need to remove the tailing
+        " T".
+      name: TheoryCompetencyCode
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE   --THERE IS SUPPOSED TO BE A " T" FOLLOWING THE COMPETENCY
+          CODE TO IDENTIFY THOSE THAT ONLY NEED TO BE THE THEORY   WHEN CHARINDEX('
+          T',WTC) < 1   THEN WTC   ELSE LEFT(WTC,CHARINDEX(' T',WTC)-1)  END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: da604d33-138b-535f-9152-9d6378583763
+        stepCounter: 32d8b286-22f8-5cab-98c1-f65848a0c25c
+      config: {}
+      dataType: TIMESTAMP
+      description: If the employee has passed the practical assessments, then this
+        is the date that the competency needs to be renewed by.
+      name: WTCExpiryDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST(WTCEXPIRYDATE,103 AS DATETIME)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 182dd866-594a-59a5-8719-32e2bf3afbbe
+        stepCounter: 32d8b286-22f8-5cab-98c1-f65848a0c25c
+      config: {}
+      dataType: VARCHAR(50)
+      description: The Status of the WTC according to the completion status of the
+        practical assessments. But this may be incorrect if the assessor has prematurally
+        closed the learning module off.
+      name: WTCStatus
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: eb5e9204-b860-5e93-9b1f-66b2b11847f6
+          stepCounter: 96a96b31-86a6-5ee4-9d4c-a1df5048d238
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 441c8704-0dab-566f-b6e6-0c4888743b4c
+        stepCounter: 32d8b286-22f8-5cab-98c1-f65848a0c25c
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was created in the data warehouse.
+      name: ODSCreateDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 09b9b51b-4112-50b0-aefd-a33444d1fa40
+        stepCounter: 32d8b286-22f8-5cab-98c1-f65848a0c25c
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was updated in the data warehouse.
+      name: ODSUpdateDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        D_Employee: bf28ab53-5f37-59cc-bcc9-56f04b96ba76
+        L_CS_WTCSummary: 96a96b31-86a6-5ee4-9d4c-a1df5048d238
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: GOLD
+        nodeName: D_Employee
+      - locationName: BRONZE
+        nodeName: L_CS_WTCSummary
+      join:
+        joinCondition: |-
+          FROM {{ ref('GOLD', 'D_Employee') }} "D_Employee"
+          JOIN {{ ref('BRONZE', 'L_CS_WTCSummary') }} "L_CS_WTCSummary"
+      name: I_CS_ObservationSummary
+      noLinkRefs: []
+  name: I_CS_ObservationSummary
+  overrideSQL: false
+  schema: ''
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

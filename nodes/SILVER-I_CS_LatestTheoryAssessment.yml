@@ -1,0 +1,86 @@
+fileVersion: 1
+id: 92ee5007-636d-5879-9db7-d12817b17e7c
+name: I_CS_LatestTheoryAssessment
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: UNION
+  database: ''
+  deployEnabled: true
+  description: Sometimes there can be multiple assessments for the same employee for
+    the same competency. We only want the latest one.
+  isMultisource: false
+  locationName: SILVER
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 093b10dd-98ba-5d2c-82e0-044742258a30
+        stepCounter: 92ee5007-636d-5879-9db7-d12817b17e7c
+      config: {}
+      dataType: VARCHAR(50)
+      description: ''
+      name: EmployeeCode
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 9a591348-45e3-5031-872b-397cbe85a33a
+          stepCounter: 32d8b286-22f8-5cab-98c1-f65848a0c25c
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e6f78459-5460-56c9-933c-3a611aff9bd1
+        stepCounter: 92ee5007-636d-5879-9db7-d12817b17e7c
+      config: {}
+      dataType: VARCHAR(50)
+      description: They have named the competency codes the same as the learning modules,
+        so we should be able to see that these match.
+      name: CompetencyCode
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 7cf53635-567f-5dd9-bdc1-2c2691676442
+          stepCounter: 9092c2f3-44b5-54e5-91e1-5ef693c80512
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 862075d6-d52a-57fe-86b9-8099aaef99ba
+        stepCounter: 92ee5007-636d-5879-9db7-d12817b17e7c
+      config: {}
+      dataType: DATE
+      description: The date the theory test was attempted
+      name: CompletionDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: MAX(COMPLETIONDATE)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        I_CS_AssessmentOverview: 9092c2f3-44b5-54e5-91e1-5ef693c80512
+        I_CS_ObservationSummary: 32d8b286-22f8-5cab-98c1-f65848a0c25c
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: SILVER
+        nodeName: I_CS_AssessmentOverview
+      - locationName: SILVER
+        nodeName: I_CS_ObservationSummary
+      join:
+        joinCondition: |-
+          FROM {{ ref('SILVER', 'I_CS_AssessmentOverview') }} "I_CS_AssessmentOverview"
+          JOIN {{ ref('SILVER', 'I_CS_ObservationSummary') }} "I_CS_ObservationSummary"
+      name: I_CS_LatestTheoryAssessment
+      noLinkRefs: []
+  name: I_CS_LatestTheoryAssessment
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

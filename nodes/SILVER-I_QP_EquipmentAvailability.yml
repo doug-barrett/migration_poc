@@ -1,0 +1,108 @@
+fileVersion: 1
+id: 90edfd5d-66a8-5449-86db-8b24ecf6c2f2
+name: I_QP_EquipmentAvailability
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: INSERT
+    truncateBefore: true
+  database: ''
+  deployEnabled: true
+  description: Work table to work out the hierarchy for equipment availability
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a7ad4560-d3d1-522d-8069-ea4746d76912
+        stepCounter: 90edfd5d-66a8-5449-86db-8b24ecf6c2f2
+      config: {}
+      dataType: BOOLEAN
+      description: ''
+      name: IsAvailable
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: bd3feacc-e413-55a5-afb2-1e24a7bb5937
+          stepCounter: fbcf9aa7-cd42-5474-a3b8-eda69456287e
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 05d60c4d-6cc1-59f3-bce0-aeb7d9d6e990
+        stepCounter: 90edfd5d-66a8-5449-86db-8b24ecf6c2f2
+      config: {}
+      dataType: VARCHAR(200)
+      description: ''
+      name: Availability
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN L_QP_EQUIPMENTITEM.ISAVAILABLE='1'  THEN 'ISSUED TO USER'  ELSE
+          'UNAVAILABLE'  END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: eb6658da-d706-5193-a7d9-34b8aa16125c
+        stepCounter: 90edfd5d-66a8-5449-86db-8b24ecf6c2f2
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COALESCE(L_QP_ZUNAVAILABLEREASON.ID,0)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: bca1f1ac-13f5-5fc7-903d-e381f10e16f1
+        stepCounter: 90edfd5d-66a8-5449-86db-8b24ecf6c2f2
+      config: {}
+      dataType: VARCHAR(200)
+      description: ''
+      name: UnavailableReason
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COALESCE(L_QP_ZUNAVAILABLEREASON.NAME,'NOT APPLICABLE')
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: cc3cc0fe-1afb-542d-9901-f6400e52ed6d
+        stepCounter: 90edfd5d-66a8-5449-86db-8b24ecf6c2f2
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was updated in the data warehouse
+      name: ODSUpdateDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        L_QP_EquipmentItem: fbcf9aa7-cd42-5474-a3b8-eda69456287e
+        L_QP_zUnavailableReason: 0398c30a-a74b-569b-972f-2a5f506427ed
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: BRONZE
+        nodeName: L_QP_EquipmentItem
+      - locationName: BRONZE
+        nodeName: L_QP_zUnavailableReason
+      join:
+        joinCondition: |-
+          FROM {{ ref('BRONZE', 'L_QP_EquipmentItem') }} "L_QP_EquipmentItem"
+          JOIN {{ ref('BRONZE', 'L_QP_zUnavailableReason') }} "L_QP_zUnavailableReason"
+      name: I_QP_EquipmentAvailability
+      noLinkRefs: []
+  name: I_QP_EquipmentAvailability
+  overrideSQL: false
+  schema: ''
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

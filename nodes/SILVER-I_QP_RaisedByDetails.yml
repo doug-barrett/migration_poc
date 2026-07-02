@@ -1,0 +1,140 @@
+fileVersion: 1
+id: 538a5c46-92a5-5e69-b507-2f809a0ebcf1
+name: I_QP_RaisedByDetails
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: INSERT
+    truncateBefore: true
+  database: ''
+  deployEnabled: true
+  description: Work table to get Raised by source, company and person together
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 512bc7a3-03bf-52d3-bc61-63aa74c727cf
+        stepCounter: 538a5c46-92a5-5e69-b507-2f809a0ebcf1
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 104290ef-090a-5466-98a7-4c12fa40ec33
+          stepCounter: 123155f6-df09-575a-8ab5-22ee7135dcfe
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c593fd09-8129-5168-8c4e-e1941cbf1db1
+        stepCounter: 538a5c46-92a5-5e69-b507-2f809a0ebcf1
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: RaisingPersonID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 994abf90-70b5-5a53-8de2-6bd84b53001a
+          stepCounter: 123155f6-df09-575a-8ab5-22ee7135dcfe
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 16caa305-b629-50b3-acb6-fe5a79cb9794
+        stepCounter: 538a5c46-92a5-5e69-b507-2f809a0ebcf1
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: RaisingCustomerID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: e2ca33f1-4e04-50b9-8a8b-6f4445262428
+          stepCounter: 123155f6-df09-575a-8ab5-22ee7135dcfe
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c7296820-b7d5-5461-8221-b54087faeef8
+        stepCounter: 538a5c46-92a5-5e69-b507-2f809a0ebcf1
+      config: {}
+      dataType: VARCHAR(200)
+      description: ''
+      name: RaisedBySource
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE   WHEN L_QP_INCIDENT.RAISINGCUSTOMERID IS NOT NULL THEN 'EXTERNAL'   ELSE
+          'INTERNAL'  END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 73eb4324-cb95-51e9-958c-7f484b88dfa8
+        stepCounter: 538a5c46-92a5-5e69-b507-2f809a0ebcf1
+      config: {}
+      dataType: VARCHAR(200)
+      description: ''
+      name: RaisingCompany
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COALESCE(L_QP_YCUSTOMER.NAME,'NORTHPOWER')
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 443e2bbc-f743-5847-8be8-f756a89b3094
+        stepCounter: 538a5c46-92a5-5e69-b507-2f809a0ebcf1
+      config: {}
+      dataType: VARCHAR(200)
+      description: ''
+      name: RaisingPersonName
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: L_QP_PERSON.FIRSTNAME + ' ' + L_QP_PERSON.LASTNAME
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: aff0ddb7-9ee0-5750-abaa-59ef0594d562
+        stepCounter: 538a5c46-92a5-5e69-b507-2f809a0ebcf1
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was updated in the data warehouse
+      name: ODSUpdateDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        L_QP_Incident: 123155f6-df09-575a-8ab5-22ee7135dcfe
+        L_QP_Person: 722dc80a-5e75-5897-b180-241111120caf
+        L_QP_yCustomer: 451fd16e-d73c-5b7c-b39b-a96938d06309
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: BRONZE
+        nodeName: L_QP_Incident
+      - locationName: BRONZE
+        nodeName: L_QP_Person
+      - locationName: BRONZE
+        nodeName: L_QP_yCustomer
+      join:
+        joinCondition: |-
+          FROM {{ ref('BRONZE', 'L_QP_Incident') }} "L_QP_Incident"
+          JOIN {{ ref('BRONZE', 'L_QP_Person') }} "L_QP_Person"
+          JOIN {{ ref('BRONZE', 'L_QP_yCustomer') }} "L_QP_yCustomer"
+      name: I_QP_RaisedByDetails
+      noLinkRefs: []
+  name: I_QP_RaisedByDetails
+  overrideSQL: false
+  schema: ''
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

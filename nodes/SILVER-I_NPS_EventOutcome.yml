@@ -1,0 +1,137 @@
+fileVersion: 1
+id: 88249a06-0473-539e-90d8-96526f973819
+name: I_NPS_EventOutcome
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: INSERT
+    truncateBefore: true
+  database: ''
+  deployEnabled: true
+  description: Creates multiple records depending on the number of outcomes indicated
+    against each event
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3343f549-a47c-5074-b8e4-4578fdc6141f
+        stepCounter: 88249a06-0473-539e-90d8-96526f973819
+      config: {}
+      dataType: VARCHAR(15)
+      description: ''
+      name: ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 32f82faf-fa1a-5b8d-ba23-568d8741a55a
+          stepCounter: 6fd72d9a-a857-5a43-98b2-7637e06c37b9
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 46eaea56-1a6e-5022-ae7a-afa63797ebb6
+        stepCounter: 88249a06-0473-539e-90d8-96526f973819
+      config: {}
+      dataType: VARCHAR(12)
+      description: ''
+      name: ODSSourceSystemName
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 36243cbd-5d42-53ef-9956-9f083e0a886f
+          stepCounter: 6fd72d9a-a857-5a43-98b2-7637e06c37b9
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 445e6a9a-3fa5-562d-bc71-10cc16da90d2
+        stepCounter: 88249a06-0473-539e-90d8-96526f973819
+      config: {}
+      dataType: VARCHAR(100)
+      description: ''
+      name: EventOutcome
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: VALUE
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2c2e433a-f22f-5db5-a631-85f76dd95ce6
+        stepCounter: 88249a06-0473-539e-90d8-96526f973819
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Count of the number of events times the number of outcomes. This
+        will not be used as a measure. Need a distinct count on the Event Key.
+      name: EventOutcomeCount
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '1'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0624e99f-89e3-51ed-9092-e432db1e1730
+        stepCounter: 88249a06-0473-539e-90d8-96526f973819
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Outcome Order of Priorty as supplied by the HSQE team
+      name: OutcomePriority
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 2e2ed2ae-462a-5865-a635-3b85fad2fe15
+          stepCounter: fb0684da-35b4-5af6-88d4-36d2e16b9d29
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 083e1b5e-d036-56fc-a6d3-240727c3a8fb
+        stepCounter: 88249a06-0473-539e-90d8-96526f973819
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Prioritised as per order provided by HSQE team
+      name: RowOrder
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ROW_NUMBER() OVER (PARTITION BY ID ORDER BY OUTCOMEPRIORITY)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: adda7e56-43f3-5787-a86d-6d0dd664628d
+        stepCounter: 88249a06-0473-539e-90d8-96526f973819
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was updated in the data warehouse.
+      name: ODSUpdateDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        I_NPS_Outcome: fb0684da-35b4-5af6-88d4-36d2e16b9d29
+        L_NPS_NPSelOccurrenceView: 6fd72d9a-a857-5a43-98b2-7637e06c37b9
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: SILVER
+        nodeName: I_NPS_Outcome
+      - locationName: BRONZE
+        nodeName: L_NPS_NPSelOccurrenceView
+      join:
+        joinCondition: |-
+          LEFT JOIN {{ ref('SILVER', 'I_NPS_Outcome') }} "I_NPS_Outcome"
+            ON VALUE = I_NPS_OUTCOME.OUTCOME
+      name: I_NPS_EventOutcome
+      noLinkRefs: []
+  name: I_NPS_EventOutcome
+  overrideSQL: false
+  schema: ''
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,116 @@
+fileVersion: 1
+id: f25d0310-fdad-5f8b-ac14-26a6566f290a
+name: I_CS_CompetencyObservations
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: INSERT
+    truncateBefore: true
+  database: ''
+  deployEnabled: true
+  description: Creates a list of required tasks and observations for each competency.
+    This is loaded from the completed training, so a compentcy will not be correctly
+    added to this list until it has been completed successfully by at least one person.
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4536464e-ab70-54db-b7df-cfa95193154c
+        stepCounter: f25d0310-fdad-5f8b-ac14-26a6566f290a
+      config: {}
+      dataType: VARCHAR(50)
+      description: They have named the competency codes the same as the learning modules,
+        so we should be able to see that these match.
+      name: CompetencyCode
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 45dd7653-576e-5869-a2dd-a768870cf67f
+          stepCounter: fc39e600-eda0-5210-adb1-fc9b842dd379
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c712b3a1-4a1e-5a2a-a07a-303189affb1c
+        stepCounter: f25d0310-fdad-5f8b-ac14-26a6566f290a
+      config: {}
+      dataType: VARCHAR(100)
+      description: One or more tasks that needs to be observed working correctly before
+        the person can be deemed competent
+      name: ObservationCompetencyTask
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: d71f9b18-0a7b-5450-be1a-6d577d8b07be
+          stepCounter: fc39e600-eda0-5210-adb1-fc9b842dd379
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f78235c2-e5e9-51c2-bf76-1182bffdc110
+        stepCounter: f25d0310-fdad-5f8b-ac14-26a6566f290a
+      config: {}
+      dataType: VARCHAR(250)
+      description: One or more detailed items that specify what behaviour needs to
+        be observed.
+      name: ObservationCompetencyItem
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: I_CS_OBSERVATIONCHECKLIST.OBSERVATIONCOMPETENCYITEM
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 67efa0e6-52a2-5208-b68a-c7fa52503bb6
+        stepCounter: f25d0310-fdad-5f8b-ac14-26a6566f290a
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was created in the data warehouse.
+      name: ODSCreateDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 556ece00-5c3e-53ee-90fa-84787239c61d
+        stepCounter: f25d0310-fdad-5f8b-ac14-26a6566f290a
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was updated in the data warehouse.
+      name: ODSUpdateDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        I_CS_ObservationChecklist: fc39e600-eda0-5210-adb1-fc9b842dd379
+        L_Ref_TrainingNoLongerRequiredObservations: 8c9bfbcb-e9ff-5a3a-8485-55149905bf56
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: SILVER
+        nodeName: I_CS_ObservationChecklist
+      - locationName: BRONZE
+        nodeName: L_Ref_TrainingNoLongerRequiredObservations
+      join:
+        joinCondition: |-
+          FROM {{ ref('SILVER', 'I_CS_ObservationChecklist') }} "I_CS_ObservationChecklist"
+          LEFT JOIN {{ ref('BRONZE', 'L_Ref_TrainingNoLongerRequiredObservations') }} "L_Ref_TrainingNoLongerRequiredObservations"
+            ON I_CS_OBSERVATIONCHECKLIST.ASSOCIATEDCOMPETENCYCODE = L_REF_TRAININGNOLONGERREQUIREDOBSERVATIONS.COMPETENCYCODE AND I_CS_OBSERVATIONCHECKLIST.OBSERVATIONCOMPETENCYTASK = L_REF_TRAININGNOLONGERREQUIREDOBSERVATIONS.TASK AND I_CS_OBSERVATIONCHECKLIST.OBSERVATIONCOMPETENCYITEM = L_REF_TRAININGNOLONGERREQUIREDOBSERVATIONS.OBSERVATION
+          WHERE L_REF_TRAININGNOLONGERREQUIREDOBSERVATIONS.COMPETENCYCODE IS NULL    GROUP BY I_CS_OBSERVATIONCHECKLIST.ASSOCIATEDCOMPETENCYCODE  , I_CS_OBSERVATIONCHECKLIST.OBSERVATIONCOMPETENCYTASK  , I_CS_OBSERVATIONCHECKLIST.OBSERVATIONCOMPETENCYITEM
+      name: I_CS_CompetencyObservations
+      noLinkRefs: []
+  name: I_CS_CompetencyObservations
+  overrideSQL: false
+  schema: ''
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

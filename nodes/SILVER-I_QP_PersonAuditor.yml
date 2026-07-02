@@ -1,0 +1,165 @@
+fileVersion: 1
+id: 7334cb88-231c-5580-86e3-2875f1330072
+name: I_QP_PersonAuditor
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: INSERT
+    truncateBefore: true
+  database: ''
+  deployEnabled: true
+  description: List of people who Audit
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f6f40f97-bd32-593d-9645-e9efb786a807
+        stepCounter: 7334cb88-231c-5580-86e3-2875f1330072
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: AuditorCode
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: DISTINCT L_QP_PERSON.ID
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 45c17770-be6d-5b95-aa88-ce18b19645f7
+        stepCounter: 7334cb88-231c-5580-86e3-2875f1330072
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: PersonID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: c60b83c9-e0cf-5917-8fe7-6b4b4935bdb0
+          stepCounter: a2cf16b2-2117-5bc7-9737-3c1e199a4bb8
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3d84503c-6bd5-51ae-9395-45985a85e681
+        stepCounter: 7334cb88-231c-5580-86e3-2875f1330072
+      config: {}
+      dataType: VARCHAR(200)
+      description: ''
+      name: Number
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COALESCE(L_QP_PERSON.NUMBER,'UNKNOWN')
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 394e8352-d285-5b39-a31d-30651bbca2d6
+        stepCounter: 7334cb88-231c-5580-86e3-2875f1330072
+      config: {}
+      dataType: VARCHAR(200)
+      description: ''
+      name: Auditor
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: L_QP_PERSON.FIRSTNAME + ' ' + L_QP_PERSON.LASTNAME
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: bacc2833-5202-5734-866a-690917360a37
+        stepCounter: 7334cb88-231c-5580-86e3-2875f1330072
+      config: {}
+      dataType: BOOLEAN
+      description: ''
+      name: IsLeadAuditor
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 80fde3fe-408a-55be-baf0-acb00c8e4ddf
+          stepCounter: a2cf16b2-2117-5bc7-9737-3c1e199a4bb8
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d01ddcd4-556d-5ae7-bf5e-591feac6a316
+        stepCounter: 7334cb88-231c-5580-86e3-2875f1330072
+      config: {}
+      dataType: VARCHAR(200)
+      description: ''
+      name: AuditingCompany
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: COALESCE(L_QP_YCUSTOMER.NAME,'NORTHPOWER')
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2544149a-099e-5b02-92f3-9877564f83ff
+        stepCounter: 7334cb88-231c-5580-86e3-2875f1330072
+      config: {}
+      dataType: BOOLEAN
+      description: ''
+      name: IsDeleted
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: c89fc6bf-3c5b-5f11-a9bc-3a29086bfa3d
+          stepCounter: 722dc80a-5e75-5897-b180-241111120caf
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3a176800-408d-527b-a876-3f073eabd931
+        stepCounter: 7334cb88-231c-5580-86e3-2875f1330072
+      config: {}
+      dataType: VARCHAR(12)
+      description: ''
+      name: ODSSourceSystemName
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 17022fd1-32ea-599e-8d35-b777520bc57d
+          stepCounter: 722dc80a-5e75-5897-b180-241111120caf
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 791a512c-2ff6-5f16-b775-592f5b490a1c
+        stepCounter: 7334cb88-231c-5580-86e3-2875f1330072
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and time the row was updated in the data warehouse
+      name: ODSUpdateDate
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        L_QP_Person: 722dc80a-5e75-5897-b180-241111120caf
+        L_QP_xAuditor: a2cf16b2-2117-5bc7-9737-3c1e199a4bb8
+        L_QP_yCustomer: 451fd16e-d73c-5b7c-b39b-a96938d06309
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: BRONZE
+        nodeName: L_QP_Person
+      - locationName: BRONZE
+        nodeName: L_QP_xAuditor
+      - locationName: BRONZE
+        nodeName: L_QP_yCustomer
+      join:
+        joinCondition: |-
+          FROM {{ ref('BRONZE', 'L_QP_Person') }} "L_QP_Person"
+          JOIN {{ ref('BRONZE', 'L_QP_xAuditor') }} "L_QP_xAuditor"
+          JOIN {{ ref('BRONZE', 'L_QP_yCustomer') }} "L_QP_yCustomer"
+      name: I_QP_PersonAuditor
+      noLinkRefs: []
+  name: I_QP_PersonAuditor
+  overrideSQL: false
+  schema: ''
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node
