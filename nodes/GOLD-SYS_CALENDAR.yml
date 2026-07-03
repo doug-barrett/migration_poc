@@ -1,0 +1,223 @@
+fileVersion: 1
+id: c8e36bee-bb85-520d-8afa-a3af49a3a286
+name: SYS_CALENDAR
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: UNION
+  database: ''
+  deployEnabled: true
+  description: ''
+  isMultisource: false
+  locationName: GOLD
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 519fd011-46ab-52cc-9073-b93223a6b930
+        stepCounter: c8e36bee-bb85-520d-8afa-a3af49a3a286
+      config: {}
+      dataType: TIMESTAMP
+      description: ''
+      name: CALENDAR_DATE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: DATEADD('DAY', ROW_NUMBER, DATE(0))::DATE
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 78c7cd17-0357-5421-8f26-d9ca22375728
+        stepCounter: c8e36bee-bb85-520d-8afa-a3af49a3a286
+      config: {}
+      dataType: NUMBER(3,0)
+      description: ''
+      name: DAY_OF_WEEK
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: EXTRACT(dayofweek FROM CALENDAR_DATE) + 1
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: eda380c5-7ccb-5dd7-ae00-7e8bb6b68f68
+        stepCounter: c8e36bee-bb85-520d-8afa-a3af49a3a286
+      config: {}
+      dataType: NUMBER(2,0)
+      description: ''
+      name: DAY_OF_MONTH
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: EXTRACT(dayofmonth FROM CALENDAR_DATE)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: dfd3e054-a4d9-5d97-89cd-eff7fa9bb74e
+        stepCounter: c8e36bee-bb85-520d-8afa-a3af49a3a286
+      config: {}
+      dataType: NUMBER(4,0)
+      description: ''
+      name: DAY_OF_YEAR
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: EXTRACT(dayofyear FROM CALENDAR_DATE)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0663bbd0-2d89-5860-bab1-c54ebbdf2e73
+        stepCounter: c8e36bee-bb85-520d-8afa-a3af49a3a286
+      config: {}
+      dataType: NUMBER(21,0)
+      description: ''
+      name: DAY_OF_CALENDAR
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ROW_NUMBER + DATEDIFF(DAY, '1900-01-01', '1970-01-01') + 1
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 88202fab-b7c9-5e6e-9a5a-5ca24385ee7e
+        stepCounter: c8e36bee-bb85-520d-8afa-a3af49a3a286
+      config: {}
+      dataType: VARCHAR(16777216)
+      description: ''
+      name: WEEKDAY_OF_MONTH
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CEIL(DAY(CALENDAR_DATE)/7.0)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 917b9c21-a99c-5857-aa14-17deccb6da28
+        stepCounter: c8e36bee-bb85-520d-8afa-a3af49a3a286
+      config: {}
+      dataType: VARCHAR(16777216)
+      description: ''
+      name: WEEK_OF_MONTH
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: "FLOOR((DATE_PART('day', CALENDAR_DATE) + \n\n         CASE WHEN\
+          \ DATE_PART('dow', DATE_TRUNC('month', CALENDAR_DATE)) = 0 \n\n        \
+          \      THEN 7 \n\n              ELSE DATE_PART('dow', DATE_TRUNC('month',\
+          \ CALENDAR_DATE)) \n\n         END - 1)/7)::INTEGER"
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e9c397da-96ef-586e-a5b0-48a59ff69e19
+        stepCounter: c8e36bee-bb85-520d-8afa-a3af49a3a286
+      config: {}
+      dataType: NUMBER(2,0)
+      description: ''
+      name: WEEK_OF_YEAR
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: FLOOR((DAYOFYEAR(CALENDAR_DATE) - 1 + DAYOFWEEK(DATE_TRUNC('year',
+          CALENDAR_DATE))) / 7)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6334b7aa-2a88-57a2-8590-dcab8924a675
+        stepCounter: c8e36bee-bb85-520d-8afa-a3af49a3a286
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: WEEK_OF_CALENDAR
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: FLOOR((DATEDIFF('day', '1900-01-01'::DATE, CALENDAR_DATE) + 1)
+          / 7)::INTEGER
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9d17a4e8-0c72-59e4-8f1b-ce7347f02e3b
+        stepCounter: c8e36bee-bb85-520d-8afa-a3af49a3a286
+      config: {}
+      dataType: VARCHAR(16777216)
+      description: ''
+      name: MONTH_OF_QUARTER
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: MONTH(CALENDAR_DATE) - (QUARTER(CALENDAR_DATE)-1) *3
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d8d1df2b-58eb-5e6c-9e04-64707b5533d7
+        stepCounter: c8e36bee-bb85-520d-8afa-a3af49a3a286
+      config: {}
+      dataType: NUMBER(2,0)
+      description: ''
+      name: MONTH_OF_YEAR
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: EXTRACT(month FROM CALENDAR_DATE)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 77e37399-518b-5c12-b406-26ce9e02fae1
+        stepCounter: c8e36bee-bb85-520d-8afa-a3af49a3a286
+      config: {}
+      dataType: VARCHAR(16777216)
+      description: ''
+      name: MONTH_OF_CALENDAR
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: (YEAR(CALENDAR_DATE) - YEAR(DATE '1900-01-01')) * 12 + (MONTH(CALENDAR_DATE)
+          - MONTH(DATE '1900-01-01')) + 1
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b5142c04-e7bd-5641-ba81-cff48ea0d81d
+        stepCounter: c8e36bee-bb85-520d-8afa-a3af49a3a286
+      config: {}
+      dataType: NUMBER(2,0)
+      description: ''
+      name: QUARTER_OF_YEAR
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: EXTRACT(quarter FROM CALENDAR_DATE)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d38b7068-c017-5038-8aff-f503a8dd4749
+        stepCounter: c8e36bee-bb85-520d-8afa-a3af49a3a286
+      config: {}
+      dataType: VARCHAR(16777216)
+      description: ''
+      name: QUARTER_OF_CALENDAR
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: FLOOR(((YEAR(CALENDAR_DATE) - 1900) * 12 + MONTH(CALENDAR_DATE)
+          - 1)/ 3 + 1)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2d7beb11-9abb-59c0-bb01-0332f7d0424e
+        stepCounter: c8e36bee-bb85-520d-8afa-a3af49a3a286
+      config: {}
+      dataType: NUMBER(4,0)
+      description: ''
+      name: YEAR_OF_CALENDAR
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: EXTRACT(year FROM CALENDAR_DATE)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases: {}
+      customSQL:
+        customSQL: ''
+      dependencies: []
+      join:
+        joinCondition: ''
+      name: SYS_CALENDAR
+      noLinkRefs: []
+  name: SYS_CALENDAR
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

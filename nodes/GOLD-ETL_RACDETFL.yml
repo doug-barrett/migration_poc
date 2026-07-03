@@ -1,0 +1,1805 @@
+fileVersion: 1
+id: a11f19e0-8844-5f4e-bddb-089916e92e67
+name: ETL_RACDETFL
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: UNION
+  database: ''
+  deployEnabled: true
+  description: ''
+  isMultisource: false
+  locationName: GOLD
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c1489906-ef9f-51c0-9542-7a3f45ee2121
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(11)
+      description: ''
+      name: Contract_Key
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: |-
+          "P_BI_STGTAB_DB"."UDF_GEN_CONTRACT_KEY"(
+
+          "SRC_RACDETFL"."RDCMP",
+
+          "SRC_RACDETFL"."RDCON0")
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5202cd92-ffec-5c02-aa1b-9afe69737bb4
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(14)
+      description: ''
+      name: Contract_Seq_Key
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: |-
+          "P_BI_STGTAB_DB"."UDF_GEN_CONTRACT_SEQ_KEY"(
+
+          "SRC_RACDETFL"."RDCMP",
+
+          "SRC_RACDETFL"."RDCON0",
+
+          "SRC_RACDETFL"."RDISEQ")
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2a4e227e-20fa-5f1b-984a-e5da3f8e4669
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(14)
+      description: ''
+      name: Contract_Line_Key
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '"P_BI_STGTAB_DB"."UDF_GEN_CONTRACT_LINE_KEY"("SRC_RACDETFL"."RDTYPE","SRC_RACDETFL"."RDSEQ0","SRC_RACDETFL"."RDRSEQ")'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7bb3e389-660c-5767-b54b-53cdbef5078c
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(14)
+      description: ''
+      name: Contract_Line_GL_Key
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: "Cast(\n\nSubstr(cast(Cast(\"SRC_RACDETFL\".\"RDSEQ0\" as integer)\
+          \ + 100000  as char(6)),2,5)\n\n||\n\nCase \n\n  When \"SRC_RACDETFL\".\"\
+          RDTYPE\" IN ('XD','YD')\n\n  Then 'XDP'\n\n  When \"SRC_RACDETFL\".\"RDTYPE\"\
+          \ IN ('RI','RP','VR') \n\n  Then 'RIR'\n\n  When \"SRC_RACDETFL\".\"RDTYPE\"\
+          \ IN ('ES','EQ','ER') \n\n  Then 'ES'\n\n  Else ''\n\nEnd as char(14))"
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d6bce379-8200-5c7b-881c-dd87332c8098
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(5,0)
+      description: 'Inv Seq #'
+      name: Order_Seq_Num
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 2797f952-ea63-521b-a828-f42b400d4eba
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: bebb5374-fae5-5531-b79c-82497ef68f48
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: DATE
+      description: ''
+      name: Reporting_Date
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '"P_BI_STGTAB_DB"."UDF_DEC_TO_DATE"("SRC_RACDETFL"."RDSYSD")'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5e56c589-9c69-5ad8-a937-5fce9cfbc2a7
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(6)
+      description: ''
+      name: Reporting_Month
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: "Cast(extract(year from \"P_BI_STGTAB_DB\".\"UDF_DEC_TO_DATE\"\
+          (\"SRC_RACDETFL\".\"RDSYSD\")) \n\n* 100 +\n\nExtract(Month from \"P_BI_STGTAB_DB\"\
+          .\"UDF_DEC_TO_DATE\"(\"SRC_RACDETFL\".\"RDSYSD\")) as char(6))"
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d6cd395c-7bfb-5b41-a5c6-89d7ed03d28e
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(5,0)
+      description: ''
+      name: Reporting_Year
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: extract(year from "P_BI_STGTAB_DB"."UDF_DEC_TO_DATE"("SRC_RACDETFL"."RDSYSD")
+          )
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f1618f50-17b1-5664-9339-9d44287d01e6
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n\
+        3 = Update \n4 = Delete\n5 = Refresh"
+      name: Journal_Type
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: "CASE\tWHEN Aud_Type in ('PT','PX','FI')\tTHEN 1 \n\n\tWHEN Aud_Type\
+          \ in ('UB','FB','FP','BR')\tTHEN 2 \n\n\tWHEN Aud_Type in ('UP','UR')\t\t\
+          THEN 3 \n\n\tWHEN Aud_Type in ('DL','FD')\t\tTHEN 4 \n\n\tWHEN Aud_Type\
+          \ in ('RR')\t\t\tTHEN 5 \n\n\tELSE NULL \n\nEND"
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 8cb2f500-7107-50fd-828f-0c735dd13df8
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(5,0)
+      description: ''
+      name: Source_Table_Rank
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 22ed77c3-7adb-5cca-bee2-8f7e9549b298
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and Time Journal Entry Created
+      name: Journal_Begin_Date
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: "CASE\tWHEN Aud_Type in ('PT' , 'PX' , 'FI' , 'UP', 'UR')\n\n\t\
+          THEN Aud_Time\n\n\tELSE CAST('1997-11-01 00:00:00.000000' as timestamp)\n\
+          \nEND"
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7c4ebfe1-059d-57c4-981a-c0e418610d7a
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: TIMESTAMP
+      description: Date and Time Journal Entry Created
+      name: Journal_End_Date
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: "CASE\tWHEN Aud_Type in ('UB' , 'FB' , 'FP' , 'DL' , 'FD', 'BR')\n\
+          \n\tTHEN Aud_Time\n\n\tELSE CAST('2999-12-31 00:00:00.000000' as timestamp)\n\
+          \nEND"
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 57cc2b89-e6f8-5e85-8ded-f832157e877e
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(30)
+      description: ''
+      name: Equipment_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: |-
+          CASE
+
+              WHEN "SRC_RACDETFL"."RDCATG" > 0
+
+              THEN  "SRC_RACDETFL"."RDITEM"
+
+              ELSE  Null
+
+              END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b0a17368-62dc-5831-82e6-355827f4d9e4
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(3,0)
+      description: ''
+      name: ReRent_Ind
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: "CASE\n\n    WHEN \"SRC_RACDETFL\".\"RDCATG\" > 0 \n\n       and\
+          \ Substring(\"SRC_RACDETFL\".\"RDITEM\" , 1 , 2) = 'RR'\n\n    THEN  1\n\
+          \n    ELSE  0\n\n    END"
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c08b3107-5ab7-5603-959f-7a0c42f455f4
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: Location_Id
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: coalesce("ID_LOCATION"."LOCATION_ID",0)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0ceb9481-5410-5f1a-a4a2-333cfb6b368b
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: Item_Id
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: coalesce("ID_ITEM"."ITEM_ID",0)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 36845025-c25c-5196-bac9-b55ffb66c8dc
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: Equipment_Id
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: coalesce("ID_EQUIPMENT"."EQUIPMENT_ID",0)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c5a1e814-12c8-59cc-aea9-7a0c1dda965d
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(2)
+      description: Company Code
+      name: Company_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 6c8ac04f-59f8-556f-acc9-551fb16d4f5b
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b38a80bc-34f5-5585-8871-424960121197
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Contract #'
+      name: Contract_Id
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 5facd660-a81b-55ae-a0c7-6d9100bbdb00
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ce7554d3-1e40-5419-a0ca-c032a3675a85
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(2)
+      description: RI=rental,SI=sale,XC=misc ES=Equipment sale,RP=Rnt
+      name: Order_Line_Type_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 261d51f9-d865-5518-b57f-6011615dfed2
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3d6c20c6-c098-5f29-ae85-d0b769197588
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Line #'
+      name: Order_Line_Num
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: efa20161-1481-5946-9d3c-7d809e5918f3
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9b880d85-58b7-5e1b-88e4-ae414768dca4
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(3)
+      description: 'Branch Loc #'
+      name: Rented_At_Location_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 5552a962-4e1e-5eca-88bc-3f5b45e77993
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f5677d1e-a52f-52b9-a693-c4e8e1326cd1
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(5,0)
+      description: Category
+      name: Category_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 26ac689a-61c6-5691-8c41-9493c671bb4e
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 66c0e9b1-b6b9-5d77-92b3-738ec8299a10
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Class
+      name: Class_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: d969ae09-4f75-51c2-8a49-17cd5cf5fe67
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f8e7516f-9a91-5395-9c71-d9f4b2364081
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(5,0)
+      description: Maintenance sub class
+      name: Maintenance_Subclass_Num
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 1531af0d-7ad0-556d-9ad0-cfcbce83a709
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7b4fb290-f83e-5238-a7a7-af08856efd19
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(30)
+      description: 'Item/Equip #'
+      name: Item_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: |-
+          CASE
+
+              WHEN "SRC_RACDETFL"."RDCATG" = 0
+
+              THEN  "SRC_RACDETFL"."RDITEM"
+
+              ELSE  Null
+
+              END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 758ab786-e6cf-5bc9-8c6d-1a7caec8c74c
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(5)
+      description: Stock class
+      name: Stock_Class_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: |-
+          CASE
+
+              WHEN "SRC_RACDETFL"."RDCATG" = 0 and RTRIM("SRC_RACDETFL"."RDSTKC") = ''
+
+              THEN  'MCI'
+
+              ELSE  "SRC_RACDETFL"."RDSTKC"
+
+              END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 87c6a082-c9b5-5649-bf8c-8bf9839cec58
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: Qty
+      name: Order_Line_Qty
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 6f23bd26-a4c0-56bb-a8dc-d2fff319ee19
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 099b5282-0abc-589b-8021-e2319a78ff21
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: Qty returned
+      name: Order_Line_Return_Qty
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 58c372b2-61eb-5b76-ab37-d7fa1564fe69
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0f00873c-f3ba-545d-b77a-b4e586c3a58d
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: Backorder Quantity
+      name: Backorder_Qty
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0f675ccb-8146-51c1-ba86-09c355f0c723
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: Original Backorder Quantity
+      name: Original_Backorder_Qty
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9cb58b4c-3a0f-5d1f-909f-0cac9cc8c05e
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Acct #'
+      name: RDCUS0
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 63e35f55-5c27-510a-a786-fee63ce23e4f
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c37e378e-5723-5a2f-8e42-51de6f8026de
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(2)
+      description: D/L st
+      name: RDDLST
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: ca960b23-2d8c-5bc0-aac5-f544be07427a
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2a6774b2-1229-5f1a-9aab-fdf92c32ba0e
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(20)
+      description: 'Drivers lic #'
+      name: RDDL0
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 93b0eede-e55d-56d8-a025-2fcd10e44f54
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 18d72c24-483d-5eb8-8c7e-0920018e0fc7
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(1)
+      description: Overriden
+      name: Overridden_Ind
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 22614753-255c-53ba-b3c9-bd527eaf3e46
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 46922db3-8069-5f12-a3da-277e07fa03ce
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(1)
+      description: MI/HR CD=M/H/U
+      name: RDMHCD
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 40d3a7a9-5195-50aa-8b11-cb429f4a0255
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 045042d1-8164-54a4-aa76-5d2566a1d57d
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(9,3)
+      description: Meter reading out
+      name: Meter_Reading_Out_Qty
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 743b5673-bb15-5deb-8ea4-eb96ed821b03
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 8e4f7934-2e24-5ee3-86bf-c9801b1dff22
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(9,3)
+      description: Meter reading in
+      name: Meter_Reading_In_Qty
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 99118b61-6368-5eb4-ab55-846bde0b5157
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5f989144-c536-5e26-99cd-e4e25f6ab24c
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(4,2)
+      description: Mi Chg
+      name: Mileage_Charge_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: ad1a916e-a032-52a3-a758-d47bedc88630
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f58e76de-2e9e-5c8b-b07e-bfe47871d6ea
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: Hr Rate
+      name: Hourly_Rate_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 46a32616-2bfb-5ebf-a9e9-73352e607b69
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c4de62b7-04f8-5956-a16c-98549aba74d1
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: Min Rate
+      name: Contract_Minimum_Rate_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: b1e2f159-d250-5711-8f3b-efc14a6f688c
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6cc820a5-d691-55ff-b230-821812c64a9e
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: Day Rate
+      name: Contract_Day_Rate_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 2cc0750d-e6c7-559a-9a71-e32e3d1df629
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ad19d942-2310-5d18-8f84-29a99137d8b1
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: Week Rate
+      name: Contract_Week_Rate_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: c58a1466-27c2-59ce-a5b0-efe39e8684e1
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 04620a8f-61c6-56e5-a56c-645563f26660
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(3,3)
+      description: D/W Pct
+      name: RPP_Percentage
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: e062edac-eb3c-5436-a9c1-b1333d1d7311
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c13e5f4b-e8cc-5fd4-8d08-38c1d9213550
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(5,2)
+      description: D/W Day
+      name: RPP_Day_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 0efd7a73-f190-5215-a355-b49f8f916c18
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3d86985b-42c1-5002-9be6-6b6e96829d20
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: D/W Wk
+      name: RPP_Week_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 30714718-e6ca-58c1-866f-eee5b96b5efa
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 97b9cbc8-9b9d-518a-96d8-beb4c55cd082
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: D/W Mo
+      name: RPP_Four_Week_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 7328fc36-fc01-5285-8a72-8e9a1b146e03
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f90c59be-3dae-5e95-824a-b0d7bcdaf70b
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(9,3)
+      description: Selling Price
+      name: Selling_Price_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 58ad9d3e-91c3-5085-8d83-66379ba96c62
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c0ab6021-3728-5316-b576-3f98d98b4627
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(2)
+      description: Unit of measure
+      name: Unit_of_Measure_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 6ce9105a-204b-5c6f-b810-1a434a01320f
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 28a4b198-7a34-586d-9b1d-55027e78263f
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(5,0)
+      description: '# of rtns'
+      name: RD0RTN
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 7390691e-5631-50b4-b9f6-7171c8b701d4
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 55a73fd0-284e-56fe-8dd0-460f87e60ce7
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: DATE
+      description: Date out
+      name: Rental_Out_Date
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '"P_BI_STGTAB_DB"."UDF_DEC_TO_DATE"("SRC_RACDETFL"."RDDATO")'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 02b089a0-1f7b-52db-8c4b-b5be21882fe3
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Time out
+      name: Rental_Out_Time
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: "CASE\n\n     WHEN \"SRC_RACDETFL\".\"RDTIMO\" <= 24 \n\n     THEN\
+          \ \"SRC_RACDETFL\".\"RDTIMO\" *100\n\n     ELSE \"SRC_RACDETFL\".\"RDTIMO\"\
+          \n\nEND"
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5fef5d7d-34d7-5e03-92e6-06811b8b4650
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: DATE
+      description: Date in or est rtn
+      name: Estimated_In_Date
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '"P_BI_STGTAB_DB"."UDF_DEC_TO_DATE"("SRC_RACDETFL"."RDDATI")'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 811a0580-ca57-524d-90da-332f46f34539
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Time in or est rtn
+      name: Estimated_In_Time
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: "CASE\n\n     WHEN \"SRC_RACDETFL\".\"RDTIMI\" <= 24 \n\n     THEN\
+          \ \"SRC_RACDETFL\".\"RDTIMI\" *100\n\n     ELSE \"SRC_RACDETFL\".\"RDTIMI\"\
+          \n\nEND"
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: cf2bb154-d133-5c3b-a632-27f1c8345bb4
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(2)
+      description: Eqp status-OP-open, EX-Exchanged, CL-Canceled RS-R
+      name: Order_Line_Status_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 03ac9aeb-3990-5523-9753-f23f370b28ba
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 54e8ab6a-4d23-5988-88c5-2ebfe2c4821c
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(4,4)
+      description: Disc %
+      name: Discount_Percent
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 4eb80186-d187-5f6f-a40b-56bbf8308534
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a30d1a48-0de5-50b1-ac56-31bb53f7c222
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: Disc Amt
+      name: Discount_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 5cae5959-804d-5399-8543-e90783ae8fc4
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 164640e4-a391-5b96-a9cc-bab48533802c
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(9,3)
+      description: Cost
+      name: Cost_of_Goods_Sold_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: dd49efef-8c55-57ae-9d04-f8fdf4ee56c5
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 126ce73f-d767-5a2e-b498-6bd769c18e4f
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(1)
+      description: Commissionable Y/N
+      name: Commisionable_Ind
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: ec5dddb4-0f94-5339-98e4-251a45df6d7a
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 18a77368-7205-52c0-9c7d-0d79b7df781e
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(1)
+      description: Taxable? Y/N
+      name: Taxable_Ind
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 5f0aee9e-a65d-57c6-a5a9-63f068069833
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ed2c88ee-a670-5e4a-8a50-372e88f7e93b
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(2)
+      description: Exchange/overide reason cd
+      name: Exchange_Override_Reason_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: d959b445-5630-5d72-9c43-2265795cc947
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 09ca5fa4-4237-5e44-a970-88111ac54dec
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(1)
+      description: Restock item on return? Y/N
+      name: Restock_Item_On_Return_Ind
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 0f0ce1d7-60d0-52c0-8252-c04c890e8872
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ba61dff1-c923-51c7-ac43-ed4f6a3d7ae5
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: Equipment deposit
+      name: Equipment_Deposit_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: ff953f16-8ba8-5f82-b562-390da61ae137
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9c1890c1-cd21-5933-beb5-48caa7c1ac16
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: DATE
+      description: System date
+      name: System_Date
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '"P_BI_STGTAB_DB"."UDF_DEC_TO_DATE"("SRC_RACDETFL"."RDSYSD")'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6130b043-bcbe-522a-9b72-5804b3f44b4b
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: System time
+      name: System_Time
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 5bc7e350-35d9-5de5-b9b0-405012f725ad
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e902f08b-8a41-57b0-90a1-adebae0d7eb9
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(5,0)
+      description: '# hrs for min'
+      name: Hours_for_Minimum_Rental_Qty
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 4b6854b3-f0e5-5597-897a-c56c49c144b3
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 00b37826-9eac-5001-8424-930d74791f44
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(1)
+      description: Kit component, item, or neither
+      name: Kit_Component_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 5236c423-b568-5731-a7c9-84c98b73f429
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 539373f9-c623-5bbf-84a2-9c56193a3906
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(9,2)
+      description: Rental $ amount
+      name: Rental_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 514f08a5-631e-5466-8dd5-a4e5e0bc5580
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 36930a08-ebf0-54cb-9364-8c92e53a1e6c
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: Damage waiver amount
+      name: RPP_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: bdac8135-b361-58d1-a8c3-4159d1eb60ab
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 62d54d22-5b73-5865-9aac-ea22d1308530
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(9,2)
+      description: Total rental $ amount
+      name: Total_Rental_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 6894d43e-c290-5bbd-bb8c-977606e387a0
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 8b2cbd73-dc69-57d1-8d1a-e6b7aa86c37d
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: DATE
+      description: Return date Y/M/D
+      name: Return_Date
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '"P_BI_STGTAB_DB"."UDF_DEC_TO_DATE"("SRC_RACDETFL"."RDRTND")'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ba0174f8-ea12-527b-836a-2331ef5c5a8e
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Retrn time HH:MM
+      name: Return_Time
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: "CASE\n\n     WHEN \"SRC_RACDETFL\".\"RDRTNT\" <= 24 \n\n     THEN\
+          \ \"SRC_RACDETFL\".\"RDRTNT\" *100\n\n     ELSE \"SRC_RACDETFL\".\"RDRTNT\"\
+          \n\nEND"
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a5d3f516-463f-5520-8139-d17806a0968a
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(5,0)
+      description: '# of days rent'
+      name: RDRDYS
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 5d64b618-d128-58e4-b4da-e66c4781d302
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 1f4958be-1ed0-5db7-bfec-496f7d74c501
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(4,2)
+      description: '# of hrs rent'
+      name: RDRHRS
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 5e9f707d-6e10-51f7-a006-1b8c330d2069
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a6601020-fd94-5a92-b71f-83aa86da8b07
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(10)
+      description: 'Employee # closing'
+      name: Employee_Closing_Userid
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 84ff2bf9-fbba-53ad-967c-e2d2180ba928
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f7d32cda-6ffb-5fdf-b61b-e86cc15f35b4
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(5,0)
+      description: Sys date year
+      name: RDSYSY
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: ebcd56d3-c3b1-5a68-af3a-b9a4ba9c1c63
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 08c6916b-d082-52a3-bf10-01e68f687464
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(5,0)
+      description: Sys date mnth
+      name: RDSYSM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: f141d8a2-bd1d-5734-8e25-a6ee508d5385
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 744ef837-b8bd-5b26-8792-d66c2c8d7396
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(5,0)
+      description: Sys date day
+      name: RDSYSA
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 588ad65d-3fc0-5597-a106-3a192f57acb0
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e7af4d0a-e84a-5b76-92ce-92dd38dbb509
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(5,0)
+      description: 'Return seq #'
+      name: Return_Order_Seq_Num
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: a4dedf74-031d-5395-909b-f1da774a6cb4
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b4caffef-6563-514c-81a4-a996344559b0
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(3)
+      description: Rtn loc
+      name: Returned_At_Location_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 0baea91b-11de-5f84-afcb-03105ac5fd5c
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 8ead2ee9-d3f5-5da6-b488-143cb50af503
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: Excess mileage Charge $
+      name: Excess_Mileage_Charge_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: d1f735b3-bbd8-5e0f-9089-0407973e3d8b
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9c3086c0-a7a5-53a5-8b45-9449a7953e32
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Credit memo contract #'
+      name: RDCRM0
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 6ae3c515-8291-52b4-989b-38548171eebb
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3db7767d-2fda-51be-bbd8-da1bc1e4481d
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(5,0)
+      description: 'Crd memo seq #'
+      name: RDCMS0
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 914e61d7-c07e-516a-8231-741db2e84a5f
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 22cc7838-db6c-5ceb-96a3-863289c1e532
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: DATE
+      description: Exchange date Y/M/D
+      name: Exchange_Date
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '"P_BI_STGTAB_DB"."UDF_DEC_TO_DATE"("SRC_RACDETFL"."RDEXDT")'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b315d3ab-4972-59f3-94b2-be9fec1cc965
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Exchg time HH:MM
+      name: Exchange_Time
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: "CASE\n\n     WHEN \"SRC_RACDETFL\".\"RDEXTM\" <= 24 \n\n     THEN\
+          \ \"SRC_RACDETFL\".\"RDEXTM\" *100\n\n     ELSE \"SRC_RACDETFL\".\"RDEXTM\"\
+          \n\nEND"
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 66436617-4e62-5efa-85ab-3c5e810b0ad9
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(10)
+      description: 'Kit # this item belongs to'
+      name: Kit_Num
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: d4cb163f-f10e-5473-82dd-14352559f31e
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 69a3671c-9124-57a1-a499-25488a0d1453
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(1)
+      description: Rate used
+      name: Rate_Used_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: b01ab9fc-2ecc-5f65-b5b3-f9e4dfcb9184
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 108e4612-70bd-5526-99e4-b79e00bffe77
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(1)
+      description: Rental/new on equipment sale
+      name: New_Equipment_Rental_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 409068bd-e8a6-589d-b014-64893532623f
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 63b4c056-0a5f-5ac2-8a60-754720ec4aa2
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: Hourly list rate
+      name: List_Hourly_Rate_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: a91c51d9-8154-5ebb-89c4-24436d98c773
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f678043f-4c7b-5203-85a6-4b4cf1ec0cdf
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: Minimum list rate
+      name: List_Minimum_Rate_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: dded5ef5-56c8-5cbd-b70c-25e4654e7067
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0f869087-667a-5a25-810c-db90bc0b74ae
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: Day list rate
+      name: List_Day_Rate_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 503af31c-c3ca-575d-a99d-ef73a1b7067a
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7a3889e4-5084-5cb3-ad27-befbcdfe0614
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: Week list rate
+      name: List_Week_Rate_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 6282a29b-2a43-5957-8b13-ca9affe7a09f
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f149bef7-2238-5257-ae3a-a85a4115f7b2
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: 4 Week list rate
+      name: List_Four_Week_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 3db82702-a2d8-5d5a-8efd-bc1b675dd793
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 753edcf4-2e5d-5d55-a7b4-3652b96d4d50
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(5,0)
+      description: '# of cycle bills'
+      name: RD0CYB
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: d3f95ba7-1e96-5c35-bb34-e55deb638105
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0ceb0ed5-8b82-50c9-93ec-736b2f12b654
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: DATE
+      description: Last date cycled billed from
+      name: Cycle_Billed_From
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '"P_BI_STGTAB_DB"."UDF_DEC_TO_DATE"("SRC_RACDETFL"."RDLBDF")'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 02559172-3294-5141-ab96-8e838eb6881f
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: DATE
+      description: Last date cycled billed to
+      name: Cycle_Billed_To
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '"P_BI_STGTAB_DB"."UDF_DEC_TO_DATE"("SRC_RACDETFL"."RDLBDT")'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e79bf4ff-1a4c-5aa4-8a1e-539de5309f6c
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(9,2)
+      description: Total to pre-bill
+      name: Total_to_Prebill_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: e0a363db-039c-5d40-b1c2-71aaaa3c6472
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 00a5ba83-6f40-5281-a3ee-1df0632054c4
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(9,2)
+      description: Total amount billed
+      name: RD$BLD
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 85234151-df23-5875-b50d-9a838bb44ea1
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 307ffb21-1d36-5240-88e5-14f65be637a0
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: DATE
+      description: System date out
+      name: RDSYDO
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '"P_BI_STGTAB_DB"."UDF_DEC_TO_DATE"("SRC_RACDETFL"."RDSYDO")'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ac620e0d-d75d-5626-98ef-b6670283eeba
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: System time out
+      name: RDSYTO
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 3bfbb730-2127-5c00-9f76-3133fab7a9d7
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 212705e4-bac3-5bf3-8707-997f2d2a957e
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(1)
+      description: Shift differential
+      name: Shift_Differential_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 589c8ece-0ce2-5815-b58c-a5d1967c0402
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a071ab74-0260-55d8-b275-fe439d35a86a
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(9,2)
+      description: Depreciation $ amount
+      name: Depreciation_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 1736d004-957b-5238-9f1b-43ef9b05f3f5
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b6f97450-4357-595b-89df-47ea7fcdbcde
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: P.O.#
+      name: Purchase_Order_Num
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 8bfa02ef-0056-57b6-8c2d-918ecf72ded6
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7f5a5d2a-7095-571f-a91b-d2c10b59cd3a
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: PO seq#
+      name: Purchase_Order_Seq_Num
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 06a3822f-8fb7-50b3-a7ae-0529b7a76dd5
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ca40f52f-56b3-5d0d-936f-2452370d10c1
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(9,2)
+      description: Amount earned
+      name: RDAMTE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 7b9e938e-9730-568d-ab46-98b0eb7daf70
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7f3807fb-8910-5ba1-950a-47150f3f788c
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Contract price #'
+      name: Contract_Price_Num
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 42e80514-a347-59ed-9fec-999ca5a7259a
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6c55bdeb-8c0b-5bc2-84b1-1142787c53db
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(2)
+      description: Day rate src
+      name: RDDSRC
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 8a443c75-919d-5b43-a0c3-e57a6cc44366
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 35099def-1110-5d31-bba9-ac06a5323c2f
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(2)
+      description: Week rate src
+      name: RDWSRC
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 80b746be-6fbd-571d-94bb-314e937799e6
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7e222dc1-adc3-5b96-8f18-f9370240f33e
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(2)
+      description: Mth rate src
+      name: RDMSRC
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 72dc3c69-a5dc-585c-907c-39ddec91d268
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 782d8da2-60cc-553d-b953-2fb5b6913929
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(5,0)
+      description: '# Credit days'
+      name: Credit_Days_Num
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: f2cdfc4b-bbc2-5912-9c7a-1966d33136e1
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 352ccfa8-f483-56ee-9a9e-65c28d01e912
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(4,2)
+      description: '# Credit hours'
+      name: Credit_Hours_Num
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: b85e262a-936a-5dc9-aaa0-fbac8bcd594f
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 020a8327-dca5-5296-b3c2-5b3ff668fe92
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(2)
+      description: Credit Reason Code
+      name: Credit_Reason_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 8a427adc-5137-5e0c-8de1-28748ac27939
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4d70dd4c-a28c-5a94-8997-f8fa7a0bee70
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Internal Rental Inv#
+      name: Internal_Rental_Invoice_Num
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: a6751d84-2547-539e-83a1-36e6593f7779
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d5bca040-a8df-5510-aca1-990317d38f58
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(5,0)
+      description: Internal Rental Seq#
+      name: Internal_Rental_Seq_Num
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: bbf02e98-fe75-51c5-adfa-804fb0694ee2
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 48abe2b5-c512-5468-9718-d3ced7b8a79a
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(30)
+      description: Journal Entry Type
+      name: Aud_Type
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 26e6c674-d9e3-5fbb-87ef-dd273161fc64
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 24bc78bb-ca0e-5bee-94be-9f49e05a4218
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: TIMESTAMP
+      description: Journal Entry Timestamp
+      name: Aud_Time
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: f6dd14ef-9579-5e14-b807-90ec29ac3a95
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b477b206-9858-59f9-ab13-15ccedebfbf0
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(30)
+      description: User Performing Update
+      name: Aud_User
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: a3ba50de-4ccf-5d4c-88b0-7e9bfa8877c4
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 18f71914-9759-589c-8332-34c7dbbce6c3
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(30)
+      description: Journal Entry Code
+      name: Aud_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: a921f4cf-0987-56cf-96a6-37bfaa909d9a
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 66027f75-a480-5baf-98e2-f4d499e974f5
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(38,0)
+      description: Relative Record Number
+      name: Aud_CNTRRN
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: d80c2a5a-71d7-5223-9d46-4ecd2882e47d
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b5a753d6-cc13-5469-a06c-fb313096c39b
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(30)
+      description: Program Performing Update
+      name: Aud_Program
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 61d900a8-2825-581a-9b5e-a573c7098821
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 295c6615-446d-5e22-80e8-7c91c661e940
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(7,2)
+      description: Month Rate
+      name: Contract_Four_Week_Rate_Amt
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 275bb804-702c-5751-8ede-5e2a5d828a24
+          stepCounter: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 37839855-8cad-5ede-98fc-7255ef200d30
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: VARCHAR(1)
+      description: ''
+      name: Contract_Line_Type
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '''C'''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0a067528-f210-58fa-b021-d437fc52a3be
+        stepCounter: a11f19e0-8844-5f4e-bddb-089916e92e67
+      config: {}
+      dataType: NUMBER(12,2)
+      description: ''
+      name: Total_Quantity
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '0'
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        SRC_RACDETFL: 5509ffc2-25d8-52dc-9f94-5b70d46da3c0
+        ID_LOCATION: 10a1f83c-35f5-5d55-ab02-47408a1e5efc
+        ID_EQUIPMENT: 9560088e-54e7-53c1-bde1-f9922cc51f3d
+        case: 9ac5488a-8a7b-5137-ba7b-8c3228af8a03
+        condition: 86cbdba5-6111-502f-b195-849a3cf7ee5b
+        ID_ITEM: d87417c6-184f-5a0e-ab2f-fbeba8fafbfd
+        CDC_BATCH: 85c8eb8d-5ced-56ef-a4b4-91d0c68ac753
+        _ID_LOCATION: 5920f3b5-0d11-5c90-8b86-ebce7c2b6f92
+        _ID_ITEM: 176ba9a1-b01b-585c-8354-b47c2c3fa822
+        _ID_EQUIPMENT: b72e7ba3-f4e4-5f42-ac99-3465b649f70e
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: GOLD
+        nodeName: SRC_RACDETFL
+      - locationName: GOLD
+        nodeName: ID_LOCATION
+      - locationName: GOLD
+        nodeName: ID_EQUIPMENT
+      - locationName: BRONZE
+        nodeName: case
+      - locationName: BRONZE
+        nodeName: condition
+      - locationName: GOLD
+        nodeName: ID_ITEM
+      - locationName: GOLD
+        nodeName: CDC_BATCH
+      - locationName: GOLD
+        nodeName: CDC_BATCH
+      - locationName: BRONZE
+        nodeName: _ID_LOCATION
+      - locationName: BRONZE
+        nodeName: _ID_ITEM
+      - locationName: BRONZE
+        nodeName: _ID_EQUIPMENT
+      join:
+        joinCondition: "FROM {{ ref('GOLD', 'SRC_RACDETFL') }} \"SRC_RACDETFL\"\n\
+          LEFT JOIN {{ ref('GOLD', 'ID_LOCATION') }} \"ID_LOCATION\"\n  ON \"SRC_RACDETFL\"\
+          .\"RDCMP\" = \"ID_LOCATION\".\"COMPANY_CODE\"\n\tAND \"SRC_RACDETFL\".\"\
+          RDLOC\" = \"ID_LOCATION\".\"LOCATION_CODE\"\nLEFT JOIN {{ ref('GOLD', 'ID_EQUIPMENT')\
+          \ }} \"ID_EQUIPMENT\"\n  ON \"SRC_RACDETFL\".\"RDCMP\" = \"ID_EQUIPMENT\"\
+          .\"COMPANY_CODE\"\n\t/* 1/30/2014 JD - changed\nFROM {{ ref('BRONZE', 'case')\
+          \ }} \"case\"\nINNER JOIN {{ ref('BRONZE', 'condition') }} \"condition\"\
+          \nLEFT JOIN {{ ref('GOLD', 'ID_ITEM') }} \"ID_ITEM\"\n  ON \"SRC_RACDETFL\"\
+          .\"RDCMP\" = \"ID_ITEM\".\"COMPANY_CODE\"\n\tAND \n\t\tCASE WHEN\n\t\t\t\
+          \"SRC_RACDETFL\".\"RDCATG\" = 0 \n\t\t\tTHEN  \"SRC_RACDETFL\".\"RDITEM\"\
+          \ ELSE  Null END\n\t\t\t\t= \"ID_ITEM\".\"ITEM_CODE\"\n\tAND CASE WHEN \"\
+          SRC_RACDETFL\".\"RDCATG\" = 0 AND RTRIM(\"SRC_RACDETFL\".\"RDSTKC\") = ''\n\
+          \tTHEN  'MCI'  ELSE  \"SRC_RACDETFL\".\"RDSTKC\" END\n\t= \"ID_ITEM\".\"\
+          STOCK_CLASS_CODE\"\nWhere \"SRC_RACDETFL\".\"AUD_TIME\" <= (Select MAX(Batch_End)\n\
+          FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\"\nFROM {{ ref('GOLD', 'CDC_BATCH')\
+          \ }} \"CDC_BATCH\"\n  ORDER BY \"SRC_RACDETFL\".\"AUD_TIME\" DESC, AUD_SEQNO\
+          \ DESC, CASE  \nWHEN Aud_Type in ('PT','PX','FI')\tTHEN 1 \nWHEN Aud_Type\
+          \ in ('UB','FB','FP','BR')\tTHEN 2 \nWHEN Aud_Type in ('UP','UR')\tTHEN\
+          \ 3 \nWHEN Aud_Type in ('DL','FD')\tTHEN 4 \nWHEN Aud_Type in ('RR')\t\t\
+          THEN 5 \n  ELSE 0 END DESC) = 1"
+      name: ETL_RACDETFL
+      noLinkRefs: []
+  name: ETL_RACDETFL
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

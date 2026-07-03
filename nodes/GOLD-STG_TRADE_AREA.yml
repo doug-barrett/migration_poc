@@ -1,0 +1,157 @@
+fileVersion: 1
+id: 065b21e5-9cd1-5132-837a-5c1fec203dc6
+name: STG_TRADE_AREA
+operation:
+  config:
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: UNION
+  database: ''
+  deployEnabled: true
+  description: ''
+  isMultisource: false
+  locationName: GOLD
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5d1e5d15-5511-543d-a84a-2f8a725d44af
+        stepCounter: 065b21e5-9cd1-5132-837a-5c1fec203dc6
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: Last_Id
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: Distinct "MAX_ID"."LAST_ID"
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: fa7de939-8f94-52c0-b9ea-69da5eca6408
+        stepCounter: 065b21e5-9cd1-5132-837a-5c1fec203dc6
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ''
+      name: Trade_Area_Id
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: "COALESCE(\"DV_TRADE_AREA\".\"TRADE_AREA_ID\",\n\nRow_Number()\
+          \ over(Order by \"DV_TRADE_AREA\".\"TRADE_AREA_ID\" asc NULLS FIRST,\n\n\
+          Case \n\nwhen Journal_type in (1,3,5) then 1 \n\nelse 9 end asc) + Last_Id)"
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ae1a2bf4-7b31-55c5-9d97-10ab4175f6c6
+        stepCounter: 065b21e5-9cd1-5132-837a-5c1fec203dc6
+      config: {}
+      dataType: VARCHAR(2)
+      description: Company Code
+      name: Company_code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: bbe53002-f2d5-5c48-81dd-e75bac4d0a32
+          stepCounter: da339b92-952d-51c5-ab27-0b06ae9c2f7b
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 13532aee-54cf-5c11-bdd7-85357054918b
+        stepCounter: 065b21e5-9cd1-5132-837a-5c1fec203dc6
+      config: {}
+      dataType: VARCHAR(70)
+      description: ''
+      name: Trade_Area_Code
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 4e2240f3-8dd4-5de1-a09a-c4115f86ff44
+          stepCounter: da339b92-952d-51c5-ab27-0b06ae9c2f7b
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: dfd35f3b-46f3-58d9-a9d7-c45272f1b62b
+        stepCounter: 065b21e5-9cd1-5132-837a-5c1fec203dc6
+      config: {}
+      dataType: VARCHAR(40)
+      description: ''
+      name: TRADENAME
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 81022fd2-fdf1-5a0c-ae43-d7dcf67ce4e5
+          stepCounter: da339b92-952d-51c5-ab27-0b06ae9c2f7b
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0090a3e5-6cda-5884-83bd-838580c22458
+        stepCounter: 065b21e5-9cd1-5132-837a-5c1fec203dc6
+      config: {}
+      dataType: VARCHAR(1)
+      description: ''
+      name: Active_Status_Code
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: e68caaf1-155d-596d-afad-5a627fa4b16d
+          stepCounter: da339b92-952d-51c5-ab27-0b06ae9c2f7b
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4a6324b6-d5e1-5aa6-87ef-8ee42bc1f7c2
+        stepCounter: 065b21e5-9cd1-5132-837a-5c1fec203dc6
+      config: {}
+      dataType: TIMESTAMP
+      description: ''
+      name: Effective_Begin_Date
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CURRENT_TIMESTAMP
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3b018668-211b-5d1d-98e5-33a47181ba63
+        stepCounter: 065b21e5-9cd1-5132-837a-5c1fec203dc6
+      config: {}
+      dataType: TIMESTAMP
+      description: ''
+      name: Effective_End_Date
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST('2999-12-31 00:00:00.000000' as timestamp)
+    cteString: ''
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        CDC_SYSTRAFL: da339b92-952d-51c5-ab27-0b06ae9c2f7b
+        DV_TRADE_AREA: c8dc19f4-19a2-59bb-bcaf-3e815a834b97
+        TRADE_AREA: e609946a-e684-5351-b96e-461bdff35fa2
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: GOLD
+        nodeName: CDC_SYSTRAFL
+      - locationName: GOLD
+        nodeName: DV_TRADE_AREA
+      - locationName: GOLD
+        nodeName: TRADE_AREA
+      join:
+        joinCondition: |-
+          FROM {{ ref('GOLD', 'CDC_SYSTRAFL') }} "CDC_SYSTRAFL"
+          LEFT JOIN {{ ref('GOLD', 'DV_TRADE_AREA') }} "DV_TRADE_AREA"
+            ON "CDC_SYSTRAFL"."TACMP" = "DV_TRADE_AREA"."COMPANY_CODE"
+          AND "CDC_SYSTRAFL"."TACODE" = "DV_TRADE_AREA"."TRADE_AREA_CODE"
+          FROM {{ ref('GOLD', 'TRADE_AREA') }} "TRADE_AREA"
+            on 1 = 1
+      name: STG_TRADE_AREA
+      noLinkRefs: []
+  name: STG_TRADE_AREA
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node
