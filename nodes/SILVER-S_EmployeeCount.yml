@@ -42,10 +42,8 @@ operation:
       name: D_Employee_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: cacf4458-16a1-574c-a462-b19f23a3f4e4
-          stepCounter: bf28ab53-5f37-59cc-bcc9-56f04b96ba76
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Employee"."D_Employee_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 83587b91-7d80-581e-9c69-0b083544d86f
@@ -71,10 +69,8 @@ operation:
       name: D_Period_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: e845263c-b369-5c03-b1de-20880ee6484c
-          stepCounter: 7b68d3ca-afb2-508b-bc98-8238728756a1
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Period"."D_Period_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: df61ef60-3a78-539c-a654-65b5ffb86f32
@@ -126,10 +122,8 @@ operation:
       name: D_BusinessUnit_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 11a5c892-19b5-5da7-9fd2-2156bedceab1
-          stepCounter: 4c3b91fd-dd4a-5161-9f32-188db32020e3
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_BusinessUnit"."D_BusinessUnit_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: fa8f77b8-50a1-5145-8a18-38cf55a228a2
@@ -154,10 +148,8 @@ operation:
       name: D_Location_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: e1585d6b-c1a7-5747-a6f2-083ade7b21e3
-          stepCounter: 2f82b4fa-d3b8-5afd-926e-d150ab1fe157
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Location"."D_Location_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7e272ccf-9530-5025-8ccc-b4048249da11
@@ -732,8 +724,18 @@ operation:
           FROM {{ ref('SILVER', 'I_EmployeeCount_Hist') }} "I_EmployeeCount_Hist"
           LEFT JOIN {{ ref('BRONZE', 'I_EmployeeSalaryRange') }} "I_EmployeeSalaryRange"
             ON I_EMPLOYEECOUNT_HIST.EMPLOYEECODE = I_EMPLOYEESALARYRANGE.EMPLOYEECODE AND I_EMPLOYEECOUNT_HIST.PERIODNUMBER = I_EMPLOYEESALARYRANGE.PERIODNUMBER
+          LEFT JOIN {{ ref('GOLD', 'D_Employee') }} "D_Employee"
+            ON "I_EmployeeCount_Hist"."EmployeeCode" = "D_Employee"."EmployeeCode"
+          LEFT JOIN {{ ref('GOLD', 'D_Period') }} "D_Period"
+            ON "I_EmployeeCount_Hist"."PeriodNumber" = "D_Period"."PeriodNumber"
+          LEFT JOIN {{ ref('GOLD', 'D_BusinessUnit') }} "D_BusinessUnit"
+            ON "I_EmployeeCount_Hist"."BusinessUnitCode" = "D_BusinessUnit"."BusinessUnitCode"
+          LEFT JOIN {{ ref_no_link('GOLD', 'D_Location') }} "D_Location"
+            ON "I_EmployeeCount_Hist"."LocationCode" = "D_Location"."LocationCode"
       name: S_EmployeeCount
       noLinkRefs:
+      - locationName: GOLD
+        nodeName: D_Location
       - locationName: GOLD
         nodeName: D_Location
   name: S_EmployeeCount

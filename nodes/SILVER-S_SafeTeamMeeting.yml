@@ -56,10 +56,8 @@ operation:
       name: D_SafeTeamMeeting_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 98824b0e-873a-501d-9008-f1e40509586f
-          stepCounter: aa7cf8e5-1938-5ae0-aaf7-9398d84eeb51
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_SafeTeamMeeting"."D_SafeTeamMeeting_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 44d5e0b5-e199-523f-9213-b4935b0d1fad
@@ -109,10 +107,8 @@ operation:
       name: D_Period_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: e845263c-b369-5c03-b1de-20880ee6484c
-          stepCounter: 7b68d3ca-afb2-508b-bc98-8238728756a1
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Period"."D_Period_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0cc4f350-8ab2-5341-bee2-bbc846862c7c
@@ -137,10 +133,8 @@ operation:
       name: D_BusinessUnit_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 11a5c892-19b5-5da7-9fd2-2156bedceab1
-          stepCounter: 4c3b91fd-dd4a-5161-9f32-188db32020e3
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_BusinessUnit"."D_BusinessUnit_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 14065e03-52e7-5929-b740-daaec806461b
@@ -234,6 +228,12 @@ operation:
             SELECT DISTINCT PERIODNUMBER FROM "D_DATE"
             WHERE MONTHLYOFFSET > -12 AND MONTHLYOFFSET <= 0
           )
+          LEFT JOIN {{ ref('GOLD', 'D_SafeTeamMeeting') }} "D_SafeTeamMeeting"
+            ON "I_SafeTeamMeeting"."MeetingCode" = "D_SafeTeamMeeting"."MeetingCode" AND "I_SafeTeamMeeting"."SourceTable" = "D_SafeTeamMeeting"."SourceTable"
+          LEFT JOIN {{ ref('GOLD', 'D_Period') }} "D_Period"
+            ON "I_SafeTeamMeeting"."PeriodNumber" = "D_Period"."PeriodNumber"
+          LEFT JOIN {{ ref('GOLD', 'D_BusinessUnit') }} "D_BusinessUnit"
+            ON "I_SafeTeamMeeting"."BusinessUnitCode" = "D_BusinessUnit"."BusinessUnitCode"
       name: S_SafeTeamMeeting
       noLinkRefs: []
   name: S_SafeTeamMeeting

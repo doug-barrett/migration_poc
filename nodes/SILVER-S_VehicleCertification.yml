@@ -27,10 +27,8 @@ operation:
       name: D_Vehicle_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 45e34626-64ab-542a-9bdf-2384935f061e
-          stepCounter: b53ffcd1-4687-5830-ace2-259c8e4e9748
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Vehicle"."D_Vehicle_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 814fa0ff-a03c-5722-8b5f-a07672677597
@@ -53,10 +51,8 @@ operation:
       name: D_Employee_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: cacf4458-16a1-574c-a462-b19f23a3f4e4
-          stepCounter: bf28ab53-5f37-59cc-bcc9-56f04b96ba76
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Employee"."D_Employee_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8af05d0c-a390-5dc9-8f63-cf9b33737491
@@ -81,10 +77,8 @@ operation:
       name: D_BusinessUnit_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 11a5c892-19b5-5da7-9fd2-2156bedceab1
-          stepCounter: 4c3b91fd-dd4a-5161-9f32-188db32020e3
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_BusinessUnit"."D_BusinessUnit_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d632ce35-0c72-5a7c-9b92-87511874c078
@@ -133,10 +127,8 @@ operation:
       name: D_Risk_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: ec0234a4-a50f-565e-8e85-fea3f1c872f2
-          stepCounter: 6847c6b5-58c2-56ac-a508-ca1eadeee407
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Risk"."D_Risk_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 45866a45-dd1c-51f7-b849-3163949906a0
@@ -241,10 +233,8 @@ operation:
       name: D_VehicleServiceType_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: f4a26120-9067-5ca5-9b9a-12580d7a26b1
-          stepCounter: b5229b60-97b5-52b1-be62-77097c85ad48
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_VehicleServiceType"."D_VehicleServiceType_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 62a7b31a-7ba0-5d5a-a988-79bf713e8fd3
@@ -425,6 +415,14 @@ operation:
             ON --ONLY CODED TO ONE OBLIGATION AND FOR ONLY ONE RISK TYPE TO STOP DUPLICATES RISK CODE = PREVENTATIVE MAINTENANCE ON OBLIGATIONCODE = '42' AND D_RISK.RISKCODE = 776 AND D_VEHICLESERVICETYPE.SERVICETYPE IN ('WOF', 'COF') --SPECIFIC VERIFICATION AND ONLY WHEN THERE IS AN OBLIGATION
           LEFT JOIN {{ ref('GOLD', 'D_ObligationVerificationType') }} "D_ObligationVerificationType"
             ON VERIFICATIONTYPE = 'CUSTOM - VEHICLE CERTIFICATION' AND D_OBLIGATION_KEY IS NOT NULL
+          LEFT JOIN {{ ref('GOLD', 'D_Vehicle') }} "D_Vehicle"
+            ON "I_VehicleCertification"."FleetNumber" = "D_Vehicle"."VehicleNumber"
+          LEFT JOIN {{ ref('GOLD', 'D_Employee') }} "D_Employee"
+            ON "I_VehicleCertification"."DriverCode" = "D_Employee"."EmployeeCode"
+          LEFT JOIN {{ ref('GOLD', 'D_BusinessUnit') }} "D_BusinessUnit"
+            ON "I_VehicleCertification"."BusinessUnitCode" = "D_BusinessUnit"."BusinessUnitCode"
+          LEFT JOIN {{ ref('GOLD', 'D_Risk') }} "D_Risk"
+          LEFT JOIN {{ ref('GOLD', 'D_VehicleServiceType') }} "D_VehicleServiceType"
       name: S_VehicleCertification
       noLinkRefs: []
   name: S_VehicleCertification

@@ -41,10 +41,8 @@ operation:
       name: D_Employee_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: cacf4458-16a1-574c-a462-b19f23a3f4e4
-          stepCounter: bf28ab53-5f37-59cc-bcc9-56f04b96ba76
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Employee"."D_Employee_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c4aadc33-b1c8-5919-ad41-d57869fce262
@@ -70,10 +68,8 @@ operation:
       name: D_BusinessUnit_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 11a5c892-19b5-5da7-9fd2-2156bedceab1
-          stepCounter: 4c3b91fd-dd4a-5161-9f32-188db32020e3
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_BusinessUnit"."D_BusinessUnit_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 34d1f705-aa5b-5129-80d5-385dedf73b78
@@ -98,10 +94,8 @@ operation:
       name: D_CRCCompetency_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: b90c8cdd-78e4-5601-8516-41e6fb010a38
-          stepCounter: b8a6cdf7-15a9-5dbd-aa2c-771cfa10ea3d
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_CRCCompetency"."D_CRCCompetency_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 691a299d-f3bf-5458-93ce-ff47cb7cb695
@@ -414,6 +408,12 @@ operation:
           LEFT JOIN {{ ref('SILVER', 'S_PracticalObservation') }} "S_PracticalObservation"
             ON I_CS_OBSERVATIONSUMMARY.COMPETENCYCODE = S_PRACTICALOBSERVATION.ASSOCIATEDCOMPETENCYCODE AND I_CS_OBSERVATIONSUMMARY.EMPLOYEECODE = S_PRACTICALOBSERVATION.EMPLOYEECODE
           GROUP BY I_CS_OBSERVATIONSUMMARY.EMPLOYEECODE  , I_CS_OBSERVATIONSUMMARY.COMPETENCYCODE  , I_CS_OBSERVATIONSUMMARY.WTCEXPIRYDATE  , I_CS_OBSERVATIONSUMMARY.WTCSTATUS  , D_EMPLOYEE.D_EMPLOYEE_KEY  , D_EMPLOYEE.BUSINESSUNITCODE  , D_BUSINESSUNIT.D_BUSINESSUNIT_KEY  , D_CRCCOMPETENCY.D_CRCCOMPETENCY_KEY  , D_CRCCOMPETENCY.THEORYONLYFLAG
+          LEFT JOIN {{ ref('GOLD', 'D_Employee') }} "D_Employee"
+            ON "I_CS_ObservationSummary"."EmployeeCode" = "D_Employee"."EmployeeCode"
+          LEFT JOIN {{ ref('GOLD', 'D_BusinessUnit') }} "D_BusinessUnit"
+            ON "I_CS_ObservationSummary"."BusinessUnitCode" = "D_BusinessUnit"."BusinessUnitCode"
+          LEFT JOIN {{ ref('GOLD', 'D_CRCCompetency') }} "D_CRCCompetency"
+            ON "I_CS_ObservationSummary"."CompetencyCode" = "D_CRCCompetency"."CompetencyCode"
       name: S_TrainingAssessment
       noLinkRefs: []
   name: S_TrainingAssessment

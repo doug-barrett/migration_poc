@@ -41,10 +41,9 @@ operation:
       name: D_SafetyInteractionDet_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: fd5739c5-33c5-565f-aa48-9f12769d7722
-          stepCounter: e88b35c1-0ea8-5f12-9373-ad315b9acd89
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_SafetyInteractionDetails"."D_SafetyInteractionDet_key",
+          0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7358d92c-1f7b-5165-9c3d-3a714dd80ae1
@@ -69,10 +68,8 @@ operation:
       name: D_Location_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: e1585d6b-c1a7-5747-a6f2-083ade7b21e3
-          stepCounter: 2f82b4fa-d3b8-5afd-926e-d150ab1fe157
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Location"."D_Location_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: aa42b310-0f6c-5df1-bfba-66d18d45590c
@@ -98,10 +95,8 @@ operation:
       name: D_RiskExposure_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 8236df58-86d9-50dd-873a-f7b8454188d8
-          stepCounter: 2dec87cc-c38a-570f-acab-1f42157c0670
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_RiskExposure"."D_RiskExposure_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 46bb76b9-b413-552e-a96c-e4fc85544827
@@ -168,10 +163,8 @@ operation:
       name: D_Employee_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: cacf4458-16a1-574c-a462-b19f23a3f4e4
-          stepCounter: bf28ab53-5f37-59cc-bcc9-56f04b96ba76
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Employee"."D_Employee_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9dfa8411-1ba0-5891-9772-17e96f669039
@@ -199,10 +192,8 @@ operation:
       name: D_BusinessUnit_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 11a5c892-19b5-5da7-9fd2-2156bedceab1
-          stepCounter: 4c3b91fd-dd4a-5161-9f32-188db32020e3
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_BusinessUnit"."D_BusinessUnit_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 33b0f448-feb2-55bf-a17d-5aed8317b8e4
@@ -228,10 +219,9 @@ operation:
       name: D_AlternateBusinessUnit_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: c2185874-0367-5590-93a4-fa6d44254168
-          stepCounter: bf1c3e43-9d3f-5f7e-ab96-84d26f454b24
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_AlternateBusinessUnit"."D_AlternateBusinessUnit_key",
+          0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 923a0a1c-734c-590b-82b9-ba5b92b71892
@@ -283,10 +273,8 @@ operation:
       name: D_Period_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: e845263c-b369-5c03-b1de-20880ee6484c
-          stepCounter: 7b68d3ca-afb2-508b-bc98-8238728756a1
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Period"."D_Period_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1d81356a-9779-53c2-815d-3ead8142fbcf
@@ -323,10 +311,8 @@ operation:
       name: D_CustomerNetwork_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 23353d42-2504-5031-9571-e1ae195e6cc9
-          stepCounter: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_CustomerNetwork"."D_CustomerNetwork_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e45df8d0-2174-5fe4-9099-084d0f0d89ce
@@ -396,6 +382,20 @@ operation:
           FROM {{ ref('GOLD', 'D_Customer') }} "D_Customer"
           JOIN {{ ref('GOLD', 'D_CustomerNetwork') }} "D_CustomerNetwork"
           JOIN {{ ref('SILVER', 'I_K2_SafetyWalkaround') }} "I_K2_SafetyWalkaround"
+          LEFT JOIN {{ ref('GOLD', 'D_SafetyInteractionDetails') }} "D_SafetyInteractionDetails"
+            ON "D_Customer"."SafetyWalkaroundId" = "D_SafetyInteractionDetails"."SafetyWalkaroundId"
+          LEFT JOIN {{ ref('GOLD', 'D_Location') }} "D_Location"
+            ON "D_Customer"."LocationCode" = "D_Location"."LocationCode"
+          LEFT JOIN {{ ref('GOLD', 'D_RiskExposure') }} "D_RiskExposure"
+            ON "D_Customer"."RiskExposureCode" = "D_RiskExposure"."RiskExposureCode"
+          LEFT JOIN {{ ref('GOLD', 'D_Employee') }} "D_Employee"
+            ON "D_Customer"."EmployeeCode" = "D_Employee"."EmployeeCode"
+          LEFT JOIN {{ ref('GOLD', 'D_BusinessUnit') }} "D_BusinessUnit"
+            ON "D_Customer"."CalculatedBusinessUnitCode" = "D_BusinessUnit"."BusinessUnitCode"
+          LEFT JOIN {{ ref('GOLD', 'D_AlternateBusinessUnit') }} "D_AlternateBusinessUnit"
+            ON "D_Customer"."EmployeeBusinessUnitCode" = "D_AlternateBusinessUnit"."BusinessUnitCode"
+          LEFT JOIN {{ ref('GOLD', 'D_Period') }} "D_Period"
+            ON "D_Customer"."PeriodNumber" = "D_Period"."PeriodNumber"
       name: S_SafetyInteractions
       noLinkRefs: []
   name: S_SafetyInteractions

@@ -41,10 +41,8 @@ operation:
       name: D_Employee_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: cacf4458-16a1-574c-a462-b19f23a3f4e4
-          stepCounter: bf28ab53-5f37-59cc-bcc9-56f04b96ba76
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Employee"."D_Employee_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 04464c69-c89e-52be-ba1e-56014f1167df
@@ -70,10 +68,8 @@ operation:
       name: D_BusinessUnit_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 11a5c892-19b5-5da7-9fd2-2156bedceab1
-          stepCounter: 4c3b91fd-dd4a-5161-9f32-188db32020e3
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_BusinessUnit"."D_BusinessUnit_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1675ee7d-0e23-5fbe-8a23-a701d511faf5
@@ -99,10 +95,8 @@ operation:
       name: D_CRCCompetency_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: b90c8cdd-78e4-5601-8516-41e6fb010a38
-          stepCounter: b8a6cdf7-15a9-5dbd-aa2c-771cfa10ea3d
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_CRCCompetency"."D_CRCCompetency_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: fc62b51b-9803-5d88-880e-42de2af8dd61
@@ -179,10 +173,8 @@ operation:
       name: D_Assessor_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 87e1b167-5da5-522d-bfd1-876854bbfd82
-          stepCounter: da294b6a-7c61-5812-8f67-09578a9b46a0
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Assessor"."D_Assessor_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 390a8694-449e-53ce-9da2-de4566e8f1b2
@@ -239,10 +231,8 @@ operation:
       name: D_ObservationTask_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 6bc97657-d52d-54c0-a38e-10e6238dc8cf
-          stepCounter: 88fef082-a475-5be7-a796-4695c722de7e
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_ObservationTask"."D_ObservationTask_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3b372c0d-2a4d-5d58-bb45-9df2e1c3d004
@@ -267,10 +257,8 @@ operation:
       name: D_ObservationRating_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: f6ebe308-00c1-5925-9bae-f9fe8e68ea7f
-          stepCounter: 8161746e-ea82-5a24-9e4a-33512f35bd06
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_ObservationRating"."D_ObservationRating_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 367854da-4ce3-5c8c-8359-c92f248a9221
@@ -440,6 +428,18 @@ operation:
             ON I_CS_LATESTOBSERVATIONCHECKLIST.ASSOCIATEDCOMPETENCYCODE = I_CS_COMPETENCYOBSERVATIONS.COMPETENCYCODE
           LEFT JOIN {{ ref('SILVER', 'I_CS_ObservationChecklist') }} "I_CS_ObservationChecklist"
             ON I_CS_OBSERVATIONCHECKLIST.EMPLOYEECODE = I_CS_LATESTOBSERVATIONCHECKLIST.EMPLOYEECODE AND I_CS_OBSERVATIONCHECKLIST.ASSOCIATEDCOMPETENCYCODE = I_CS_LATESTOBSERVATIONCHECKLIST.ASSOCIATEDCOMPETENCYCODE AND I_CS_OBSERVATIONCHECKLIST.OBSERVATIONCOMPETENCYTASK = I_CS_COMPETENCYOBSERVATIONS.OBSERVATIONCOMPETENCYTASK AND I_CS_OBSERVATIONCHECKLIST.OBSERVATIONCOMPETENCYITEM = I_CS_COMPETENCYOBSERVATIONS.OBSERVATIONCOMPETENCYITEM AND I_CS_OBSERVATIONCHECKLIST.OBSERVATIONASSIGNEDDATE = I_CS_LATESTOBSERVATIONCHECKLIST.OBSERVATIONASSIGNEDDATE
+          LEFT JOIN {{ ref('GOLD', 'D_Employee') }} "D_Employee"
+            ON "I_CS_LatestObservationChecklist"."EmployeeCode" = "D_Employee"."EmployeeCode"
+          LEFT JOIN {{ ref('GOLD', 'D_BusinessUnit') }} "D_BusinessUnit"
+            ON "I_CS_LatestObservationChecklist"."BusinessUnitCode" = "D_BusinessUnit"."BusinessUnitCode"
+          LEFT JOIN {{ ref('GOLD', 'D_CRCCompetency') }} "D_CRCCompetency"
+            ON "I_CS_LatestObservationChecklist"."AssociatedCompetencyCode" = "D_CRCCompetency"."CompetencyCode"
+          LEFT JOIN {{ ref('GOLD', 'D_Assessor') }} "D_Assessor"
+            ON "I_CS_LatestObservationChecklist"."AssessorCode" = "D_Assessor"."AssessorCode"
+          LEFT JOIN {{ ref('GOLD', 'D_ObservationTask') }} "D_ObservationTask"
+            ON "I_CS_LatestObservationChecklist"."ObservationCompetencyTask" = "D_ObservationTask"."ObservationTask" AND "I_CS_LatestObservationChecklist"."ObservationCompetencyItem" = "D_ObservationTask"."ObservationItem"
+          LEFT JOIN {{ ref('GOLD', 'D_ObservationRating') }} "D_ObservationRating"
+            ON "I_CS_LatestObservationChecklist"."ObservationRating" = "D_ObservationRating"."ObservationRatingCode"
       name: S_PracticalObservation
       noLinkRefs: []
   name: S_PracticalObservation

@@ -27,10 +27,9 @@ operation:
       name: D_HealthAndSafetyAudit_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 3733cf24-9721-5754-ba5b-7658b0e0232f
-          stepCounter: 6064d21d-7cbf-54e2-b0d1-202fc3d40092
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_HealthAndSafetyAuditDetails"."D_HealthAndSafetyAudit_key",
+          0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: de642e52-de87-5f83-a89e-79177150318c
@@ -126,10 +125,8 @@ operation:
       name: D_BusinessUnit_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 11a5c892-19b5-5da7-9fd2-2156bedceab1
-          stepCounter: 4c3b91fd-dd4a-5161-9f32-188db32020e3
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_BusinessUnit"."D_BusinessUnit_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 12affd7c-92da-5a9a-b314-840a11c8d691
@@ -168,10 +165,8 @@ operation:
       name: D_Period_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: e845263c-b369-5c03-b1de-20880ee6484c
-          stepCounter: 7b68d3ca-afb2-508b-bc98-8238728756a1
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Period"."D_Period_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: fc56ab9e-3fa1-54e4-a944-4e54c3350209
@@ -231,7 +226,14 @@ operation:
       - locationName: GOLD
         nodeName: D_Period
       join:
-        joinCondition: FROM {{ ref('SILVER', 'I_iA_Audit') }} "I_iA_Audit"
+        joinCondition: |-
+          FROM {{ ref('SILVER', 'I_iA_Audit') }} "I_iA_Audit"
+          LEFT JOIN {{ ref('GOLD', 'D_HealthAndSafetyAuditDetails') }} "D_HealthAndSafetyAuditDetails"
+            ON "I_iA_Audit"."AuditCode" = "D_HealthAndSafetyAuditDetails"."AuditCode"
+          LEFT JOIN {{ ref('GOLD', 'D_BusinessUnit') }} "D_BusinessUnit"
+            ON "I_iA_Audit"."BusinessUnitCode" = "D_BusinessUnit"."BusinessUnitCode"
+          LEFT JOIN {{ ref('GOLD', 'D_Period') }} "D_Period"
+            ON "I_iA_Audit"."PeriodNumber" = "D_Period"."PeriodNumber"
       name: S_HealthAndSafetyAudit
       noLinkRefs: []
   name: S_HealthAndSafetyAudit

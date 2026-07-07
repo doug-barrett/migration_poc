@@ -43,10 +43,8 @@ operation:
       name: D_Obligation_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 495ed391-5009-5014-a413-befc2a9b0033
-          stepCounter: 99d3031f-cca3-59de-be19-fbd93588c74b
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Obligation"."D_Obligation_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2251ff0e-90f7-5dab-81bf-3f97c8a2561b
@@ -71,10 +69,8 @@ operation:
       name: D_ObligationState_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: b4938c35-190d-539c-9e0e-5372611d5253
-          stepCounter: f2c13d8e-0bd0-5182-acf1-26b7988993c2
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_ObligationState"."D_ObligationState_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7c485201-aa7a-575c-89be-6f9e4d139985
@@ -99,10 +95,8 @@ operation:
       name: D_BusinessUnit_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 11a5c892-19b5-5da7-9fd2-2156bedceab1
-          stepCounter: 4c3b91fd-dd4a-5161-9f32-188db32020e3
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_BusinessUnit"."D_BusinessUnit_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2c9efa8c-9c0d-51ef-934c-83f1d6eeb247
@@ -127,10 +121,8 @@ operation:
       name: D_Employee_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: cacf4458-16a1-574c-a462-b19f23a3f4e4
-          stepCounter: bf28ab53-5f37-59cc-bcc9-56f04b96ba76
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Employee"."D_Employee_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 515d85c4-f438-5614-afc5-e3deebcc2441
@@ -155,10 +147,8 @@ operation:
       name: D_ObligationLocation_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: b2c88948-267b-5193-a460-d989c73d9286
-          stepCounter: d0d36405-9bfb-50c6-9d74-aa22631c3b69
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_ObligationLocation"."D_ObligationLocation_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e8649a59-845e-5aff-acc4-42128839213f
@@ -183,10 +173,9 @@ operation:
       name: D_ObligationVerificati_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 6bfa349b-8b87-58f6-9a63-e468b0b266da
-          stepCounter: fd5308aa-474f-506d-8fea-f97abf475532
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_ObligationVerificationType"."D_ObligationVerificati_key",
+          0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8bce016f-e69c-5c6d-91ce-3d8310cb2643
@@ -308,10 +297,8 @@ operation:
       name: D_Period_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: e845263c-b369-5c03-b1de-20880ee6484c
-          stepCounter: 7b68d3ca-afb2-508b-bc98-8238728756a1
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Period"."D_Period_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: de886f6d-79f9-561b-b137-74f33eeda9ae
@@ -337,10 +324,8 @@ operation:
       name: D_SharepointDocument_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: ec39f622-6566-5317-ad59-464fd549b805
-          stepCounter: 30e5048c-bfa4-54f6-8623-69ab88fd3b9f
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_SharepointDocument"."D_SharepointDocument_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 47fcead2-5bbf-5718-bc0b-81ccb82c58c4
@@ -351,10 +336,8 @@ operation:
       name: D_SharepointList_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 0d4435f0-beb9-5f1b-a0b2-11c388c1f34a
-          stepCounter: 2df5d235-f747-5b87-9309-322a9561a3d9
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_SharepointList"."D_SharepointList_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 264797ca-6f44-56cc-8a87-3d57cd9beaea
@@ -426,6 +409,20 @@ operation:
             ON I_OBLIGATIONSUMMARY.SHAREPOINTDOCUMENTLINKORLIBRARY = D_SHAREPOINTDOCUMENT.DOCUMENTLINKORLIBRARY AND I_OBLIGATIONSUMMARY.SUMMARYSOURCE <> 'SHAREPOINT LIST'
           LEFT JOIN {{ ref('GOLD', 'D_SharepointList') }} "D_SharepointList"
             ON I_OBLIGATIONSUMMARY.SHAREPOINTDOCUMENTLINKORLIBRARY = [D_SHAREPOINTLIST].LISTLINK AND I_OBLIGATIONSUMMARY.SUMMARYSOURCE = 'SHAREPOINT LIST'
+          LEFT JOIN {{ ref('GOLD', 'D_Obligation') }} "D_Obligation"
+            ON "I_ObligationSummary"."ObligationCode" = "D_Obligation"."ObligationCode"
+          LEFT JOIN {{ ref('GOLD', 'D_ObligationState') }} "D_ObligationState"
+            ON "I_ObligationSummary"."ObligationStatus" = "D_ObligationState"."ObligationState"
+          LEFT JOIN {{ ref('GOLD', 'D_BusinessUnit') }} "D_BusinessUnit"
+            ON "I_ObligationSummary"."BusinessUnit" = "D_BusinessUnit"."BusinessUnitCode"
+          LEFT JOIN {{ ref('GOLD', 'D_Employee') }} "D_Employee"
+            ON "I_ObligationSummary"."ResponsiblePerson" = "D_Employee"."EmployeeCode"
+          LEFT JOIN {{ ref('GOLD', 'D_ObligationLocation') }} "D_ObligationLocation"
+            ON "I_ObligationSummary"."ObligationLocation" = "D_ObligationLocation"."ObligationLocationCode"
+          LEFT JOIN {{ ref('GOLD', 'D_ObligationVerificationType') }} "D_ObligationVerificationType"
+            ON "I_ObligationSummary"."VerificationType" = "D_ObligationVerificationType"."VerificationTypeCode"
+          LEFT JOIN {{ ref('GOLD', 'D_Period') }} "D_Period"
+            ON "I_ObligationSummary"."PeriodNumber" = "D_Period"."PeriodNumber"
       name: S_ObligationSummary
       noLinkRefs: []
   name: S_ObligationSummary

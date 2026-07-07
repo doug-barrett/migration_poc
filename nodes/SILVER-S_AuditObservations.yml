@@ -41,10 +41,8 @@ operation:
       name: D_AuditDetails_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 40d72367-5bb9-50ac-8574-9af2e48c4e58
-          stepCounter: adad0333-5c17-536a-bb0a-e599ecc26ea7
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_AuditDetails"."D_AuditDetails_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: fa16cd7d-d7ee-59ef-8f90-b9a5d6d1bd43
@@ -81,10 +79,8 @@ operation:
       name: D_BusinessUnit_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 11a5c892-19b5-5da7-9fd2-2156bedceab1
-          stepCounter: 4c3b91fd-dd4a-5161-9f32-188db32020e3
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_BusinessUnit"."D_BusinessUnit_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3179138f-9391-59a4-91ce-f8c3b7a2be16
@@ -248,10 +244,8 @@ operation:
       name: D_AuditQuestion_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 49a9201c-2f18-542d-a7b9-f0cc486e73b5
-          stepCounter: f617a00b-5a32-52a2-a23c-8c99b024ad9e
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_AuditQuestion"."D_AuditQuestion_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 886be994-d367-56c2-a854-5bd8f403b4a1
@@ -290,10 +284,8 @@ operation:
       name: D_Risk_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: ec0234a4-a50f-565e-8e85-fea3f1c872f2
-          stepCounter: 6847c6b5-58c2-56ac-a508-ca1eadeee407
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Risk"."D_Risk_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 16ba7f93-3643-5ed3-80da-0c19cc45d227
@@ -500,6 +492,14 @@ operation:
             ON L_NPS_AUDITOBSERVATION.AUDITID = S_AUDITS.ID AND L_NPS_AUDITOBSERVATION.ODSSOURCESYSTEMNAME = S_AUDITS.ODSSOURCESYSTEMNAME
           LEFT JOIN {{ ref('SILVER', 'I_NPS_BankQuestionAreaOfStandardRisk') }} "I_NPS_BankQuestionAreaOfStandardRisk"
             ON L_NPS_AUDITOBSERVATION.RAISEDFROMQUESTIONID = I_NPS_BANKQUESTIONAREAOFSTANDARDRISK.QUESTIONID
+          LEFT JOIN {{ ref('GOLD', 'D_AuditDetails') }} "D_AuditDetails"
+            ON "L_NPS_AuditObservation"."AuditID" = "D_AuditDetails"."AuditCode" AND "L_NPS_AuditObservation"."ODSSourceSystemName" = "D_AuditDetails"."ODSSourceSystemName"
+          LEFT JOIN {{ ref('GOLD', 'D_BusinessUnit') }} "D_BusinessUnit"
+            ON "L_NPS_AuditObservation"."BusinessUnitCode" = "D_BusinessUnit"."BusinessUnitCode"
+          LEFT JOIN {{ ref('GOLD', 'D_AuditQuestion') }} "D_AuditQuestion"
+            ON "L_NPS_AuditObservation"."QuestionCode" = "D_AuditQuestion"."QuestionCode"
+          LEFT JOIN {{ ref('GOLD', 'D_Risk') }} "D_Risk"
+            ON "L_NPS_AuditObservation"."RiskCategoryID" = "D_Risk"."RiskCode"
       name: S_AuditObservations
       noLinkRefs: []
   name: S_AuditObservations

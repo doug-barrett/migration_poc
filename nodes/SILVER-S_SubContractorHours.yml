@@ -70,10 +70,8 @@ operation:
       name: D_Period_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: e845263c-b369-5c03-b1de-20880ee6484c
-          stepCounter: 7b68d3ca-afb2-508b-bc98-8238728756a1
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Period"."D_Period_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c7efcf37-67f2-506e-a963-fabd35ad1d29
@@ -124,10 +122,8 @@ operation:
       name: D_CustomerNetwork_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 23353d42-2504-5031-9571-e1ae195e6cc9
-          stepCounter: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_CustomerNetwork"."D_CustomerNetwork_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: bb2c43d3-61b2-5217-bf0e-a4372e32d040
@@ -152,10 +148,8 @@ operation:
       name: D_BusinessUnit_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 11a5c892-19b5-5da7-9fd2-2156bedceab1
-          stepCounter: 4c3b91fd-dd4a-5161-9f32-188db32020e3
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_BusinessUnit"."D_BusinessUnit_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9385efd1-ebf8-5daf-896c-4daf182b1ab7
@@ -229,6 +223,12 @@ operation:
           FROM {{ ref('SILVER', 'I_BMPLoadPeriod') }} "I_BMPLoadPeriod"
           JOIN {{ ref('SILVER', 'I_ContractorHours_Hist') }} "I_ContractorHours_Hist"
           JOIN {{ ref('SILVER', 'I_LatestContractorHours') }} "I_LatestContractorHours"
+          LEFT JOIN {{ ref('GOLD', 'D_Period') }} "D_Period"
+            ON "I_BMPLoadPeriod"."PeriodNumber" = "D_Period"."PeriodNumber"
+          LEFT JOIN {{ ref('GOLD', 'D_CustomerNetwork') }} "D_CustomerNetwork"
+            ON "I_BMPLoadPeriod"."CustomerNetworkCode" = "D_CustomerNetwork"."CustomerNetworkCode" AND "I_BMPLoadPeriod"."CustomerNetworkCode" = "D_CustomerNetwork"."OtherCustomerCode"
+          LEFT JOIN {{ ref('GOLD', 'D_BusinessUnit') }} "D_BusinessUnit"
+            ON "I_BMPLoadPeriod"."BusinessUnitCode" = "D_BusinessUnit"."BusinessUnitCode"
       name: S_SubContractorHours
       noLinkRefs: []
   name: S_SubContractorHours

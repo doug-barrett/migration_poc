@@ -27,10 +27,9 @@ operation:
       name: D_HealthAndSafetyEvent_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 26eec0cc-4078-5191-bd18-dd56a969f9b1
-          stepCounter: ea3097b3-d5db-5bb2-9df1-0d1bfb7d3571
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_HealthAndSafetyEventDetails"."D_HealthAndSafetyEvent_key",
+          0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 70b099b2-74a1-521d-b922-61486e2e59d9
@@ -69,10 +68,8 @@ operation:
       name: D_InjuryType_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 9ccdee54-d8a9-553c-8b87-88fae796285f
-          stepCounter: 4092e992-cc57-5490-8a77-ebe5e8fd29ef
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_InjuryType"."D_InjuryType_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9e9938ff-8398-5e76-b60d-e421638a1a7a
@@ -143,7 +140,12 @@ operation:
       - locationName: GOLD
         nodeName: D_InjuryType
       join:
-        joinCondition: FROM {{ ref('SILVER', 'I_NPS_InjuryTypeCounts') }} "I_NPS_InjuryTypeCounts"
+        joinCondition: |-
+          FROM {{ ref('SILVER', 'I_NPS_InjuryTypeCounts') }} "I_NPS_InjuryTypeCounts"
+          LEFT JOIN {{ ref('GOLD', 'D_HealthAndSafetyEventDetails') }} "D_HealthAndSafetyEventDetails"
+            ON "I_NPS_InjuryTypeCounts"."ID" = "D_HealthAndSafetyEventDetails"."EventCode" AND "I_NPS_InjuryTypeCounts"."ODSSourceSystemName" = "D_HealthAndSafetyEventDetails"."ODSSourceSystemName"
+          LEFT JOIN {{ ref('GOLD', 'D_InjuryType') }} "D_InjuryType"
+            ON "I_NPS_InjuryTypeCounts"."InjuryType" = "D_InjuryType"."InjuryTypeCode"
       name: S_InjuryTypes
       noLinkRefs: []
   name: S_InjuryTypes

@@ -70,10 +70,8 @@ operation:
       name: D_BusinessUnit_key
       nullable: true
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 11a5c892-19b5-5da7-9fd2-2156bedceab1
-          stepCounter: 4c3b91fd-dd4a-5161-9f32-188db32020e3
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_BusinessUnit"."D_BusinessUnit_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2b72dcee-aaf0-5522-a3e5-448a0ce6dccf
@@ -112,10 +110,8 @@ operation:
       name: D_CustomerNetwork_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 23353d42-2504-5031-9571-e1ae195e6cc9
-          stepCounter: c4eb02b5-abec-555c-9a75-45b9d7bf03ee
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_CustomerNetwork"."D_CustomerNetwork_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0e2ab17f-1401-5e43-a205-d97bcee9e66f
@@ -347,6 +343,10 @@ operation:
           FROM {{ ref('GOLD', 'D_Period') }} "D_Period"
           JOIN {{ ref_no_link('GOLD', 'F_InjuryRates') }} "F_InjuryRates"
           JOIN {{ ref('SILVER', 'I_PayrollExposureHours') }} "I_PayrollExposureHours"
+          LEFT JOIN {{ ref('GOLD', 'D_BusinessUnit') }} "D_BusinessUnit"
+            ON "D_Period"."BusinessUnitCode" = "D_BusinessUnit"."BusinessUnitCode"
+          LEFT JOIN {{ ref('GOLD', 'D_CustomerNetwork') }} "D_CustomerNetwork"
+            ON "D_Period"."CustomerNetworkCode" = "D_CustomerNetwork"."CustomerNetworkCode" AND "D_Period"."OtherCustomerCode" = "D_CustomerNetwork"."OtherCustomerCode"
       name: S_InjuryRates
       noLinkRefs:
       - locationName: GOLD

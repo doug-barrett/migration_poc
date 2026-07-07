@@ -28,8 +28,8 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences:
-        - columnCounter: 45e34626-64ab-542a-9bdf-2384935f061e
-          stepCounter: b53ffcd1-4687-5830-ace2-259c8e4e9748
+        - columnCounter: 5e31c96f-2c70-59eb-ac4e-2995f89f3908
+          stepCounter: 026f4f2c-0e84-5c0a-ace3-c76d7877b306
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -82,10 +82,8 @@ operation:
       name: D_Employee_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: cacf4458-16a1-574c-a462-b19f23a3f4e4
-          stepCounter: bf28ab53-5f37-59cc-bcc9-56f04b96ba76
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Employee"."D_Employee_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 70ae76ed-6420-55b7-94b6-316f47b3bb3b
@@ -124,10 +122,8 @@ operation:
       name: D_BusinessUnit_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 11a5c892-19b5-5da7-9fd2-2156bedceab1
-          stepCounter: 4c3b91fd-dd4a-5161-9f32-188db32020e3
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_BusinessUnit"."D_BusinessUnit_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9922e783-4f60-55ac-86cc-1d59726293e7
@@ -164,10 +160,8 @@ operation:
       name: D_Period_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: e845263c-b369-5c03-b1de-20880ee6484c
-          stepCounter: 7b68d3ca-afb2-508b-bc98-8238728756a1
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Period"."D_Period_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b4de1f2a-67b6-5c64-b294-ba88355aa8de
@@ -461,6 +455,11 @@ operation:
         joinCondition: |-
           FROM {{ ref('SILVER', 'I_VehicleSnapshot') }} "I_VehicleSnapshot"
           WHERE I_VEHICLESNAPSHOT.OPERATIONALCOUNT = 1  OR I_VEHICLESNAPSHOT.PREOPERATIONALCOUNT = 1  --ONLY INCLUDE POST OPERATIONAL VEHICLES THAT WERE OPERATIONAL LAST MONTH  OR (I_VEHICLESNAPSHOT.OUTOFOPERATIONCOUNT = 1  AND F_VEHICLESNAPSHOT.OPERATIONALCOUNT = 1)
+          LEFT JOIN {{ ref('GOLD', 'D_Employee') }} "D_Employee"
+            ON "I_VehicleSnapshot"."DriverCode" = "D_Employee"."EmployeeCode"
+          LEFT JOIN {{ ref('GOLD', 'D_BusinessUnit') }} "D_BusinessUnit"
+            ON "I_VehicleSnapshot"."BusinessUnitCode" = "D_BusinessUnit"."BusinessUnitCode"
+          LEFT JOIN {{ ref('GOLD', 'D_Period') }} "D_Period"
       name: S_VehicleSnapshot
       noLinkRefs:
       - locationName: GOLD

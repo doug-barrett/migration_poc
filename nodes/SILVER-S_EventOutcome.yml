@@ -27,10 +27,9 @@ operation:
       name: D_HealthAndSafetyEvent_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 26eec0cc-4078-5191-bd18-dd56a969f9b1
-          stepCounter: ea3097b3-d5db-5bb2-9df1-0d1bfb7d3571
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_HealthAndSafetyEventDetails"."D_HealthAndSafetyEvent_key",
+          0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 74495395-680d-500d-80ca-5f3ed4575804
@@ -69,10 +68,8 @@ operation:
       name: D_EventOutcome_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: a86bb250-2791-5df9-8eb1-ef9e051651eb
-          stepCounter: ab63b56a-25ef-509b-b01c-0cc91f72a112
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_EventOutcome"."D_EventOutcome_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 57f5b511-d8f3-557f-a007-66688cbd9feb
@@ -140,9 +137,16 @@ operation:
       - locationName: GOLD
         nodeName: D_EventOutcome
       join:
-        joinCondition: FROM {{ ref('SILVER', 'I_NPS_EventOutcome') }} "I_NPS_EventOutcome"
+        joinCondition: |-
+          FROM {{ ref('SILVER', 'I_NPS_EventOutcome') }} "I_NPS_EventOutcome"
+          LEFT JOIN {{ ref_no_link('GOLD', 'D_HealthAndSafetyEventDetails') }} "D_HealthAndSafetyEventDetails"
+            ON "I_NPS_EventOutcome"."ID" = "D_HealthAndSafetyEventDetails"."EventCode" AND "I_NPS_EventOutcome"."ODSSourceSystemName" = "D_HealthAndSafetyEventDetails"."ODSSourceSystemName"
+          LEFT JOIN {{ ref('GOLD', 'D_EventOutcome') }} "D_EventOutcome"
+            ON "I_NPS_EventOutcome"."EventOutcome" = "D_EventOutcome"."EventOutcome"
       name: S_EventOutcome
       noLinkRefs:
+      - locationName: GOLD
+        nodeName: D_HealthAndSafetyEventDetails
       - locationName: GOLD
         nodeName: D_HealthAndSafetyEventDetails
   name: S_EventOutcome

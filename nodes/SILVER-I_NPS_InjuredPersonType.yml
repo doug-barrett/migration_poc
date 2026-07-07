@@ -30,7 +30,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: KEYVALUE
+        transform: TRIM(f.VALUE::VARCHAR)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7a5b2ac9-4b89-5b9c-95ea-6223b7750bd9
@@ -66,7 +66,9 @@ operation:
       - locationName: BRONZE
         nodeName: L_NPS_UIElement
       join:
-        joinCondition: FROM {{ ref('BRONZE', 'L_NPS_UIElement') }} "L_NPS_UIElement"
+        joinCondition: |-
+          FROM {{ ref('BRONZE', 'L_NPS_UIElement') }} "L_NPS_UIElement",
+          LATERAL FLATTEN(INPUT => SPLIT("L_NPS_UIElement"."ListItems", '|')) f
       name: I_NPS_InjuredPersonType
       noLinkRefs: []
   name: I_NPS_InjuredPersonType

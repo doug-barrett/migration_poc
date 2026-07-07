@@ -41,10 +41,8 @@ operation:
       name: D_Employee_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: cacf4458-16a1-574c-a462-b19f23a3f4e4
-          stepCounter: bf28ab53-5f37-59cc-bcc9-56f04b96ba76
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Employee"."D_Employee_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d4398fa1-38b3-5e79-8417-0262547e00e8
@@ -55,10 +53,8 @@ operation:
       name: D_CriticalRiskControl_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: d9c84a52-a8e9-5164-a627-b9add0e9f4fc
-          stepCounter: 93715763-f2cb-5e18-894f-529354bac1cb
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_CriticalRiskControl"."D_CriticalRiskControl_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: da000013-69a5-5f1e-8b00-93bf2d050ec5
@@ -140,10 +136,8 @@ operation:
       name: D_BusinessUnit_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 11a5c892-19b5-5da7-9fd2-2156bedceab1
-          stepCounter: 4c3b91fd-dd4a-5161-9f32-188db32020e3
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_BusinessUnit"."D_BusinessUnit_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d5bcb754-4923-5145-9a24-83829433e7e1
@@ -154,10 +148,9 @@ operation:
       name: D_AlternateBusinessUnit_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: c2185874-0367-5590-93a4-fa6d44254168
-          stepCounter: bf1c3e43-9d3f-5f7e-ab96-84d26f454b24
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_AlternateBusinessUnit"."D_AlternateBusinessUnit_key",
+          0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f804ea40-07c8-5c5f-ab1d-088d22e61039
@@ -194,10 +187,8 @@ operation:
       name: D_Risk_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: ec0234a4-a50f-565e-8e85-fea3f1c872f2
-          stepCounter: 6847c6b5-58c2-56ac-a508-ca1eadeee407
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Risk"."D_Risk_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6bbfec9f-053c-5c43-8539-070ac79613c6
@@ -222,10 +213,8 @@ operation:
       name: D_CRCPreworkAction_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 82438b4c-81c1-5a94-85fe-e1f920d2648d
-          stepCounter: a742b35f-0f30-5e45-8bb0-ba03756ee5a1
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_CRCPreworkAction"."D_CRCPreworkAction_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 197f794d-ee19-5db2-af55-8207c7a07cc5
@@ -250,10 +239,8 @@ operation:
       name: D_CRCPreworkOutcome_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: deefcb86-19f9-5692-ae02-34ffd283b379
-          stepCounter: e635e71e-de17-5bca-bc83-db8c54bffd8a
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_CRCPreworkOutcome"."D_CRCPreworkOutcome_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: bae56ea3-f561-5e0a-ac19-1e79d0f4bb31
@@ -439,10 +426,8 @@ operation:
       name: D_VerificationType_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: e0c09e79-dd98-565f-b3f7-0862381b8191
-          stepCounter: d14299fd-a137-5d4e-9a1d-40488a88ac06
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_VerificationType"."D_VerificationType_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9434ab6d-6ff3-56b0-b8a1-214b1189d1fe
@@ -514,6 +499,22 @@ operation:
         joinCondition: |-
           FROM {{ ref('SILVER', 'I_CRCVerificationMerge') }} "I_CRCVerificationMerge"
           WHERE I_CRCVERIFICATIONMERGE.INCLUDEINREPORT = 'TRUE' --DON'T LOAD DELETED ITEMS INTO STAGING TABLE
+          LEFT JOIN {{ ref('GOLD', 'D_Employee') }} "D_Employee"
+            ON "I_CRCVerificationMerge"."EmployeeCode" = "D_Employee"."EmployeeCode"
+          LEFT JOIN {{ ref('GOLD', 'D_CriticalRiskControl') }} "D_CriticalRiskControl"
+            ON "I_CRCVerificationMerge"."Control" = "D_CriticalRiskControl"."CriticalRiskControlCode"
+          LEFT JOIN {{ ref('GOLD', 'D_BusinessUnit') }} "D_BusinessUnit"
+            ON "I_CRCVerificationMerge"."WorkOrderBusinessUnitCode" = "D_BusinessUnit"."BusinessUnitCode"
+          LEFT JOIN {{ ref('GOLD', 'D_AlternateBusinessUnit') }} "D_AlternateBusinessUnit"
+            ON "I_CRCVerificationMerge"."TargetsBusinessUnitCode" = "D_AlternateBusinessUnit"."BusinessUnitCode"
+          LEFT JOIN {{ ref('GOLD', 'D_Risk') }} "D_Risk"
+            ON "I_CRCVerificationMerge"."RiskControl" = "D_Risk"."RiskCode"
+          LEFT JOIN {{ ref('GOLD', 'D_CRCPreworkAction') }} "D_CRCPreworkAction"
+            ON "I_CRCVerificationMerge"."Actions" = "D_CRCPreworkAction"."Action"
+          LEFT JOIN {{ ref('GOLD', 'D_CRCPreworkOutcome') }} "D_CRCPreworkOutcome"
+            ON "I_CRCVerificationMerge"."Outcome" = "D_CRCPreworkOutcome"."Outcome"
+          LEFT JOIN {{ ref('GOLD', 'D_VerificationType') }} "D_VerificationType"
+            ON "I_CRCVerificationMerge"."VerificationType" = "D_VerificationType"."VerificationType" AND "I_CRCVerificationMerge"."VerificationSubject" = "D_VerificationType"."VerificationSubject"
       name: S_CRCVerification
       noLinkRefs: []
   name: S_CRCVerification

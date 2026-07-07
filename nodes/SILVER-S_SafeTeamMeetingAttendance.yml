@@ -42,10 +42,8 @@ operation:
       name: D_Employee_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: cacf4458-16a1-574c-a462-b19f23a3f4e4
-          stepCounter: bf28ab53-5f37-59cc-bcc9-56f04b96ba76
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Employee"."D_Employee_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1750281f-d8c0-53b5-8aed-0cbd073e3b88
@@ -71,10 +69,8 @@ operation:
       name: D_BusinessUnit_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 11a5c892-19b5-5da7-9fd2-2156bedceab1
-          stepCounter: 4c3b91fd-dd4a-5161-9f32-188db32020e3
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_BusinessUnit"."D_BusinessUnit_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 887d3abe-5563-5db2-acbc-93ca04a546d4
@@ -156,10 +152,8 @@ operation:
       name: D_Period_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: e845263c-b369-5c03-b1de-20880ee6484c
-          stepCounter: 7b68d3ca-afb2-508b-bc98-8238728756a1
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_Period"."D_Period_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ba93a8d4-de49-5b36-913d-82585c25a24e
@@ -226,10 +220,8 @@ operation:
       name: D_SafeTeamMeeting_key
       nullable: false
       sourceColumnReferences:
-      - columnReferences:
-        - columnCounter: 98824b0e-873a-501d-9008-f1e40509586f
-          stepCounter: aa7cf8e5-1938-5ae0-aaf7-9398d84eeb51
-        transform: ''
+      - columnReferences: []
+        transform: COALESCE("D_SafeTeamMeeting"."D_SafeTeamMeeting_key", 0)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2300e5ca-5c32-59e0-af08-a573572d9ca4
@@ -292,7 +284,16 @@ operation:
       - locationName: GOLD
         nodeName: D_SafeTeamMeeting
       join:
-        joinCondition: FROM {{ ref('SILVER', 'I_STMAttendance') }} "I_STMAttendance"
+        joinCondition: |-
+          FROM {{ ref('SILVER', 'I_STMAttendance') }} "I_STMAttendance"
+          LEFT JOIN {{ ref('GOLD', 'D_Employee') }} "D_Employee"
+            ON "I_STMAttendance"."EmployeeCode" = "D_Employee"."EmployeeCode"
+          LEFT JOIN {{ ref('GOLD', 'D_BusinessUnit') }} "D_BusinessUnit"
+            ON "I_STMAttendance"."BusinessUnitCode" = "D_BusinessUnit"."BusinessUnitCode"
+          LEFT JOIN {{ ref('GOLD', 'D_Period') }} "D_Period"
+            ON "I_STMAttendance"."PeriodNumber" = "D_Period"."PeriodNumber"
+          LEFT JOIN {{ ref('GOLD', 'D_SafeTeamMeeting') }} "D_SafeTeamMeeting"
+            ON "I_STMAttendance"."MeetingCode" = "D_SafeTeamMeeting"."MeetingCode" AND "I_STMAttendance"."SourceTable" = "D_SafeTeamMeeting"."SourceTable"
       name: S_SafeTeamMeetingAttendance
       noLinkRefs: []
   name: S_SafeTeamMeetingAttendance
