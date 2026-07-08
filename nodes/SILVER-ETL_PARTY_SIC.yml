@@ -172,18 +172,14 @@ operation:
       - locationName: GOLD
         nodeName: CDC_BATCH
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'SRC_CUSMASFL') }} \"SRC_CUSMASFL\"\n\
-          LEFT JOIN {{ ref('GOLD', 'CV_PARTY') }} \"CV_PARTY\"\n  ON   \"SRC_CUSMASFL\"\
-          .\"CMCMP\" = \"CV_PARTY\".\"COMPANY_CODE\"\nAND  \"SRC_CUSMASFL\".\"CMCUS0\"\
-          \ = \"CV_PARTY\".\"CUSTOMER_ACCOUNT_NUM\"\nAND  \"CV_PARTY\".\"PARTY_TYPE_CODE\"\
-          \ = 1\n\n Where \"SRC_CUSMASFL\".\"AUD_TIME\" <= (Select MAX(Batch_End)\n\
-          FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\"\nFROM {{ ref('GOLD', 'CDC_BATCH')\
-          \ }} \"CDC_BATCH\"\n  ORDER BY \"SRC_CUSMASFL\".\"AUD_TIME\" DESC, \"SRC_CUSMASFL\"\
-          .\"AUD_SEQNO\" DESC, CASE  \n WHEN \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('PT','PX','FI')\t\
-          THEN 1 \n WHEN \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('UB','FB','FP','BR')\t\
-          THEN 2 \n WHEN \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('UP','UR')\tTHEN 3 \n WHEN\
-          \ \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('DL','FD')\tTHEN 4 \n WHEN \"SRC_CUSMASFL\"\
-          .\"AUD_TYPE\" in ('RR')\t\tTHEN 5 \n ELSE 0 END DESC) = 1"
+        joinCondition: |-
+          FROM {{ ref('GOLD', 'SRC_CUSMASFL') }} "SRC_CUSMASFL"
+          LEFT JOIN {{ ref('GOLD', 'CV_PARTY') }} "CV_PARTY"
+            ON   "SRC_CUSMASFL"."CMCMP" = "CV_PARTY"."COMPANY_CODE"
+          AND  "SRC_CUSMASFL"."CMCUS0" = "CV_PARTY"."CUSTOMER_ACCOUNT_NUM"
+          AND  "CV_PARTY"."PARTY_TYPE_CODE" = 1
+
+           Where "SRC_CUSMASFL"."AUD_TIME" <= (Select MAX(Batch_End)
       name: ETL_PARTY_SIC
       noLinkRefs: []
   name: ETL_PARTY_SIC

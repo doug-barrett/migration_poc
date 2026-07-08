@@ -1079,17 +1079,14 @@ operation:
       - locationName: GOLD
         nodeName: CDC_BATCH
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'SRC_SYSLC2FL') }} \"SRC_SYSLC2FL\"\n\
-          INNER JOIN {{ ref('GOLD', 'DV_LOCATION') }} \"DV_LOCATION\"\n  ON   \"SRC_SYSLC2FL\"\
-          .\"Z2CMP\" = \"DV_LOCATION\".\"COMPANY_CODE\"\nAND  \"SRC_SYSLC2FL\".\"\
-          Z2LOC\" = \"DV_LOCATION\".\"LOCATION_CODE\"\n\nWhere (Aud_Code <> 'F' or\
-          \ (Aud_Code is null and Aud_Type = 'RR'))\nAND Aud_Time <= (Select MAX(Batch_End)\n\
-          FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\"\n  ORDER BY AUD_TIME DESC,\
-          \ AUD_SEQNO DESC, CASE  \n   WHEN Aud_Type in ('PT','PX','FI')   THEN 1\
-          \ \n   WHEN Aud_Type in ('UB','FB','FP','BR')  THEN 2 \n   WHEN Aud_Type\
-          \ in ('UP','UR')        THEN 3 \n   WHEN Aud_Type in ('DL' , 'FD')     \
-          \ THEN 4 \n   WHEN Aud_Type in ('RR')             THEN 5 \n   ELSE 0 END\
-          \ DESC) = 1"
+        joinCondition: |-
+          FROM {{ ref('GOLD', 'SRC_SYSLC2FL') }} "SRC_SYSLC2FL"
+          INNER JOIN {{ ref('GOLD', 'DV_LOCATION') }} "DV_LOCATION"
+            ON   "SRC_SYSLC2FL"."Z2CMP" = "DV_LOCATION"."COMPANY_CODE"
+          AND  "SRC_SYSLC2FL"."Z2LOC" = "DV_LOCATION"."LOCATION_CODE"
+
+          Where (Aud_Code <> 'F' or (Aud_Code is null and Aud_Type = 'RR'))
+          AND Aud_Time <= (Select MAX(Batch_End)
       name: ETL_LOCATION_EXTENSION
       noLinkRefs: []
   name: ETL_LOCATION_EXTENSION

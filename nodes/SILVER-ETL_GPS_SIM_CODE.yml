@@ -3726,20 +3726,14 @@ operation:
       - locationName: GOLD
         nodeName: CDC_BATCH
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'SRC_GPSSIMFL_WSDATA') }} \"SRC_GPSSIMFL_WSDATA\"\
-          \nLEFT JOIN {{ ref('GOLD', 'DV_LOCATION') }} \"DV_LOCATION\"\n  ON \"SRC_GPSSIMFL_WSDATA\"\
-          .\"GICMP\" = \"DV_LOCATION\".\"COMPANY_CODE\"\n  AND \"SRC_GPSSIMFL_WSDATA\"\
-          .\"GILOC\" = \"DV_LOCATION\".\"LOCATION_CODE\"\nLEFT JOIN {{ ref('GOLD',\
-          \ 'DV_EQUIPMENT') }} \"DV_EQUIPMENT\"\n  ON \"SRC_GPSSIMFL_WSDATA\".\"GICMP\"\
-          \ = \"DV_EQUIPMENT\".\"COMPANY_CODE\"\n  AND \"SRC_GPSSIMFL_WSDATA\".\"\
-          GIEQP0\" = \"DV_EQUIPMENT\".\"EQUIPMENT_CODE\"       Where Aud_Time <= (Select\
-          \ MAX(Batch_End)\nFROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\"\nFROM\
-          \ {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\"\n  ORDER BY AUD_TIME DESC,\
-          \ AUD_CNTRRN DESC, CASE  \t\t\t\n      WHEN Aud_Type in ('PT','PX','FI')\t\
-          THEN 1 \t\t\n      WHEN Aud_Type in ('UB','FB','FP','BR')\tTHEN 2 \t\t\n\
-          \      WHEN Aud_Type in ('UP','UR')\tTHEN 3 \t\t\n      WHEN Aud_Type in\
-          \ ('DL','FD')\tTHEN 4 \t\t\n      WHEN Aud_Type in ('RR')\t\tTHEN 5 \t\n\
-          \      ELSE 0 END DESC) = 1"
+        joinCondition: |-
+          FROM {{ ref('GOLD', 'SRC_GPSSIMFL_WSDATA') }} "SRC_GPSSIMFL_WSDATA"
+          LEFT JOIN {{ ref('GOLD', 'DV_LOCATION') }} "DV_LOCATION"
+            ON "SRC_GPSSIMFL_WSDATA"."GICMP" = "DV_LOCATION"."COMPANY_CODE"
+            AND "SRC_GPSSIMFL_WSDATA"."GILOC" = "DV_LOCATION"."LOCATION_CODE"
+          LEFT JOIN {{ ref('GOLD', 'DV_EQUIPMENT') }} "DV_EQUIPMENT"
+            ON "SRC_GPSSIMFL_WSDATA"."GICMP" = "DV_EQUIPMENT"."COMPANY_CODE"
+            AND "SRC_GPSSIMFL_WSDATA"."GIEQP0" = "DV_EQUIPMENT"."EQUIPMENT_CODE"       Where Aud_Time <= (Select MAX(Batch_End)
       name: ETL_GPS_SIM_CODE
       noLinkRefs: []
   name: ETL_GPS_SIM_CODE

@@ -1068,7 +1068,6 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
-        ORDER_LINE: 580ac372-cbca-555d-ad2f-3a7b3e7da921
         STG_ORDER_LINE: 16d95157-564a-5b0f-bb93-c78100e33c01
         ORDERS: 29a813e8-0b5b-5733-99b2-e09c650c50ae
         ITEM_UOM: 40ed2f06-772c-5bf9-a643-bda4ced21d5c
@@ -1076,8 +1075,6 @@ operation:
       customSQL:
         customSQL: ''
       dependencies:
-      - locationName: GOLD
-        nodeName: ORDER_LINE
       - locationName: SILVER
         nodeName: STG_ORDER_LINE
       - locationName: GOLD
@@ -1087,21 +1084,11 @@ operation:
       - locationName: BRONZE
         nodeName: _ITEM_UOM
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'ORDER_LINE') }} \"ORDER_LINE\"\n  WHERE\
-          \ \"TGT\".\"CONTRACT_KEY\" = \"STG_CLOSED_ORDER_LINE\".\"COMPANY_CODE\"\n\
-          || \"STG_CLOSED_ORDER_LINE\".\"INVOICE_NUM\"\nAND \"TGT\".\"ORDER_LINE_NUM\"\
-          \ = \"STG_CLOSED_ORDER_LINE\".\"ORDER_LINE_NUM\"\nFROM {{ ref('SILVER',\
-          \ 'STG_ORDER_LINE') }} \"STG_ORDER_LINE\"\nINNER JOIN {{ ref('GOLD', 'ORDERS')\
-          \ }} \"ORDERS\"\n  On \"ORDERS\".\"CONTRACT_KEY\" = \"STG_ORDER_LINE\".\"\
-          CONTRACT_KEY\"\n And \"ORDERS\".\"CONTRACT_SEQ_KEY\" = \"STG_ORDER_LINE\"\
-          .\"CONTRACT_SEQ_KEY\"\nLEFT JOIN {{ ref('GOLD', 'ITEM_UOM') }} \"ITEM_UOM\"\
-          \n  On \"STG_ORDER_LINE\".\"ITEM_ID\" = \"ITEM_UOM\".\"ITEM_ID\"\n   And\
-          \ \"ORDERS\".\"REPORTING_DATE\"\n      BETWEEN \"ITEM_UOM\".\"EFFECTIVE_BEGIN_DATE\"\
-          \  AND \"ITEM_UOM\".\"EFFECTIVE_END_DATE\"\n\nWhere \"STG_ORDER_LINE\".\"\
-          JOURNAL_TYPE\" in (1,3,5)\nQUALIFY RANK() \nOVER (PARTITION BY \"STG_ORDER_LINE\"\
-          .\"CONTRACT_KEY\", \"STG_ORDER_LINE\".\"CONTRACT_SEQ_KEY\", \"STG_ORDER_LINE\"\
-          .\"CONTRACT_LINE_KEY\" \nORDER BY \"STG_ORDER_LINE\".\"SOURCE_TABLE_RANK\"\
-          \ Desc) = 1"
+        joinCondition: |-
+          FROM "UR_DEVELOPMENT"."GOLD"."ORDER_LINE" "ORDER_LINE"
+            WHERE "TGT"."CONTRACT_KEY" = "STG_CLOSED_ORDER_LINE"."COMPANY_CODE"
+          || "STG_CLOSED_ORDER_LINE"."INVOICE_NUM"
+          AND "TGT"."ORDER_LINE_NUM" = "STG_CLOSED_ORDER_LINE"."ORDER_LINE_NUM"
       name: ORDER_LINE
       noLinkRefs: []
   name: ORDER_LINE
