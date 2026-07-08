@@ -22,8 +22,7 @@ operation:
         stepCounter: 722849d8-1c60-56c2-a111-5e81e6d376a9
       config: {}
       dataType: NUMBER(38,0)
-      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n\
-        3 = Update \n4 = Delete\n5 = Refresh"
+      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n3 = Update \n4 = Delete\n5 = Refresh"
       name: Journal_Type
       nullable: true
       sourceColumnReferences:
@@ -54,14 +53,16 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: |-
-          COALESCE("DV_DISTRICT"."DISTRICT_ID",
+        transform: 'COALESCE("DV_DISTRICT"."DISTRICT_ID",
+
 
           Row_Number() over(Order by "DV_DISTRICT"."DISTRICT_ID" asc NULLS FIRST,
 
+
           Case when Journal_type in (1,3,5) then 1 else 9 end asc
 
-          ) + Last_District_Id)
+
+          ) + Last_District_Id)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 41d71001-c7df-50dc-ac50-b8cfebe7c9d1
@@ -129,8 +130,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE("CV_EMPLOYEE"."FIRST_NAME"||' '|| "CV_EMPLOYEE"."LAST_NAME",
-          'UNKNOWN')
+        transform: COALESCE("CV_EMPLOYEE"."FIRST_NAME"||' '|| "CV_EMPLOYEE"."LAST_NAME", 'UNKNOWN')
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b98888e4-b37f-5a23-ac42-256d840b0bf8
@@ -164,8 +164,6 @@ operation:
     sourceMapping:
     - aliases:
         CDC_SYSDSTFL: 950165bd-9e2a-5443-93f7-b5a2ab121247
-        DV_DISTRICT: 34f5c8e6-a644-5c85-85cc-9ddf3d621a65
-        DISTRICT: 348d53bb-3c02-538b-b0c3-871c2c067d8e
         CV_EMPLOYEE: d6de5e79-16c9-5ece-85ff-586704b21e10
       customSQL:
         customSQL: ''
@@ -173,17 +171,9 @@ operation:
       - locationName: GOLD
         nodeName: CDC_SYSDSTFL
       - locationName: GOLD
-        nodeName: DV_DISTRICT
-      - locationName: GOLD
-        nodeName: DISTRICT
-      - locationName: GOLD
         nodeName: CV_EMPLOYEE
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'CDC_SYSDSTFL') }} "CDC_SYSDSTFL"
-          LEFT JOIN {{ ref('GOLD', 'DV_DISTRICT') }} "DV_DISTRICT"
-            ON "CDC_SYSDSTFL"."ZKCMP" = "DV_DISTRICT"."COMPANY_CODE"
-            AND "CDC_SYSDSTFL"."ZKDIST" = "DV_DISTRICT"."DISTRICT_CODE"
+        joinCondition: "FROM {{ ref('GOLD', 'CDC_SYSDSTFL') }} \"CDC_SYSDSTFL\"\nLEFT JOIN \"UR_DEVELOPMENT\".\"GOLD\".\"DV_DISTRICT\" \"DV_DISTRICT\"\n  ON \"CDC_SYSDSTFL\".\"ZKCMP\" = \"DV_DISTRICT\".\"COMPANY_CODE\"\n  AND \"CDC_SYSDSTFL\".\"ZKDIST\" = \"DV_DISTRICT\".\"DISTRICT_CODE\""
       name: STG_DISTRICT
       noLinkRefs: []
   name: STG_DISTRICT
