@@ -28,10 +28,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE \n\n WHEN Aud_Type in ('PT','PX','FI') \n\n  THEN 1 \n\n\
-          \ WHEN Aud_Type in ('UB','FB','FP','BR') \n\n  THEN 2 \n\n WHEN Aud_Type\
-          \ in ('UP','UR') \n\n  THEN 3 \n\n WHEN Aud_Type in ('DL' , 'FD') \n\n \
-          \ THEN 4 \n\n WHEN Aud_Type in ('RR') \n\n  THEN 5 \n\n ELSE NULL \n\nEND"
+        transform: "CASE \n\n WHEN Aud_Type in ('PT','PX','FI') \n\n  THEN 1 \n\n WHEN Aud_Type in ('UB','FB','FP','BR') \n\n  THEN 2 \n\n WHEN Aud_Type in ('UP','UR') \n\n  THEN 3 \n\n WHEN Aud_Type in ('DL' , 'FD') \n\n  THEN 4 \n\n WHEN Aud_Type in ('RR') \n\n  THEN 5 \n\n ELSE NULL \n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6170cc15-9b86-54c3-a640-da9a2924cc20
@@ -211,18 +208,7 @@ operation:
       - locationName: GOLD
         nodeName: CDC_BATCH
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'SRC_CUSMASFL') }} "SRC_CUSMASFL"
-          LEFT JOIN {{ ref('GOLD', 'DV_PARTY') }} "DV_PARTY"
-            ON  "SRC_CUSMASFL"."CMCMP"  = "DV_PARTY"."COMPANY_CODE"
-          AND "SRC_CUSMASFL"."CMCUS0" = "DV_PARTY"."CUSTOMER_ACCOUNT_NUM"
-          AND "DV_PARTY"."PARTY_TYPE_CODE" = 1
-          LEFT JOIN {{ ref('GOLD', 'DV_LOCATION') }} "DV_LOCATION"
-            ON  "SRC_CUSMASFL"."CMCMP"  = "DV_LOCATION_QUOTE"."COMPANY_CODE"
-          AND "SRC_CUSMASFL"."CMTCRQ" = "DV_LOCATION_QUOTE"."LOCATION_CODE"
-          LEFT JOIN {{ ref('GOLD', 'DV_LOCATION') }} "DV_LOCATION_RESERV"
-            ON  "SRC_CUSMASFL"."CMCMP"  = "DV_LOCATION_RESERV"."COMPANY_CODE"
-          AND "SRC_CUSMASFL"."CMTCRR" = "DV_LOCATION_RESERV"."LOCATION_CODE" WHERE Aud_Time <= (SELECT MAX(Batch_End)
+        joinCondition: "FROM {{ ref('GOLD', 'SRC_CUSMASFL') }} \"SRC_CUSMASFL\"\nLEFT JOIN {{ ref('GOLD', 'DV_PARTY') }} \"DV_PARTY\"\n  ON  \"SRC_CUSMASFL\".\"CMCMP\"  = \"DV_PARTY\".\"COMPANY_CODE\"\nAND \"SRC_CUSMASFL\".\"CMCUS0\" = \"DV_PARTY\".\"CUSTOMER_ACCOUNT_NUM\"\nAND \"DV_PARTY\".\"PARTY_TYPE_CODE\" = 1\nLEFT JOIN {{ ref('GOLD', 'DV_LOCATION') }} \"DV_LOCATION\"\n  ON  \"SRC_CUSMASFL\".\"CMCMP\"  = \"DV_LOCATION_QUOTE\".\"COMPANY_CODE\"\nAND \"SRC_CUSMASFL\".\"CMTCRQ\" = \"DV_LOCATION_QUOTE\".\"LOCATION_CODE\"\nLEFT JOIN {{ ref('GOLD', 'DV_LOCATION') }} \"DV_LOCATION_RESERV\"\n  ON  \"SRC_CUSMASFL\".\"CMCMP\"  = \"DV_LOCATION_RESERV\".\"COMPANY_CODE\"\nAND \"SRC_CUSMASFL\".\"CMTCRR\" = \"DV_LOCATION_RESERV\".\"LOCATION_CODE\" WHERE Aud_Time <= (SELECT MAX(Batch_End) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")\nAND Aud_Time > (Select MAX(Batch_Start) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")"
       name: ETL_CUSTOMER_TOTAL_CONTROL
       noLinkRefs: []
   name: ETL_CUSTOMER_TOTAL_CONTROL

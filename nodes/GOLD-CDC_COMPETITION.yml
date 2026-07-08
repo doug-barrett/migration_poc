@@ -22,16 +22,12 @@ operation:
         stepCounter: 65ce716d-2385-56bd-8607-a9d6ffe7bce7
       config: {}
       dataType: NUMBER(38,0)
-      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n\
-        3 = Update \n4 = Delete\n5 = Refresh"
+      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n3 = Update \n4 = Delete\n5 = Refresh"
       name: Journal_Type
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN Aud_Type in ('PT','PX','FI')\tTHEN 1 \n\n\tWHEN Aud_Type\
-          \ in ('UB','FB','FP','BR')\tTHEN 2 \n\n\tWHEN Aud_Type in ('UP','UR')\t\t\
-          THEN 3 \n\n\tWHEN Aud_Type in ('DL','FD')\t\tTHEN 4 \n\n\tWHEN Aud_Type\
-          \ in ('RR')\t\t\tTHEN 5 \n\n\tELSE NULL \n\nEND"
+        transform: "CASE\tWHEN Aud_Type in ('PT','PX','FI')\tTHEN 1 \n\n\tWHEN Aud_Type in ('UB','FB','FP','BR')\tTHEN 2 \n\n\tWHEN Aud_Type in ('UP','UR')\t\tTHEN 3 \n\n\tWHEN Aud_Type in ('DL','FD')\t\tTHEN 4 \n\n\tWHEN Aud_Type in ('RR')\t\t\tTHEN 5 \n\n\tELSE NULL \n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4c38a104-cb81-5cb9-bccf-346b046eee9b
@@ -43,9 +39,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN Aud_Type in ('PT' , 'PX' , 'FI' , 'UP', 'UR')\n\n\t\
-          THEN Aud_Time\n\n\tELSE CAST('1997-11-01 00:00:00.000000' as timestamp)\n\
-          \nEND"
+        transform: "CASE\tWHEN Aud_Type in ('PT' , 'PX' , 'FI' , 'UP', 'UR')\n\n\tTHEN Aud_Time\n\n\tELSE CAST('1997-11-01 00:00:00.000000' as timestamp)\n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a56decb2-5f06-5f56-8654-560f99583fe4
@@ -57,9 +51,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN Aud_Type in ('UB' , 'FB' , 'FP' , 'DL' , 'FD', 'BR')\n\
-          \n\tTHEN Aud_Time\n\n\tELSE CAST('2999-12-31 00:00:00.000000' as timestamp)\n\
-          \nEND"
+        transform: "CASE\tWHEN Aud_Type in ('UB' , 'FB' , 'FP' , 'DL' , 'FD', 'BR')\n\n\tTHEN Aud_Time\n\n\tELSE CAST('2999-12-31 00:00:00.000000' as timestamp)\n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: bb5be8f7-fe26-51bf-b4ed-c50048dcbf8e
@@ -438,9 +430,7 @@ operation:
       - locationName: GOLD
         nodeName: CDC_BATCH
       join:
-        joinCondition: |-
-          FROM {{ ref('BRONZE', 'COMPETITION') }} "COMPETITION"
-            Where Aud_Time <= (Select MAX(Batch_End)
+        joinCondition: "FROM {{ ref('BRONZE', 'COMPETITION') }} \"COMPETITION\"\n  Where Aud_Time <= (Select MAX(Batch_End) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")\nAND Aud_Time > (Select MAX(Batch_Start) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")"
       name: CDC_COMPETITION
       noLinkRefs: []
   name: CDC_COMPETITION

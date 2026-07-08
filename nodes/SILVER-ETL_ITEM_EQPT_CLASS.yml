@@ -891,12 +891,24 @@ operation:
         nodeName: SRC_EQPCCMFL
       - locationName: GOLD
         nodeName: CDC_BATCH
-      - locationName: GOLD
-        nodeName: CDC_BATCH
       join:
         joinCondition: |-
           FROM {{ ref('GOLD', 'SRC_EQPCCMFL') }} "SRC_EQPCCMFL"
-            Where Aud_Time <= (Select MAX(Batch_End)
+            Where Aud_Time <= (Select MAX(Batch_End) FROM {{ ref('GOLD', 'CDC_BATCH') }} "CDC_BATCH")
+            AND Aud_Time > (Select MAX(Batch_Start) FROM {{ ref('GOLD', 'CDC_BATCH') }} "CDC_BATCH")
+            AND (Aud_Code <> 'F' or (Aud_Code is null and Aud_Type = 'RR'))
+            QUALIFY RANK() OVER (
+              PARTITION BY ECCMP, ECCATG, ECCLAS
+              ORDER BY AUD_TIME DESC, AUD_SEQNO DESC,
+              CASE
+                WHEN Aud_Type in ('PT','PX','FI') THEN 1
+                WHEN Aud_Type in ('UB','FB','FP','BR') THEN 2
+                WHEN Aud_Type in ('UP','UR') THEN 3
+                WHEN Aud_Type in ('DL','FD') THEN 4
+                WHEN Aud_Type in ('RR') THEN 5
+                ELSE 0
+              END DESC
+            ) = 1
       name: ETL_ITEM_EQPT_CLASS
       noLinkRefs: []
   name: ETL_ITEM_EQPT_CLASS

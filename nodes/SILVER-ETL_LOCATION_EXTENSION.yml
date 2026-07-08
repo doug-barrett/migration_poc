@@ -28,10 +28,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN Aud_Type in ('PT','PX','FI')\tTHEN 1 \n\n\tWHEN Aud_Type\
-          \ in ('UB','FB','FP','BR')\tTHEN 2 \n\n\tWHEN Aud_Type in ('UP','UR')\t\t\
-          THEN 3 \n\n\tWHEN Aud_Type in ('DL','FD')\t\tTHEN 4 \n\n\tWHEN Aud_Type\
-          \ in ('RR')\t\t\tTHEN 5 \n\n\tELSE NULL \n\nEND"
+        transform: "CASE\tWHEN Aud_Type in ('PT','PX','FI')\tTHEN 1 \n\n\tWHEN Aud_Type in ('UB','FB','FP','BR')\tTHEN 2 \n\n\tWHEN Aud_Type in ('UP','UR')\t\tTHEN 3 \n\n\tWHEN Aud_Type in ('DL','FD')\t\tTHEN 4 \n\n\tWHEN Aud_Type in ('RR')\t\t\tTHEN 5 \n\n\tELSE NULL \n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6ccb0f4c-026b-543e-b454-a760f70671c0
@@ -43,9 +40,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN Aud_Type in ('PT' , 'PX' , 'FI' , 'UP', 'UR')\n\n\t\
-          THEN Aud_Time\n\n\tELSE CAST('1997-11-01 00:00:00.000000' as timestamp)\n\
-          \nEND"
+        transform: "CASE\tWHEN Aud_Type in ('PT' , 'PX' , 'FI' , 'UP', 'UR')\n\n\tTHEN Aud_Time\n\n\tELSE CAST('1997-11-01 00:00:00.000000' as timestamp)\n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2ed1fd00-9b7d-5012-8c73-cbc8013f9ff1
@@ -57,9 +52,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN Aud_Type in ('UB' , 'FB' , 'FP' , 'DL' , 'FD', 'BR')\n\
-          \n\tTHEN Aud_Time\n\n\tELSE CAST('2999-12-31 00:00:00.000000' as timestamp)\n\
-          \nEND"
+        transform: "CASE\tWHEN Aud_Type in ('UB' , 'FB' , 'FP' , 'DL' , 'FD', 'BR')\n\n\tTHEN Aud_Time\n\n\tELSE CAST('2999-12-31 00:00:00.000000' as timestamp)\n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4a86748e-2274-500c-8741-1513e90e1457
@@ -1079,14 +1072,7 @@ operation:
       - locationName: GOLD
         nodeName: CDC_BATCH
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'SRC_SYSLC2FL') }} "SRC_SYSLC2FL"
-          INNER JOIN {{ ref('GOLD', 'DV_LOCATION') }} "DV_LOCATION"
-            ON   "SRC_SYSLC2FL"."Z2CMP" = "DV_LOCATION"."COMPANY_CODE"
-          AND  "SRC_SYSLC2FL"."Z2LOC" = "DV_LOCATION"."LOCATION_CODE"
-
-          Where (Aud_Code <> 'F' or (Aud_Code is null and Aud_Type = 'RR'))
-          AND Aud_Time <= (Select MAX(Batch_End)
+        joinCondition: "FROM {{ ref('GOLD', 'SRC_SYSLC2FL') }} \"SRC_SYSLC2FL\"\nINNER JOIN {{ ref('GOLD', 'DV_LOCATION') }} \"DV_LOCATION\"\n  ON   \"SRC_SYSLC2FL\".\"Z2CMP\" = \"DV_LOCATION\".\"COMPANY_CODE\"\nAND  \"SRC_SYSLC2FL\".\"Z2LOC\" = \"DV_LOCATION\".\"LOCATION_CODE\"\n\nWhere (Aud_Code <> 'F' or (Aud_Code is null and Aud_Type = 'RR'))\nAND Aud_Time <= (Select MAX(Batch_End) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")\nAND Aud_Time > (Select MAX(Batch_Start) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")"
       name: ETL_LOCATION_EXTENSION
       noLinkRefs: []
   name: ETL_LOCATION_EXTENSION

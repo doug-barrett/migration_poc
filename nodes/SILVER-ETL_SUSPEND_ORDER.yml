@@ -28,10 +28,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE \n\n WHEN Aud_Type in ('PT','PX','FI') \n\n  THEN 1 \n\n\
-          \ WHEN Aud_Type in ('UB','FB','FP','BR') \n\n  THEN 2 \n\n WHEN Aud_Type\
-          \ in ('UP','UR') \n\n  THEN 3 \n\n WHEN Aud_Type in ('DL' , 'FD') \n\n \
-          \ THEN 4 \n\n WHEN Aud_Type in ('RR') \n\n  THEN 5 \n\n ELSE NULL \n\nEND"
+        transform: "CASE \n\n WHEN Aud_Type in ('PT','PX','FI') \n\n  THEN 1 \n\n WHEN Aud_Type in ('UB','FB','FP','BR') \n\n  THEN 2 \n\n WHEN Aud_Type in ('UP','UR') \n\n  THEN 3 \n\n WHEN Aud_Type in ('DL' , 'FD') \n\n  THEN 4 \n\n WHEN Aud_Type in ('RR') \n\n  THEN 5 \n\n ELSE NULL \n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7dea5a9d-18ea-530a-9c35-695a6b309fc6
@@ -43,9 +40,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN Aud_Type in ('PT' , 'PX' , 'FI' , 'UP', 'UR')\n\n\t\
-          THEN Aud_Time\n\n\tELSE CAST('1997-11-01 00:00:00.000000' as timestamp)\n\
-          \nEND"
+        transform: "CASE\tWHEN Aud_Type in ('PT' , 'PX' , 'FI' , 'UP', 'UR')\n\n\tTHEN Aud_Time\n\n\tELSE CAST('1997-11-01 00:00:00.000000' as timestamp)\n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a42ea1c9-fd9b-5f79-8732-48864dd153de
@@ -57,9 +52,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN Aud_Type in ('UB' , 'FB' , 'FP' , 'DL' , 'FD', 'BR')\n\
-          \n\tTHEN Aud_Time\n\n\tELSE CAST('2999-12-31 00:00:00.000000' as timestamp)\n\
-          \nEND"
+        transform: "CASE\tWHEN Aud_Type in ('UB' , 'FB' , 'FP' , 'DL' , 'FD', 'BR')\n\n\tTHEN Aud_Time\n\n\tELSE CAST('2999-12-31 00:00:00.000000' as timestamp)\n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0b72ab45-dad2-5b18-b6d8-3a7c45b0ba42
@@ -137,8 +130,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: '"EDW_PRODUCTION"."P_BI_STGTAB_DB".UDF_DEC_TO_TIME_ALPHA_EH("SRC_RASUSCFL"."N0STIM"
-          * 100)'
+        transform: '"EDW_PRODUCTION"."P_BI_STGTAB_DB".UDF_DEC_TO_TIME_ALPHA_EH("SRC_RASUSCFL"."N0STIM" * 100)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a6aed3c6-635d-59e9-8b17-61b5daeaf0a5
@@ -162,8 +154,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: '"EDW_PRODUCTION"."P_BI_STGTAB_DB".UDF_DEC_TO_TIME_ALPHA_EH("SRC_RASUSCFL"."N0ETIM"
-          * 100)'
+        transform: '"EDW_PRODUCTION"."P_BI_STGTAB_DB".UDF_DEC_TO_TIME_ALPHA_EH("SRC_RASUSCFL"."N0ETIM" * 100)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 24a2aa24-28c1-5e49-8664-d3766934738d
@@ -213,8 +204,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN Aud_Type IN ('UB','FB','FP','BR','DL','FD') THEN 'N'
-          ELSE 'Y' END
+        transform: CASE WHEN Aud_Type IN ('UB','FB','FP','BR','DL','FD') THEN 'N' ELSE 'Y' END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e72473aa-cf04-52e0-ac76-cbb2092a2819
@@ -255,10 +245,7 @@ operation:
       - locationName: GOLD
         nodeName: CDC_BATCH
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'SRC_RASUSCFL') }} "SRC_RASUSCFL"
-            WHERE N0CMP = 'U1'
-              AND Aud_Time <= (SELECT MAX(Batch_End)
+        joinCondition: "FROM {{ ref('GOLD', 'SRC_RASUSCFL') }} \"SRC_RASUSCFL\"\n  WHERE N0CMP = 'U1'\n    AND Aud_Time <= (SELECT MAX(Batch_End) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")\nAND Aud_Time > (Select MAX(Batch_Start) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")"
       name: ETL_SUSPEND_ORDER
       noLinkRefs: []
   name: ETL_SUSPEND_ORDER

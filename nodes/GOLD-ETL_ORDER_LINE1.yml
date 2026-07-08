@@ -22,8 +22,7 @@ operation:
         stepCounter: 9b41c3ec-c82c-53fe-ba0b-9e4023976dc9
       config: {}
       dataType: NUMBER(5,0)
-      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n\
-        3 = Update \n4 = Delete\n5 = Refresh"
+      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n3 = Update \n4 = Delete\n5 = Refresh"
       name: Journal_Type
       nullable: true
       sourceColumnReferences:
@@ -951,7 +950,6 @@ operation:
     - aliases:
         ORDERS: 29a813e8-0b5b-5733-99b2-e09c650c50ae
         ORDER_LINE: 580ac372-cbca-555d-ad2f-3a7b3e7da921
-        STG_ORDER_LINE: 16d95157-564a-5b0f-bb93-c78100e33c01
       customSQL:
         customSQL: ''
       dependencies:
@@ -959,12 +957,8 @@ operation:
         nodeName: ORDERS
       - locationName: GOLD
         nodeName: ORDER_LINE
-      - locationName: SILVER
-        nodeName: STG_ORDER_LINE
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'ORDERS') }} "ORDERS"
-            Where NOT EXISTS (Select NULL
+        joinCondition: "FROM {{ ref('GOLD', 'ORDERS') }} \"ORDERS\"\nWHERE NOT EXISTS (Select NULL FROM {{ ref('GOLD', 'ORDER_LINE') }} \"ORDER_LINE\"\n    WHERE \"ORDERS\".\"CONTRACT_KEY\" = \"ORDER_LINE\".\"CONTRACT_KEY\"\n      AND \"ORDERS\".\"CONTRACT_SEQ_KEY\" = \"ORDER_LINE\".\"CONTRACT_SEQ_KEY\")\nAND NOT EXISTS (Select NULL FROM \"UR_DEVELOPMENT\".\"SILVER\".\"STG_ORDER_LINE\" \"STG_ORDER_LINE\"\n    WHERE \"ORDERS\".\"CONTRACT_KEY\" = \"STG_ORDER_LINE\".\"CONTRACT_KEY\"\n      AND \"ORDERS\".\"CONTRACT_SEQ_KEY\" = \"STG_ORDER_LINE\".\"CONTRACT_SEQ_KEY\"\n      AND JOURNAL_TYPE IN (1,3,5))"
       name: ETL_ORDER_LINE1
       noLinkRefs: []
   name: ETL_ORDER_LINE1

@@ -272,18 +272,22 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: |-
-          Coalesce("ORDER_LINE_E"."RETURN_DATE"
+        transform: 'Coalesce("ORDER_LINE_E"."RETURN_DATE"
+
 
           ,"ORDER_LINE_P"."RETURN_DATE"
 
+
           ,"ORDER_LINE_F"."RETURN_DATE"
+
 
           ,"ORDER_LINE"."CYCLE_BILLED_TO"
 
+
           ,"ORDER_LINE"."RETURN_DATE"
 
-          ,"ORDER_LINE"."CYCLE_BILLED_FROM")
+
+          ,"ORDER_LINE"."CYCLE_BILLED_FROM")'
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
@@ -301,41 +305,17 @@ operation:
         nodeName: ORDERS
       - locationName: GOLD
         nodeName: ORDER_LINE
-      - locationName: GOLD
-        nodeName: ORDER_LINE
-      - locationName: GOLD
-        nodeName: ORDER_LINE
-      - locationName: GOLD
-        nodeName: ORDER_LINE
-      - locationName: SILVER
-        nodeName: STG_ORDER_LINE
       - locationName: BRONZE
-        nodeName: ORDER_LINE_E
+        nodeName: ORDER_LINE_F
       - locationName: BRONZE
         nodeName: ORDER_LINE_P
       - locationName: BRONZE
-        nodeName: ORDER_LINE_F
+        nodeName: ORDER_LINE_E
+      - locationName: SILVER
+        nodeName: STG_ORDER_LINE
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'ORDERS') }} \"ORDERS\"\nINNER JOIN {{\
-          \ ref('GOLD', 'ORDER_LINE') }} \"ORDER_LINE\"\n  on \"ORDER_LINE\".\"CONTRACT_KEY\"\
-          \ = \"ORDERS\".\"CONTRACT_KEY\"\nand \"ORDER_LINE\".\"CONTRACT_SEQ_KEY\"\
-          \ = \"ORDERS\".\"CONTRACT_SEQ_KEY\" \n--and \"ORDERS\".\"INVOICE_ORDER_TYPE\"\
-          \ in ('C','E','P','F')  \n--and \"ORDER_LINE\".\"ORDER_LINE_TYPE_CODE\"\
-          \ = 'RI'\nLEFT JOIN {{ ref('GOLD', 'ORDER_LINE') }} \"ORDER_LINE_F\"\n \
-          \ on \"ORDER_LINE\".\"CONTRACT_KEY\" = \"ORDER_LINE_F\".\"CONTRACT_KEY\"\
-          \nand \"ORDER_LINE\".\"CONTRACT_SEQ_KEY\" = \"ORDER_LINE_F\".\"CONTRACT_SEQ_KEY\"\
-          \ \nand \"ORDER_LINE\".\"CONTRACT_LINE_KEY\" = \"ORDER_LINE_F\".\"CONTRACT_LINE_KEY\"\
-          \ \nand \"ORDERS\".\"INVOICE_ORDER_TYPE\" = 'F'\nLEFT JOIN {{ ref('GOLD',\
-          \ 'ORDER_LINE') }} \"ORDER_LINE_P\"\n  on \"ORDER_LINE\".\"CONTRACT_KEY\"\
-          \ = \"ORDER_LINE_P\".\"CONTRACT_KEY\"\nand \"ORDER_LINE\".\"CONTRACT_SEQ_KEY\"\
-          \ = \"ORDER_LINE_P\".\"CONTRACT_SEQ_KEY\" \nand \"ORDER_LINE\".\"CONTRACT_LINE_KEY\"\
-          \ = \"ORDER_LINE_P\".\"CONTRACT_LINE_KEY\" \nand \"ORDERS\".\"INVOICE_ORDER_TYPE\"\
-          \ = 'P'\nLEFT JOIN {{ ref('GOLD', 'ORDER_LINE') }} \"ORDER_LINE_E\"\n  on\
-          \ \"ORDER_LINE\".\"CONTRACT_KEY\" = \"ORDER_LINE_E\".\"CONTRACT_KEY\"\n\
-          and \"ORDER_LINE\".\"CONTRACT_SEQ_KEY\" = \"ORDER_LINE_E\".\"CONTRACT_SEQ_KEY\"\
-          \ \nand \"ORDER_LINE\".\"CONTRACT_LINE_KEY\" = \"ORDER_LINE_E\".\"CONTRACT_LINE_KEY\"\
-          \ \nand \"ORDERS\".\"INVOICE_ORDER_TYPE\" = 'E'\nWhere \"ORDERS\".\"CONTRACT_KEY\"\
-          \ in (Select Contract_Key"
+        joinCondition: "FROM {{ ref('GOLD', 'ORDERS') }} \"ORDERS\"\nINNER JOIN {{ ref('GOLD', 'ORDER_LINE') }} \"ORDER_LINE\"\n  ON \"ORDER_LINE\".\"CONTRACT_KEY\" = \"ORDERS\".\"CONTRACT_KEY\"\n  AND \"ORDER_LINE\".\"CONTRACT_SEQ_KEY\" = \"ORDERS\".\"CONTRACT_SEQ_KEY\"\nLEFT JOIN {{ ref('BRONZE', 'ORDER_LINE_F') }} \"ORDER_LINE_F\"\n  ON \"ORDER_LINE\".\"CONTRACT_KEY\" = \"ORDER_LINE_F\".\"CONTRACT_KEY\"\n  AND \"ORDER_LINE\".\"CONTRACT_SEQ_KEY\" = \"ORDER_LINE_F\".\"CONTRACT_SEQ_KEY\"\n  AND \"ORDER_LINE\".\"CONTRACT_LINE_KEY\" = \"ORDER_LINE_F\".\"CONTRACT_LINE_KEY\"\n  AND \"ORDERS\".\"INVOICE_ORDER_TYPE\" = 'F'\nLEFT JOIN {{ ref('BRONZE', 'ORDER_LINE_P') }} \"ORDER_LINE_P\"\n  ON \"ORDER_LINE\".\"CONTRACT_KEY\" = \"ORDER_LINE_P\".\"CONTRACT_KEY\"\n  AND \"ORDER_LINE\".\"CONTRACT_SEQ_KEY\" = \"ORDER_LINE_P\".\"CONTRACT_SEQ_KEY\"\n  AND \"ORDER_LINE\".\"CONTRACT_LINE_KEY\" = \"ORDER_LINE_P\".\"CONTRACT_LINE_KEY\"\n  AND \"ORDERS\".\"INVOICE_ORDER_TYPE\" = 'P'\nLEFT JOIN {{ ref('BRONZE',\
+          \ 'ORDER_LINE_E') }} \"ORDER_LINE_E\"\n  ON \"ORDER_LINE\".\"CONTRACT_KEY\" = \"ORDER_LINE_E\".\"CONTRACT_KEY\"\n  AND \"ORDER_LINE\".\"CONTRACT_SEQ_KEY\" = \"ORDER_LINE_E\".\"CONTRACT_SEQ_KEY\"\n  AND \"ORDER_LINE\".\"CONTRACT_LINE_KEY\" = \"ORDER_LINE_E\".\"CONTRACT_LINE_KEY\"\n  AND \"ORDERS\".\"INVOICE_ORDER_TYPE\" = 'E'\nWHERE \"ORDERS\".\"CONTRACT_KEY\" IN (SELECT Contract_Key FROM {{ ref('SILVER', 'STG_ORDER_LINE') }} \"STG_ORDER_LINE\")"
       name: STG_ORDER_LINE_DAYS
       noLinkRefs: []
   name: STG_ORDER_LINE_DAYS

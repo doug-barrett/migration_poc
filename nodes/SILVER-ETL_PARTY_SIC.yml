@@ -23,18 +23,12 @@ operation:
         stepCounter: caddfc36-10e1-5669-bca0-1c594f4588d7
       config: {}
       dataType: NUMBER(38,0)
-      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n\
-        3 = Update \n4 = Delete\n5 = Refresh"
+      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n3 = Update \n4 = Delete\n5 = Refresh"
       name: Journal_Type
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('PT','PX','FI')\t\
-          THEN 1 \n\n\tWHEN \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('UB','FB','FP','BR')\t\
-          THEN 2 \n\n\tWHEN \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('UP','UR')\t\tTHEN 3\
-          \ \n\n\tWHEN \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('DL','FD')\t\tTHEN 4 \n\n\
-          \tWHEN \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('RR')\t\t\tTHEN 5 \n\n\tELSE NULL\
-          \ \n\nEND"
+        transform: "CASE\tWHEN \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('PT','PX','FI')\tTHEN 1 \n\n\tWHEN \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('UB','FB','FP','BR')\tTHEN 2 \n\n\tWHEN \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('UP','UR')\t\tTHEN 3 \n\n\tWHEN \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('DL','FD')\t\tTHEN 4 \n\n\tWHEN \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('RR')\t\t\tTHEN 5 \n\n\tELSE NULL \n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: bfef10d2-77e5-52cd-9f44-4ce61bd3367a
@@ -46,9 +40,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('PT' , 'PX' , 'FI'\
-          \ , 'UP', 'UR')\n\n\tTHEN \"SRC_CUSMASFL\".\"AUD_TIME\"\n\n\tELSE CAST('1997-11-01\
-          \ 00:00:00.000000' as timestamp)\n\nEND"
+        transform: "CASE\tWHEN \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('PT' , 'PX' , 'FI' , 'UP', 'UR')\n\n\tTHEN \"SRC_CUSMASFL\".\"AUD_TIME\"\n\n\tELSE CAST('1997-11-01 00:00:00.000000' as timestamp)\n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 45886678-e26f-588b-afae-369eddbf7651
@@ -60,9 +52,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('UB' , 'FB' , 'FP'\
-          \ , 'DL' , 'FD', 'BR')\n\n\tTHEN \"SRC_CUSMASFL\".\"AUD_TIME\"\n\n\tELSE\
-          \ CAST('2999-12-31 00:00:00.000000' as timestamp)\n\nEND"
+        transform: "CASE\tWHEN \"SRC_CUSMASFL\".\"AUD_TYPE\" in ('UB' , 'FB' , 'FP' , 'DL' , 'FD', 'BR')\n\n\tTHEN \"SRC_CUSMASFL\".\"AUD_TIME\"\n\n\tELSE CAST('2999-12-31 00:00:00.000000' as timestamp)\n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 433c7441-748e-5772-9740-9b7ffa809160
@@ -172,14 +162,7 @@ operation:
       - locationName: GOLD
         nodeName: CDC_BATCH
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'SRC_CUSMASFL') }} "SRC_CUSMASFL"
-          LEFT JOIN {{ ref('GOLD', 'CV_PARTY') }} "CV_PARTY"
-            ON   "SRC_CUSMASFL"."CMCMP" = "CV_PARTY"."COMPANY_CODE"
-          AND  "SRC_CUSMASFL"."CMCUS0" = "CV_PARTY"."CUSTOMER_ACCOUNT_NUM"
-          AND  "CV_PARTY"."PARTY_TYPE_CODE" = 1
-
-           Where "SRC_CUSMASFL"."AUD_TIME" <= (Select MAX(Batch_End)
+        joinCondition: "FROM {{ ref('GOLD', 'SRC_CUSMASFL') }} \"SRC_CUSMASFL\"\nLEFT JOIN {{ ref('GOLD', 'CV_PARTY') }} \"CV_PARTY\"\n  ON   \"SRC_CUSMASFL\".\"CMCMP\" = \"CV_PARTY\".\"COMPANY_CODE\"\nAND  \"SRC_CUSMASFL\".\"CMCUS0\" = \"CV_PARTY\".\"CUSTOMER_ACCOUNT_NUM\"\nAND  \"CV_PARTY\".\"PARTY_TYPE_CODE\" = 1\n\n Where \"SRC_CUSMASFL\".\"AUD_TIME\" <= (Select MAX(Batch_End) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")\nAND Aud_Time > (Select MAX(Batch_Start) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")"
       name: ETL_PARTY_SIC
       noLinkRefs: []
   name: ETL_PARTY_SIC

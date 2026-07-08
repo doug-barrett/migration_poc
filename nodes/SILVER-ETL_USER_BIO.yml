@@ -28,11 +28,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE \n\n WHEN Aud_Type in ('CR') \n\n  THEN 0 \n\n WHEN Aud_Type\
-          \ in ('PT','PX','FI') \n\n  THEN 1 \n\n WHEN Aud_Type in ('UB','FB','FP','BR')\
-          \ \n\n  THEN 2 \n\n WHEN Aud_Type in ('UP','UR') \n\n  THEN 3 \n\n WHEN\
-          \ Aud_Type in ('DL' , 'FD') \n\n  THEN 4 \n\n WHEN Aud_Type in ('RR') \n\
-          \n  THEN 5 \n\n ELSE NULL \n\nEND"
+        transform: "CASE \n\n WHEN Aud_Type in ('CR') \n\n  THEN 0 \n\n WHEN Aud_Type in ('PT','PX','FI') \n\n  THEN 1 \n\n WHEN Aud_Type in ('UB','FB','FP','BR') \n\n  THEN 2 \n\n WHEN Aud_Type in ('UP','UR') \n\n  THEN 3 \n\n WHEN Aud_Type in ('DL' , 'FD') \n\n  THEN 4 \n\n WHEN Aud_Type in ('RR') \n\n  THEN 5 \n\n ELSE NULL \n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 647a12ae-a259-55a1-90c5-bef89d1d1410
@@ -44,16 +40,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: |-
-          CASE
-
-           WHEN Aud_Type in ('PT' , 'PX' , 'FI' , 'UP','UR')
-
-            THEN Aud_Time
-
-           ELSE  CAST('1997-11-01 00:00:00.000000' as timestamp)
-
-          END
+        transform: "CASE\n\n WHEN Aud_Type in ('PT' , 'PX' , 'FI' , 'UP','UR')\n\n  THEN Aud_Time\n\n ELSE  CAST('1997-11-01 00:00:00.000000' as timestamp)\n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f332b0d6-d9e9-5360-a93e-b719ce24daf0
@@ -65,16 +52,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: |-
-          CASE
-
-           WHEN Aud_Type in ('UB' , 'FB' , 'FP' , 'DL' , 'FD','BR')
-
-            THEN Aud_Time
-
-           ELSE  CAST('2999-12-31 00:00:00.000000' as timestamp)
-
-          END
+        transform: "CASE\n\n WHEN Aud_Type in ('UB' , 'FB' , 'FP' , 'DL' , 'FD','BR')\n\n  THEN Aud_Time\n\n ELSE  CAST('2999-12-31 00:00:00.000000' as timestamp)\n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: bd47fca3-7271-55eb-910a-e854a2989412
@@ -189,9 +167,9 @@ operation:
         stepCounter: bcec2944-8db0-5e02-a524-e4d820db9b13
       config: {}
       dataType: NUMBER(38,0)
-      description: |-
-        ETL_USER_BIO.Company_Code=LOCATION.Company_Code
-        ETL_USER_BIO.Location_Code=LOCATION.Location_Code
+      description: 'ETL_USER_BIO.Company_Code=LOCATION.Company_Code
+
+        ETL_USER_BIO.Location_Code=LOCATION.Location_Code'
       name: Location_Id
       nullable: true
       sourceColumnReferences:
@@ -246,14 +224,16 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: |-
-          CASE WHEN (RTRIM(UISTMP) = '' OR UISTMP IS NULL)
+        transform: 'CASE WHEN (RTRIM(UISTMP) = '''' OR UISTMP IS NULL)
+
 
           THEN NULL
 
-          ELSE TO_TIMESTAMP(UISTMP, 'YYYY-MM-DD-"HH"."MI"."SS"."FF6"')
 
-          END
+          ELSE TO_TIMESTAMP(UISTMP, ''YYYY-MM-DD-"HH"."MI"."SS"."FF6"'')
+
+
+          END'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f5992b54-88f4-57ff-8be0-cec183230920
@@ -300,18 +280,7 @@ operation:
       - locationName: GOLD
         nodeName: CDC_BATCH
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'SRC_USRBIOFL') }} "SRC_USRBIOFL"
-          LEFT JOIN {{ ref('GOLD', 'LOCATION') }} "LOCATION"
-            ON   "SRC_USRBIOFL"."UILOC" = "LOCATION"."LOCATION_CODE"
-          AND "SRC_USRBIOFL"."UICMP" = "LOCATION"."COMPANY_CODE"
-          AND "LOCATION"."DSS_CURRENT_FLAG" = 'Y'
-          LEFT JOIN {{ ref('GOLD', 'ADDRESS') }} "ADDRESS"
-            ON   UPPER("SRC_USRBIOFL"."UICMP") = UPPER("ADDRESS"."COMPANY_CODE")
-          AND "ADDRESS"."ADDRESS_TYPE_CODE" = 'E'
-          AND UPPER("SRC_USRBIOFL"."UIMAIL") = UPPER("ADDRESS"."ADDRESS_TEXT_1")
-
-          Where Aud_Time <= (Select MAX(Batch_End)
+        joinCondition: "FROM {{ ref('GOLD', 'SRC_USRBIOFL') }} \"SRC_USRBIOFL\"\nLEFT JOIN {{ ref('GOLD', 'LOCATION') }} \"LOCATION\"\n  ON   \"SRC_USRBIOFL\".\"UILOC\" = \"LOCATION\".\"LOCATION_CODE\"\nAND \"SRC_USRBIOFL\".\"UICMP\" = \"LOCATION\".\"COMPANY_CODE\"\nAND \"LOCATION\".\"DSS_CURRENT_FLAG\" = 'Y'\nLEFT JOIN {{ ref('GOLD', 'ADDRESS') }} \"ADDRESS\"\n  ON   UPPER(\"SRC_USRBIOFL\".\"UICMP\") = UPPER(\"ADDRESS\".\"COMPANY_CODE\")\nAND \"ADDRESS\".\"ADDRESS_TYPE_CODE\" = 'E'\nAND UPPER(\"SRC_USRBIOFL\".\"UIMAIL\") = UPPER(\"ADDRESS\".\"ADDRESS_TEXT_1\")\n\nWhere Aud_Time <= (Select MAX(Batch_End) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")\nAND Aud_Time > (Select MAX(Batch_Start) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")"
       name: ETL_USER_BIO
       noLinkRefs: []
   name: ETL_USER_BIO

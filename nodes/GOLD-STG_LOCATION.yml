@@ -22,8 +22,7 @@ operation:
         stepCounter: 78f71244-13f2-5be6-a260-d13ce0e17077
       config: {}
       dataType: NUMBER(38,0)
-      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n\
-        3 = Update \n4 = Delete\n5 = Refresh"
+      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n3 = Update \n4 = Delete\n5 = Refresh"
       name: Journal_Type
       nullable: true
       sourceColumnReferences:
@@ -54,9 +53,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "COALESCE(\"DV_LOCATION\".\"LOCATION_ID\",\n\nRow_Number() OVER(ORDER\
-          \ BY \"DV_LOCATION\".\"LOCATION_ID\" ASC NULLS FIRST,\n\nCASE \n\nWHEN Journal_Type\
-          \ IN (1,3,5) THEN 1 \n\nELSE 9 END ASC) + Last_Id)"
+        transform: "COALESCE(\"DV_LOCATION\".\"LOCATION_ID\",\n\nRow_Number() OVER(ORDER BY \"DV_LOCATION\".\"LOCATION_ID\" ASC NULLS FIRST,\n\nCASE \n\nWHEN Journal_Type IN (1,3,5) THEN 1 \n\nELSE 9 END ASC) + Last_Id)"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3ea09b28-7967-53f0-81d0-b4a5c8f96a07
@@ -96,12 +93,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: |-
-          CASE
-              WHEN "CDC_SYSLOCFL"."JOURNAL_TYPE" in (2,4)
-              THEN 'Deleted'
-              ELSE  "CDC_SYSLOCFL"."ZLNAME"
-              END
+        transform: "CASE\n    WHEN \"CDC_SYSLOCFL\".\"JOURNAL_TYPE\" in (2,4)\n    THEN 'Deleted'\n    ELSE  \"CDC_SYSLOCFL\".\"ZLNAME\"\n    END"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d25daac5-c2b3-5d53-88f9-63dd60d38930
@@ -389,16 +381,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: |-
-          CASE
-
-              WHEN "CDC_SYSLOCFL"."ZLLOC" = "CDC_SYSLOCFL"."ZLWHS"
-
-              THEN 'W'
-              WHEN "CDC_SYSLOCFL"."ZLCRDO" = "CDC_SYSLOCFL"."ZLLOC"
-              THEN  'C'
-              ELSE   'B'
-              END
+        transform: "CASE\n\n    WHEN \"CDC_SYSLOCFL\".\"ZLLOC\" = \"CDC_SYSLOCFL\".\"ZLWHS\"\n\n    THEN 'W'\n    WHEN \"CDC_SYSLOCFL\".\"ZLCRDO\" = \"CDC_SYSLOCFL\".\"ZLLOC\"\n    THEN  'C'\n    ELSE   'B'\n    END"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7ffe1a22-c929-5efa-a8cc-4bb6490d77dd
@@ -534,13 +517,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: |-
-          CASE
-              WHEN "CDC_SYSLOCFL"."JOURNAL_TYPE" in (2,4)
-              THEN  'X'
-              ELSE   "CDC_SYSLOCFL"."ZLSTTS"
-
-              END
+        transform: "CASE\n    WHEN \"CDC_SYSLOCFL\".\"JOURNAL_TYPE\" in (2,4)\n    THEN  'X'\n    ELSE   \"CDC_SYSLOCFL\".\"ZLSTTS\"\n\n    END"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 04e9d229-63ec-5c84-a27c-e5c519462ea6
@@ -889,9 +866,9 @@ operation:
         stepCounter: 78f71244-13f2-5be6-a260-d13ce0e17077
       config: {}
       dataType: VARCHAR(1)
-      description: |-
-        Pgmr work field
-        Innotas Issue 545758870
+      description: 'Pgmr work field
+
+        Innotas Issue 545758870'
       name: Company_Origin
       nullable: true
       sourceColumnReferences:
@@ -1094,8 +1071,8 @@ operation:
         DISTRICT: 348d53bb-3c02-538b-b0c3-871c2c067d8e
         TRADE_AREA: e609946a-e684-5351-b96e-461bdff35fa2
         LOCATION: fc31ae84-5b0b-5e1e-b998-bb5742721756
-        Max_ID: 8b010047-209e-5014-ae1b-630e93a9fdc8
         REGION_A: 7e7a29e6-b821-50f2-b7b2-098d67f0f157
+        MAX_ID: 8b010047-209e-5014-ae1b-630e93a9fdc8
       customSQL:
         customSQL: ''
       dependencies:
@@ -1118,7 +1095,7 @@ operation:
       - locationName: GOLD
         nodeName: LOCATION
       - locationName: BRONZE
-        nodeName: Max_ID
+        nodeName: MAX_ID
       - locationName: BRONZE
         nodeName: REGION_A
       - locationName: BRONZE
@@ -1126,37 +1103,8 @@ operation:
       - locationName: BRONZE
         nodeName: MARKET_S
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'CDC_SYSLOCFL') }} "CDC_SYSLOCFL"
-          LEFT JOIN {{ ref('GOLD', 'DV_LOCATION') }} "DV_LOCATION"
-            ON   "CDC_SYSLOCFL"."ZLCMP" = "DV_LOCATION"."COMPANY_CODE"
-          AND "CDC_SYSLOCFL"."ZLLOC" = "DV_LOCATION"."LOCATION_CODE"
-          LEFT JOIN {{ ref('GOLD', 'REGION') }} "REGION"
-            ON   "CDC_SYSLOCFL"."ZLCMP" = "REGION_A"."COMPANY_CODE"
-          AND "CDC_SYSLOCFL"."ZLARGN" = "REGION_A"."REGION_CODE"
-          AND "REGION_A"."DSS_CURRENT_FLAG" = 'Y'
-          LEFT JOIN {{ ref('GOLD', 'REGION') }} "REGION_I"
-            ON   "CDC_SYSLOCFL"."ZLCMP" = "REGION_I"."COMPANY_CODE"
-          AND "CDC_SYSLOCFL"."ZLIRGN" = "REGION_I"."REGION_CODE"
-          AND "REGION_I"."DSS_CURRENT_FLAG" = 'Y'
-          LEFT JOIN {{ ref('GOLD', 'MARKET') }} "MARKET"
-            ON   "CDC_SYSLOCFL"."ZLCMP" = "MARKET"."COMPANY_CODE"
-          AND "CDC_SYSLOCFL"."ZLMRKT" = "MARKET"."MARKET_CODE"
-          AND "MARKET"."DSS_CURRENT_FLAG" = 'Y'
-          AND "MARKET"."MARKET_TYPE_CODE" = 'R'
-          LEFT JOIN {{ ref('GOLD', 'MARKET') }} "MARKET_S"
-            ON   "CDC_SYSLOCFL"."ZLCMP" = "MARKET_S"."COMPANY_CODE"
-          AND "CDC_SYSLOCFL"."ZLMRKT" = "MARKET_S"."MARKET_CODE"
-          AND "MARKET_S"."DSS_CURRENT_FLAG" = 'Y'
-          AND "MARKET_S"."MARKET_TYPE_CODE" = 'S'
-          LEFT JOIN {{ ref('GOLD', 'DISTRICT') }} "DISTRICT"
-            ON   "CDC_SYSLOCFL"."ZLCMP" = "DISTRICT"."COMPANY_CODE"
-          AND "CDC_SYSLOCFL"."ZLDIST" = "DISTRICT"."DISTRICT_CODE"
-          And "DISTRICT"."DSS_CURRENT_FLAG" = 'Y'
-          LEFT JOIN {{ ref('GOLD', 'TRADE_AREA') }} "TRADE_AREA"
-            ON   "CDC_SYSLOCFL"."ZLCMP" = "TRADE_AREA"."COMPANY_CODE"
-          AND "CDC_SYSLOCFL"."ZLWEBS" = "TRADE_AREA"."TRADE_AREA_CODE"
-          AND "TRADE_AREA"."DSS_CURRENT_FLAG" = 'Y'
+        joinCondition: "FROM {{ ref('GOLD', 'CDC_SYSLOCFL') }} \"CDC_SYSLOCFL\"\nLEFT JOIN {{ ref('GOLD', 'DV_LOCATION') }} \"DV_LOCATION\"\n  ON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"DV_LOCATION\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLLOC\" = \"DV_LOCATION\".\"LOCATION_CODE\"\nLEFT JOIN {{ ref('GOLD', 'REGION') }} \"REGION\"\n  ON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"REGION_A\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLARGN\" = \"REGION_A\".\"REGION_CODE\"\nAND \"REGION_A\".\"DSS_CURRENT_FLAG\" = 'Y'\nLEFT JOIN {{ ref('GOLD', 'REGION') }} \"REGION_I\"\n  ON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"REGION_I\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLIRGN\" = \"REGION_I\".\"REGION_CODE\"\nAND \"REGION_I\".\"DSS_CURRENT_FLAG\" = 'Y'\nLEFT JOIN {{ ref('GOLD', 'MARKET') }} \"MARKET\"\n  ON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"MARKET\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLMRKT\" = \"MARKET\".\"MARKET_CODE\"\nAND \"MARKET\".\"DSS_CURRENT_FLAG\" = 'Y'\nAND \"MARKET\".\"MARKET_TYPE_CODE\" = 'R'\nLEFT JOIN\
+          \ {{ ref('GOLD', 'MARKET') }} \"MARKET_S\"\n  ON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"MARKET_S\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLMRKT\" = \"MARKET_S\".\"MARKET_CODE\"\nAND \"MARKET_S\".\"DSS_CURRENT_FLAG\" = 'Y'\nAND \"MARKET_S\".\"MARKET_TYPE_CODE\" = 'S'\nLEFT JOIN {{ ref('GOLD', 'DISTRICT') }} \"DISTRICT\"\n  ON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"DISTRICT\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLDIST\" = \"DISTRICT\".\"DISTRICT_CODE\"\nAnd \"DISTRICT\".\"DSS_CURRENT_FLAG\" = 'Y'\nLEFT JOIN {{ ref('GOLD', 'TRADE_AREA') }} \"TRADE_AREA\"\n  ON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"TRADE_AREA\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLWEBS\" = \"TRADE_AREA\".\"TRADE_AREA_CODE\"\nAND \"TRADE_AREA\".\"DSS_CURRENT_FLAG\" = 'Y'"
       name: STG_LOCATION
       noLinkRefs: []
   name: STG_LOCATION
