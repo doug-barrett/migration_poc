@@ -823,16 +823,16 @@ operation:
       dependencies:
       - locationName: GOLD
         nodeName: CDC_ITMMASFL
+      - locationName: BRONZE
+        nodeName: MAX_ID
+      join:
+        joinCondition: "FROM {{ ref('GOLD', 'CDC_ITMMASFL') }} \"CDC_ITMMASFL\"\n\t\nLEFT OUTER JOIN {{ ref_no_link('GOLD', 'DV_ITEM') }} ITEM\nON CDC_ITMMASFL.IMCMP = ITEM.Company_Code\nAND CDC_ITMMASFL.IMITEM = ITEM.Item_Code\nAND CDC_ITMMASFL.IMSTKC = ITEM.Stock_Class_Code\n\t\nLEFT OUTER JOIN \n(Select COALESCE(Max(Item_id),0) as Last_Id FROM {{ ref_no_link('GOLD', 'ITEM') }} ) as Max_ID on 1 = 1"
+      name: STG_ITEM
+      noLinkRefs:
       - locationName: GOLD
         nodeName: DV_ITEM
       - locationName: GOLD
         nodeName: ITEM
-      - locationName: BRONZE
-        nodeName: MAX_ID
-      join:
-        joinCondition: "FROM {{ ref('GOLD', 'CDC_ITMMASFL') }} \"CDC_ITMMASFL\"\nLEFT JOIN {{ ref('GOLD', 'DV_ITEM') }} \"DV_ITEM\"\n  ON \"CDC_ITMMASFL\".\"IMCMP\" = \"ITEM\".\"COMPANY_CODE\"\nAND \"CDC_ITMMASFL\".\"IMITEM\" = \"ITEM\".\"ITEM_CODE\"\nAND \"CDC_ITMMASFL\".\"IMSTKC\" = \"ITEM\".\"STOCK_CLASS_CODE\""
-      name: STG_ITEM
-      noLinkRefs: []
   name: STG_ITEM
   overrideSQL: false
   schema: ''

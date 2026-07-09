@@ -22,8 +22,7 @@ operation:
         stepCounter: 7b0f0b81-5b6a-5f9d-a999-a0cdf6a3388e
       config: {}
       dataType: NUMBER(38,0)
-      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n\
-        3 = Update \n4 = Delete\n5 = Refresh"
+      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n3 = Update \n4 = Delete\n5 = Refresh"
       name: Journal_Type
       nullable: true
       sourceColumnReferences:
@@ -195,12 +194,16 @@ operation:
       - locationName: GOLD
         nodeName: DV_PARTY
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'CDC_CUSMASFL') }} "CDC_CUSMASFL"
-          LEFT JOIN {{ ref('GOLD', 'DV_PARTY') }} "DV_PARTY"
-            ON "CDC_CUSMASFL"."CMCMP" = "DV_PARTY"."COMPANY_CODE"
-          AND "CDC_CUSMASFL"."CMCUS0" = "DV_PARTY"."CUSTOMER_ACCOUNT_NUM"
-          AND "DV_PARTY"."PARTY_TYPE_CODE" = 1
+        joinCondition: 'FROM {{ ref(''GOLD'', ''CDC_CUSMASFL'') }} "CDC_CUSMASFL"
+
+
+          LEFT OUTER JOIN {{ ref(''GOLD'', ''DV_PARTY'') }} "DV_PARTY"
+
+          ON CDC_CUSMASFL.CMCMP = DV_PARTY.Company_Code
+
+          AND CDC_CUSMASFL.CMCUS0 = DV_PARTY.Customer_Account_Num
+
+          AND DV_PARTY.Party_Type_Code = 1'
       name: STG_CREDIT_ALLOCATION
       noLinkRefs: []
   name: STG_CREDIT_ALLOCATION

@@ -202,13 +202,10 @@ operation:
       - locationName: GOLD
         nodeName: DV_LOCATION
       - locationName: GOLD
-        nodeName: DV_LOCATION
-      - locationName: GOLD
-        nodeName: CDC_BATCH
-      - locationName: GOLD
         nodeName: CDC_BATCH
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'SRC_CUSMASFL') }} \"SRC_CUSMASFL\"\nLEFT JOIN {{ ref('GOLD', 'DV_PARTY') }} \"DV_PARTY\"\n  ON  \"SRC_CUSMASFL\".\"CMCMP\"  = \"DV_PARTY\".\"COMPANY_CODE\"\nAND \"SRC_CUSMASFL\".\"CMCUS0\" = \"DV_PARTY\".\"CUSTOMER_ACCOUNT_NUM\"\nAND \"DV_PARTY\".\"PARTY_TYPE_CODE\" = 1\nLEFT JOIN {{ ref('GOLD', 'DV_LOCATION') }} \"DV_LOCATION\"\n  ON  \"SRC_CUSMASFL\".\"CMCMP\"  = \"DV_LOCATION_QUOTE\".\"COMPANY_CODE\"\nAND \"SRC_CUSMASFL\".\"CMTCRQ\" = \"DV_LOCATION_QUOTE\".\"LOCATION_CODE\"\nLEFT JOIN {{ ref('GOLD', 'DV_LOCATION') }} \"DV_LOCATION_RESERV\"\n  ON  \"SRC_CUSMASFL\".\"CMCMP\"  = \"DV_LOCATION_RESERV\".\"COMPANY_CODE\"\nAND \"SRC_CUSMASFL\".\"CMTCRR\" = \"DV_LOCATION_RESERV\".\"LOCATION_CODE\" WHERE Aud_Time <= (SELECT MAX(Batch_End) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")\nAND Aud_Time > (Select MAX(Batch_Start) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")"
+        joinCondition: "FROM {{ ref('GOLD', 'SRC_CUSMASFL') }} \"SRC_CUSMASFL\"\n\nLEFT OUTER JOIN {{ ref('GOLD', 'DV_PARTY') }} \"DV_PARTY\"\nON  SRC_CUSMASFL.CMCMP  = DV_PARTY.Company_Code\nAND SRC_CUSMASFL.CMCUS0 = DV_PARTY.Customer_Account_Num\nAND DV_PARTY.Party_Type_Code = 1\n\nLEFT OUTER JOIN {{ ref('GOLD', 'DV_LOCATION') }} \"DV_LOCATION\"_QUOTE\nON  SRC_CUSMASFL.CMCMP  = DV_LOCATION_QUOTE.Company_Code\nAND SRC_CUSMASFL.CMTCRQ = DV_LOCATION_QUOTe.Location_Code\n\nLEFT OUTER JOIN {{ ref('GOLD', 'DV_LOCATION') }} \"DV_LOCATION\"_RESERV\nON  SRC_CUSMASFL.CMCMP  = DV_LOCATION_RESERV.Company_Code\nAND SRC_CUSMASFL.CMTCRR = DV_LOCATION_RESERV.Location_Code WHERE Aud_Time <= (SELECT MAX(Batch_End) FROM {{ ref('GOLD', 'CDC_BATCH') }})\n  AND Aud_Time >  (SELECT MAX(Batch_Start) FROM {{ ref('GOLD', 'CDC_BATCH') }})\n  AND (Aud_Code <> 'F' OR (Aud_Code IS NULL AND Aud_Type = 'RR'))\n\nQUALIFY RANK() \nOVER (PARTITION BY  CMCMP, CMCUS0 \nORDER BY Aud_Time DESC, Aud_Seqno DESC, CASE  \nWHEN\
+          \ Aud_Type IN ('PT','PX','FI') THEN 1 \nWHEN Aud_Type IN ('UB','FB','FP','BR') THEN 2 \nWHEN Aud_Type IN ('UP','UR') THEN 3 \nWHEN Aud_Type IN ('DL','FD') THEN 4 \nWHEN Aud_Type IN ('RR') THEN 5 \nELSE 0 END DESC) = 1"
       name: ETL_CUSTOMER_TOTAL_CONTROL
       noLinkRefs: []
   name: ETL_CUSTOMER_TOTAL_CONTROL

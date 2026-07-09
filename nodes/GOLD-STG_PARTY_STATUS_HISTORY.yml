@@ -22,8 +22,7 @@ operation:
         stepCounter: ed450ae5-1465-5848-bb44-28fe66dc5c5b
       config: {}
       dataType: NUMBER(38,0)
-      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n\
-        3 = Update \n4 = Delete\n5 = Refresh"
+      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n3 = Update \n4 = Delete\n5 = Refresh"
       name: Journal_Type
       nullable: true
       sourceColumnReferences:
@@ -156,29 +155,59 @@ operation:
         nodeName: PARTY
       - locationName: GOLD
         nodeName: CDC_CSHCUSFL
-      - locationName: GOLD
-        nodeName: PARTY
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'CDC_CUSMASFL') }} "CDC_CUSMASFL"
-          LEFT JOIN {{ ref('GOLD', 'PARTY') }} "PARTY"
-            ON  "CDC_CUSMASFL"."CMCMP" = "PARTY"."COMPANY_CODE"
-          AND "CDC_CUSMASFL"."CMCUS0" = "PARTY"."CUSTOMER_ACCOUNT_NUM"
-          AND "PARTY"."CUSTOMER_ACCOUNT_CHAR" = ''
-          AND "PARTY"."PARTY_TYPE_CODE" = 1
-          AND "PARTY"."DSS_CURRENT_FLAG" = 'Y'
+        joinCondition: 'FROM {{ ref(''GOLD'', ''CDC_CUSMASFL'') }} "CDC_CUSMASFL"
+
+
+          LEFT OUTER JOIN {{ ref(''GOLD'', ''PARTY'') }} "PARTY"
+
+          ON  CDC_CUSMASFL.CMCMP = PARTY.Company_Code
+
+          AND CDC_CUSMASFL.CMCUS0 = PARTY.Customer_Account_Num
+
+          AND PARTY.Customer_Account_Char = ''''
+
+          AND PARTY.Party_Type_Code = 1
+
+          AND PARTY.dss_current_flag = ''Y''
+
 
           UNION
+
           SELECT
-          "CDC_CSHCUSFL"."JOURNAL_TYPE"
-          ,"CDC_CSHCUSFL"."JOURNAL_BEGIN_DATE"
-          ,"CDC_CSHCUSFL"."JOURNAL_END_DATE"
-          ,"CDC_CSHCUSFL"."CHSCD"
-          ,COALESCE("PARTY1"."PARTY_ID", 0)
+
+          CDC_CSHCUSFL.Journal_Type
+
+          ,CDC_CSHCUSFL.Journal_Begin_Date
+
+          ,CDC_CSHCUSFL.Journal_End_Date
+
+          ,CDC_CSHCUSFL.CHSCD
+
+          ,COALESCE(PARTY1.Party_Id, 0)
+
           ,2
-          ,"CDC_CSHCUSFL"."CHCMP"
-          ,"CDC_CSHCUSFL"."CUSTOMER_ACCOUNT_NUM"
-          ,"CDC_CSHCUSFL"."CUSTOMER_ACCOUNT_CHAR"
+
+          ,CDC_CSHCUSFL.CHCMP
+
+          ,CDC_CSHCUSFL.Customer_Account_Num
+
+          ,CDC_CSHCUSFL.Customer_Account_Char
+
+          FROM {{ ref(''GOLD'', ''CDC_CSHCUSFL'') }} "CDC_CSHCUSFL"
+
+
+          LEFT OUTER JOIN {{ ref(''GOLD'', ''PARTY'') }} "PARTY"1
+
+          ON  CDC_CSHCUSFL.CHCMP = PARTY1.Company_Code
+
+          AND CDC_CSHCUSFL.Customer_Account_Num = PARTY1.Customer_Account_Num
+
+          AND CDC_CSHCUSFL.Customer_Account_Char = PARTY1.Customer_Account_Char
+
+          AND PARTY1.Party_Type_Code = 2
+
+          AND PARTY1.dss_current_flag = ''Y'''
       name: STG_PARTY_STATUS_HISTORY
       noLinkRefs: []
   name: STG_PARTY_STATUS_HISTORY

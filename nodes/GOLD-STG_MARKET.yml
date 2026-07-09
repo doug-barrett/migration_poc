@@ -22,8 +22,7 @@ operation:
         stepCounter: 8c2fa078-6183-5829-98c5-d5dcb2416798
       config: {}
       dataType: NUMBER(38,0)
-      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n\
-        3 = Update \n4 = Delete\n5 = Refresh"
+      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n3 = Update \n4 = Delete\n5 = Refresh"
       name: Journal_Type
       nullable: true
       sourceColumnReferences:
@@ -54,9 +53,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "COALESCE(\"DV_MARKET\".\"MARKET_ID\",\n\nRow_Number() over(Order\
-          \ by \"DV_MARKET\".\"MARKET_ID\" asc NULLS FIRST,\n\nCase \n\nwhen Journal_type\
-          \ in (1,3,5) then 1 \n\nelse 9 end asc) + Last_Id)"
+        transform: "COALESCE(\"DV_MARKET\".\"MARKET_ID\",\n\nRow_Number() over(Order by \"DV_MARKET\".\"MARKET_ID\" asc NULLS FIRST,\n\nCase \n\nwhen Journal_type in (1,3,5) then 1 \n\nelse 9 end asc) + Last_Id)"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 222e3317-dc51-5929-9179-f20142fdcbb2
@@ -223,19 +220,14 @@ operation:
       dependencies:
       - locationName: GOLD
         nodeName: CDC_SYSMKTFL
-      - locationName: GOLD
-        nodeName: DV_MARKET
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'CDC_SYSMKTFL') }} "CDC_SYSMKTFL"
-          LEFT JOIN {{ ref('GOLD', 'DV_MARKET') }} "DV_MARKET"
-            ON "CDC_SYSMKTFL"."SECMP" = "DV_MARKET"."COMPANY_CODE"
-          AND "CDC_SYSMKTFL"."SEMRKT" = "DV_MARKET"."MARKET_CODE"
-          AND "CDC_SYSMKTFL"."SETYPE" = "DV_MARKET"."MARKET_TYPE_CODE"
+        joinCondition: "FROM {{ ref('GOLD', 'CDC_SYSMKTFL') }} \"CDC_SYSMKTFL\"\nLEFT OUTER JOIN {{ ref_no_link('GOLD', 'DV_MARKET') }} \"DV_MARKET\"\nON CDC_SYSMKTFL.SECMP = DV_MARKET.Company_Code\nAND CDC_SYSMKTFL.SEMRKT = DV_MARKET.Market_Code\nAND CDC_SYSMKTFL.SETYPE = DV_MARKET.Market_Type_Code\n\nLEFT OUTER JOIN \n(Select COALESCE(Max(Market_id),0) as Last_Id FROM {{ ref_no_link('GOLD', 'MARKET') }} ) as Max_ID on 1 = 1"
       name: STG_MARKET
       noLinkRefs:
       - locationName: GOLD
         nodeName: MARKET
+      - locationName: GOLD
+        nodeName: DV_MARKET
   name: STG_MARKET
   overrideSQL: false
   schema: ''

@@ -74,11 +74,10 @@ operation:
       - locationName: GOLD
         nodeName: FIN_BALANCES_DTL
       - locationName: GOLD
-        nodeName: CV_model_FIN_ORGANIZATION
-      - locationName: GOLD
         nodeName: CV_FISCAL_MONTH
       join:
-        joinCondition: FROM {{ ref('GOLD', 'CV_model_FIN_ORGANIZATION') }} "CV_model_FIN_ORGANIZATION"
+        joinCondition: "FROM {{ ref('GOLD', 'CV_model_FIN_ORGANIZATION') }} \"CV_model_FIN_ORGANIZATION\"\n\t   LEFT OUTER JOIN (\nSELECT   Distinct CV_model_FIN_ORGANIZATION.METRO,\n\t   COALESCE(SUM(AMOUNT_UNITS_ACTIVITY),0) Head\nFROM {{ ref('GOLD', 'FIN_BALANCES_DTL') }} \"FIN_BALANCES_DTL\"\n\nLEFT OUTER JOIN {{ ref('GOLD', 'CV_model_FIN_ORGANIZATION') }} \"CV_model_FIN_ORGANIZATION\"\nON FIN_BALANCES_DTL.ORG_KEY=CV_model_FIN_ORGANIZATION.ORG_KEY\nWHERE    BAL_DATE IN (\nSELECT\tCalendar_Month\nFROM\t{{ ref('GOLD', 'CV_FISCAL_MONTH') }} \"CV_FISCAL_MONTH\"\nWHERE\tCalendar_Month BETWEEN\nEXTRACT (YEAR FROM ADD_MONTHS(CURRENT_DATE - 1 ,-4)) * 100 + EXTRACT (MONTH FROM ADD_MONTHS(CURRENT_DATE - 1 ,\n\t-4))\nAND EXTRACT (YEAR FROM ADD_MONTHS(CURRENT_DATE - 1 ,-1)) * 100 + EXTRACT (MONTH FROM ADD_MONTHS(CURRENT_DATE - 1 ,\n\t-1)))\nAND      Detail_Account IN (99318, 99319, 99320, 99321, 99322,\n\t99328)\nAND      Sub_Account BETWEEN 1 AND 5\nAND      Scenario = 'A'\nGROUP BY CV_model_FIN_ORGANIZATION.METRO\n\
+          \n) Units\nON CV_model_FIN_ORGANIZATION.METRO=Units.METRO"
       name: LU_CES_LOCATION
       noLinkRefs: []
   name: LU_CES_LOCATION

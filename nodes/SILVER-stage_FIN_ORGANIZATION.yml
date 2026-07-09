@@ -348,22 +348,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: |-
-          case
-
-            when "GLADD"."COUNTRY"='usa' then 'UNITED STATES'
-
-            when "GLADD"."COUNTRY"='USA' then 'UNITED STATES'
-
-            when "GLADD"."COUNTRY"='Canada' then 'CANADA'
-
-            when "GLADD"."COUNTRY"='Canda' then 'CANADA'
-
-            when "GLADD"."COUNTRY"='Mexico' then 'MEXICO'
-
-            else coalesce("GLADD"."COUNTRY",'')
-
-          end
+        transform: "case\n\n  when \"GLADD\".\"COUNTRY\"='usa' then 'UNITED STATES'\n\n  when \"GLADD\".\"COUNTRY\"='USA' then 'UNITED STATES'\n\n  when \"GLADD\".\"COUNTRY\"='Canada' then 'CANADA'\n\n  when \"GLADD\".\"COUNTRY\"='Canda' then 'CANADA'\n\n  when \"GLADD\".\"COUNTRY\"='Mexico' then 'MEXICO'\n\n  else coalesce(\"GLADD\".\"COUNTRY\",'')\n\nend"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 460463d7-3d96-5fd1-b210-3a5c7b824d68
@@ -581,14 +566,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: |-
-          case
-
-           when "DBIFGLS"."CURRENCY_CODE"='USD' then 'US Currency Reporting'
-
-           else 'All Others'
-
-          end
+        transform: "case\n\n when \"DBIFGLS\".\"CURRENCY_CODE\"='USD' then 'US Currency Reporting'\n\n else 'All Others'\n\nend"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0593d0f8-a95c-5f25-ac22-7e0e2ac9d4b4
@@ -648,14 +626,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: |-
-          CASE WHEN "DBIFMVL"."DESCRIPTION" IS NULL OR "DBIFMVL"."DESCRIPTION" = ' '
-
-               THEN TRIM("DBIFGLN"."DESCRIPTION") || ' M' || TRIM(ORG_KEY)
-
-               ELSE TRIM(SUBSTRING("DBIFMVL"."DESCRIPTION" FROM 12)) || ' ' || SUBSTRING("DBIFMVL"."DESCRIPTION" FROM 1 FOR 10)
-
-          END
+        transform: "CASE WHEN \"DBIFMVL\".\"DESCRIPTION\" IS NULL OR \"DBIFMVL\".\"DESCRIPTION\" = ' '\n\n     THEN TRIM(\"DBIFGLN\".\"DESCRIPTION\") || ' M' || TRIM(ORG_KEY)\n\n     ELSE TRIM(SUBSTRING(\"DBIFMVL\".\"DESCRIPTION\" FROM 12)) || ' ' || SUBSTRING(\"DBIFMVL\".\"DESCRIPTION\" FROM 1 FOR 10)\n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 14876648-5bfc-54bf-85d1-e879e4079e57
@@ -881,58 +852,9 @@ operation:
       - locationName: GOLD
         nodeName: ETL_LAWSON_SUPER_REGION
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'DBIFGLN') }} "DBIFGLN"
-          LEFT JOIN {{ ref('GOLD', 'GLADD') }} "GLADD"
-            ON   "DBIFGLN"."COMPANY" = "GLADD"."COMPANY"
-              AND  "DBIFGLN"."ACCT_UNIT" = "GLADD"."ACCT_UNIT"
-          LEFT JOIN {{ ref('GOLD', 'DBIFAMV') }} "DBIFAMV"
-            ON   "DBIFGLN"."OBJ_ID" = "DBIFAMV"."OBJ_ID"
-              AND "DBIFAMV"."MATRIX_CAT" = 'TYPE'
-          LEFT JOIN {{ ref('GOLD', 'DBIFAMV') }} "DBIFAMV_1"
-            ON   "DBIFGLN"."OBJ_ID" = "DBIFAMV_1"."OBJ_ID"
-              AND "DBIFAMV_1"."MATRIX_CAT" = 'STORE-ACQUIS'
-          LEFT JOIN {{ ref('GOLD', 'DBIFAMV') }} "DBIFAMV_2"
-            ON   "DBIFGLN"."OBJ_ID" = "DBIFAMV_2"."OBJ_ID"
-              AND "DBIFAMV_2"."MX_VALUE" = 'STORE-CLDSTR'
-          LEFT JOIN {{ ref('GOLD', 'DBIFAMV') }} "DBIFAMV_3"
-            ON   "DBIFGLN"."OBJ_ID" = "DBIFAMV_3"."OBJ_ID"
-              AND "DBIFAMV_3"."MATRIX_CAT" = 'STORE-CLOSED'
-          LEFT JOIN {{ ref('GOLD', 'DBIFAMV') }} "DBIFAMV_4"
-            ON   "DBIFGLN"."OBJ_ID" = "DBIFAMV_4"."OBJ_ID"
-              AND "DBIFAMV_4"."MATRIX_CAT" = 'BENCHMARK'
-          LEFT JOIN {{ ref('GOLD', 'DBIFAMV') }} "DBIFAMV_5"
-            ON   "DBIFGLN"."OBJ_ID" = "DBIFAMV_5"."OBJ_ID"
-              AND "DBIFAMV_5"."MATRIX_CAT" = 'CD-HUB'
-          LEFT JOIN {{ ref('GOLD', 'DBIFAMV') }} "DBIFAMV_6"
-            ON   "DBIFGLN"."OBJ_ID" = "DBIFAMV_6"."OBJ_ID"
-              AND "DBIFAMV_6"."MATRIX_CAT" = 'UR_TERRITORY'
-          LEFT JOIN {{ ref('GOLD', 'DBIFGLS') }} "DBIFGLS"
-            ON   "DBIFGLN"."COMPANY" = "DBIFGLS"."COMPANY"
-          LEFT JOIN {{ ref('GOLD', 'DBIFAMV') }} "DBIFAMV_7"
-            ON   "DBIFGLN"."OBJ_ID" = "DBIFAMV_7"."OBJ_ID"
-              AND "DBIFAMV_7"."MATRIX_CAT" = 'CREDIT'
-          LEFT JOIN {{ ref('GOLD', 'DBIFAMV') }} "DBIFAMV_8"
-            ON   "DBIFGLN"."OBJ_ID" = "DBIFAMV_8"."OBJ_ID"
-              AND "DBIFAMV_8"."MATRIX_CAT" = 'STO-MERGED/W'
-          LEFT JOIN {{ ref('GOLD', 'DBIFAMV') }} "DBIFAMV_9"
-            ON   "DBIFGLN"."OBJ_ID" = "DBIFAMV_9"."OBJ_ID"
-              AND "DBIFAMV_9"."MATRIX_CAT" = 'STO-MERGEDAT'
-          LEFT JOIN {{ ref('BRONZE', 'load_NAMES_REGION') }} "load_NAMES_REGION"
-            ON   "DBIFGLN"."LEVEL_DETAIL_01" = "LOAD_NAMES_REGION"."LEVEL_DETAIL_01"
-          LEFT JOIN {{ ref('BRONZE', 'load_NAMES_DISTRICT') }} "load_NAMES_DISTRICT"
-            ON   "DBIFGLN"."LEVEL_DETAIL_01" = "LOAD_NAMES_DISTRICT"."LEVEL_DETAIL_01"
-              AND "DBIFGLN"."LEVEL_DETAIL_02" = "LOAD_NAMES_DISTRICT"."LEVEL_DETAIL_02"
-          LEFT JOIN {{ ref('GOLD', 'DBIFAMV') }} "DBIFAMV_10"
-            ON   "DBIFGLN"."OBJ_ID" = "DBIFAMV_10"."OBJ_ID"
-              AND "DBIFAMV_10"."MATRIX_CAT" = 'LEGAL'
-          LEFT JOIN {{ ref('GOLD', 'DBIFAMV') }} "DBIFAMV_11"
-            ON   "DBIFGLN"."OBJ_ID" = "DBIFAMV_11"."OBJ_ID"
-              AND "DBIFAMV_11"."MATRIX_CAT" = 'TRADE-AREA'
-          LEFT JOIN {{ ref('BRONZE', 'stage_fin_organization_1') }} "stage_fin_organization_1"
-            ON   substr("DBIFGLN"."VAR_LEVELS",1,10)="STAGE_FIN_ORGANIZATION_1"."LEVEL_ADDRESS"
-              WHERE
-              "DBIFGLN"."LEVEL_DEPTH" = 3
+        joinCondition: "FROM [DBIFGLN] DBIFGLN\n    LEFT OUTER JOIN [GLADD] GLADD\n    ON   DBIFGLN.COMPANY = GLADD.COMPANY\n    AND  DBIFGLN.ACCT_UNIT = GLADD.ACCT_UNIT\n    LEFT OUTER JOIN [DBIFAMV]  DBIFAMV\n    ON   DBIFGLN.OBJ_ID = DBIFAMV.OBJ_ID\n    AND DBIFAMV.MATRIX_CAT = 'TYPE'\n    LEFT OUTER JOIN [DBIFAMV]  DBIFAMV_1\n    ON   DBIFGLN.OBJ_ID = DBIFAMV_1.OBJ_ID\n    AND DBIFAMV_1.MATRIX_CAT = 'STORE-ACQUIS'\n    LEFT OUTER JOIN [DBIFAMV]  DBIFAMV_2\n    ON   DBIFGLN.OBJ_ID = DBIFAMV_2.OBJ_ID\n    AND DBIFAMV_2.MX_VALUE = 'STORE-CLDSTR'\n    LEFT OUTER JOIN [DBIFAMV]  DBIFAMV_3\n    ON   DBIFGLN.OBJ_ID = DBIFAMV_3.OBJ_ID\n    AND DBIFAMV_3.MATRIX_CAT = 'STORE-CLOSED'\n    LEFT OUTER JOIN [DBIFAMV]  DBIFAMV_4\n    ON   DBIFGLN.OBJ_ID = DBIFAMV_4.OBJ_ID\n    AND DBIFAMV_4.MATRIX_CAT = 'BENCHMARK'\n    LEFT OUTER JOIN [DBIFAMV]  DBIFAMV_5\n    ON   DBIFGLN.OBJ_ID = DBIFAMV_5.OBJ_ID\n    AND DBIFAMV_5.MATRIX_CAT = 'CD-HUB'\n    LEFT OUTER JOIN [DBIFAMV]  DBIFAMV_6\n    ON   DBIFGLN.OBJ_ID\
+          \ = DBIFAMV_6.OBJ_ID\n    AND DBIFAMV_6.MATRIX_CAT = 'UR_TERRITORY'\n    LEFT OUTER JOIN [DBIFGLS] DBIFGLS\n    ON   DBIFGLN.COMPANY = DBIFGLS.COMPANY\n    LEFT OUTER JOIN [DBIFAMV]  DBIFAMV_7\n    ON   DBIFGLN.OBJ_ID = DBIFAMV_7.OBJ_ID\n    AND DBIFAMV_7.MATRIX_CAT = 'CREDIT'\n    LEFT OUTER JOIN [DBIFAMV]  DBIFAMV_8\n    ON   DBIFGLN.OBJ_ID = DBIFAMV_8.OBJ_ID\n    AND DBIFAMV_8.MATRIX_CAT = 'STO-MERGED/W'\n    LEFT OUTER JOIN [DBIFAMV]  DBIFAMV_9\n    ON   DBIFGLN.OBJ_ID = DBIFAMV_9.OBJ_ID\n    AND DBIFAMV_9.MATRIX_CAT = 'STO-MERGEDAT'\n    LEFT OUTER JOIN [load_NAMES_REGION] load_names_region\n    ON   DBIFGLN.LEVEL_DETAIL_01 = load_names_region.LEVEL_DETAIL_01\n    LEFT OUTER JOIN [load_NAMES_DISTRICT] load_names_district\n    ON   DBIFGLN.LEVEL_DETAIL_01 = load_names_district.LEVEL_DETAIL_01\n    AND DBIFGLN.LEVEL_DETAIL_02 = load_names_district.LEVEL_DETAIL_02\n    LEFT OUTER JOIN [DBIFAMV]  DBIFAMV_10\n    ON   DBIFGLN.OBJ_ID = DBIFAMV_10.OBJ_ID\n    AND DBIFAMV_10.MATRIX_CAT\
+          \ = 'LEGAL'\n    LEFT OUTER JOIN [DBIFAMV]  DBIFAMV_11\n    ON   DBIFGLN.OBJ_ID = DBIFAMV_11.OBJ_ID\n    AND DBIFAMV_11.MATRIX_CAT = 'TRADE-AREA'\n    LEFT OUTER JOIN [stage_fin_organization_1] stage_fin_organization_1\n    ON   substr(DBIFGLN.VAR_LEVELS,1,10)=stage_fin_organization_1.LEVEL_ADDRESS\n    WHERE\n    DBIFGLN.LEVEL_DEPTH = 3"
       name: stage_FIN_ORGANIZATION
       noLinkRefs: []
   name: stage_FIN_ORGANIZATION

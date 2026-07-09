@@ -95,9 +95,9 @@ operation:
       - locationName: GOLD
         nodeName: HV_USER_BIO
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'HV_USER_BIO') }} "HV_USER_BIO"
-            ORDER BY "HV_USER_BIO"."USERBIO_STATUS_CODE", "HV_USER_BIO"."EFFECTIVE_BEGIN_DATE" DESC, "HV_USER_BIO"."USER_TIMESTAMP" DESC) = 1
+        joinCondition: 'FROM {{ ref(''GOLD'', ''HV_USER_BIO'') }} "HV_USER_BIO"
+
+          QUALIFY ROW_NUMBER() OVER (PARTITION BY Payroll_Num ORDER BY HV_USER_BIO.UserBio_Status_Code, HV_USER_BIO.Effective_Begin_Date DESC, HV_USER_BIO.User_Timestamp DESC) = 1'
       name: BUS_EMPLOYEE_USER_ID
       noLinkRefs: []
   name: BUS_EMPLOYEE_USER_ID

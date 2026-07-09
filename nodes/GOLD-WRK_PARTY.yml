@@ -198,7 +198,7 @@ operation:
       - locationName: BRONZE
         nodeName: TEMPTABLE
       join:
-        joinCondition: FROM {{ ref('GOLD', 'CDC_CUSMASFL') }} "CDC_CUSMASFL"
+        joinCondition: "From\n(Select Distinct \nJournal_Type as Journal_Type,\nJournal_Begin_Date as Effective_Begin_Date,\nJournal_End_Date as Effective_End_Date,\n1 as Party_Type_Code,\nCMCMP as Company_Code,\nCMNAME as Party_Name, \nCMCUS0 as Customer_Account_Num,\nrtrim(cast(' ' as varchar(30))) as Customer_Account_Char\nFrom {{ ref('GOLD', 'CDC_CUSMASFL') }}\nUnion\nSelect Journal_Type,Journal_Begin_Date,Journal_End_Date,2, CHCMP, CHNAME, 0 , trim(CHDLST) || trim(CHDL0) \nfrom {{ ref('GOLD', 'CDC_CSHCUSFL') }} \nUnion\nSelect Journal_Type,Journal_Begin_Date,Journal_End_Date,3, ZLCMP, ZLNAME, 0, ZLLOC \nfrom {{ ref('GOLD', 'CDC_SYSLOCFL') }}\nUnion\nSelect Journal_Type,Journal_Begin_Date,Journal_End_Date,4, MVCMP0, MVNAME, MVVND0, '' \nfrom {{ ref('GOLD', 'CDC_IMVENDFL') }}\nUnion\nSelect Journal_Type,Journal_Begin_Date,Journal_End_Date,5, 'U1', CompetitionName, CompetitionId, '' \nfrom {{ ref('GOLD', 'CDC_COMPETITION') }}\n) as TempTable"
       name: WRK_PARTY
       noLinkRefs: []
   name: WRK_PARTY

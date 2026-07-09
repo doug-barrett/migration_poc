@@ -265,18 +265,14 @@ operation:
       customSQL:
         customSQL: ''
       dependencies:
-      - locationName: GOLD
-        nodeName: SUSPEND_ORDER
       - locationName: SILVER
         nodeName: ETL_SUSPEND_ORDER
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'SUSPEND_ORDER') }} "SUSPEND_ORDER"
-            WHERE "TGT"."COMPANY_CODE" = "ETL_SUSPEND_ORDER"."COMPANY_CODE"
-          AND "TGT"."SUSPEND_KEY" = "ETL_SUSPEND_ORDER"."SUSPEND_KEY"
-          AND "TGT"."DSS_CURRENT_FLAG" = 'Y'
+        joinCondition: "FROM {{ ref_no_link('GOLD', 'SUSPEND_ORDER') }} \"SUSPEND_ORDER\"\n  WHERE \"TGT\".\"COMPANY_CODE\" = \"ETL_SUSPEND_ORDER\".\"COMPANY_CODE\"\nAND \"TGT\".\"SUSPEND_KEY\" = \"ETL_SUSPEND_ORDER\".\"SUSPEND_KEY\"\nAND \"TGT\".\"DSS_CURRENT_FLAG\" = 'Y'\nUPDATE tgt\nFROM {{ ref_no_link('GOLD', 'SUSPEND_ORDER') }} tgt\n, {{ ref('SILVER', 'ETL_SUSPEND_ORDER') }} \"ETL_SUSPEND_ORDER\"\nWHERE tgt.Company_Code = ETL_SUSPEND_ORDER.Company_Code\nAND tgt.Suspend_Key = ETL_SUSPEND_ORDER.Suspend_Key\nAND tgt.dss_current_flag = 'Y' FROM {{ ref('SILVER', 'ETL_SUSPEND_ORDER') }} \"ETL_SUSPEND_ORDER\"\n  WHERE ETL_SUSPEND_ORDER.Journal_Type IN (1,3,5)"
       name: SUSPEND_ORDER
-      noLinkRefs: []
+      noLinkRefs:
+      - locationName: GOLD
+        nodeName: SUSPEND_ORDER
   name: SUSPEND_ORDER
   overrideSQL: false
   schema: ''

@@ -77,18 +77,18 @@ operation:
         stepCounter: 30790a35-f075-5f98-ad11-95d761da0658
       config: {}
       dataType: NUMBER(38,0)
-      description: |-
-        STG_PARTY.Party_Type_Code=DV_PARTY.Party_Type_Code
+      description: 'STG_PARTY.Party_Type_Code=DV_PARTY.Party_Type_Code
+
         STG_PARTY.Company_Code=DV_PARTY.Company_Code
+
         STG_PARTY.Customer_Account_Num=DV_PARTY.Customer_Account_Num
-        STG_PARTY.Customer_Account_Char=DV_PARTY.Customer_Account_Char
+
+        STG_PARTY.Customer_Account_Char=DV_PARTY.Customer_Account_Char'
       name: Party_Id
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "COALESCE(\"DV_PARTY\".\"PARTY_ID\",\n\n Row_Number() over(Order\
-          \ by \"DV_PARTY\".\"PARTY_ID\" asc NULLS FIRST,\n\n Case \n\n when Journal_type\
-          \ in (1,3,5) then 1 \n\n else 9 end asc) + Last_Id)"
+        transform: "COALESCE(\"DV_PARTY\".\"PARTY_ID\",\n\n Row_Number() over(Order by \"DV_PARTY\".\"PARTY_ID\" asc NULLS FIRST,\n\n Case \n\n when Journal_type in (1,3,5) then 1 \n\n else 9 end asc) + Last_Id)"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0cdabd30-6b0f-52b2-af5f-c04867eee01c
@@ -195,20 +195,14 @@ operation:
       dependencies:
       - locationName: GOLD
         nodeName: WRK_PARTY
+      join:
+        joinCondition: "FROM {{ ref('GOLD', 'WRK_PARTY') }} \"WRK_PARTY\"\n\nLEFT OUTER JOIN {{ ref_no_link('GOLD', 'DV_PARTY') }} \"DV_PARTY\"\n ON  DV_PARTY.Company_Code = WRK_PARTY.Company_Code\n AND DV_PARTY.Customer_Account_Num = WRK_PARTY.Customer_Account_Num\n AND DV_PARTY.Customer_Account_Char = WRK_PARTY.Customer_Account_Char\n AND DV_PARTY.Party_Type_Code = WRK_PARTY.Party_Type_Code\n \n LEFT OUTER JOIN \n (Select COALESCE(Max(Party_id),0) as Last_Id from {{ ref_no_link('GOLD', 'PARTY') }} ) as Max_ID on 1 = 1"
+      name: STG_PARTY
+      noLinkRefs:
       - locationName: GOLD
         nodeName: DV_PARTY
       - locationName: GOLD
         nodeName: PARTY
-      join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'WRK_PARTY') }} "WRK_PARTY"
-          LEFT JOIN {{ ref('GOLD', 'DV_PARTY') }} "DV_PARTY"
-            ON  "DV_PARTY"."COMPANY_CODE" = "WRK_PARTY"."COMPANY_CODE"
-           AND "DV_PARTY"."CUSTOMER_ACCOUNT_NUM" = "WRK_PARTY"."CUSTOMER_ACCOUNT_NUM"
-           AND "DV_PARTY"."CUSTOMER_ACCOUNT_CHAR" = "WRK_PARTY"."CUSTOMER_ACCOUNT_CHAR"
-           AND "DV_PARTY"."PARTY_TYPE_CODE" = "WRK_PARTY"."PARTY_TYPE_CODE"
-      name: STG_PARTY
-      noLinkRefs: []
   name: STG_PARTY
   overrideSQL: false
   schema: ''

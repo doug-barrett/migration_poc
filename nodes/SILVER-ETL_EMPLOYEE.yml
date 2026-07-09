@@ -148,12 +148,13 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: |-
-          SUBSTRING("SRC_EMPLOYEE_LOAD"."DEPTID", 1, 4)
+        transform: 'SUBSTRING("SRC_EMPLOYEE_LOAD"."DEPTID", 1, 4)
 
-          ||'-'||
 
-          SUBSTRING("SRC_EMPLOYEE_LOAD"."DEPTID", 5, 4)
+          ||''-''||
+
+
+          SUBSTRING("SRC_EMPLOYEE_LOAD"."DEPTID", 5, 4)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: de74a5db-3955-5a21-b46f-d383ee115b45
@@ -191,8 +192,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN Length(Trim("SRC_EMPLOYEE_LOAD"."WORKLOCATION")) > 3
-          THEN '' ELSE "SRC_EMPLOYEE_LOAD"."WORKLOCATION" END
+        transform: CASE WHEN Length(Trim("SRC_EMPLOYEE_LOAD"."WORKLOCATION")) > 3 THEN '' ELSE "SRC_EMPLOYEE_LOAD"."WORKLOCATION" END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 481e8954-5b60-5c03-9f79-8be51e479b43
@@ -300,8 +300,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "TRIM(\"SRC_EMPLOYEE_LOAD\".\"DEPTREGION\") \n\n||'-'||\n\nTRIM(\"\
-          SRC_EMPLOYEE_LOAD\".\"DEPTDISTRICT\")"
+        transform: "TRIM(\"SRC_EMPLOYEE_LOAD\".\"DEPTREGION\") \n\n||'-'||\n\nTRIM(\"SRC_EMPLOYEE_LOAD\".\"DEPTDISTRICT\")"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c0adcbf6-c705-5406-9036-e218d284307d
@@ -609,9 +608,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE \n\n  WHEN \"BUS_FAST_CURRENT_EMP_DRIVER\".\"DRIVER_NAME\"\
-          \ IS NULL \n\n    THEN COALESCE(\"CV_EMPLOYEE\".\"DRIVER_NAME\", 'UNKNOWN')\n\
-          \n  ELSE \"BUS_FAST_CURRENT_EMP_DRIVER\".\"DRIVER_NAME\"\n\nEND"
+        transform: "CASE \n\n  WHEN \"BUS_FAST_CURRENT_EMP_DRIVER\".\"DRIVER_NAME\" IS NULL \n\n    THEN COALESCE(\"CV_EMPLOYEE\".\"DRIVER_NAME\", 'UNKNOWN')\n\n  ELSE \"BUS_FAST_CURRENT_EMP_DRIVER\".\"DRIVER_NAME\"\n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d9ccb8e2-9b87-529a-8bd9-5d0d2b909e2c
@@ -649,29 +646,24 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE("CV_ADDRESS"."ADDRESS_ID", "BUS_EMPLOYEE_USER_ID"."EMAIL_ADDRESS_ID",
-          0)
+        transform: COALESCE("CV_ADDRESS"."ADDRESS_ID", "BUS_EMPLOYEE_USER_ID"."EMAIL_ADDRESS_ID", 0)
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
         SRC_EMPLOYEE_Load: 3a0ea21b-2e76-58d2-822f-36f77235ca17
-        CV_EMPLOYEE: d6de5e79-16c9-5ece-85ff-586704b21e10
         DV_LOCATION: fdd7bb98-8fc4-5715-a7a1-5cd1906c5ab9
         ETL_LDAP: 489417c8-b1d1-5219-898d-fd09c6f781b8
         BUS_FAST_CURRENT_EMP_DRIVER: 0746a1d1-29d3-5308-a19d-4f2ce4dc919d
         BUS_EMPLOYEE_USER_ID: 26d456a6-fa9b-5247-ab7c-2091f3e457d6
         CV_ADDRESS: ac99e2d5-7ffd-5626-80bb-3b9d8ce29449
         HV_EMPLOYEE: ff8cf024-1874-5e65-8e62-f3b3ade441b7
+        CV_EMPLOYEE: d6de5e79-16c9-5ece-85ff-586704b21e10
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: GOLD
         nodeName: SRC_EMPLOYEE_Load
-      - locationName: GOLD
-        nodeName: CV_EMPLOYEE
-      - locationName: GOLD
-        nodeName: DV_LOCATION
       - locationName: GOLD
         nodeName: ETL_LDAP
       - locationName: GOLD
@@ -683,20 +675,14 @@ operation:
       - locationName: GOLD
         nodeName: HV_EMPLOYEE
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'SRC_EMPLOYEE_Load') }} "SRC_EMPLOYEE_Load"
-          LEFT JOIN {{ ref('GOLD', 'CV_EMPLOYEE') }} "CV_EMPLOYEE"
-            ON "EDW_PRODUCTION"."P_BI_STGTAB_DB".UDF_CHAR_TO_INT("SRC_EMPLOYEE_LOAD"."EMPLID") = "CV_EMPLOYEE"."EMPLOYEE_ID"
-          LEFT JOIN {{ ref('GOLD', 'DV_LOCATION') }} "DV_LOCATION"
-            ON "SRC_EMPLOYEE_LOAD"."WORKLOCATION" = "DV_LOCATION"."LOCATION_CODE"
-          LEFT JOIN {{ ref('GOLD', 'ETL_LDAP') }} "ETL_LDAP"
-            ON UPPER(TRIM("SRC_EMPLOYEE_LOAD"."USERID") || '@"UR"."COM"') = UPPER(TRIM("ETL_LDAP"."LOGON_NAME"))
-          LEFT JOIN {{ ref('GOLD', 'BUS_FAST_CURRENT_EMP_DRIVER') }} "BUS_FAST_CURRENT_EMP_DRIVER"
-            ON "EDW_PRODUCTION"."P_BI_STGTAB_DB".UDF_CHAR_TO_INT("SRC_EMPLOYEE_LOAD"."EMPLID") = "BUS_FAST_CURRENT_EMP_DRIVER"."EMPLOYEE_ID"
-          LEFT JOIN {{ ref('GOLD', 'BUS_EMPLOYEE_USER_ID') }} "BUS_EMPLOYEE_USER_ID"
-            ON "EDW_PRODUCTION"."P_BI_STGTAB_DB".UDF_CHAR_TO_INT("SRC_EMPLOYEE_LOAD"."EMPLID") = "BUS_EMPLOYEE_USER_ID"."PAYROLL_NUM"
+        joinCondition: "FROM {{ ref('GOLD', 'SRC_EMPLOYEE_Load') }} \"SRC_EMPLOYEE_Load\"\n\nLEFT OUTER JOIN {{ ref_no_link('GOLD', 'CV_EMPLOYEE') }} \"CV_EMPLOYEE\"\n  ON EDW_PRODUCTION.P_BI_STGTAB_DB.UDF_CHAR_TO_INT(SRC_EMPLOYEE_Load.EMPLID) = CV_EMPLOYEE.Employee_Id\n\nLEFT OUTER JOIN {{ ref_no_link('GOLD', 'DV_LOCATION') }} \"DV_LOCATION\"\n  ON SRC_EMPLOYEE_Load.WORKLOCATION = DV_LOCATION.Location_Code\n\nLEFT OUTER JOIN {{ ref('GOLD', 'ETL_LDAP') }} \"ETL_LDAP\"\n  ON UPPER(TRIM(SRC_EMPLOYEE_Load.USERID) || '@ur.com') = UPPER(TRIM(ETL_LDAP.Logon_Name))\n\nLEFT OUTER JOIN {{ ref('GOLD', 'BUS_FAST_CURRENT_EMP_DRIVER') }} \"BUS_FAST_CURRENT_EMP_DRIVER\" \n  ON EDW_PRODUCTION.P_BI_STGTAB_DB.UDF_CHAR_TO_INT(SRC_EMPLOYEE_Load.EMPLID) = BUS_FAST_CURRENT_EMP_DRIVER.Employee_Id\n\nLEFT OUTER JOIN {{ ref('GOLD', 'BUS_EMPLOYEE_USER_ID') }} \"BUS_EMPLOYEE_USER_ID\"\n  ON EDW_PRODUCTION.P_BI_STGTAB_DB.UDF_CHAR_TO_INT(SRC_EMPLOYEE_Load.EMPLID) = BUS_EMPLOYEE_USER_ID.Payroll_Num\n\nLEFT OUTER JOIN\
+          \ (\n  SELECT \n      Address_Id\n    , Address_Text_1 \n    FROM {{ ref('GOLD', 'CV_ADDRESS') }} EMAIL_ADDRESS\n    WHERE Address_Type_Code = 'E'\n      AND Company_Code = 'U1'\n  ) AS CV_ADDRESS\n  ON UPPER(SRC_EMPLOYEE_Load.BUSNEMAIL) = UPPER(CV_ADDRESS.Address_Text_1) WHERE CAST(SRC_EMPLOYEE_Load.Load_DTTM AS DATE) > (SELECT MAX(HV_EMPLOYEE.Effective_Begin_Date) FROM {{ ref('GOLD', 'HV_EMPLOYEE') }} \"HV_EMPLOYEE\")\n\nQUALIFY RANK()\nOVER (PARTITION BY EMPLID ORDER BY JOBENTRYDATE DESC) = 1"
       name: ETL_EMPLOYEE
-      noLinkRefs: []
+      noLinkRefs:
+      - locationName: GOLD
+        nodeName: CV_EMPLOYEE
+      - locationName: GOLD
+        nodeName: DV_LOCATION
   name: ETL_EMPLOYEE
   overrideSQL: false
   schema: ''

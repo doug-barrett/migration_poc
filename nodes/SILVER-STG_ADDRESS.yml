@@ -40,10 +40,10 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: |-
-          COALESCE("ADDRESS"."ADDRESS_ID",
+        transform: 'COALESCE("ADDRESS"."ADDRESS_ID",
 
-          Row_Number() over(Order by "ADDRESS"."ADDRESS_ID" asc) + Last_Id)
+
+          Row_Number() over(Order by "ADDRESS"."ADDRESS_ID" asc) + Last_Id)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 54d9adb9-b42b-565d-a3ef-cb7b50d652d4
@@ -74,10 +74,11 @@ operation:
         stepCounter: 9245647f-e255-56fa-9165-97202307ab7c
       config: {}
       dataType: VARCHAR(100)
-      description: |-
-        First line of address
+      description: 'First line of address
+
         Email Address
-        Web site
+
+        Web site'
       name: Address_Text_1
       nullable: true
       sourceColumnReferences:
@@ -186,7 +187,6 @@ operation:
         WRK_ADDRESS_MAIL: 596f7304-fae4-5bc0-bf21-5fad67b7a6f7
         WRK_ADDRESS_EMAIL: 084c5f8f-1395-501d-8032-f10a4a6f7628
         WRK_ADDRESS_TELEPHONE: 44aa3184-9331-5c68-b664-3cec9420e285
-        ADDRESS: 90cc3016-dd03-5a43-885f-e199d834b092
         MAX_ID: 002ae254-7982-52f5-a724-7e91169cc208
         TEMPTABLE: 5855e791-f28e-5209-a176-42680554e704
       customSQL:
@@ -198,18 +198,13 @@ operation:
         nodeName: WRK_ADDRESS_EMAIL
       - locationName: GOLD
         nodeName: WRK_ADDRESS_TELEPHONE
-      - locationName: GOLD
-        nodeName: ADDRESS
-      - locationName: GOLD
-        nodeName: ADDRESS
       - locationName: BRONZE
         nodeName: MAX_ID
       - locationName: BRONZE
         nodeName: TEMPTABLE
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'WRK_ADDRESS_MAIL') }} \"WRK_ADDRESS_MAIL\"\
-          \n  WHERE Company_Code = 'U1'\n \n Union\n \n Select \n Company_Code,\n\
-          \ Address_Type_Code,\n Email_Address,\n ' ', ' ',' ',' ',0,0,' '"
+        joinCondition: "FROM (\nSelect\n Company_Code as Company_Code,\n Address_Type_Code as Address_Type_Code,\n Address_Line_1_Txt as Address_Text_1,\n Address_Line_2_Txt as Address_Text_2,\n City_Code as City_Code,\n State_Code as State_Code,\n Postal_Code as Postal_Code,\n Cast( 0 as integer) as Area_Code,\n cast( 0 as integer) as Phone_Num,\n Country_Code as Country_Code\n From [WRK_ADDRESS_MAIL]\n WHERE Company_Code = 'U1'\n \n Union\n \n Select \n Company_Code,\n Address_Type_Code,\n Email_Address,\n ' ', ' ',' ',' ',0,0,' '\n From [WRK_ADDRESS_EMAIL]\n WHERE Company_Code = 'U1'\n \n UNION\n \n Select\n Company_Code,\n Address_Type, ' ',' ',' ',' ',' ',\n Area_Code,\n Phone_Num, ' '\n From [WRK_ADDRESS_TELEPHONE]\n WHERE Company_Code = 'U1'\n ) as TempTable\n \n LEFT OUTER JOIN [ADDRESS] ADDRESS\n ON  ADDRESS.Address_Type_Code = TempTable.Address_Type_Code\n AND ADDRESS.Address_Text_1 = TempTable.Address_Text_1\n AND ADDRESS.Address_Text_2 = TempTable.Address_Text_2\n AND ADDRESS.City_Code\
+          \ = TempTable.City_Code\n AND ADDRESS.State_Code = TempTable.State_Code\n AND ADDRESS.Postal_Code = TempTable.Postal_Code\n AND ADDRESS.Area_Code = TempTable.Area_Code\n AND ADDRESS.Phone_Num = TempTable.Phone_Num\n AND ADDRESS.Country_Code = TempTable.Country_Code\n AND ADDRESS.Company_Code = TempTable.Company_Code\n \n LEFT OUTER JOIN \n (Select COALESCE(Max(Address_id),0) as Last_Id \n  from   [ADDRESS] ) as Max_ID \n ON 1 = 1"
       name: STG_ADDRESS
       noLinkRefs: []
   name: STG_ADDRESS

@@ -164,22 +164,20 @@ operation:
     - aliases:
         STG_PARTY_STATUS_HIST: 776e66fd-d066-5865-8987-551ae83654ec
         STG_PARTY_STATUS_HISTORY: ed450ae5-1465-5848-bb44-28fe66dc5c5b
+        PARTY_STATUS_HISTORY: bb77def6-7981-5257-bbd8-0db2681388da
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: BRONZE
         nodeName: STG_PARTY_STATUS_HIST
-      - locationName: BRONZE
-        nodeName: STG_PARTY_STATUS_HIST
       - locationName: GOLD
         nodeName: STG_PARTY_STATUS_HISTORY
       join:
-        joinCondition: |-
-          FROM {{ ref('BRONZE', 'STG_PARTY_STATUS_HIST') }} "STG_PARTY_STATUS_HIST"
-            WHERE "PARTY_STATUS_HISTORY"."PARTY_ID" = "STG_PARTY_STATUS_HIST"."PARTY_ID"
-          AND "PARTY_STATUS_HISTORY"."DSS_CURRENT_FLAG" = 'Y'
+        joinCondition: "FROM {{ ref('BRONZE', 'STG_PARTY_STATUS_HIST') }} \"STG_PARTY_STATUS_HIST\"\n  WHERE \"PARTY_STATUS_HISTORY\".\"PARTY_ID\" = \"STG_PARTY_STATUS_HIST\".\"PARTY_ID\"\nAND \"PARTY_STATUS_HISTORY\".\"DSS_CURRENT_FLAG\" = 'Y'\nUPDATE {{ ref_no_link('GOLD', 'PARTY_STATUS_HISTORY') }}\nFROM {{ ref('BRONZE', 'STG_PARTY_STATUS_HIST') }} \"STG_PARTY_STATUS_HIST\"\nWHERE PARTY_STATUS_HISTORY.Party_Id = STG_PARTY_STATUS_HIST.Party_Id\nAND PARTY_STATUS_HISTORY.dss_current_flag = 'Y' FROM {{ ref('BRONZE', 'STG_PARTY_STATUS_HIST') }} \"STG_PARTY_STATUS_HIST\"\nWHERE STG_PARTY_STATUS_HIST.JOURNAL_TYPE IN (1,3,5)\nAND       STG_PARTY_STATUS_HIST.PARTY_ID > 0"
       name: PARTY_STATUS_HISTORY
-      noLinkRefs: []
+      noLinkRefs:
+      - locationName: GOLD
+        nodeName: PARTY_STATUS_HISTORY
   name: PARTY_STATUS_HISTORY
   overrideSQL: false
   schema: ''

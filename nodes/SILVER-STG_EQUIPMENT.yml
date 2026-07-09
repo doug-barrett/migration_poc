@@ -656,12 +656,13 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: |-
-          COALESCE("DV_EQUIPMENT"."EQUIPMENT_ID",
+        transform: 'COALESCE("DV_EQUIPMENT"."EQUIPMENT_ID",
+
 
           Row_Number() over(Order by "DV_EQUIPMENT"."EQUIPMENT_ID" asc NULLS FIRST,
 
-          Case when "CDC_EQPMASFL"."JOURNAL_TYPE" in (1,3,5) then 1 else 9 end asc) + Last_Id)
+
+          Case when "CDC_EQPMASFL"."JOURNAL_TYPE" in (1,3,5) then 1 else 9 end asc) + Last_Id)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b4687d02-476a-5918-bc29-8596fa052093
@@ -792,8 +793,7 @@ operation:
         stepCounter: fe9e1789-4485-565e-8be1-477f00d4214b
       config: {}
       dataType: NUMBER(38,0)
-      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n\
-        3 = Update \n4 = Delete\n5 = Refresh"
+      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n3 = Update \n4 = Delete\n5 = Refresh"
       name: Journal_Type
       nullable: true
       sourceColumnReferences:
@@ -1049,31 +1049,17 @@ operation:
       - locationName: GOLD
         nodeName: EQUIPMENT_STATUS_CODES
       - locationName: GOLD
-        nodeName: DV_EQUIPMENT
-      - locationName: GOLD
         nodeName: DV_ITEM
       - locationName: GOLD
         nodeName: DV_VENDOR
-      - locationName: GOLD
-        nodeName: DV_EQUIPMENT
       - locationName: BRONZE
         nodeName: MAX_ID
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'CDC_EQPMASFL') }} "CDC_EQPMASFL"
-          LEFT JOIN {{ ref('GOLD', 'EQUIPMENT_STATUS_CODES') }} "EQUIPMENT_STATUS_CODES"
-            ON  "CDC_EQPMASFL"."EMSTAT"  = "EQUIPMENT_STATUS_CODES"."EQUIPMENT_STATUS_CODE"
-          LEFT JOIN {{ ref('GOLD', 'DV_EQUIPMENT') }} "DV_EQUIPMENT"
-            ON  "CDC_EQPMASFL"."EMCMP" = "DV_EQUIPMENT"."COMPANY_CODE"
-            AND "CDC_EQPMASFL"."EMEQP0" = "DV_EQUIPMENT"."EQUIPMENT_CODE"
-          LEFT JOIN {{ ref('GOLD', 'DV_ITEM') }} "DV_ITEM"
-            ON  "CDC_EQPMASFL"."EMCMP" = "DV_ITEM"."COMPANY_CODE"
-            AND "CDC_EQPMASFL"."EMITEM" = "DV_ITEM"."ITEM_CODE"
-            AND "CDC_EQPMASFL"."EMSTKC" = "DV_ITEM"."STOCK_CLASS_CODE"
-          LEFT JOIN {{ ref('GOLD', 'DV_VENDOR') }} "DV_VENDOR"
-            ON   "CDC_EQPMASFL"."EMVEND" = "DV_VENDOR"."VENDOR_CODE"
+        joinCondition: "FROM {{ ref('GOLD', 'CDC_EQPMASFL') }} \"CDC_EQPMASFL\"\n  \n  LEFT OUTER JOIN {{ ref('GOLD', 'EQUIPMENT_STATUS_CODES') }} \"EQUIPMENT_STATUS_CODES\"\n  ON  CDC_EQPMASFL.EMSTAT  = EQUIPMENT_STATUS_CODES.EQUIPMENT_STATUS_CODE\n  \n  LEFT OUTER JOIN {{ ref_no_link('GOLD', 'DV_EQUIPMENT') }} \"DV_EQUIPMENT\"\n  ON  CDC_EQPMASFL.EMCMP = DV_EQUIPMENT.Company_Code\n  AND CDC_EQPMASFL.EMEQP0 = DV_EQUIPMENT.Equipment_Code\n    \n  LEFT OUTER JOIN {{ ref('GOLD', 'DV_ITEM') }} \"DV_ITEM\"\n  ON  CDC_EQPMASFL.EMCMP = DV_ITEM.Company_Code\n  AND CDC_EQPMASFL.EMITEM = DV_ITEM.Item_Code\n  AND CDC_EQPMASFL.EMSTKC = DV_ITEM.Stock_Class_Code\n    \n  LEFT OUTER JOIN {{ ref('GOLD', 'DV_VENDOR') }} \"DV_VENDOR\"\n  ON   CDC_EQPMASFL.EMVEND = DV_VENDOR.VENDOR_CODE\n    \n  LEFT OUTER JOIN \n  (SELECT COALESCE(MAX(EQUIPMENT_ID),0) AS LAST_ID FROM {{ ref_no_link('GOLD', 'DV_EQUIPMENT') }} ) AS MAX_ID ON 1 = 1"
       name: STG_EQUIPMENT
-      noLinkRefs: []
+      noLinkRefs:
+      - locationName: GOLD
+        nodeName: DV_EQUIPMENT
   name: STG_EQUIPMENT
   overrideSQL: false
   schema: ''

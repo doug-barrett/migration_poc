@@ -22,8 +22,7 @@ operation:
         stepCounter: 6b813264-b9cb-5875-9c16-8c65876e0cb6
       config: {}
       dataType: NUMBER(38,0)
-      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n\
-        3 = Update \n4 = Delete\n5 = Refresh"
+      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n3 = Update \n4 = Delete\n5 = Refresh"
       name: Journal_Type
       nullable: true
       sourceColumnReferences:
@@ -68,9 +67,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "COALESCE(\"DV_VENDOR\".\"VENDOR_ID\",\n\nRow_Number() over(Order\
-          \ by \"DV_VENDOR\".\"VENDOR_ID\" asc NULLS FIRST,\n\nCase \n\nwhen Journal_type\
-          \ in (1,3,5) then 1 \n\nelse 9 end asc) + Last_Id)"
+        transform: "COALESCE(\"DV_VENDOR\".\"VENDOR_ID\",\n\nRow_Number() over(Order by \"DV_VENDOR\".\"VENDOR_ID\" asc NULLS FIRST,\n\nCase \n\nwhen Journal_type in (1,3,5) then 1 \n\nelse 9 end asc) + Last_Id)"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 010f288b-5f09-52d4-b5a4-da0440bf714f
@@ -585,18 +582,14 @@ operation:
       dependencies:
       - locationName: GOLD
         nodeName: CDC_IMVENDFL
+      join:
+        joinCondition: "FROM {{ ref('GOLD', 'CDC_IMVENDFL') }} \"CDC_IMVENDFL\"\nLEFT OUTER JOIN {{ ref_no_link('GOLD', 'DV_VENDOR') }} \"DV_VENDOR\"\nON CDC_IMVENDFL.MVCMP0 = DV_VENDOR.Company_Code\nAND CDC_IMVENDFL.MVVND0 = DV_VENDOR.Vendor_Code\n\nLEFT OUTER JOIN \n(Select COALESCE(Max(Vendor_id),0) as Last_Id FROM {{ ref_no_link('GOLD', 'VENDOR') }} ) as Max_ID on 1 = 1"
+      name: STG_VENDOR
+      noLinkRefs:
       - locationName: GOLD
         nodeName: DV_VENDOR
       - locationName: GOLD
         nodeName: VENDOR
-      join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'CDC_IMVENDFL') }} "CDC_IMVENDFL"
-          LEFT JOIN {{ ref('GOLD', 'DV_VENDOR') }} "DV_VENDOR"
-            ON "CDC_IMVENDFL"."MVCMP0" = "DV_VENDOR"."COMPANY_CODE"
-          AND "CDC_IMVENDFL"."MVVND0" = "DV_VENDOR"."VENDOR_CODE"
-      name: STG_VENDOR
-      noLinkRefs: []
   name: STG_VENDOR
   overrideSQL: false
   schema: ''

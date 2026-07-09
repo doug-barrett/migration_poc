@@ -1079,21 +1079,13 @@ operation:
       - locationName: GOLD
         nodeName: CDC_SYSLOCFL
       - locationName: GOLD
-        nodeName: DV_LOCATION
-      - locationName: GOLD
         nodeName: REGION
-      - locationName: GOLD
-        nodeName: REGION
-      - locationName: GOLD
-        nodeName: MARKET
       - locationName: GOLD
         nodeName: MARKET
       - locationName: GOLD
         nodeName: DISTRICT
       - locationName: GOLD
         nodeName: TRADE_AREA
-      - locationName: GOLD
-        nodeName: LOCATION
       - locationName: BRONZE
         nodeName: MAX_ID
       - locationName: BRONZE
@@ -1103,10 +1095,14 @@ operation:
       - locationName: BRONZE
         nodeName: MARKET_S
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'CDC_SYSLOCFL') }} \"CDC_SYSLOCFL\"\nLEFT JOIN {{ ref('GOLD', 'DV_LOCATION') }} \"DV_LOCATION\"\n  ON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"DV_LOCATION\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLLOC\" = \"DV_LOCATION\".\"LOCATION_CODE\"\nLEFT JOIN {{ ref('GOLD', 'REGION') }} \"REGION\"\n  ON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"REGION_A\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLARGN\" = \"REGION_A\".\"REGION_CODE\"\nAND \"REGION_A\".\"DSS_CURRENT_FLAG\" = 'Y'\nLEFT JOIN {{ ref('GOLD', 'REGION') }} \"REGION_I\"\n  ON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"REGION_I\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLIRGN\" = \"REGION_I\".\"REGION_CODE\"\nAND \"REGION_I\".\"DSS_CURRENT_FLAG\" = 'Y'\nLEFT JOIN {{ ref('GOLD', 'MARKET') }} \"MARKET\"\n  ON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"MARKET\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLMRKT\" = \"MARKET\".\"MARKET_CODE\"\nAND \"MARKET\".\"DSS_CURRENT_FLAG\" = 'Y'\nAND \"MARKET\".\"MARKET_TYPE_CODE\" = 'R'\nLEFT JOIN\
-          \ {{ ref('GOLD', 'MARKET') }} \"MARKET_S\"\n  ON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"MARKET_S\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLMRKT\" = \"MARKET_S\".\"MARKET_CODE\"\nAND \"MARKET_S\".\"DSS_CURRENT_FLAG\" = 'Y'\nAND \"MARKET_S\".\"MARKET_TYPE_CODE\" = 'S'\nLEFT JOIN {{ ref('GOLD', 'DISTRICT') }} \"DISTRICT\"\n  ON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"DISTRICT\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLDIST\" = \"DISTRICT\".\"DISTRICT_CODE\"\nAnd \"DISTRICT\".\"DSS_CURRENT_FLAG\" = 'Y'\nLEFT JOIN {{ ref('GOLD', 'TRADE_AREA') }} \"TRADE_AREA\"\n  ON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"TRADE_AREA\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLWEBS\" = \"TRADE_AREA\".\"TRADE_AREA_CODE\"\nAND \"TRADE_AREA\".\"DSS_CURRENT_FLAG\" = 'Y'"
+        joinCondition: "FROM {{ ref('GOLD', 'CDC_SYSLOCFL') }} \"CDC_SYSLOCFL\"\n\nLEFT OUTER JOIN {{ ref_no_link('GOLD', 'DV_LOCATION') }} \"DV_LOCATION\"\nON   CDC_SYSLOCFL.ZLCMP = DV_LOCATION.Company_Code\nAND CDC_SYSLOCFL.ZLLOC = DV_LOCATION.Location_Code\n\nLEFT OUTER JOIN {{ ref('GOLD', 'REGION') }} \"REGION\"_A\nON   CDC_SYSLOCFL.ZLCMP = REGION_A.Company_Code\nAND CDC_SYSLOCFL.ZLARGN = REGION_A.Region_Code\nAND REGION_A.dss_current_flag = 'Y'\n\nLEFT OUTER JOIN {{ ref('GOLD', 'REGION') }} \"REGION\"_I\nON   CDC_SYSLOCFL.ZLCMP = REGION_I.Company_Code\nAND CDC_SYSLOCFL.ZLIRGN = REGION_I.Region_Code\nAND REGION_I.dss_current_flag = 'Y'\n\nLEFT OUTER JOIN {{ ref('GOLD', 'MARKET') }} \"MARKET\"\nON   CDC_SYSLOCFL.ZLCMP = MARKET.Company_Code\nAND CDC_SYSLOCFL.ZLMRKT = MARKET.Market_Code\nAND MARKET.dss_current_flag = 'Y'\nAND MARKET.Market_Type_Code = 'R'\n\nLEFT OUTER JOIN {{ ref('GOLD', 'MARKET') }} \"MARKET\"_S\nON   CDC_SYSLOCFL.ZLCMP = MARKET_S.Company_Code\nAND CDC_SYSLOCFL.ZLMRKT\
+          \ = MARKET_S.Market_Code\nAND MARKET_S.dss_current_flag = 'Y'\nAND MARKET_S.Market_Type_Code = 'S'\n\nLEFT OUTER JOIN {{ ref('GOLD', 'DISTRICT') }} \"DISTRICT\"\nON   CDC_SYSLOCFL.ZLCMP = DISTRICT.Company_Code\nAND CDC_SYSLOCFL.ZLDIST = DISTRICT.District_Code\nAnd DISTRICT.dss_current_flag = 'Y'\n\nLEFT OUTER JOIN {{ ref('GOLD', 'TRADE_AREA') }} \"TRADE_AREA\"\nON   CDC_SYSLOCFL.ZLCMP = TRADE_AREA.Company_Code\nAND CDC_SYSLOCFL.ZLWEBS = TRADE_AREA.Trade_Area_Code\nAND TRADE_AREA.dss_current_flag = 'Y'\n\nLEFT OUTER JOIN \n(Select COALESCE(Max(Location_id),0) as Last_Id FROM {{ ref_no_link('GOLD', 'LOCATION') }} ) as Max_ID on 1 = 1"
       name: STG_LOCATION
-      noLinkRefs: []
+      noLinkRefs:
+      - locationName: GOLD
+        nodeName: DV_LOCATION
+      - locationName: GOLD
+        nodeName: LOCATION
   name: STG_LOCATION
   overrideSQL: false
   schema: ''

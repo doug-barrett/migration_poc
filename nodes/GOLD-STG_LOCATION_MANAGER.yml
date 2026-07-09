@@ -76,8 +76,7 @@ operation:
         stepCounter: ce3d3515-face-566b-b332-f78c57e055f5
       config: {}
       dataType: NUMBER(38,0)
-      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n\
-        3 = Update \n4 = Delete\n5 = Refresh"
+      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n3 = Update \n4 = Delete\n5 = Refresh"
       name: Journal_Type
       nullable: true
       sourceColumnReferences:
@@ -130,14 +129,21 @@ operation:
       - locationName: GOLD
         nodeName: LOCATION_MANAGER_KEY
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'CDC_SYSLOCFL') }} "CDC_SYSLOCFL"
-          LEFT JOIN {{ ref('GOLD', 'DV_LOCATION') }} "DV_LOCATION"
-            ON    "CDC_SYSLOCFL"."ZLCMP" = "DV_LOCATION"."COMPANY_CODE"
-          AND  "CDC_SYSLOCFL"."ZLLOC" = "DV_LOCATION"."LOCATION_CODE"
-          LEFT JOIN {{ ref('GOLD', 'LOCATION_MANAGER_KEY') }} "LOCATION_MANAGER_KEY"
-            ON    "CDC_SYSLOCFL"."ZLCMP" = "LOCATION_MANAGER_KEY"."COMPANY_CODE"
-          AND  "CDC_SYSLOCFL"."ZLMGR" = "LOCATION_MANAGER_KEY"."MANAGER_NAME"
+        joinCondition: 'FROM {{ ref(''GOLD'', ''CDC_SYSLOCFL'') }} "CDC_SYSLOCFL"
+
+
+          LEFT OUTER JOIN {{ ref(''GOLD'', ''DV_LOCATION'') }} "DV_LOCATION"
+
+          ON    CDC_SYSLOCFL.ZLCMP = DV_LOCATION.COMPANY_CODE
+
+          AND  CDC_SYSLOCFL.ZLLOC = DV_LOCATION.LOCATION_CODE
+
+
+          LEFT OUTER JOIN {{ ref(''GOLD'', ''LOCATION_MANAGER_KEY'') }} "LOCATION_MANAGER_KEY"
+
+          ON    CDC_SYSLOCFL.ZLCMP = LOCATION_MANAGER_KEY.COMPANY_CODE
+
+          AND  CDC_SYSLOCFL.ZLMGR = LOCATION_MANAGER_KEY.MANAGER_NAME'
       name: STG_LOCATION_MANAGER
       noLinkRefs: []
   name: STG_LOCATION_MANAGER

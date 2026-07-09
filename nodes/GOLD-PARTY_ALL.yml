@@ -836,22 +836,20 @@ operation:
     - aliases:
         STG_PARTY_ALL: 9d3fdd66-491d-5e14-abfa-1111bc07eaa1
         ETL_PARTY_ALL: a2885f26-27b2-5210-844a-dc4bb3e986f1
+        PARTY_ALL: 271b8299-9d33-5f51-94da-25dbfe3ad980
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: BRONZE
         nodeName: STG_PARTY_ALL
-      - locationName: BRONZE
-        nodeName: STG_PARTY_ALL
       - locationName: SILVER
         nodeName: ETL_PARTY_ALL
       join:
-        joinCondition: |-
-          FROM {{ ref('BRONZE', 'STG_PARTY_ALL') }} "STG_PARTY_ALL"
-            WHERE "PARTY_ALL"."PARTY_ID" = "STG_PARTY_ALL"."PARTY_ID"
-          AND "PARTY_ALL"."DSS_CURRENT_FLAG" = 'Y'
+        joinCondition: "FROM {{ ref('BRONZE', 'STG_PARTY_ALL') }} \"STG_PARTY_ALL\"\n  WHERE \"PARTY_ALL\".\"PARTY_ID\" = \"STG_PARTY_ALL\".\"PARTY_ID\"\nAND \"PARTY_ALL\".\"DSS_CURRENT_FLAG\" = 'Y'\nUPDATE {{ ref_no_link('GOLD', 'PARTY_ALL') }}\nFROM {{ ref('BRONZE', 'STG_PARTY_ALL') }} \"STG_PARTY_ALL\"\nWHERE PARTY_ALL.Party_Id = STG_PARTY_ALL.Party_Id\nAND PARTY_ALL.dss_current_flag = 'Y' FROM {{ ref('BRONZE', 'STG_PARTY_ALL') }} \"STG_PARTY_ALL\"\n  WHERE JOURNAL_TYPE IN (1,3,5)"
       name: PARTY_ALL
-      noLinkRefs: []
+      noLinkRefs:
+      - locationName: GOLD
+        nodeName: PARTY_ALL
   name: PARTY_ALL
   overrideSQL: false
   schema: ''

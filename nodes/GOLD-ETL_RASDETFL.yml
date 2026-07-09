@@ -1449,12 +1449,10 @@ operation:
         nodeName: ID_ITEM
       - locationName: GOLD
         nodeName: CDC_BATCH
-      - locationName: GOLD
-        nodeName: CDC_BATCH
       - locationName: BRONZE
         nodeName: _ITEM
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'SRC_RASDETFL') }} \"SRC_RASDETFL\"\nLEFT JOIN {{ ref('GOLD', 'ID_ITEM') }} \"ID_ITEM\"\n  ON \"SRC_RASDETFL\".\"RSCMP\" = \"ID_ITEM\".\"COMPANY_CODE\"\nAND  \"SRC_RASDETFL\".\"RSITEM\" = \"ID_ITEM\".\"ITEM_CODE\"\nAND \"SRC_RASDETFL\".\"RSSTKC\" = \"ID_ITEM\".\"STOCK_CLASS_CODE\"\n\n \nWhere \"SRC_RASDETFL\".\"AUD_TIME\" <= (Select MAX(Batch_End) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")\nAND Aud_Time > (Select MAX(Batch_Start) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")"
+        joinCondition: "FROM {{ ref('GOLD', 'SRC_RASDETFL') }} \"SRC_RASDETFL\"\n\nLEFT OUTER JOIN {{ ref('GOLD', 'ID_ITEM') }} \"ID_ITEM\"\nON SRC_RASDETFL.RSCMP = ID_ITEM.Company_Code\nAND  SRC_RASDETFL.RSITEM = ID_ITEM.Item_Code\nAND SRC_RASDETFL.RSSTKC = ID_ITEM.Stock_Class_Code\n\n \nWhere SRC_RASDETFL.Aud_Time <= (Select MAX(Batch_End) FROM {{ ref('GOLD', 'CDC_BATCH') }})\nAND SRC_RASDETFL.Aud_Time > (Select MAX(Batch_Start) FROM {{ ref('GOLD', 'CDC_BATCH') }})\nAND (SRC_RASDETFL.Aud_Code <> 'F' or (SRC_RASDETFL.Aud_Code is null and SRC_RASDETFL.Aud_Type = 'RR')) QUALIFY RANK() \nOVER (PARTITION BY  RSCMP, RSCON0, RSSEQ0, RSOSEQ, RSISEQ \nORDER BY SRC_RASDETFL.AUD_TIME DESC, CASE  \nWHEN Aud_Type in ('PT','PX','FI')\tTHEN 1 \nWHEN Aud_Type in ('UB','FB','FP','BR')\tTHEN 2 \nWHEN Aud_Type in ('UP','UR')\tTHEN 3 \nWHEN Aud_Type in ('DL','FD')\tTHEN 4 \nWHEN Aud_Type in ('RR')\t\tTHEN 5 \n ELSE 0 END DESC) = 1"
       name: ETL_RASDETFL
       noLinkRefs: []
   name: ETL_RASDETFL

@@ -1943,8 +1943,6 @@ operation:
         nodeName: ID_CUSTOMER_JOB
       - locationName: GOLD
         nodeName: CDC_BATCH
-      - locationName: GOLD
-        nodeName: CDC_BATCH
       - locationName: BRONZE
         nodeName: _LOCATION
       - locationName: BRONZE
@@ -1952,8 +1950,8 @@ operation:
       - locationName: BRONZE
         nodeName: _PARTY
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'SRC_RACHDRFL') }} \"SRC_RACHDRFL\"\nLEFT JOIN {{ ref('GOLD', 'ID_LOCATION') }} \"ID_LOCATION\"\n  ON \"SRC_RACHDRFL\".\"RHCMP\" = \"ID_LOCATION\".\"COMPANY_CODE\"\n AND \"SRC_RACHDRFL\".\"RHLOC\" = \"ID_LOCATION\".\"LOCATION_CODE\"\nLEFT JOIN {{ ref('GOLD', 'ID_PARTY') }} \"ID_PARTY\"\n  ON  \"SRC_RACHDRFL\".\"RHCMP\" = \"ID_PARTY\".\"COMPANY_CODE\"\nAND CASE WHEN \"SRC_RACHDRFL\".\"RHCUS0\" > 0 THEN  \"SRC_RACHDRFL\".\"RHCUS0\" ELSE  0 END \n     = \"ID_PARTY\".\"CUSTOMER_ACCOUNT_NUM\"\nAND CASE WHEN \"SRC_RACHDRFL\".\"RHCUS0\" = 0 AND \"SRC_RACHDRFL\".\"RHOVR\" <> 'L'\n         THEN Trim(\"SRC_RACHDRFL\".\"RHDLST\") || Trim(\"SRC_RACHDRFL\".\"RHDL0\")\n          WHEN \"SRC_RACHDRFL\".\"RHCUS0\" = 0 AND \"SRC_RACHDRFL\".\"RHOVR\" = 'L'\n         THEN \"SRC_RACHDRFL\".\"RHRLOC\"  ELSE '' END\n   = \"ID_PARTY\".\"CUSTOMER_ACCOUNT_CHAR\"\nAND \"ID_PARTY\".\"PARTY_TYPE_CODE\" in (1,2,3)\nLEFT JOIN {{ ref('GOLD', 'ID_CUSTOMER_JOB') }} \"ID_CUSTOMER_JOB\"\
-          \n  ON  \"SRC_RACHDRFL\".\"RHCMP\" = \"ID_CUSTOMER_JOB\".\"COMPANY_CODE\"\nAND \"ID_PARTY\".\"PARTY_ID\" = \"ID_CUSTOMER_JOB\".\"PARTY_ID\"\nAND \"ID_PARTY\".\"PARTY_TYPE_CODE\" = \"ID_CUSTOMER_JOB\".\"PARTY_TYPE_CODE\"\nAND \"SRC_RACHDRFL\".\"RHJOB0\" = \"ID_CUSTOMER_JOB\".\"JOB_NUM\"\n\n \nWhere Aud_Time <= (Select MAX(Batch_End) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")\nAND Aud_Time > (Select MAX(Batch_Start) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")"
+        joinCondition: "FROM {{ ref('GOLD', 'SRC_RACHDRFL') }} \"SRC_RACHDRFL\" \n\nLEFT OUTER JOIN {{ ref('GOLD', 'ID_LOCATION') }} \"ID_LOCATION\"\nON SRC_RACHDRFL.RHCMP = ID_LOCATION.Company_Code\n AND SRC_RACHDRFL.RHLOC = ID_LOCATION.Location_Code\n\nLEFT OUTER JOIN {{ ref('GOLD', 'ID_PARTY') }} \"ID_PARTY\"\nON  SRC_RACHDRFL.RHCMP = ID_PARTY.Company_Code\nAND CASE WHEN SRC_RACHDRFL.RHCUS0 > 0 THEN  SRC_RACHDRFL.RHCUS0 ELSE  0 END \n     = ID_PARTY.Customer_Account_Num\nAND CASE WHEN SRC_RACHDRFL.RHCUS0 = 0 AND SRC_RACHDRFL.RHOVR <> 'L'\n         THEN Trim(SRC_RACHDRFL.RHDLST) || Trim(SRC_RACHDRFL.RHDL0)\n          WHEN SRC_RACHDRFL.RHCUS0 = 0 AND SRC_RACHDRFL.RHOVR = 'L'\n         THEN SRC_RACHDRFL.RHRLOC  ELSE '' END\n   = ID_PARTY.Customer_Account_Char\nAND ID_PARTY.Party_type_code in (1,2,3)\n\nLEFT OUTER JOIN {{ ref('GOLD', 'ID_CUSTOMER_JOB') }} \"ID_CUSTOMER_JOB\"\nON  SRC_RACHDRFL.RHCMP = ID_CUSTOMER_JOB.Company_Code\nAND ID_PARTY.Party_Id = ID_CUSTOMER_JOB.Party_Id\nAND ID_PARTY.Party_Type_Code\
+          \ = ID_CUSTOMER_JOB.Party_Type_Code\nAND SRC_RACHDRFL.RHJOB0 = ID_CUSTOMER_JOB.Job_Num\n\n \nWhere Aud_Time <= (Select MAX(Batch_End) FROM {{ ref('GOLD', 'CDC_BATCH') }})\nAND Aud_Time > (Select MAX(Batch_Start) FROM {{ ref('GOLD', 'CDC_BATCH') }})\nAND (Aud_Code <> 'F' or (Aud_Code is null and Aud_Type = 'RR'))\n QUALIFY RANK() \nOVER (PARTITION BY  RHCMP,    \nRHCON0,   \nRHISEQ\nORDER BY AUD_TIME DESC, AUD_SEQNO DESC, CASE  \nWHEN Aud_Type in ('PT','PX','FI')\tTHEN 1 \nWHEN Aud_Type in ('UB','FB','FP','BR')\tTHEN 2 \nWHEN Aud_Type in ('UP','UR')\tTHEN 3 \nWHEN Aud_Type in ('DL','FD')\tTHEN 4 \nWHEN Aud_Type in ('RR')\t\tTHEN 5  \n ELSE 0 END DESC) = 1"
       name: ETL_RACHDRFL
       noLinkRefs: []
   name: ETL_RACHDRFL

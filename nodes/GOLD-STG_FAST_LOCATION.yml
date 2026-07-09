@@ -55,20 +55,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: |-
-          CASE
-
-            WHEN "RT_LOCATION"."FAST_LITE_FLAG" = 'No'
-
-            THEN 'F'
-
-            WHEN "RT_LOCATION"."FAST_LITE_FLAG" = 'Yes'
-
-            THEN 'L'
-
-            ELSE 'N'
-
-          END
+        transform: "CASE\n\n  WHEN \"RT_LOCATION\".\"FAST_LITE_FLAG\" = 'No'\n\n  THEN 'F'\n\n  WHEN \"RT_LOCATION\".\"FAST_LITE_FLAG\" = 'Yes'\n\n  THEN 'L'\n\n  ELSE 'N'\n\nEND"
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
@@ -83,14 +70,19 @@ operation:
       - locationName: GOLD
         nodeName: LOCATION
       join:
-        joinCondition: |-
-          FROM {{ ref('BRONZE', 'RT_LOCATION') }} "RT_LOCATION"
-          LEFT JOIN {{ ref('GOLD', 'LOCATION') }} "LOCATION"
-            ON "LOCATION"."COMPANY_CODE" = 'U1'
-          AND "RT_LOCATION"."BRANCH_ID" = "LOCATION"."LOCATION_CODE"
-          AND "LOCATION"."DSS_CURRENT_FLAG" = 'Y'
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''RT_LOCATION'') }} "RT_LOCATION"
 
-          WHERE "LOCATION"."LOCATION_ID" IS NOT NULL
+
+          LEFT OUTER JOIN {{ ref(''GOLD'', ''LOCATION'') }} "LOCATION"
+
+          ON LOCATION.Company_Code = ''U1''
+
+          AND RT_LOCATION.Branch_Id = LOCATION.Location_Code
+
+          AND LOCATION.dss_current_flag = ''Y''
+
+
+          WHERE LOCATION.Location_Id IS NOT NULL'
       name: STG_FAST_LOCATION
       noLinkRefs: []
   name: STG_FAST_LOCATION

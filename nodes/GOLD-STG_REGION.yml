@@ -22,8 +22,7 @@ operation:
         stepCounter: 0c51e783-3ca4-58f2-adda-a76e097f1df3
       config: {}
       dataType: NUMBER(38,0)
-      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n\
-        3 = Update \n4 = Delete\n5 = Refresh"
+      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n3 = Update \n4 = Delete\n5 = Refresh"
       name: Journal_Type
       nullable: true
       sourceColumnReferences:
@@ -54,12 +53,13 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: |-
-          COALESCE("DV_REGION"."REGION_ID",
+        transform: 'COALESCE("DV_REGION"."REGION_ID",
+
 
           Row_Number() over(Order by "DV_REGION"."REGION_ID" asc NULLS FIRST,
 
-          Case when Journal_type in (1,3,5) then 1 else 9 end asc) + Last_Id)
+
+          Case when Journal_type in (1,3,5) then 1 else 9 end asc) + Last_Id)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5f7cead2-51d8-589d-9052-9171d1bb9f85
@@ -184,18 +184,14 @@ operation:
       dependencies:
       - locationName: GOLD
         nodeName: CDC_SYSRGNFL
+      join:
+        joinCondition: "FROM {{ ref('GOLD', 'CDC_SYSRGNFL') }} \"CDC_SYSRGNFL\"\nLEFT OUTER JOIN {{ ref_no_link('GOLD', 'DV_REGION') }} \"DV_REGION\"\nON CDC_SYSRGNFL.ZRCMP = DV_REGION.Company_Code\nAND CDC_SYSRGNFL.ZRRGN = DV_REGION.Region_Code\n\nLEFT OUTER JOIN \n(Select COALESCE(Max(Region_id),0) as Last_Id FROM {{ ref_no_link('GOLD', 'REGION') }} ) as Max_ID on 1 = 1"
+      name: STG_REGION
+      noLinkRefs:
       - locationName: GOLD
         nodeName: DV_REGION
       - locationName: GOLD
         nodeName: REGION
-      join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'CDC_SYSRGNFL') }} "CDC_SYSRGNFL"
-          LEFT JOIN {{ ref('GOLD', 'DV_REGION') }} "DV_REGION"
-            ON "CDC_SYSRGNFL"."ZRCMP" = "DV_REGION"."COMPANY_CODE"
-          AND "CDC_SYSRGNFL"."ZRRGN" = "DV_REGION"."REGION_CODE"
-      name: STG_REGION
-      noLinkRefs: []
   name: STG_REGION
   overrideSQL: false
   schema: ''

@@ -264,25 +264,24 @@ operation:
     - aliases:
         SRC_USRBIOFL: 2d76a7aa-8d4a-5e7b-a1af-c68cf08d49a2
         LOCATION: fc31ae84-5b0b-5e1e-b998-bb5742721756
-        ADDRESS: 90cc3016-dd03-5a43-885f-e199d834b092
         CDC_BATCH: 85c8eb8d-5ced-56ef-a4b4-91d0c68ac753
+        ADDRESS: 90cc3016-dd03-5a43-885f-e199d834b092
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: GOLD
         nodeName: SRC_USRBIOFL
       - locationName: GOLD
-        nodeName: LOCATION
+        nodeName: CDC_BATCH
       - locationName: GOLD
         nodeName: ADDRESS
-      - locationName: GOLD
-        nodeName: CDC_BATCH
-      - locationName: GOLD
-        nodeName: CDC_BATCH
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'SRC_USRBIOFL') }} \"SRC_USRBIOFL\"\nLEFT JOIN {{ ref('GOLD', 'LOCATION') }} \"LOCATION\"\n  ON   \"SRC_USRBIOFL\".\"UILOC\" = \"LOCATION\".\"LOCATION_CODE\"\nAND \"SRC_USRBIOFL\".\"UICMP\" = \"LOCATION\".\"COMPANY_CODE\"\nAND \"LOCATION\".\"DSS_CURRENT_FLAG\" = 'Y'\nLEFT JOIN {{ ref('GOLD', 'ADDRESS') }} \"ADDRESS\"\n  ON   UPPER(\"SRC_USRBIOFL\".\"UICMP\") = UPPER(\"ADDRESS\".\"COMPANY_CODE\")\nAND \"ADDRESS\".\"ADDRESS_TYPE_CODE\" = 'E'\nAND UPPER(\"SRC_USRBIOFL\".\"UIMAIL\") = UPPER(\"ADDRESS\".\"ADDRESS_TEXT_1\")\n\nWhere Aud_Time <= (Select MAX(Batch_End) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")\nAND Aud_Time > (Select MAX(Batch_Start) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")"
+        joinCondition: "FROM {{ ref('GOLD', 'SRC_USRBIOFL') }} \"SRC_USRBIOFL\" \n\nLEFT OUTER JOIN {{ ref_no_link('GOLD', 'LOCATION') }} \"LOCATION\"\nON   SRC_USRBIOFL.UILOC = LOCATION.Location_Code\nAND SRC_USRBIOFL.UICMP = LOCATION.Company_Code\nAND LOCATION.dss_current_flag = 'Y' \n    \nLEFT OUTER JOIN {{ ref('GOLD', 'ADDRESS') }} \"ADDRESS\"\nON   UPPER(SRC_USRBIOFL.UICMP) = UPPER(ADDRESS.COMPANY_CODE)\nAND ADDRESS.ADDRESS_TYPE_CODE = 'E'\nAND UPPER(SRC_USRBIOFL.UIMAIL) = UPPER(ADDRESS.ADDRESS_TEXT_1)\n\nWhere Aud_Time <= (Select MAX(Batch_End) from {{ ref('GOLD', 'CDC_BATCH') }} )\nAND Aud_Time > (Select DATEADD(day, -1, MAX(Batch_Start)) from {{ ref('GOLD', 'CDC_BATCH') }})\nAND (Aud_Code <> 'F' or (Aud_Code is null and Aud_Type = 'RR'))\n\nQUALIFY RANK() \nOVER (PARTITION BY COALESCE(UICMP,''), COALESCE(UIUSER,'')\n --UICMP, UIUSER\nORDER BY Aud_Time DESC, CASE  \nWHEN Aud_Type in ('PT','PX','FI')\tTHEN 1 \nWHEN Aud_Type in ('UB','FB','FP','BR')\tTHEN 2 \nWHEN Aud_Type in ('UP','UR')\t\
+          THEN 3 \nWHEN Aud_Type in ('DL','FD')\tTHEN 4 \nWHEN Aud_Type in ('RR')\t\tTHEN 5 \nELSE 0 END DESC) = 1"
       name: ETL_USER_BIO
-      noLinkRefs: []
+      noLinkRefs:
+      - locationName: GOLD
+        nodeName: LOCATION
   name: ETL_USER_BIO
   overrideSQL: false
   schema: ''

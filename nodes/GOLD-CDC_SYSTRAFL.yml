@@ -257,10 +257,8 @@ operation:
         nodeName: SRC_SYSTRAFL
       - locationName: GOLD
         nodeName: CDC_BATCH
-      - locationName: GOLD
-        nodeName: CDC_BATCH
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'SRC_SYSTRAFL') }} \"SRC_SYSTRAFL\"\n  Where Aud_Time <= (Select MAX(Batch_End) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")\nAND Aud_Time > (Select MAX(Batch_Start) FROM {{ ref('GOLD', 'CDC_BATCH') }} \"CDC_BATCH\")"
+        joinCondition: "FROM {{ ref('GOLD', 'SRC_SYSTRAFL') }} \"SRC_SYSTRAFL\"\n Where Aud_Time <= (Select MAX(Batch_End) FROM {{ ref('GOLD', 'CDC_BATCH') }})\nAND Aud_Time > (Select MAX(Batch_Start) FROM {{ ref('GOLD', 'CDC_BATCH') }})\nAND (Aud_Code <> 'F' or (Aud_Code is null and Aud_Type = 'RR')) QUALIFY RANK() \nOVER (PARTITION BY  TACMP,    \nTACODE\nORDER BY AUD_TIME DESC, CASE  \nWHEN Aud_Type in ('PT','PX','FI')   THEN 1 \nWHEN Aud_Type in ('UB','FB','FP','BR')  THEN 2 \nWHEN Aud_Type in ('UP','UR')               THEN 3 \nWHEN Aud_Type in ('DL' , 'FD')      THEN 4 \nWHEN Aud_Type in ('RR')              THEN 5 \n ELSE 0 END DESC) = 1"
       name: CDC_SYSTRAFL
       noLinkRefs: []
   name: CDC_SYSTRAFL

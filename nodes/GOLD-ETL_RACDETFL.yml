@@ -1710,8 +1710,6 @@ operation:
         nodeName: ID_ITEM
       - locationName: GOLD
         nodeName: CDC_BATCH
-      - locationName: GOLD
-        nodeName: CDC_BATCH
       - locationName: BRONZE
         nodeName: _ID_LOCATION
       - locationName: BRONZE
@@ -1719,7 +1717,8 @@ operation:
       - locationName: BRONZE
         nodeName: _ID_EQUIPMENT
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'SRC_RACDETFL') }} \"SRC_RACDETFL\"\nLEFT JOIN {{ ref('GOLD', 'ID_LOCATION') }} \"ID_LOCATION\"\n  ON \"SRC_RACDETFL\".\"RDCMP\" = \"ID_LOCATION\".\"COMPANY_CODE\"\n\tAND \"SRC_RACDETFL\".\"RDLOC\" = \"ID_LOCATION\".\"LOCATION_CODE\"\nLEFT JOIN {{ ref('GOLD', 'ID_EQUIPMENT') }} \"ID_EQUIPMENT\"\n  ON \"SRC_RACDETFL\".\"RDCMP\" = \"ID_EQUIPMENT\".\"COMPANY_CODE\"\n\t/* 1/30/2014 JD - changed"
+        joinCondition: "FROM {{ ref('GOLD', 'SRC_RACDETFL') }} \"SRC_RACDETFL\"\nLEFT OUTER JOIN {{ ref('GOLD', 'ID_LOCATION') }} \"ID_LOCATION\"\n\tON SRC_RACDETFL.RDCMP = ID_LOCATION.Company_Code\n\tAND SRC_RACDETFL.RDLOC = ID_LOCATION.Location_Code\nLEFT OUTER JOIN  {{ ref('GOLD', 'ID_EQUIPMENT') }} \"ID_EQUIPMENT\"\n\tON SRC_RACDETFL.RDCMP = ID_EQUIPMENT.Company_Code\n\t/* 1/30/2014 JD - changed from case statement to AND condition for cleaner join condition*/\n\tAND   SRC_RACDETFL.RDITEM  = ID_EQUIPMENT.Equipment_Code\n\tAND   SRC_RACDETFL.RDCATG  > 0\n\t/* 1/30/2014 JD - added condition that RDITEM can't be the same as cat class so that equipment id's do not get incorrectly assigned to records with a non-serialized item code (reservation or bulk item code) */\t\n\tAND   SRC_RACDETFL.RDITEM <>TRIM( (TO_VARCHAR(SRC_RACDETFL.RDCATG, '999')) || TRIM(TO_VARCHAR(SRC_RACDETFL.RDCLAS ,'9999')))\nLEFT OUTER JOIN {{ ref('GOLD', 'ID_ITEM') }} \"ID_ITEM\"\n\tON SRC_RACDETFL.RDCMP = ID_ITEM.Company_Code\n\
+          \tAND \n\t\tCASE WHEN\n\t\t\tSRC_RACDETFL.RDCATG = 0 \n\t\t\tTHEN  SRC_RACDETFL.RDITEM ELSE  Null END\n\t\t\t\t= ID_ITEM.Item_Code\n\tAND CASE WHEN SRC_RACDETFL.RDCATG = 0 AND RTRIM(SRC_RACDETFL.RDSTKC) = ''\n\tTHEN  'MCI'  ELSE  SRC_RACDETFL.RDSTKC END\n\t= ID_ITEM.Stock_Class_Code\nWhere SRC_RACDETFL.Aud_Time <= (Select MAX(Batch_End) from {{ ref('GOLD', 'CDC_BATCH') }})\nAND SRC_RACDETFL.Aud_Time > (Select MAX(Batch_Start) from {{ ref('GOLD', 'CDC_BATCH') }})\nAND (SRC_RACDETFL.Aud_Code <> 'F' or (SRC_RACDETFL.Aud_Code is null and SRC_RACDETFL.Aud_Type = 'RR'))\n\nQUALIFY RANK() \n OVER (PARTITION BY  RDCMP,      \n RDCON0,     \n RDISEQ,     \n RDTYPE,     \n RDSEQ0,     \n RDRSEQ   \n ORDER BY SRC_RACDETFL.Aud_Time DESC, AUD_SEQNO DESC, CASE  \nWHEN Aud_Type in ('PT','PX','FI')\tTHEN 1 \nWHEN Aud_Type in ('UB','FB','FP','BR')\tTHEN 2 \nWHEN Aud_Type in ('UP','UR')\tTHEN 3 \nWHEN Aud_Type in ('DL','FD')\tTHEN 4 \nWHEN Aud_Type in ('RR')\t\tTHEN 5 \n  ELSE 0 END DESC) = 1"
       name: ETL_RACDETFL
       noLinkRefs: []
   name: ETL_RACDETFL

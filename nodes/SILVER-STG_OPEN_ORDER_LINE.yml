@@ -23,8 +23,7 @@ operation:
         stepCounter: 239612f9-2356-5652-b242-86f248e9cbd3
       config: {}
       dataType: NUMBER(38,0)
-      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n\
-        3 = Update \n4 = Delete\n5 = Refresh"
+      description: "Journal Conversion Transformation\n1 = Insert\n2 = Update Before\n3 = Update \n4 = Delete\n5 = Refresh"
       name: Journal_Type
       nullable: true
       sourceColumnReferences:
@@ -1095,25 +1094,45 @@ operation:
       - locationName: GOLD
         nodeName: ITEM_EQPT_CLASS
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'CDC_RAODETFL') }} "CDC_RAODETFL"
-          LEFT JOIN {{ ref('GOLD', 'EQUIPMENT') }} "EQUIPMENT"
-            ON "CDC_RAODETFL"."RDCMP" = "EQUIPMENT"."COMPANY_CODE"
-          AND "CDC_RAODETFL"."EQUIPMENT_CODE" = "EQUIPMENT"."EQUIPMENT_CODE"
-          AND "EQUIPMENT"."DSS_CURRENT_FLAG" = 'Y'
-          LEFT JOIN {{ ref('GOLD', 'ITEM') }} "ITEM"
-            ON "CDC_RAODETFL"."RDCMP" = "ITEM"."COMPANY_CODE"
-          AND "CDC_RAODETFL"."ITEM_CODE" = "ITEM"."ITEM_CODE"
-          AND "CDC_RAODETFL"."STOCK_CLASS_CODE" = "ITEM"."STOCK_CLASS_CODE"
-          AND "ITEM"."DSS_CURRENT_FLAG" = 'Y'
-          LEFT JOIN {{ ref('GOLD', 'LOCATION') }} "LOCATION"
-            ON "CDC_RAODETFL"."RDCMP" = "LOCATION"."COMPANY_CODE"
-          AND "CDC_RAODETFL"."RDLOC" = "LOCATION"."LOCATION_CODE"
-          AND "LOCATION"."DSS_CURRENT_FLAG" = 'Y'
-          LEFT JOIN {{ ref('GOLD', 'ITEM_EQPT_CLASS') }} "ITEM_EQPT_CLASS"
-            ON  "CDC_RAODETFL"."RDCATG" = "ITEM_EQPT_CLASS"."CATEGORY_CODE"
-          AND "CDC_RAODETFL"."RDCLAS" = "ITEM_EQPT_CLASS"."CLASS_CODE"
-          AND "ITEM_EQPT_CLASS"."DSS_CURRENT_FLAG" = 'Y'
+        joinCondition: 'FROM {{ ref(''GOLD'', ''CDC_RAODETFL'') }} "CDC_RAODETFL"
+
+
+          LEFT OUTER JOIN {{ ref(''GOLD'', ''EQUIPMENT'') }} "EQUIPMENT"
+
+          ON CDC_RAODETFL.RDCMP = EQUIPMENT.Company_Code
+
+          AND CDC_RAODETFL.Equipment_Code = EQUIPMENT.Equipment_Code
+
+          AND EQUIPMENT.dss_current_flag = ''Y''
+
+
+          LEFT OUTER JOIN {{ ref(''GOLD'', ''ITEM'') }} "ITEM"
+
+          ON CDC_RAODETFL.RDCMP = ITEM.Company_Code
+
+          AND CDC_RAODETFL.Item_Code = ITEM.Item_Code
+
+          AND CDC_RAODETFL.Stock_Class_Code = ITEM.Stock_Class_Code
+
+          AND ITEM.dss_current_flag = ''Y''
+
+
+          LEFT OUTER JOIN {{ ref(''GOLD'', ''LOCATION'') }} "LOCATION"
+
+          ON CDC_RAODETFL.RDCMP = LOCATION.Company_Code
+
+          AND CDC_RAODETFL.RDLOC = LOCATION.Location_Code
+
+          AND LOCATION.dss_current_flag = ''Y''
+
+
+          LEFT OUTER JOIN {{ ref(''GOLD'', ''ITEM_EQPT_CLASS'') }} "ITEM_EQPT_CLASS"
+
+          ON  CDC_RAODETFL.RDCATG = ITEM_EQPT_CLASS.CATEGORY_CODE
+
+          AND CDC_RAODETFL.RDCLAS = ITEM_EQPT_CLASS.CLASS_CODE
+
+          AND ITEM_EQPT_CLASS.DSS_CURRENT_FLAG = ''Y'''
       name: STG_OPEN_ORDER_LINE
       noLinkRefs: []
   name: STG_OPEN_ORDER_LINE

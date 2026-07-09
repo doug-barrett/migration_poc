@@ -39,9 +39,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "COALESCE(\"DV_TRADE_AREA\".\"TRADE_AREA_ID\",\n\nRow_Number()\
-          \ over(Order by \"DV_TRADE_AREA\".\"TRADE_AREA_ID\" asc NULLS FIRST,\n\n\
-          Case \n\nwhen Journal_type in (1,3,5) then 1 \n\nelse 9 end asc) + Last_Id)"
+        transform: "COALESCE(\"DV_TRADE_AREA\".\"TRADE_AREA_ID\",\n\nRow_Number() over(Order by \"DV_TRADE_AREA\".\"TRADE_AREA_ID\" asc NULLS FIRST,\n\nCase \n\nwhen Journal_type in (1,3,5) then 1 \n\nelse 9 end asc) + Last_Id)"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ae1a2bf4-7b31-55c5-9d97-10ab4175f6c6
@@ -134,18 +132,14 @@ operation:
       dependencies:
       - locationName: GOLD
         nodeName: CDC_SYSTRAFL
-      - locationName: GOLD
-        nodeName: DV_TRADE_AREA
       join:
-        joinCondition: |-
-          FROM {{ ref('GOLD', 'CDC_SYSTRAFL') }} "CDC_SYSTRAFL"
-          LEFT JOIN {{ ref('GOLD', 'DV_TRADE_AREA') }} "DV_TRADE_AREA"
-            ON "CDC_SYSTRAFL"."TACMP" = "DV_TRADE_AREA"."COMPANY_CODE"
-          AND "CDC_SYSTRAFL"."TACODE" = "DV_TRADE_AREA"."TRADE_AREA_CODE"
+        joinCondition: "FROM {{ ref('GOLD', 'CDC_SYSTRAFL') }} \"CDC_SYSTRAFL\" \nLEFT OUTER JOIN {{ ref_no_link('GOLD', 'DV_TRADE_AREA') }} \"DV_TRADE_AREA\"\nON CDC_SYSTRAFL.TACMP = DV_TRADE_AREA.Company_Code\nAND CDC_SYSTRAFL.TACODE = DV_TRADE_AREA.Trade_Area_Code\n\nLEFT OUTER JOIN \n(Select COALESCE(Max(Trade_Area_id),0) as Last_Id FROM {{ ref_no_link('GOLD', 'TRADE_AREA') }} ) as Max_ID on 1 = 1"
       name: STG_TRADE_AREA
       noLinkRefs:
       - locationName: GOLD
         nodeName: TRADE_AREA
+      - locationName: GOLD
+        nodeName: DV_TRADE_AREA
   name: STG_TRADE_AREA
   overrideSQL: false
   schema: ''
