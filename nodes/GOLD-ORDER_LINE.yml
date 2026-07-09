@@ -1049,7 +1049,6 @@ operation:
         ORDERS: 29a813e8-0b5b-5733-99b2-e09c650c50ae
         ITEM_UOM: 40ed2f06-772c-5bf9-a643-bda4ced21d5c
         _ITEM_UOM: 59c0823e-f374-57b0-9cb2-4e9a406715c3
-        ORDER_LINE: 580ac372-cbca-555d-ad2f-3a7b3e7da921
       customSQL:
         customSQL: ''
       dependencies:
@@ -1064,12 +1063,10 @@ operation:
       - locationName: GOLD
         nodeName: STG_CLOSED_ORDER_LINE
       join:
-        joinCondition: "FROM \"UR_DEVELOPMENT\".\"GOLD\".\"ORDER_LINE\" \"ORDER_LINE\"\n  WHERE \"TGT\".\"CONTRACT_KEY\" = \"STG_CLOSED_ORDER_LINE\".\"COMPANY_CODE\"\n|| \"STG_CLOSED_ORDER_LINE\".\"INVOICE_NUM\"\nAND \"TGT\".\"ORDER_LINE_NUM\" = \"STG_CLOSED_ORDER_LINE\".\"ORDER_LINE_NUM\"\nUPDATE tgt\nFROM {{ ref_no_link('GOLD', 'ORDER_LINE') }} tgt\n, {{ ref('GOLD', 'STG_CLOSED_ORDER_LINE') }} \"STG_CLOSED_ORDER_LINE\"\nWHERE tgt.Contract_Key = STG_CLOSED_ORDER_LINE.Company_Code\n|| STG_CLOSED_ORDER_LINE.Invoice_Num\nAND tgt.Order_Line_Num = STG_CLOSED_ORDER_LINE.Order_Line_Num FROM {{ ref('SILVER', 'STG_ORDER_LINE') }} \"STG_ORDER_LINE\"\n\nJOIN {{ ref('GOLD', 'ORDERS') }} \"ORDERS\" \n  On ORDERS.Contract_Key = STG_ORDER_LINE.Contract_Key\n And ORDERS.Contract_Seq_Key = STG_ORDER_LINE.Contract_Seq_Key\n\nLEFT OUTER JOIN {{ ref('GOLD', 'ITEM_UOM') }} \"ITEM_UOM\"\n  On STG_ORDER_LINE.Item_Id = ITEM_UOM.Item_Id\n   And ORDERS.Reporting_Date\n      BETWEEN ITEM_UOM.Effective_Begin_Date\
-          \  AND ITEM_UOM.Effective_End_Date\n\nWhere STG_ORDER_LINE.Journal_Type in (1,3,5)\nQUALIFY RANK() \nOVER (PARTITION BY STG_ORDER_LINE.Contract_Key, STG_ORDER_LINE.Contract_Seq_Key, STG_ORDER_LINE.Contract_Line_Key \nORDER BY STG_ORDER_LINE.Source_Table_Rank Desc) = 1"
+        joinCondition: "FROM \"UR_DEVELOPMENT\".\"GOLD\".\"ORDER_LINE\" \"ORDER_LINE\"\n  WHERE \"TGT\".\"CONTRACT_KEY\" = \"STG_CLOSED_ORDER_LINE\".\"COMPANY_CODE\"\n|| \"STG_CLOSED_ORDER_LINE\".\"INVOICE_NUM\"\nAND \"TGT\".\"ORDER_LINE_NUM\" = \"STG_CLOSED_ORDER_LINE\".\"ORDER_LINE_NUM\"\nUPDATE tgt\nFROM \"DOUG_POC\".\"UR\".\"ORDER_LINE\" tgt\n, {{ ref('GOLD', 'STG_CLOSED_ORDER_LINE') }} \"STG_CLOSED_ORDER_LINE\"\nWHERE tgt.Contract_Key = STG_CLOSED_ORDER_LINE.Company_Code\n|| STG_CLOSED_ORDER_LINE.Invoice_Num\nAND tgt.Order_Line_Num = STG_CLOSED_ORDER_LINE.Order_Line_Num FROM {{ ref('SILVER', 'STG_ORDER_LINE') }} \"STG_ORDER_LINE\"\n\nJOIN {{ ref('GOLD', 'ORDERS') }} \"ORDERS\" \n  On ORDERS.Contract_Key = STG_ORDER_LINE.Contract_Key\n And ORDERS.Contract_Seq_Key = STG_ORDER_LINE.Contract_Seq_Key\n\nLEFT OUTER JOIN {{ ref('GOLD', 'ITEM_UOM') }} \"ITEM_UOM\"\n  On STG_ORDER_LINE.Item_Id = ITEM_UOM.Item_Id\n   And ORDERS.Reporting_Date\n      BETWEEN ITEM_UOM.Effective_Begin_Date  AND\
+          \ ITEM_UOM.Effective_End_Date\n\nWhere STG_ORDER_LINE.Journal_Type in (1,3,5)\nQUALIFY RANK() \nOVER (PARTITION BY STG_ORDER_LINE.Contract_Key, STG_ORDER_LINE.Contract_Seq_Key, STG_ORDER_LINE.Contract_Line_Key \nORDER BY STG_ORDER_LINE.Source_Table_Rank Desc) = 1"
       name: ORDER_LINE
-      noLinkRefs:
-      - locationName: GOLD
-        nodeName: ORDER_LINE
+      noLinkRefs: []
   name: ORDER_LINE
   overrideSQL: false
   schema: ''
