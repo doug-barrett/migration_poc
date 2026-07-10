@@ -957,8 +957,10 @@ operation:
         nodeName: ORDERS
       - locationName: GOLD
         nodeName: ORDER_LINE
+      - locationName: SILVER
+        nodeName: STG_ORDER_LINE
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'ORDERS') }} \"ORDERS\"\nWHERE NOT EXISTS (Select NULL FROM {{ ref('GOLD', 'ORDER_LINE') }} \"ORDER_LINE\"\n    WHERE \"ORDERS\".\"CONTRACT_KEY\" = \"ORDER_LINE\".\"CONTRACT_KEY\"\n      AND \"ORDERS\".\"CONTRACT_SEQ_KEY\" = \"ORDER_LINE\".\"CONTRACT_SEQ_KEY\")\nAND NOT EXISTS (Select NULL FROM \"UR_DEVELOPMENT\".\"SILVER\".\"STG_ORDER_LINE\" \"STG_ORDER_LINE\"\n    WHERE \"ORDERS\".\"CONTRACT_KEY\" = \"STG_ORDER_LINE\".\"CONTRACT_KEY\"\n      AND \"ORDERS\".\"CONTRACT_SEQ_KEY\" = \"STG_ORDER_LINE\".\"CONTRACT_SEQ_KEY\"\n      AND JOURNAL_TYPE IN (1,3,5))"
+        joinCondition: "FROM {{ ref('GOLD', 'ORDERS') }} \"ORDERS\"\nWHERE NOT EXISTS (Select NULL FROM {{ ref('GOLD', 'ORDER_LINE') }} \"ORDER_LINE\"\n    WHERE \"ORDERS\".\"CONTRACT_KEY\" = \"ORDER_LINE\".\"CONTRACT_KEY\"\n      AND \"ORDERS\".\"CONTRACT_SEQ_KEY\" = \"ORDER_LINE\".\"CONTRACT_SEQ_KEY\")\nAND NOT EXISTS (Select NULL FROM {{ ref('SILVER', 'STG_ORDER_LINE') }} \"STG_ORDER_LINE\"\n    WHERE \"ORDERS\".\"CONTRACT_KEY\" = \"STG_ORDER_LINE\".\"CONTRACT_KEY\"\n      AND \"ORDERS\".\"CONTRACT_SEQ_KEY\" = \"STG_ORDER_LINE\".\"CONTRACT_SEQ_KEY\"\n      AND JOURNAL_TYPE IN (1,3,5))"
       name: ETL_ORDER_LINE1
       noLinkRefs: []
   name: ETL_ORDER_LINE1
