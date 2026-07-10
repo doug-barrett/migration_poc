@@ -1,0 +1,99 @@
+{% set has_business_key = columns | selectattr("isBusinessKey") | list | length > 0 %}
+
+{% for test in node.tests if config.testsEnabled %}
+    {% if test.runOrder == 'Before' %}
+        {{ test_stage(test.name, test.continueOnFailure) }}
+        {{ test.templateString }}
+    {% endif %}
+{% endfor %}
+
+{% if config.preSQL %}
+    {{ stage('Pre-SQL') }}
+    {{ config.preSQL }}
+{% endif %}
+
+{% set source = sources[0] %}
+{{ stage('MERGE ' + source.name | string ) }}
+MERGE INTO {{ ref_no_link(node.location.name, node.name) }} "TGT"
+USING (
+    SELECT
+    {% for col in source.columns if not col.isSurrogateKey %}
+        {% if col.isSystemVersion %}
+            1
+        {% elif col.isSystemCurrentFlag %}
+            'Y'
+        {% else %}
+            {{ get_source_transform(col) }}
+        {% endif %}
+        AS "{{ col.name }}"
+        {%- if not loop.last %}, {% endif %}
+    {% endfor %}
+    {{ source.join }})
+    AS "SRC"
+ON
+{% for col in source.columns if col.isBusinessKey -%}
+    {% if not loop.first %}
+        AND
+    {% endif %}
+    "SRC"."{{ col.name }}" = "TGT"."{{ col.name }}"
+{% endfor %}
+WHEN MATCHED
+{% for col in source.columns if not (   col.isBusinessKey or
+                                        col.isSurrogateKey or
+                                        col.isSystemVersion or
+                                        col.isSystemCurrentFlag or
+                                        col.isSystemStartDate or
+                                        col.isSystemEndDate or
+                                        col.isSystemUpdateDate or
+                                        col.isSystemCreateDate) %}
+    {% if loop.first %}
+        AND (
+    {% else %}
+        OR
+    {% endif %}
+    NVL( CAST("SRC"."{{ col.name }}" as STRING), '**NULL**') <> NVL( CAST("TGT"."{{ col.name }}" as STRING), '**NULL**')
+    {% if loop.last %}
+        )
+    {% endif %}
+{% endfor %}
+THEN UPDATE SET
+{%- for col in source.columns if not (  col.isBusinessKey or
+                                        col.isSurrogateKey or
+                                        col.isSystemVersion or
+                                        col.isSystemCurrentFlag or
+                                        col.isSystemStartDate or
+                                        col.isSystemEndDate or
+                                        col.isSystemCreateDate) %}
+        "TGT"."{{ col.name }}" = "SRC"."{{ col.name }}"
+    {% if not loop.last %}, {% endif %}
+{% endfor %}
+WHEN NOT MATCHED THEN
+INSERT (
+{%- for col in source.columns if not col.isSurrogateKey %}
+    "{{ col.name }}"
+    {% if not loop.last %}, {% endif %}
+{% endfor -%}
+)
+VALUES (
+{%- for col in source.columns if not col.isSurrogateKey %}
+    "SRC"."{{ col.name }}"
+    {% if not loop.last %}, {% endif %}
+{% endfor -%}
+)
+
+
+{% if config.testsEnabled %}
+    {% for test in node.tests %}
+        {% if test.runOrder == 'After' %}
+            {{ test_stage(test.name, test.continueOnFailure) }}
+            {{ test.templateString }}
+        {% endif %}
+    {% endfor %}
+
+    {% for column in columns %}
+        {% for test in column.tests %}
+            {{ test_stage(column.name + ": " + test.name) }}
+            {{ test.templateString }}
+        {% endfor %}
+    {% endfor %}
+{% endif %}
