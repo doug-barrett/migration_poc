@@ -1098,7 +1098,6 @@ Innotas Issue 545758870'
     sourceMapping:
     - aliases:
         CDC_SYSLOCFL: 54f949e6-bb8b-54a0-9fb6-2cc9b0efd762
-        DV_LOCATION: fdd7bb98-8fc4-5715-a7a1-5cd1906c5ab9
         MARKET: 60d9895d-e0ae-57d6-81d4-59aa8ec1aa25
         DISTRICT: 348d53bb-3c02-538b-b0c3-871c2c067d8e
         TRADE_AREA: e609946a-e684-5351-b96e-461bdff35fa2
@@ -1108,8 +1107,6 @@ Innotas Issue 545758870'
       dependencies:
         - locationName: GOLD
           nodeName: CDC_SYSLOCFL
-        - locationName: GOLD
-          nodeName: DV_LOCATION
         - locationName: GOLD
           nodeName: MARKET
         - locationName: GOLD
@@ -1122,7 +1119,7 @@ Innotas Issue 545758870'
         joinCondition: |-
           FROM {{ ref('GOLD', 'CDC_SYSLOCFL') }} "CDC_SYSLOCFL"
           
-          LEFT OUTER JOIN {{ ref('GOLD', 'DV_LOCATION') }} "DV_LOCATION"
+          LEFT OUTER JOIN {{ ref_no_link('GOLD', 'DV_LOCATION') }} "DV_LOCATION"
           ON   CDC_SYSLOCFL.ZLCMP = DV_LOCATION.Company_Code
           AND CDC_SYSLOCFL.ZLLOC = DV_LOCATION.Location_Code
           
@@ -1161,7 +1158,9 @@ Innotas Issue 545758870'
           LEFT OUTER JOIN 
           (Select COALESCE(Max(Location_id),0) as Last_Id FROM "DOUG_POC"."DP001"."LOCATION" ) as Max_ID on 1 = 1
       name: STG_LOCATION
-      noLinkRefs: []
+      noLinkRefs:
+        - locationName: GOLD
+          nodeName: DV_LOCATION
   name: STG_LOCATION
   overrideSQL: false
   schema: ""

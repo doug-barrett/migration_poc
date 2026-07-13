@@ -168,7 +168,6 @@ operation:
     - aliases:
         CDC_SYSDSTFL: 950165bd-9e2a-5443-93f7-b5a2ab121247
         DV_DISTRICT: 34f5c8e6-a644-5c85-85cc-9ddf3d621a65
-        CV_EMPLOYEE: d6de5e79-16c9-5ece-85ff-586704b21e10
       customSQL:
         customSQL: ""
       dependencies:
@@ -176,8 +175,6 @@ operation:
           nodeName: CDC_SYSDSTFL
         - locationName: GOLD
           nodeName: DV_DISTRICT
-        - locationName: GOLD
-          nodeName: CV_EMPLOYEE
       join:
         joinCondition: |-
           FROM {{ ref('GOLD', 'CDC_SYSDSTFL') }} "CDC_SYSDSTFL"
@@ -193,11 +190,13 @@ operation:
           ) AS AGG_DISTRICT 
             ON 1 = 1
           
-          LEFT OUTER JOIN {{ ref('GOLD', 'CV_EMPLOYEE') }} "CV_EMPLOYEE" 
+          LEFT OUTER JOIN {{ ref_no_link('GOLD', 'CV_EMPLOYEE') }} "CV_EMPLOYEE" 
             ON UPPER(CDC_SYSDSTFL.ZKUSER) = UPPER(CV_EMPLOYEE.Rentalman_User_ID) 
             AND ZKUSER <> ''
       name: STG_DISTRICT
-      noLinkRefs: []
+      noLinkRefs:
+        - locationName: GOLD
+          nodeName: CV_EMPLOYEE
   name: STG_DISTRICT
   overrideSQL: false
   schema: ""

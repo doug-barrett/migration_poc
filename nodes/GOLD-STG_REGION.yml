@@ -181,25 +181,24 @@ operation:
     sourceMapping:
     - aliases:
         CDC_SYSRGNFL: f2173ee4-0eab-5e62-b35e-2cdf4d2e875d
-        DV_REGION: 40646579-c4bf-56a0-b3d0-0d639a25fb0a
       customSQL:
         customSQL: ""
       dependencies:
         - locationName: GOLD
           nodeName: CDC_SYSRGNFL
-        - locationName: GOLD
-          nodeName: DV_REGION
       join:
         joinCondition: |-
           FROM {{ ref('GOLD', 'CDC_SYSRGNFL') }} "CDC_SYSRGNFL"
-          LEFT OUTER JOIN {{ ref('GOLD', 'DV_REGION') }} "DV_REGION"
+          LEFT OUTER JOIN {{ ref_no_link('GOLD', 'DV_REGION') }} "DV_REGION"
           ON CDC_SYSRGNFL.ZRCMP = DV_REGION.Company_Code
           AND CDC_SYSRGNFL.ZRRGN = DV_REGION.Region_Code
           
           LEFT OUTER JOIN 
           (Select COALESCE(Max(Region_id),0) as Last_Id FROM "DOUG_POC"."DP001"."REGION" ) as Max_ID on 1 = 1
       name: STG_REGION
-      noLinkRefs: []
+      noLinkRefs:
+        - locationName: GOLD
+          nodeName: DV_REGION
   name: STG_REGION
   overrideSQL: false
   schema: ""

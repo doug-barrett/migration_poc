@@ -1042,7 +1042,6 @@ operation:
     sourceMapping:
     - aliases:
         CDC_EQPMASFL: 29e2174c-0f24-5df2-ad29-1adef8c45c2a
-        DV_EQUIPMENT: f2ab5d1b-fae3-5bad-9058-1a74830979ae
         EQUIPMENT_STATUS_CODES: 18926bcb-dea3-5320-a1d8-6e29c87b0201
         DV_ITEM: 669e0785-8b07-5639-b0f9-b37ff7c0763b
         DV_VENDOR: dbf14f8e-fd5d-5421-a642-c77f78265536
@@ -1051,8 +1050,6 @@ operation:
       dependencies:
         - locationName: GOLD
           nodeName: CDC_EQPMASFL
-        - locationName: GOLD
-          nodeName: DV_EQUIPMENT
         - locationName: GOLD
           nodeName: EQUIPMENT_STATUS_CODES
         - locationName: GOLD
@@ -1066,7 +1063,7 @@ operation:
             LEFT OUTER JOIN {{ ref('GOLD', 'EQUIPMENT_STATUS_CODES') }} "EQUIPMENT_STATUS_CODES"
             ON  CDC_EQPMASFL.EMSTAT  = EQUIPMENT_STATUS_CODES.EQUIPMENT_STATUS_CODE
             
-            LEFT OUTER JOIN {{ ref('GOLD', 'DV_EQUIPMENT') }} "DV_EQUIPMENT"
+            LEFT OUTER JOIN {{ ref_no_link('GOLD', 'DV_EQUIPMENT') }} "DV_EQUIPMENT"
             ON  CDC_EQPMASFL.EMCMP = DV_EQUIPMENT.Company_Code
             AND CDC_EQPMASFL.EMEQP0 = DV_EQUIPMENT.Equipment_Code
               
@@ -1079,9 +1076,11 @@ operation:
             ON   CDC_EQPMASFL.EMVEND = DV_VENDOR.VENDOR_CODE
               
             LEFT OUTER JOIN 
-            (SELECT COALESCE(MAX(EQUIPMENT_ID),0) AS LAST_ID FROM {{ ref('GOLD', 'DV_EQUIPMENT') }} "DV_EQUIPMENT" ) AS MAX_ID ON 1 = 1
+            (SELECT COALESCE(MAX(EQUIPMENT_ID),0) AS LAST_ID FROM {{ ref_no_link('GOLD', 'DV_EQUIPMENT') }} "DV_EQUIPMENT" ) AS MAX_ID ON 1 = 1
       name: STG_EQUIPMENT
-      noLinkRefs: []
+      noLinkRefs:
+        - locationName: GOLD
+          nodeName: DV_EQUIPMENT
   name: STG_EQUIPMENT
   overrideSQL: false
   schema: ""

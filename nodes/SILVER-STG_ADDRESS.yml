@@ -203,13 +203,10 @@ Web site'
     cteString: ""
     enabledColumnTestIDs: []
     sourceMapping:
-    - aliases:
-        ADDRESS: 90cc3016-dd03-5a43-885f-e199d834b092
+    - aliases: {}
       customSQL:
         customSQL: ""
-      dependencies:
-        - locationName: GOLD
-          nodeName: ADDRESS
+      dependencies: []
       join:
         joinCondition: |-
           FROM (
@@ -248,7 +245,7 @@ Web site'
            WHERE Company_Code = 'U1'
            ) as TempTable
            
-           LEFT OUTER JOIN [ADDRESS] ADDRESS
+           LEFT OUTER JOIN {{ ref_no_link('GOLD', 'ADDRESS') }} "ADDRESS"
            ON  ADDRESS.Address_Type_Code = TempTable.Address_Type_Code
            AND ADDRESS.Address_Text_1 = TempTable.Address_Text_1
            AND ADDRESS.Address_Text_2 = TempTable.Address_Text_2
@@ -261,11 +258,13 @@ Web site'
            AND ADDRESS.Company_Code = TempTable.Company_Code
            
            LEFT OUTER JOIN 
-           (Select COALESCE(Max(Address_id),0) as Last_Id 
-            from   [ADDRESS] ) as Max_ID 
+            (Select COALESCE(Max(Address_id),0) as Last_Id 
+             from   {{ ref_no_link('GOLD', 'ADDRESS') }} ) as Max_ID 
            ON 1 = 1
       name: STG_ADDRESS
-      noLinkRefs: []
+      noLinkRefs:
+        - locationName: GOLD
+          nodeName: ADDRESS
   name: STG_ADDRESS
   overrideSQL: false
   schema: ""

@@ -831,7 +831,6 @@ operation:
     - aliases:
         CDC_ITMMASFL: 0d5e3503-5f35-569a-af04-300849a16c68
         DV_ITEM: 669e0785-8b07-5639-b0f9-b37ff7c0763b
-        ITEM: d5223598-bc13-53d8-879d-ccbb6c7819bd
       customSQL:
         customSQL: ""
       dependencies:
@@ -839,8 +838,6 @@ operation:
           nodeName: CDC_ITMMASFL
         - locationName: GOLD
           nodeName: DV_ITEM
-        - locationName: GOLD
-          nodeName: ITEM
       join:
         joinCondition: |-
           FROM {{ ref('GOLD', 'CDC_ITMMASFL') }} "CDC_ITMMASFL"
@@ -851,9 +848,11 @@ operation:
           AND CDC_ITMMASFL.IMSTKC = ITEM.Stock_Class_Code
           	
           LEFT OUTER JOIN 
-          (Select COALESCE(Max(Item_id),0) as Last_Id FROM {{ ref('GOLD', 'ITEM') }} "ITEM" ) as Max_ID on 1 = 1
+          (Select COALESCE(Max(Item_id),0) as Last_Id FROM {{ ref_no_link('GOLD', 'ITEM') }} "ITEM" ) as Max_ID on 1 = 1
       name: STG_ITEM
-      noLinkRefs: []
+      noLinkRefs:
+        - locationName: GOLD
+          nodeName: ITEM
   name: STG_ITEM
   overrideSQL: false
   schema: ""
