@@ -1,0 +1,134 @@
+fileVersion: 1
+id: 00cbb527-820e-5b7f-b42f-0e4f2bba8797
+name: BM_BREAKDOWN_DAYS
+operation:
+  config:
+      postSQL: ""
+      preSQL: ""
+      testsEnabled: true
+      insertStrategy: INSERT
+      truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: cd51d53a-d2d1-59bb-82f0-c21a59dfce38
+        stepCounter: 00cbb527-820e-5b7f-b42f-0e4f2bba8797
+      config: {}
+      dataType: VARCHAR(11)
+      description: 'Contract_Key'
+      name: CONTRACT_KEY
+      nullable: false
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'WORK_ORDER.Contract_Key'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b5301382-c5aa-5299-92e8-e1022c654a1c
+        stepCounter: 00cbb527-820e-5b7f-b42f-0e4f2bba8797
+      config: {}
+      dataType: VARCHAR(14)
+      description: 'Contract_Seq_Key'
+      name: CONTRACT_SEQ_KEY
+      nullable: false
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'WORK_ORDER.Contract_Seq_Key'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 20633e71-1a9c-50b6-8a21-0343d95d2c12
+        stepCounter: 00cbb527-820e-5b7f-b42f-0e4f2bba8797
+      config: {}
+      dataType: VARCHAR(14)
+      description: ""
+      name: CONTRACT_LINE_KEY
+      nullable: false
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'WORK_ORDER.Contract_Line_Key'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b876eda2-fa06-5016-88e9-f21255769120
+        stepCounter: 00cbb527-820e-5b7f-b42f-0e4f2bba8797
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ""
+      name: BREAKDOWN_DAYS
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'SUM(LOCATION_HOURS_FORECAST.Location_Open_Ind) - 1'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7c79aed8-ad7d-58bb-b32d-f77e15e569c5
+        stepCounter: 00cbb527-820e-5b7f-b42f-0e4f2bba8797
+      config: {}
+      dataType: TIMESTAMP
+      description: 'Date and time the row was updated in the data warehouse.'
+      name: LAST_UPDATE_DTTM
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'CAST(CURRENT_TIMESTAMP AS TIMESTAMP)'
+    cteString: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        ORDER_LINE: 580ac372-cbca-555d-ad2f-3a7b3e7da921
+        LOCATION_HOURS_FORECAST: 26b1c981-1b25-52c7-81bd-520731ddc9e7
+        WORK_ORDER: 34971838-5109-5374-9478-2ece688e7701
+      customSQL:
+        customSQL: ""
+      dependencies:
+        - locationName: GOLD
+          nodeName: ORDER_LINE
+        - locationName: GOLD
+          nodeName: LOCATION_HOURS_FORECAST
+        - locationName: GOLD
+          nodeName: WORK_ORDER
+      join:
+        joinCondition: |-
+          FROM
+          (SELECT 
+             ORDER_LINE.Contract_Key,
+             ORDER_LINE.Contract_Seq_Key,
+             ORDER_LINE.Contract_Line_Key,
+             ORDER_LINE.Location_Id,
+             MIN(ORDER_LINE.Rental_Out_Date) AS Min_Rental_Date,
+             MIN(WORK_ORDER.Open_Date)  AS Min_Open_Date
+           FROM {{ ref('GOLD', 'ORDER_LINE') }} "ORDER_LINE"
+          
+           INNER JOIN {{ ref('GOLD', 'WORK_ORDER') }} "WORK_ORDER"
+             ON  ORDER_LINE.Contract_Id = WORK_ORDER.Contract_Id
+             AND ORDER_LINE.Equipment_Id = WORK_ORDER.EQUIPMENT_ID
+             AND ORDER_LINE.Equipment_Id IS NOT NULL
+             AND WORK_ORDER.Equipment_Id IS NOT NULL
+             AND WORK_ORDER.Bill_Customer_or_Location_Code =  'L'
+             AND WORK_ORDER.Equipment_Type_code =  'O'
+             AND WORK_ORDER.Reason_Code =  '10'
+             AND WORK_ORDER.Work_Order_Status_Code  IN ('O','C')
+             AND WORK_ORDER.Service_Call_Ind =  'Y'
+           GROUP BY 1, 2, 3, 4 ) WORK_ORDER
+          
+           LEFT OUTER JOIN {{ ref('GOLD', 'LOCATION_HOURS_FORECAST') }} "LOCATION_HOURS_FORECAST"
+             ON  LOCATION_HOURS_FORECAST.Location_Id = WORK_ORDER.Location_Id
+             AND LOCATION_HOURS_FORECAST.Calendar_Date 
+                 BETWEEN WORK_ORDER.Min_Rental_Date 
+                     AND WORK_ORDER.Min_Open_Date
+           GROUP BY 1,2,3
+      name: BM_BREAKDOWN_DAYS
+      noLinkRefs: []
+  name: BM_BREAKDOWN_DAYS
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,164 @@
+fileVersion: 1
+id: 93c8cf89-ff7f-57db-9317-e924887f9f6a
+name: BM_COST_RENTAL_BULK
+operation:
+  config:
+      postSQL: ""
+      preSQL: ""
+      testsEnabled: true
+      insertStrategy: INSERT
+      truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 97b8223f-690f-5249-acce-3ee92d54ec03
+        stepCounter: 93c8cf89-ff7f-57db-9317-e924887f9f6a
+      config: {}
+      dataType: VARCHAR(11)
+      description: 'Contract_Key'
+      name: CONTRACT_KEY
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 7abf0f14-4946-5269-acdc-78b004f81953
+              stepCounter: 29a813e8-0b5b-5733-99b2-e09c650c50ae
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 1b8383ab-3cb1-5be9-ab75-81bcd764948a
+        stepCounter: 93c8cf89-ff7f-57db-9317-e924887f9f6a
+      config: {}
+      dataType: VARCHAR(14)
+      description: 'Contract_Seq_Key'
+      name: CONTRACT_SEQ_KEY
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 34119255-9b1c-55af-937f-fb3b91145cff
+              stepCounter: 29a813e8-0b5b-5733-99b2-e09c650c50ae
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a287b113-4d78-5d9b-adc1-9174e2475523
+        stepCounter: 93c8cf89-ff7f-57db-9317-e924887f9f6a
+      config: {}
+      dataType: VARCHAR(14)
+      description: ""
+      name: CONTRACT_LINE_KEY
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 874919e2-362b-51c6-9d79-7566feec02a8
+              stepCounter: 580ac372-cbca-555d-ad2f-3a7b3e7da921
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0aad8e34-4a4a-5a14-8ae4-4db950f97ce3
+        stepCounter: 93c8cf89-ff7f-57db-9317-e924887f9f6a
+      config: {}
+      dataType: NUMBER(7,2)
+      description: ""
+      name: QTY_ON_RENT
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: |-
+            CASE	
+            
+              WHEN ORDERS.Order_Type_Code = 'F'
+            
+               AND ORDER_LINE.Order_Line_Qty = ORDER_LINE.Order_Line_Return_Qty
+            
+              THEN ORDER_LINE.Order_Line_Qty
+            
+              ELSE ORDER_LINE.Order_Line_Qty - ORDER_LINE.Order_Line_Return_Qty
+            
+            END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: eebed3ec-81fe-5028-9ac6-d519392c1f40
+        stepCounter: 93c8cf89-ff7f-57db-9317-e924887f9f6a
+      config: {}
+      dataType: NUMBER(15,2)
+      description: ""
+      name: COST_RENTAL_BULK
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: |-
+            CASE	
+            
+              WHEN ITEM_EQPT_CLASS.Bulk_Item_Ind = 'Y'
+            
+               AND ORDER_LINE.Order_Seq_Num > 0
+            
+               AND ORDER_LINE.Order_Line_Type_Code = 'RI'
+            
+               AND Qty_On_Rent <>  0
+            
+               AND Qty_On_Rent IS NOT NULL
+            
+               AND ORDER_LINE.Rental_Amt <> 0
+            
+               AND ORDER_LINE.Rental_Amt IS NOT NULL
+            
+              THEN ORDER_LINE.Rental_Amt * 0.65
+            
+              ELSE NULL
+            
+            END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5d805594-62b1-5ea2-8acd-ea73d6a2fe12
+        stepCounter: 93c8cf89-ff7f-57db-9317-e924887f9f6a
+      config: {}
+      dataType: TIMESTAMP
+      description: 'Date and time the row was updated in the data warehouse.'
+      name: LAST_UPDATE_DTTM
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'CAST(CURRENT_TIMESTAMP AS TIMESTAMP)'
+    cteString: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        ORDERS: 29a813e8-0b5b-5733-99b2-e09c650c50ae
+        ORDER_LINE: 580ac372-cbca-555d-ad2f-3a7b3e7da921
+        ITEM_EQPT_CLASS: c1483230-28eb-543d-9789-043b7ec6f9db
+      customSQL:
+        customSQL: ""
+      dependencies:
+        - locationName: GOLD
+          nodeName: ORDERS
+        - locationName: GOLD
+          nodeName: ORDER_LINE
+        - locationName: GOLD
+          nodeName: ITEM_EQPT_CLASS
+      join:
+        joinCondition: |-
+          FROM {{ ref('GOLD', 'ORDERS') }} "ORDERS"
+          INNER JOIN {{ ref('GOLD', 'ORDER_LINE') }} "ORDER_LINE"
+          ON  ORDERS.Contract_Key = ORDER_LINE.Contract_Key
+          AND ORDERS.Contract_Seq_Key = ORDER_LINE.Contract_Seq_Key
+          INNER JOIN {{ ref('GOLD', 'ITEM_EQPT_CLASS') }} "ITEM_EQPT_CLASS"
+          ON  ORDER_LINE.Category_Code = ITEM_EQPT_CLASS.Category_Code
+          AND ORDER_LINE.Class_Code = ITEM_EQPT_CLASS.Class_Code
+          AND ITEM_EQPT_CLASS.dss_current_flag = 'Y'
+      name: BM_COST_RENTAL_BULK
+      noLinkRefs: []
+  name: BM_COST_RENTAL_BULK
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

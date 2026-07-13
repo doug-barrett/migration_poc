@@ -1,0 +1,136 @@
+fileVersion: 1
+id: 1c775676-230b-504a-bf83-e50d9836523c
+name: LU_CES_LOCATION
+operation:
+  config:
+      postSQL: ""
+      preSQL: ""
+      testsEnabled: true
+      insertStrategy: INSERT
+      businessKeyColumns:
+      - ACCT_UNIT
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: GOLD
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b067679e-4dba-5aca-9ebb-3173b79322fe
+        stepCounter: 1c775676-230b-504a-bf83-e50d9836523c
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ""
+      name: COMPANY
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 17d62a68-621e-52b1-849e-186901a3a1f1
+              stepCounter: 742ff638-5c91-5357-b08c-b3354c8fb73e
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f65fe8c1-d7bd-5643-aa78-a15209e9e22b
+        stepCounter: 1c775676-230b-504a-bf83-e50d9836523c
+      config: {}
+      isBusinessKey: true
+      dataType: VARCHAR(15)
+      description: ""
+      name: ACCT_UNIT
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'CV_model_FIN_ORGANIZATION.ACCT_UNIT'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f3a7f2a0-111f-52ee-b9c5-dc0f525dab75
+        stepCounter: 1c775676-230b-504a-bf83-e50d9836523c
+      config: {}
+      dataType: VARCHAR(1)
+      description: ""
+      name: CES_LOCATION_FLAG
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: |-
+            CASE 
+            
+                          WHEN REGION IN ('004','007','009','012','018','020','021','204','207','209','212','218','220','221') THEN 'C'  
+            
+                          WHEN (REGION BETWEEN '098' AND '099' OR REGION BETWEEN '298' AND '299') THEN 'C' 
+            
+                          WHEN (REGION BETWEEN '901' AND '999' OR REGION BETWEEN '901' AND '999') THEN 'C' 
+            
+                          WHEN (DISTRICT BETWEEN '090' AND '099' OR DISTRICT BETWEEN '290' AND '299' OR DISTRICT = 999) THEN 'C'
+            
+                          WHEN CV_model_FIN_ORGANIZATION.ACTIVE_STATUS IN ('I') THEN 'C' 
+            
+                          WHEN CV_model_FIN_ORGANIZATION.COMPANY > 99 THEN 'C' 
+            
+                          WHEN ((REGION BETWEEN '001' AND '050' OR REGION BETWEEN '201' AND '250')) AND COALESCE(head,0) > 0 THEN 'Y' 
+            
+                          WHEN ((DISTRICT BETWEEN '001' AND '050' OR DISTRICT BETWEEN '201' AND '250')) AND COALESCE(head ,0) > 0 THEN 'Y' 
+            
+                          WHEN ((REGION BETWEEN '001' AND '050' OR REGION BETWEEN '201' AND '250')) AND COALESCE(head ,0) = 0 THEN 'N' 
+            
+                          WHEN ((DISTRICT BETWEEN '001' AND '050' OR DISTRICT BETWEEN '201' AND '250')) AND COALESCE(head ,0) = 0 THEN 'N'
+            
+                          WHEN CV_model_FIN_ORGANIZATION.COMPANY IN ('18', '20', '26', '40', '41', '42', '43', '44', '45', '46', '47', '48', '49') THEN 'C'            
+            
+                          WHEN CV_model_FIN_ORGANIZATION.ACCT_UNIT BETWEEN '7000' AND '7999' THEN 'C' 
+            
+                          ELSE 'C' 
+            
+                     END
+    cteString: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        CV_model_FIN_ORGANIZATION: 742ff638-5c91-5357-b08c-b3354c8fb73e
+        FIN_BALANCES_DTL: 75d85583-c730-56c6-afd4-c07f68a62d37
+      customSQL:
+        customSQL: ""
+      dependencies:
+        - locationName: GOLD
+          nodeName: CV_model_FIN_ORGANIZATION
+        - locationName: GOLD
+          nodeName: FIN_BALANCES_DTL
+      join:
+        joinCondition: |-
+          FROM {{ ref('GOLD', 'CV_model_FIN_ORGANIZATION') }} "CV_model_FIN_ORGANIZATION"
+          	   LEFT OUTER JOIN (
+          SELECT   Distinct CV_model_FIN_ORGANIZATION.METRO,
+          	   COALESCE(SUM(AMOUNT_UNITS_ACTIVITY),0) Head
+          FROM {{ ref('GOLD', 'FIN_BALANCES_DTL') }} "FIN_BALANCES_DTL"
+          
+          LEFT OUTER JOIN {{ ref('GOLD', 'CV_model_FIN_ORGANIZATION') }} "CV_model_FIN_ORGANIZATION"
+          ON FIN_BALANCES_DTL.ORG_KEY=CV_model_FIN_ORGANIZATION.ORG_KEY
+          WHERE    BAL_DATE IN (
+          SELECT	Calendar_Month
+          FROM	"DOUG_POC"."DP001"."CV_FISCAL_MONTH"
+          WHERE	Calendar_Month BETWEEN
+          EXTRACT (YEAR FROM ADD_MONTHS(CURRENT_DATE - 1 ,-4)) * 100 + EXTRACT (MONTH FROM ADD_MONTHS(CURRENT_DATE - 1 ,
+          	-4))
+          AND EXTRACT (YEAR FROM ADD_MONTHS(CURRENT_DATE - 1 ,-1)) * 100 + EXTRACT (MONTH FROM ADD_MONTHS(CURRENT_DATE - 1 ,
+          	-1)))
+          AND      Detail_Account IN (99318, 99319, 99320, 99321, 99322,
+          	99328)
+          AND      Sub_Account BETWEEN 1 AND 5
+          AND      Scenario = 'A'
+          GROUP BY CV_model_FIN_ORGANIZATION.METRO
+          
+          ) Units
+          ON CV_model_FIN_ORGANIZATION.METRO=Units.METRO
+      name: LU_CES_LOCATION
+      noLinkRefs: []
+  name: LU_CES_LOCATION
+  overrideSQL: false
+  schema: ""
+  sqlType: Dimension
+  type: sql
+  version: 1
+type: Node

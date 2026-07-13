@@ -1,0 +1,117 @@
+fileVersion: 1
+id: 7ebbb688-2749-51da-ac6c-7e26867ce083
+name: ORDER_PARTY
+operation:
+  config:
+      postSQL: ""
+      preSQL: ""
+      testsEnabled: true
+      insertStrategy: INSERT
+      businessKeyColumns:
+      - CONTRACT_SEQ_KEY
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: GOLD
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 35c723c6-d174-5777-9550-b272f1da9d2f
+        stepCounter: 7ebbb688-2749-51da-ac6c-7e26867ce083
+      config: {}
+      dataType: VARCHAR(11)
+      description: ""
+      name: CONTRACT_KEY
+      nullable: false
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 2754164d-b87d-5ef0-bc7a-1eaf1eccde3e
+              stepCounter: a0503fb4-f9e9-547d-b2aa-77c278227b93
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 37d4a7c1-04e8-5498-9881-536005233073
+        stepCounter: 7ebbb688-2749-51da-ac6c-7e26867ce083
+      config: {}
+      isBusinessKey: true
+      dataType: VARCHAR(14)
+      description: ""
+      name: CONTRACT_SEQ_KEY
+      nullable: false
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 366926e5-467c-5b16-ac63-a49821279a83
+              stepCounter: a0503fb4-f9e9-547d-b2aa-77c278227b93
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 83bc69aa-ed61-5c17-b1a4-4250e62c8fd4
+        stepCounter: 7ebbb688-2749-51da-ac6c-7e26867ce083
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ""
+      name: PARTY_ID
+      nullable: false
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 1215e652-0269-57aa-9ad7-1c54f9131d0d
+              stepCounter: a0503fb4-f9e9-547d-b2aa-77c278227b93
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9d64726d-c961-5cf7-8a2f-1abf492cf3d6
+        stepCounter: 7ebbb688-2749-51da-ac6c-7e26867ce083
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ""
+      name: PARTY_TYPE_CODE
+      nullable: false
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: cf81eec3-e0f2-5487-ac33-99b3d1b84053
+              stepCounter: a0503fb4-f9e9-547d-b2aa-77c278227b93
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 081e10b5-4bcd-54f3-9796-407172f2bfe1
+        stepCounter: 7ebbb688-2749-51da-ac6c-7e26867ce083
+      config: {}
+      dataType: VARCHAR(20)
+      description: 'P.O.#'
+      name: PURCHASE_ORDER_NUM
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: e8331ac6-caf9-5098-bf3a-e13f12ca47ad
+              stepCounter: a0503fb4-f9e9-547d-b2aa-77c278227b93
+          transform: ""
+    cteString: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        STG_ORDERS: a0503fb4-f9e9-547d-b2aa-77c278227b93
+      customSQL:
+        customSQL: ""
+      dependencies:
+        - locationName: SILVER
+          nodeName: STG_ORDERS
+      join:
+        joinCondition: |-
+          FROM {{ ref('SILVER', 'STG_ORDERS') }} "STG_ORDERS" WHERE STG_ORDERS.Journal_Type in (1,3,5)
+          and STG_ORDERS.Location_Id > 0 
+          QUALIFY RANK() 
+          OVER (PARTITION BY STG_ORDERS.Contract_Key,STG_ORDERS.Contract_Seq_Key
+          ORDER BY Source_Table_Rank Desc) = 1
+      name: ORDER_PARTY
+      noLinkRefs: []
+  name: ORDER_PARTY
+  overrideSQL: false
+  schema: ""
+  sqlType: Dimension
+  type: sql
+  version: 1
+type: Node

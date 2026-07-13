@@ -1,0 +1,102 @@
+fileVersion: 1
+id: cfba16f0-d4b0-517e-a04d-70c49724727b
+name: STG_EMPLOYEE_JOB_CODES
+operation:
+  config:
+      postSQL: ""
+      preSQL: ""
+      testsEnabled: true
+      insertStrategy: UNION
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: GOLD
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e4d7ed0a-a378-558e-be7a-1f922f2a344d
+        stepCounter: cfba16f0-d4b0-517e-a04d-70c49724727b
+      config: {}
+      dataType: VARCHAR(6)
+      description: ""
+      name: JOB_CODE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'EMPL_JOB_CODES.Job_Code'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: de620880-d492-53c7-94d7-67a06daf782f
+        stepCounter: cfba16f0-d4b0-517e-a04d-70c49724727b
+      config: {}
+      dataType: VARCHAR(30)
+      description: ""
+      name: JOB_DESCRIPTION
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'EMPL_JOB_CODES.Job_Description'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f27fa500-9971-56b2-b0f0-34c727c45b3e
+        stepCounter: cfba16f0-d4b0-517e-a04d-70c49724727b
+      config: {}
+      dataType: VARCHAR(1)
+      description: ""
+      name: REF1
+      nullable: false
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'NULL'
+    cteString: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        SRC_EMPLOYEE_Load: 3a0ea21b-2e76-58d2-822f-36f77235ca17
+        CV_LOCATION: 49e962a7-e9ce-5bec-97ab-6356503ca068
+        CV_USER_BIO: e246725c-54b0-5e9c-a78b-a7f65676ec2b
+      customSQL:
+        customSQL: ""
+      dependencies:
+        - locationName: GOLD
+          nodeName: SRC_EMPLOYEE_Load
+        - locationName: GOLD
+          nodeName: CV_LOCATION
+        - locationName: GOLD
+          nodeName: CV_USER_BIO
+      join:
+        joinCondition: |-
+          FROM (
+              SELECT TRIM(SRC_EMPLOYEE_Load.JOBCODE) AS Job_Code
+              , SUBSTRING(SRC_EMPLOYEE_Load.JOBTITLEDESCR, 1, 30) AS Job_Description 
+              , COUNT(SRC_EMPLOYEE_Load.EMPLID) AS EMPLID_CNT
+          FROM {{ ref('GOLD', 'SRC_EMPLOYEE_Load') }} "SRC_EMPLOYEE_Load"
+          
+          LEFT OUTER JOIN {{ ref('GOLD', 'CV_LOCATION') }} "CV_LOCATION"
+          ON SRC_EMPLOYEE_Load.WORKLOCATION = CV_LOCATION.Location_Code
+          AND CV_LOCATION.Company_Code = 'U1'
+          
+          LEFT OUTER JOIN {{ ref('GOLD', 'CV_USER_BIO') }} "CV_USER_BIO"
+          ON CV_USER_BIO.Payroll_Employee = '0000'||SRC_EMPLOYEE_Load.EMPLID
+          
+          WHERE SRC_EMPLOYEE_Load.HRSTATUS = 'A'
+          AND SRC_EMPLOYEE_Load.JOBCODE IS NOT NULL
+          
+          GROUP BY 1,2) EMPL_JOB_CODES
+          QUALIFY ROW_NUMBER () 
+                  OVER(PARTITION BY EMPL_JOB_CODES.Job_Code 
+                       ORDER BY EMPL_JOB_CODES.EMPLID_CNT DESC
+                      )=1
+      name: STG_EMPLOYEE_JOB_CODES
+      noLinkRefs: []
+  name: STG_EMPLOYEE_JOB_CODES
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

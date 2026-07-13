@@ -1,0 +1,155 @@
+fileVersion: 1
+id: ce3d3515-face-566b-b332-f78c57e055f5
+name: STG_LOCATION_MANAGER
+operation:
+  config:
+      postSQL: ""
+      preSQL: ""
+      testsEnabled: true
+      insertStrategy: UNION
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: GOLD
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 8b3dd9ac-cf94-5fb5-84e1-0fd4e857be2e
+        stepCounter: ce3d3515-face-566b-b332-f78c57e055f5
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ""
+      name: MANAGER_ID
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: e9291b3b-ca1a-5793-b8e8-b6a75c5d5c88
+              stepCounter: 60a5e793-330d-5f0c-b68a-74daa47791a8
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ed017786-2125-5cd3-b2fb-7f4cecf5ef44
+        stepCounter: ce3d3515-face-566b-b332-f78c57e055f5
+      config: {}
+      dataType: VARCHAR(20)
+      description: 'Manager Name'
+      name: MANAGER_NAME
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 836be730-c8a2-5ada-b18b-11dd6594de5f
+              stepCounter: 60a5e793-330d-5f0c-b68a-74daa47791a8
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 48600760-375f-5e0c-98e5-cfe8ed490050
+        stepCounter: ce3d3515-face-566b-b332-f78c57e055f5
+      config: {}
+      dataType: VARCHAR(2)
+      description: 'Company Code'
+      name: COMPANY_CODE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 67db91a9-ef0b-5a03-b19f-630c5bd786df
+              stepCounter: 60a5e793-330d-5f0c-b68a-74daa47791a8
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5597f38d-6846-5ff1-a78b-3e25f4502460
+        stepCounter: ce3d3515-face-566b-b332-f78c57e055f5
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ""
+      name: LOCATION_ID
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'COALESCE(DV_LOCATION.Location_Id,0)'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c8dea23a-9eb0-5036-8201-6e73d809ff4d
+        stepCounter: ce3d3515-face-566b-b332-f78c57e055f5
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Journal Conversion Transformation
+1 = Insert
+2 = Update Before
+3 = Update 
+4 = Delete
+5 = Refresh'
+      name: JOURNAL_TYPE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: e9d7e77b-aa23-50e7-9f51-153a481803ca
+              stepCounter: 54f949e6-bb8b-54a0-9fb6-2cc9b0efd762
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 53ef2f9a-72f1-582e-b496-77ceb07347e8
+        stepCounter: ce3d3515-face-566b-b332-f78c57e055f5
+      config: {}
+      dataType: TIMESTAMP
+      description: 'Date and Time Journal Entry Created'
+      name: EFFECTIVE_BEGIN_DATE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: d7e5680c-cf78-5bed-9bab-0f8506eeeed9
+              stepCounter: 54f949e6-bb8b-54a0-9fb6-2cc9b0efd762
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ef6ed364-9c56-5f16-938f-11e73bcfc783
+        stepCounter: ce3d3515-face-566b-b332-f78c57e055f5
+      config: {}
+      dataType: TIMESTAMP
+      description: 'Date and Time Journal Entry Created'
+      name: EFFECTIVE_END_DATE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: fa4c7363-8c70-595c-8384-fc1e794a594c
+              stepCounter: 54f949e6-bb8b-54a0-9fb6-2cc9b0efd762
+          transform: ""
+    cteString: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        LOCATION_MANAGER_KEY: 60a5e793-330d-5f0c-b68a-74daa47791a8
+        DV_LOCATION: fdd7bb98-8fc4-5715-a7a1-5cd1906c5ab9
+        CDC_SYSLOCFL: 54f949e6-bb8b-54a0-9fb6-2cc9b0efd762
+      customSQL:
+        customSQL: ""
+      dependencies:
+        - locationName: GOLD
+          nodeName: LOCATION_MANAGER_KEY
+        - locationName: GOLD
+          nodeName: DV_LOCATION
+        - locationName: GOLD
+          nodeName: CDC_SYSLOCFL
+      join:
+        joinCondition: |-
+          FROM {{ ref('GOLD', 'CDC_SYSLOCFL') }} "CDC_SYSLOCFL"
+          
+          LEFT OUTER JOIN {{ ref('GOLD', 'DV_LOCATION') }} "DV_LOCATION"
+          ON    CDC_SYSLOCFL.ZLCMP = DV_LOCATION.COMPANY_CODE
+          AND  CDC_SYSLOCFL.ZLLOC = DV_LOCATION.LOCATION_CODE
+          
+          LEFT OUTER JOIN {{ ref('GOLD', 'LOCATION_MANAGER_KEY') }} "LOCATION_MANAGER_KEY"
+          ON    CDC_SYSLOCFL.ZLCMP = LOCATION_MANAGER_KEY.COMPANY_CODE
+          AND  CDC_SYSLOCFL.ZLMGR = LOCATION_MANAGER_KEY.MANAGER_NAME
+      name: STG_LOCATION_MANAGER
+      noLinkRefs: []
+  name: STG_LOCATION_MANAGER
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

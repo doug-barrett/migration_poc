@@ -1,0 +1,69 @@
+fileVersion: 1
+id: eb522723-61ab-5c2c-80e7-c4b6554cd521
+name: stage_FIN_ORGANIZATION_1
+operation:
+  config:
+      postSQL: ""
+      preSQL: ""
+      testsEnabled: true
+      insertStrategy: INSERT
+      truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 62b36646-a5e9-5bdd-a78a-d15e0e1fc16a
+        stepCounter: eb522723-61ab-5c2c-80e7-c4b6554cd521
+      config: {}
+      dataType: VARCHAR(30)
+      description: ""
+      name: LEVEL_ADDRESS
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'SUBSTR(LOA.VAR_LEVELS, 1,10)'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e4b86b0c-a25a-54cf-b0df-bc50f4f2596e
+        stepCounter: eb522723-61ab-5c2c-80e7-c4b6554cd521
+      config: {}
+      dataType: VARCHAR(30)
+      description: ""
+      name: COMBINED_LOCATION
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'MAX(LOA.DESCRIPTION)'
+    cteString: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        DBIFGLN: 4e49dcda-1c9a-5d5f-9fdb-1ce3834dd29a
+      customSQL:
+        customSQL: ""
+      dependencies:
+        - locationName: GOLD
+          nodeName: DBIFGLN
+      join:
+        joinCondition: |-
+          FROM	{{ ref('GOLD', 'DBIFGLN') }} "LOA",
+                {{ ref('GOLD', 'DBIFGLN') }} "LOA1"
+          WHERE	LOA.VAR_LEVELS=LOA1.VAR_LEVELS
+          AND	LOA.LEVEL_DEPTH = 3
+          GROUP BY LOA.VAR_LEVELS
+      name: stage_FIN_ORGANIZATION_1
+      noLinkRefs: []
+  name: stage_FIN_ORGANIZATION_1
+  overrideSQL: false
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,444 @@
+fileVersion: 1
+id: ba7e945c-4cf3-5888-a357-4d30172c301e
+name: ETL_EQPRFBFL
+operation:
+  config:
+      postSQL: ""
+      preSQL: ""
+      testsEnabled: true
+      insertStrategy: UNION
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: GOLD
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b235f923-46cb-58a0-b599-b281d19003be
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Journal Conversion Transformation
+1 = Insert
+2 = Update Before
+3 = Update 
+4 = Delete
+5 = Refresh'
+      name: JOURNAL_TYPE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: |-
+            CASE	WHEN Aud_Type in ('PT','PX','FI')	THEN 1 
+            
+            	WHEN Aud_Type in ('UB','FB','FP','BR')	THEN 2 
+            
+            	WHEN Aud_Type in ('UP','UR')		THEN 3 
+            
+            	WHEN Aud_Type in ('DL','FD')		THEN 4 
+            
+            	WHEN Aud_Type in ('RR')			THEN 5 
+            
+            	ELSE NULL 
+            
+            END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: bd591250-a6c5-5f34-89b2-45edbbbea65d
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: TIMESTAMP
+      description: 'Date and Time Journal Entry Created'
+      name: JOURNAL_BEGIN_DATE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: |-
+            CASE	WHEN Aud_Type in ('PT' , 'PX' , 'FI' , 'UP', 'UR')
+            
+            	THEN Aud_Time
+            
+            	ELSE CAST('1997-11-01 00:00:00.000000' as timestamp)
+            
+            END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 89142b95-c687-5445-805b-9133df64d083
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: TIMESTAMP
+      description: 'Date and Time Journal Entry Created'
+      name: JOURNAL_END_DATE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: |-
+            CASE	WHEN Aud_Type in ('UB' , 'FB' , 'FP' , 'DL' , 'FD', 'BR')
+            
+            	THEN Aud_Time
+            
+            	ELSE CAST('2999-12-31 00:00:00.000000' as timestamp)
+            
+            END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 101aeae1-06c7-5fab-8e3a-f3b1c22009b7
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ""
+      name: EQUIPMENT_ID
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'Coalesce(ID_EQUIPMENT.Equipment_Id,0)'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 335057ce-1dc8-5e4a-9035-d76163fb0c0e
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: VARCHAR(2)
+      description: 'Company Code'
+      name: COMPANY_CODE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 006bb81d-bc12-5492-8342-bc485f56b5b4
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2ee5c897-0611-532d-bf3a-774b46c9b879
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: VARCHAR(10)
+      description: 'Equip #'
+      name: EQUIPMENT_CODE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: fed9b4b7-9d96-5fff-9cd0-e8d0aeb21818
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 67a55e70-fc3f-5821-9958-bd998e83b1bc
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: VARCHAR(30)
+      description: 'Refurbish Vendor'
+      name: REFURBISH_VENDOR
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 2ac277d9-b142-570f-9f48-a813ee0fc30b
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 8d3e79fb-6001-5f98-99dc-60a612669653
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: DATE
+      description: 'Date Refurbished'
+      name: DATE_REFURBISHED
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'EDW_PRODUCTION.P_BI_STGTAB_DB.UDF_DEC_TO_DATE_EH(SRC_EQPRFBFL.QRRDAT)'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d3e96e50-ffc2-5f5f-a3fe-69acdc0a0c32
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: DATE
+      description: 'Warranty Date'
+      name: WARRANTY_DATE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'EDW_PRODUCTION.P_BI_STGTAB_DB.UDF_DEC_TO_DATE_EH(SRC_EQPRFBFL.QRWDAT)'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f73815aa-fce4-5dc8-a888-2db1545cb47f
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: NUMBER(9,2)
+      description: 'OEC Cost Reduction'
+      name: OEC_COST_REDUCTION
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 6fcb1c1f-bfb7-507b-bdaa-463303c4be5a
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 025defc0-524b-52a7-b2c9-0d6234200bab
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: NUMBER(9,2)
+      description: 'Gross Refurbish Cost'
+      name: GROSS_REFURBISH_COST
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 59c0d4cc-2068-5000-8c50-0ccb06a4ba17
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 98e9eeab-9254-5d87-b317-a4eec4bfde99
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Depreciable Life'
+      name: DEPRECIABLE_LIFE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 2eb11ea2-76a4-5e61-9873-4d9e8d12b31d
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e0a2ee39-61ce-5138-8da6-49f63a9af165
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: VARCHAR(1)
+      description: 'Can Asset Be Rented'
+      name: CAN_ASSET_BE_RENTED
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: d24b9d38-a1e4-5b7f-b506-28cf2cae75ff
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 875d3dc5-a55a-595c-878e-5ae350f6b50d
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: VARCHAR(1)
+      description: 'Can Asset Be Sold'
+      name: CAN_ASSET_BE_SOLD
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 83f2cf2b-54a7-5a4a-98fd-2abb7d3c378b
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 170ca0fc-d17a-53fa-a788-582adfec5af9
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: VARCHAR(1)
+      description: 'Update OEC - ACV'
+      name: UPDATE_OEC_ACV
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 85de6af8-e4bb-588c-99b1-8bc6aa2aa7f3
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 32545522-5503-562a-9227-4d57b08343ac
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: DATE
+      description: 'Last Maint Date'
+      name: LAST_MAINT_DATE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'EDW_PRODUCTION.P_BI_STGTAB_DB.UDF_DEC_TO_DATE_EH(SRC_EQPRFBFL.QRMTDT)'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3b80249e-d86a-5ef7-93bc-fad68a0e3816
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Last Maint Time'
+      name: LAST_MAINT_TIME
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 84cd80d7-b6ca-5be1-8228-d82eb4b06ecf
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7ea45d34-6110-514e-a7c8-918af57d93d8
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: VARCHAR(10)
+      description: 'Last Maint By'
+      name: LAST_MAINT_BY
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 6644cb77-7638-5bc4-ad0f-62301a17d1f3
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 69c2b077-4cf8-504c-914f-2dc0882e61df
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: VARCHAR(1)
+      description: 'A=Active/D=Deleted'
+      name: STATUS_IND
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 4d9df6e7-642a-5864-81dc-fd6962a72cd0
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f32002e8-e6c5-5e2b-a475-aeef56a7a28d
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: VARCHAR(26)
+      description: 'Timestamp'
+      name: LAST_MAINT_TIMESTAMP
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 5696800b-59bd-5f90-8a77-65da466ab75e
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a3296c07-4879-5525-80ea-7a9d5761285e
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: VARCHAR(30)
+      description: 'Journal Entry Type'
+      name: AUD_TYPE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 53a16ef8-0b3a-5327-90d4-9df576a72f73
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b25f4c06-510c-5b4b-8e33-c9e1940b3311
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: TIMESTAMP
+      description: 'Journal Entry Timestamp'
+      name: AUD_TIME
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: b816a60f-3fd4-5b7e-bf04-6630822af1d3
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 8cc4906c-6ab3-57a8-8b20-4f07c4475f31
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: VARCHAR(30)
+      description: 'User Performing Update'
+      name: AUD_USER
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 6c98fec1-d8b3-5cdb-8eb4-783d58a95aa5
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 44f16e15-7326-5753-9d99-d78fedaafa3a
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: VARCHAR(30)
+      description: 'Journal Entry Code'
+      name: AUD_CODE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 68209246-7f04-549d-bb0b-87a6144ad1e7
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5ed7f3b4-81ed-532c-a1f1-e6aa10bab92e
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Relative Record Number'
+      name: AUD_CNTRRN
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 266a4703-59fe-536a-88cd-ff8234d4dc71
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 8330f4bd-4d9f-5ff6-8b39-ecb2453928b6
+        stepCounter: ba7e945c-4cf3-5888-a357-4d30172c301e
+      config: {}
+      dataType: VARCHAR(30)
+      description: 'Program Performing Update'
+      name: AUD_PROGRAM
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 9cf8377b-731c-5e6b-ae65-b78449b3bf7f
+              stepCounter: b041bce2-8f0d-5492-ae2d-91e4424d51db
+          transform: ""
+    cteString: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        ID_EQUIPMENT: 9560088e-54e7-53c1-bde1-f9922cc51f3d
+        SRC_EQPRFBFL: b041bce2-8f0d-5492-ae2d-91e4424d51db
+      customSQL:
+        customSQL: ""
+      dependencies:
+        - locationName: GOLD
+          nodeName: ID_EQUIPMENT
+        - locationName: GOLD
+          nodeName: SRC_EQPRFBFL
+      join:
+        joinCondition: |-
+          FROM {{ ref('GOLD', 'SRC_EQPRFBFL') }} "SRC_EQPRFBFL"
+          
+          LEFT OUTER JOIN {{ ref('GOLD', 'ID_EQUIPMENT') }} "ID_EQUIPMENT"
+          ON SRC_EQPRFBFL.QRCMP = ID_EQUIPMENT.Company_Code
+          AND SRC_EQPRFBFL.QREQP0 = ID_EQUIPMENT.Equipment_Code
+          
+          INNER JOIN "DOUG_POC"."DP001"."ETL_BATCH" on 1=1
+           
+          Where/*  Batch_Period Overlaps (Aud_Time,NULL)
+          AND*/ (Aud_Code <> 'F' or (Aud_Code is null and Aud_Type = 'RR'))
+           QUALIFY RANK() 
+          OVER (PARTITION BY QRCMP, QREQP0
+          ,Case When Rebuild_Table = 'Y' Then Cast(Aud_Time as date) Else NULL End 
+          ORDER BY AUD_TIME DESC, AUD_SEQNO DESC, CASE  
+          WHEN Aud_Type in ('PT','PX','FI')	THEN 1 
+          WHEN Aud_Type in ('UB','FB','FP','BR')	THEN 2 
+          WHEN Aud_Type in ('UP','UR')	THEN 3 
+          WHEN Aud_Type in ('DL','FD')	THEN 4 
+          WHEN Aud_Type in ('RR')		THEN 5
+           ELSE 0 END DESC) = 1
+      name: ETL_EQPRFBFL
+      noLinkRefs: []
+  name: ETL_EQPRFBFL
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

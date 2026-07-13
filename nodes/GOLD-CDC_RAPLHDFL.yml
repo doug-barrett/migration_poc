@@ -1,0 +1,911 @@
+fileVersion: 1
+id: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+name: CDC_RAPLHDFL
+operation:
+  config:
+      postSQL: ""
+      preSQL: ""
+      testsEnabled: true
+      insertStrategy: UNION
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: GOLD
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 80712775-3538-5aac-8f2d-136cd6fddf65
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ""
+      name: CUSTOMER_ACCOUNT_NUM
+      nullable: false
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: |-
+            CASE
+            
+                WHEN  SRC_RAPLHDFL.ROCUS0 > 0
+            
+                THEN  SRC_RAPLHDFL.ROCUS0
+            
+                ELSE  0
+            
+                END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3daee477-c720-58d2-884f-9303ce33c224
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ""
+      name: CUSTOMER_ACCOUNT_CHAR
+      nullable: false
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: |-
+            CASE
+            
+             WHEN SRC_RAPLHDFL.ROCUS0 = 0 
+            
+             THEN Trim(SRC_RAPLHDFL.RODLST) || Trim(SRC_RAPLHDFL.RODL0)
+            
+             ELSE ''''
+            
+            END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b84c6ec9-b1df-54d2-ad7a-90c7b83e9f33
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Journal Conversion Transformation
+1 = Insert
+2 = Update Before
+3 = Update 
+4 = Delete
+5 = Refresh'
+      name: JOURNAL_TYPE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: |-
+            CASE 
+            
+             WHEN Aud_Type in ('PT','PX','FI') 
+            
+              THEN 1 
+            
+             WHEN Aud_Type in ('UB','FB','FP','BR') 
+            
+              THEN 2 
+            
+             WHEN Aud_Type in ('UP','UR') 
+            
+              THEN 3 
+            
+             WHEN Aud_Type in ('DL' , 'FD') 
+            
+              THEN 4 
+            
+             WHEN Aud_Type in ('RR') 
+            
+              THEN 5 
+            
+             ELSE NULL 
+            
+            END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: bf977b94-7863-5752-8d5b-8736e04a5543
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: TIMESTAMP
+      description: 'Date and Time Journal Entry Created'
+      name: JOURNAL_BEGIN_DATE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: |-
+            CASE
+            
+             WHEN Aud_Type in ('PT' , 'PX' , 'FI' , 'UP','UR')
+            
+              THEN Aud_Time
+            
+             ELSE  CAST('1997-11-01 00:00:00.000000' as timestamp)
+            
+            END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a8a9113f-eacb-52e4-a7d7-20e482d905da
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: TIMESTAMP
+      description: 'Date and Time Journal Entry Created'
+      name: JOURNAL_END_DATE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: |-
+            CASE
+            
+             WHEN Aud_Type in ('UB' , 'FB' , 'FP' , 'DL' , 'FD','BR')
+            
+              THEN Aud_Time
+            
+             ELSE  CAST('2999-12-31 00:00:00.000000' as timestamp)
+            
+            END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a8bc1f66-a31e-5f9d-9461-41ad984934e0
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(2)
+      description: 'Company Code'
+      name: ROCMP
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: bcbba769-438a-5a13-ba8e-53385d4a8c9a
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 34e2c4b3-231a-5f58-8c0f-4a7ac191077a
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Phone Log#'
+      name: ROPHL0
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 5e00f285-0b34-5084-829a-b3c986ebc13c
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 8f4fc1cd-72d3-5246-9717-d27df7243444
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(3)
+      description: 'Branch Loc #'
+      name: ROLOC
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 11137dea-8475-5282-9690-2dd39b16a968
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 17fc4a2b-0870-5ec4-8c61-97065db46dca
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: DATE
+      description: 'Sys Date'
+      name: ROSDAT
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'P_BI_STGTAB_DB.UDF_DEC_TO_DATE_EH(SRC_RAPLHDFL.ROSDAT)'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4579328c-f677-5770-a342-16c524bc2314
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Sys Time'
+      name: ROSTIM
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: d4173633-0ef6-581d-b2d5-d703f9be6b30
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 13052035-00a4-5d01-8456-3a2eb268e914
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(10)
+      description: 'Employee'
+      name: ROOEMP
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: f85da9f9-aec3-5ed1-a4e8-7fa77dc756c8
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 768e2081-b615-5b1e-bd9e-cc0f1d83e761
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: DATE
+      description: 'Phone Date'
+      name: ROPDAT
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'P_BI_STGTAB_DB.UDF_DEC_TO_DATE_EH(SRC_RAPLHDFL.ROPDAT)'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3b80182f-0ec1-5c1d-b9c7-a9e08e47a686
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Phone Time'
+      name: ROPTIM
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'SRC_RAPLHDFL.ROPTIM * 100'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d6f07cba-9156-5e38-bdbc-f5238c373887
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(40)
+      description: 'Call Desc'
+      name: ROCDES
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 390eb5c1-26e9-5dd6-9941-da8491d0adfc
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d1ba8577-1a28-5682-b4c5-12ebceec4ecb
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(2)
+      description: 'Call Type'
+      name: ROCLTP
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: f8bb9df8-44f1-51fa-a855-15dac216ad27
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 17e86fde-74ad-5102-b5d7-3201334ad9f2
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(2)
+      description: 'Call Source'
+      name: ROCLSC
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 837ee061-a146-5bc4-b757-bd37bf35fcde
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a02f59ea-ac48-512e-a4af-fe071e7fcc64
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(1)
+      description: 'O=Open, C=Completed,D=Deleted'
+      name: ROSTS
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 9a21990c-41f6-5559-99fd-8e5b793be94c
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: dadecda2-6615-5af5-a26e-3da1df0d0d4e
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(1)
+      description: 'D=Delivery, P=Pickup, E=Exchange'
+      name: ROCODE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 98a76beb-d208-5e5c-b778-4eb5e62a5912
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 059709e5-5096-50e0-901c-dbf68ace1b0a
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(1)
+      description: 'Lost Rental Y/N'
+      name: ROLOST
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 65cad3ff-cedf-5e54-a245-e82e2247364a
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f69fa23b-1722-5b59-82d8-43ade5d1ab85
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(2)
+      description: 'Lost Reason Code'
+      name: ROLRCD
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 83ad1e70-6e06-5704-bca2-40bea0b1a2cf
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 084a2a15-ae8b-58a5-8852-d48f4bafdff4
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(20)
+      description: 'Contact Last Name'
+      name: ROCLNM
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 77c6451f-1c29-5ec9-86d1-e685d19be5d6
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 078c8bc1-fc37-5c72-9818-554d26f01e84
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(10)
+      description: 'Contact First Name'
+      name: ROCFNM
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: a396b9e3-605f-52cf-a023-f3dff6a0a96b
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: cfdc745a-fe44-5eb5-8417-93e6f3f37796
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(30)
+      description: 'Name'
+      name: ROCSNM
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 6989b3a8-0414-56ed-8787-4c92657515b4
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 8fda9d64-b83f-5861-8f34-c597880a606f
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Acct #'
+      name: ROCUS0
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 34d2e59a-5c8a-5c18-9434-c11997bed752
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2adca140-af8e-558a-b852-368576f927d5
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(2)
+      description: 'St'
+      name: RODLST
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: c15666bd-e35f-5ab7-8fd9-7ea39f7eacbe
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: bf05e7b7-a765-55db-ac28-06d8b9c51ed6
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(20)
+      description: 'Drivers lic #'
+      name: RODL0
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: f43063ba-9888-5dae-a036-f34c68d031d1
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: cd74e3f9-7f4e-50cf-a75d-c89ab0016674
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Phone#'
+      name: ROPHON
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 5a29a63b-ddf5-5e39-8989-13771fb26c1b
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0c9117e2-7e77-50e7-9622-af329ebe9883
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(20)
+      description: 'Job #'
+      name: ROJOB0
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 3772090c-c09e-5bb7-92e0-a55fcbc22f82
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: fdf090f1-541f-5375-ad0e-9fbc031ab635
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(40)
+      description: 'Job Loc'
+      name: ROJOBL
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 2d5aa936-6055-5b53-bfd9-d9bdebda4dcc
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 155e1518-669c-5c22-ae60-c7b981691a1b
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Sales Rep'
+      name: ROSREP
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 14de7bc6-5ab3-5782-980c-4e791e2dad3a
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d2ffa6aa-e12b-5833-8ca9-485d00e00d4f
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Pickup#'
+      name: ROPKU0
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 5b7201dd-d32c-57eb-9a53-bd19c1a32c2b
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 1e8ad7c4-bca5-51f1-8eda-8f3d9ebad187
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(3)
+      description: 'Reference Loc'
+      name: ROREFL
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: beb3392d-437f-5db8-ac65-a1d69d3ca77a
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 1c0cd740-d704-53a4-9d5a-32bf2acdcb38
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: DATE
+      description: 'Last Trans Dt'
+      name: ROLDAT
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'P_BI_STGTAB_DB.UDF_DEC_TO_DATE_EH(SRC_RAPLHDFL.ROLDAT)'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: fc6095e6-3809-5e4a-b56f-127fbe79ad8b
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(1)
+      description: 'Follow Up'
+      name: ROCALL
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: a50a7e9a-e712-5534-b160-d60f2bcea8c5
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4f64573a-b8fb-5e32-ba6c-563609f53533
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: DATE
+      description: 'Follow Up Dt'
+      name: ROFDAT
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'P_BI_STGTAB_DB.UDF_DEC_TO_DATE_EH(SRC_RAPLHDFL.ROFDAT)'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 39a32089-ab98-56d4-97c5-5935096d3c6e
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Follow Up Time'
+      name: ROFTIM
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'SRC_RAPLHDFL.ROFTIM * 100'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d36567d7-53c0-5102-be92-2482c4dc41e7
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: DATE
+      description: 'Need Date'
+      name: RORDAT
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'P_BI_STGTAB_DB.UDF_DEC_TO_DATE_EH(SRC_RAPLHDFL.RORDAT)'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 23a93906-7fe2-5c85-b5ac-4b622e2e92b3
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Need Time'
+      name: RORTIM
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'SRC_RAPLHDFL.RORTIM * 100'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f188d07c-462b-520e-b7f6-12dee657c374
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: DATE
+      description: 'End Date'
+      name: ROENDT
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'P_BI_STGTAB_DB.UDF_DEC_TO_DATE_EH(SRC_RAPLHDFL.ROENDT)'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f0e8be66-cbfd-58cd-adde-50d44d59fed6
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'End Time'
+      name: ROENTM
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'SRC_RAPLHDFL.ROENTM * 100'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 93c5f94a-9055-5ce4-a221-795c5717a596
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: DATE
+      description: 'Last maint dt'
+      name: ROMTDT
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'P_BI_STGTAB_DB.UDF_DEC_TO_DATE_EH(SRC_RAPLHDFL.ROMTDT)'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7bc0ca60-2230-5e81-bca8-0b48f4d54630
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Last maint tm'
+      name: ROMTTM
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 8916790e-2c52-51d3-bb32-f626ebba2634
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 661d4214-4dcc-5e9c-809c-219db9b4f608
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(10)
+      description: 'Last maint by'
+      name: ROMTBY
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 879c0715-834a-5252-814b-94f316621d3c
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: abdf902d-9c6f-54f0-b9b3-823f8bc62b71
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(26)
+      description: 'Timestamp'
+      name: ROSTMP
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 40c7cf07-b1f3-59f6-b757-3c8c987503ad
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7a3a5b5e-9b23-5a29-bddc-0dc635b0de47
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(1)
+      description: 'O=Open, C=Closed'
+      name: RORSTS
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 9fb4ca5d-79c7-53a9-9492-432768f04c05
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 277f7929-ff32-5ddf-b0e4-2926582c93fe
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(10)
+      description: 'Transferring User ID'
+      name: ROTID
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: f040d580-8c36-504d-9d75-5957bcf86a53
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 60e69673-3be4-5f41-921b-5e7d07c08ab2
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: DATE
+      description: 'Transferring Date'
+      name: ROTDAT
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: 'P_BI_STGTAB_DB.UDF_DEC_TO_DATE_EH(SRC_RAPLHDFL.ROTDAT)'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 880825d7-c232-5318-b0f8-e756322735c0
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Transferring Time'
+      name: ROTTIM
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 59d2af85-eb6f-533f-8574-96086e6db710
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: cc2669fd-e81b-53fe-9247-0810a087056f
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(1)
+      description: 'Tech Dispatched Y/N'
+      name: ROTECH
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: f921987a-1be8-517f-ae00-6811dfb3507d
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f4ffde85-a2cb-5471-a041-0dcfbcef6dbe
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(20)
+      description: 'P.O.#'
+      name: ROPO0
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: a69c648b-d5fa-5ec1-8924-43ba5dc44edb
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c2d4ee54-fef6-5988-af13-28c9003f7a58
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(2)
+      description: 'Service Reason Code'
+      name: RORSNC
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 710a6d52-afe9-595c-845e-c7ff632d0f48
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 85e9590f-33b1-5e11-a110-9fa7859732a2
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(3)
+      description: 'Screen Loc                                        '
+      name: ROSCNL
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: e7c87286-4421-53a8-a6e3-d3222fd292de
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: eb9086c5-3ced-5c9b-ad15-355c05e0e4cd
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(50)
+      description: 'Contact Email                                     '
+      name: ROCEML
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 2dec04b6-f79c-5bb2-a4ae-74da06b144c8
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 095191b4-20dd-5bd2-aef9-2f7882b0d3fe
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(30)
+      description: 'Journal Entry Type'
+      name: AUD_TYPE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 2cf3d1cc-1302-5bb7-8eeb-0127ae9d4ce1
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 30edd958-7302-5d3a-8237-63b144954a37
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: TIMESTAMP
+      description: 'Journal Entry Timestamp'
+      name: AUD_TIME
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 2e23df5d-6094-57e5-99ea-1c0a7ace4fbe
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: fd40206b-1c29-5fb7-98c6-41bad5c0d327
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(30)
+      description: 'User Performing Update'
+      name: AUD_USER
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: dd8baee7-fa2e-595e-8b55-8fcb6782460b
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ac75644b-05fc-5168-8629-a1ebac8f7560
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(30)
+      description: 'Journal Entry Code'
+      name: AUD_CODE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 6c999871-2484-5447-9686-2c976b785dbe
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 158548aa-42ac-5fda-a73b-e1f5a0c03d55
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Relative Record Number'
+      name: AUD_CNTRRN
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: b08ba4f2-a18c-58fe-ae71-9d1d3bf0d964
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 48e40937-1bc0-5c87-9906-fbcfdb614923
+        stepCounter: 95ec01a4-46a0-54ca-ba1d-dd7af4c3abbc
+      config: {}
+      dataType: VARCHAR(30)
+      description: 'Program Performing Update'
+      name: AUD_PROGRAM
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 905f89c5-cf55-5e05-ac3d-a6323813deb1
+              stepCounter: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+          transform: ""
+    cteString: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        SRC_RAPLHDFL: 2479d7a4-a91b-5a29-bc8d-acf87aa6fda2
+      customSQL:
+        customSQL: ""
+      dependencies:
+        - locationName: GOLD
+          nodeName: SRC_RAPLHDFL
+      join:
+        joinCondition: |-
+          FROM {{ ref('GOLD', 'SRC_RAPLHDFL') }} "SRC_RAPLHDFL"
+           Where Aud_Time <= (Select MAX(Batch_End) FROM "DOUG_POC"."DP001"."CDC_BATCH")
+          AND Aud_Time > (Select MAX(Batch_Start) FROM "DOUG_POC"."DP001"."CDC_BATCH")
+          AND (Aud_Code <> 'F' or (Aud_Code is null and Aud_Type = 'RR'))
+           QUALIFY RANK() 
+          OVER (PARTITION BY  ROCMP,      
+          ROPHL0     
+          ORDER BY AUD_TIME DESC, CASE  
+          WHEN Aud_Type in ('PT','PX','FI')   THEN 1 
+          WHEN Aud_Type in ('UB','FB','FP','BR')  THEN 2 
+          WHEN Aud_Type in ('UP','UR')               THEN 3 
+          WHEN Aud_Type in ('DL' , 'FD')      THEN 4 
+          WHEN Aud_Type in ('RR')              THEN 5 
+           ELSE 0 END DESC) = 1
+      name: CDC_RAPLHDFL
+      noLinkRefs: []
+  name: CDC_RAPLHDFL
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

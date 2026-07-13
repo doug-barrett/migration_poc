@@ -1,0 +1,143 @@
+fileVersion: 1
+id: af8cca7d-2396-5f8a-a234-0f6cb79b9f50
+name: BV_OPEN_SUBSTITUTION
+operation:
+  config:
+      postSQL: ""
+      preSQL: ""
+      testsEnabled: true
+      insertStrategy: UNION
+  database: ""
+  deployEnabled: true
+  description: ""
+  isMultisource: false
+  locationName: GOLD
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2c35f954-c0b4-5b6e-94a6-ce963dab214c
+        stepCounter: af8cca7d-2396-5f8a-a234-0f6cb79b9f50
+      config: {}
+      dataType: VARCHAR(2)
+      description: 'Company Code'
+      name: COMPANY_CODE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: ad5a0c0c-7706-50a1-a5ea-bd6a496bf875
+              stepCounter: 498623ed-b108-5261-8198-d9801f8626b6
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: caf37f91-1350-5dbd-a6a3-1c5905a11fce
+        stepCounter: af8cca7d-2396-5f8a-a234-0f6cb79b9f50
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Invoice#'
+      name: INVOICE_NUM
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 1c58c3b5-36d1-5fb8-9936-7aaaeae8d485
+              stepCounter: 498623ed-b108-5261-8198-d9801f8626b6
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ac60b93f-d0f9-5214-9548-ed8d7cc2a2a5
+        stepCounter: af8cca7d-2396-5f8a-a234-0f6cb79b9f50
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Line #'
+      name: LINE_NUM
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 77f68ef1-5fd8-5764-a578-df00c38ce77c
+              stepCounter: 498623ed-b108-5261-8198-d9801f8626b6
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f81de125-6315-52fa-89e9-3c5531f2253e
+        stepCounter: af8cca7d-2396-5f8a-a234-0f6cb79b9f50
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Location_Id'
+      name: LOCATION_ID
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 8a9b2757-4dbb-583c-94d4-26dfc499e9d7
+              stepCounter: 498623ed-b108-5261-8198-d9801f8626b6
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0b1c1c1e-8332-5250-818b-0eadd66942ed
+        stepCounter: af8cca7d-2396-5f8a-a234-0f6cb79b9f50
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Category'
+      name: CATEGORY_CODE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: f8649a2f-3ac7-53fb-9817-0e9280c83f67
+              stepCounter: 498623ed-b108-5261-8198-d9801f8626b6
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ae752a69-ecc4-5087-b841-0cb5d3fe1b9a
+        stepCounter: af8cca7d-2396-5f8a-a234-0f6cb79b9f50
+      config: {}
+      dataType: NUMBER(38,0)
+      description: 'Class'
+      name: CLASS_CODE
+      nullable: true
+      sourceColumnReferences:
+        - columnReferences:
+            - columnCounter: 33eff3df-1886-5c76-9b9e-7044419d1c0e
+              stepCounter: 498623ed-b108-5261-8198-d9801f8626b6
+          transform: ""
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9cca6e1a-5799-5527-83f2-e61e23feb3a4
+        stepCounter: af8cca7d-2396-5f8a-a234-0f6cb79b9f50
+      config: {}
+      dataType: NUMBER(38,0)
+      description: ""
+      name: OPEN_SUBSTITUTION_IND
+      nullable: false
+      sourceColumnReferences:
+        - columnReferences: []
+          transform: '1'
+    cteString: ""
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        EQUIPMENT_SUBSTITUTION: 498623ed-b108-5261-8198-d9801f8626b6
+      customSQL:
+        customSQL: ""
+      dependencies:
+        - locationName: GOLD
+          nodeName: EQUIPMENT_SUBSTITUTION
+      join:
+        joinCondition: |-
+          FROM {{ ref('GOLD', 'EQUIPMENT_SUBSTITUTION') }} "EQUIPMENT_SUBSTITUTION"
+          WHERE EQUIPMENT_SUBSTITUTION.Status_Code = 'A' 
+          AND EQUIPMENT_SUBSTITUTION.dss_current_flag = 'Y'
+          AND (Invoice_Num, Line_Num, Location_Id, Sub_Sequence_Num) IN
+                (SELECT Invoice_Num, Line_Num, Location_Id, MAX(Sub_Sequence_Num) 
+                FROM {{ ref('GOLD', 'EQUIPMENT_SUBSTITUTION') }} "EQUIPMENT_SUBSTITUTION"
+                GROUP BY Invoice_Num, Line_Num, Location_Id)
+          GROUP BY 1,2,3,4,5,6
+      name: BV_OPEN_SUBSTITUTION
+      noLinkRefs: []
+  name: BV_OPEN_SUBSTITUTION
+  overrideSQL: false
+  schema: ""
+  sqlType: View
+  type: sql
+  version: 1
+type: Node
