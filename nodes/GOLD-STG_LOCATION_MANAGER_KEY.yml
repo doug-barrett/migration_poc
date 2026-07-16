@@ -3,13 +3,13 @@ id: 15e0b9c7-0cdb-50bf-9e2d-e82b193d6442
 name: STG_LOCATION_MANAGER_KEY
 operation:
   config:
-      postSQL: ""
-      preSQL: ""
-      testsEnabled: true
-      insertStrategy: UNION
-  database: ""
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+    insertStrategy: UNION
+  database: ''
   deployEnabled: true
-  description: ""
+  description: ''
   isMultisource: false
   locationName: GOLD
   materializationType: view
@@ -22,115 +22,90 @@ operation:
         stepCounter: 15e0b9c7-0cdb-50bf-9e2d-e82b193d6442
       config: {}
       dataType: NUMBER(38,0)
-      description: ""
+      description: ''
       name: LAST_MANAGER_ID
       nullable: false
       sourceColumnReferences:
-        - columnReferences:
-            - columnCounter: 5cddd165-b051-51c1-ab98-3fc143b6b2f2
-              stepCounter: 3b1e35af-d091-5ab5-9bf3-6dacbd5c98e2
-          transform: ""
+      - columnReferences: []
+        transform: 'NULL'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1ae7cc59-aece-5dc3-b458-e8cf9aa1c975
         stepCounter: 15e0b9c7-0cdb-50bf-9e2d-e82b193d6442
       config: {}
       dataType: NUMBER(38,0)
-      description: ""
+      description: ''
       name: MANAGER_ID
       nullable: true
       sourceColumnReferences:
-        - columnReferences: []
-          transform: |-
-            COALESCE(LOCATION_MANAGER_KEY.MANAGER_ID,
-            
-            ROW_NUMBER() 
-            
-            OVER(ORDER BY LOCATION_MANAGER_KEY.MANAGER_ID ASC NULLS FIRST,
-            
-                 CASE WHEN JOURNAL_TYPE IN (1,3,5) THEN 1 ELSE 9 END ASC)
-            
-               + LAST_MANAGER_ID)
+      - columnReferences: []
+        transform: "COALESCE(LOCATION_MANAGER_KEY.MANAGER_ID,\n\nROW_NUMBER() \n\n\
+          OVER(ORDER BY LOCATION_MANAGER_KEY.MANAGER_ID ASC NULLS FIRST,\n\n     CASE\
+          \ WHEN JOURNAL_TYPE IN (1,3,5) THEN 1 ELSE 9 END ASC)\n\n   + LAST_MANAGER_ID)"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 18c87003-4883-59f9-ac61-98d5c6ae79d4
         stepCounter: 15e0b9c7-0cdb-50bf-9e2d-e82b193d6442
       config: {}
       dataType: VARCHAR(2)
-      description: 'Company Code'
+      description: Company Code
       name: COMPANY_CODE
       nullable: true
       sourceColumnReferences:
-        - columnReferences:
-            - columnCounter: aad70f07-af1b-5822-9988-7abc5c8e9217
-              stepCounter: 6b1894ae-22eb-5c0c-a38f-3247a28e2458
-          transform: ""
+      - columnReferences: []
+        transform: 'NULL'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: aa18f825-0298-5717-80c8-7757bf98c63c
         stepCounter: 15e0b9c7-0cdb-50bf-9e2d-e82b193d6442
       config: {}
       dataType: VARCHAR(20)
-      description: 'Manager Name'
+      description: Manager Name
       name: MANAGER_NAME
       nullable: true
       sourceColumnReferences:
-        - columnReferences:
-            - columnCounter: 7ea37aa8-0c85-5ac0-aaff-736142d5b563
-              stepCounter: 6b1894ae-22eb-5c0c-a38f-3247a28e2458
-          transform: ""
+      - columnReferences: []
+        transform: 'NULL'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3eb160d3-858d-5792-9eb7-12b7ae709cc0
         stepCounter: 15e0b9c7-0cdb-50bf-9e2d-e82b193d6442
       config: {}
       dataType: NUMBER(38,0)
-      description: 'Journal Conversion Transformation
-1 = Insert
-2 = Update Before
-3 = Update 
-4 = Delete
-5 = Refresh'
+      description: Journal Conversion Transformation 1 = Insert 2 = Update Before
+        3 = Update 4 = Delete 5 = Refresh
       name: JOURNAL_TYPE
       nullable: true
       sourceColumnReferences:
-        - columnReferences:
-            - columnCounter: ecd69f48-9d5d-57e6-b443-2cde0af1f58d
-              stepCounter: 6b1894ae-22eb-5c0c-a38f-3247a28e2458
-          transform: ""
-    cteString: ""
+      - columnReferences:
+        - columnCounter: e9d7e77b-aa23-50e7-9f51-153a481803ca
+          stepCounter: 54f949e6-bb8b-54a0-9fb6-2cc9b0efd762
+        transform: ''
+    cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
         CDC_SYSLOCFL: 54f949e6-bb8b-54a0-9fb6-2cc9b0efd762
       customSQL:
-        customSQL: ""
+        customSQL: ''
       dependencies:
-        - locationName: GOLD
-          nodeName: CDC_SYSLOCFL
+      - locationName: GOLD
+        nodeName: CDC_SYSLOCFL
       join:
-        joinCondition: |-
-          FROM 
-           (SELECT ZLCMP AS COMPANY_CODE, 
-                           ZLMGR AS MANAGER_NAME, 
-                           MAX(JOURNAL_TYPE) AS JOURNAL_TYPE
-            FROM     {{ ref('GOLD', 'CDC_SYSLOCFL') }} "CDC_SYSLOCFL"
-            GROUP BY 1,2) AS DISTINCT_SYSLOCFL
-          
-          LEFT OUTER JOIN "DOUG_POC"."DP001"."LOCATION_MANAGER_KEY"
-          
-          ON    DISTINCT_SYSLOCFL.COMPANY_CODE = LOCATION_MANAGER_KEY.COMPANY_CODE
-          AND  DISTINCT_SYSLOCFL.MANAGER_NAME= LOCATION_MANAGER_KEY.MANAGER_NAME
-          -- AND  LOCATION_MANAGER.DSS_CURRENT_FLAG IN ('Y', 'P')
-          
-          LEFT OUTER JOIN 
-          (SELECT COALESCE(MAX(MANAGER_ID),0) AS LAST_MANAGER_ID FROM "DOUG_POC"."DP001"."LOCATION_MANAGER_KEY" ) AS NEXTVALUE_MANAGER_ID
-          ON 1 = 1
+        joinCondition: "FROM \n (SELECT ZLCMP AS COMPANY_CODE, \n                \
+          \ ZLMGR AS MANAGER_NAME, \n                 MAX(JOURNAL_TYPE) AS JOURNAL_TYPE\n\
+          \  FROM     {{ ref('GOLD', 'CDC_SYSLOCFL') }} \"CDC_SYSLOCFL\"\n  GROUP\
+          \ BY 1,2) AS DISTINCT_SYSLOCFL\n\nLEFT OUTER JOIN \"DOUG_POC\".\"DP001\"\
+          .\"LOCATION_MANAGER_KEY\"\n\nON    DISTINCT_SYSLOCFL.COMPANY_CODE = LOCATION_MANAGER_KEY.COMPANY_CODE\n\
+          AND  DISTINCT_SYSLOCFL.MANAGER_NAME= LOCATION_MANAGER_KEY.MANAGER_NAME\n\
+          -- AND  LOCATION_MANAGER.DSS_CURRENT_FLAG IN ('Y', 'P')\n\nLEFT OUTER JOIN\
+          \ \n(SELECT COALESCE(MAX(MANAGER_ID),0) AS LAST_MANAGER_ID FROM \"DOUG_POC\"\
+          .\"DP001\".\"LOCATION_MANAGER_KEY\" ) AS NEXTVALUE_MANAGER_ID\nON 1 = 1"
       name: STG_LOCATION_MANAGER_KEY
       noLinkRefs: []
   name: STG_LOCATION_MANAGER_KEY
   overrideSQL: false
-  schema: ""
+  schema: ''
   sqlType: View
   type: sql
   version: 1
