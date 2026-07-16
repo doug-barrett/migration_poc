@@ -28,7 +28,7 @@ operation:
       nullable: true
       sourceColumnReferences:
         - columnReferences: []
-          transform: 'EDW_PRODUCTION.P_BI_STGTAB_DB.UDF_CHAR_TO_INT(SRC_EMPLOYEE_Load.EMPLID)'
+          transform: '{{ ref('UTILITY', 'UDF_CHAR_TO_INT') }}(SRC_EMPLOYEE_Load.EMPLID)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 90374164-35e5-50a0-a5c4-ac001836938c
@@ -54,7 +54,7 @@ operation:
       nullable: true
       sourceColumnReferences:
         - columnReferences: []
-          transform: 'EDW_PRODUCTION.P_BI_STGTAB_DB.UDF_CHAR_TO_INT(SRC_EMPLOYEE_Load.SUPERVISORID)'
+          transform: '{{ ref('UTILITY', 'UDF_CHAR_TO_INT') }}(SRC_EMPLOYEE_Load.SUPERVISORID)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 03ba0aa6-ca13-5971-b911-ffee6d5e270d
@@ -66,7 +66,7 @@ operation:
       nullable: true
       sourceColumnReferences:
         - columnReferences: []
-          transform: 'EDW_PRODUCTION.P_BI_STGTAB_DB.UDF_CHAR_TO_INT(SRC_EMPLOYEE_Load.DEPTMANAGER)'
+          transform: '{{ ref('UTILITY', 'UDF_CHAR_TO_INT') }}(SRC_EMPLOYEE_Load.DEPTMANAGER)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 71932d67-1e8f-5de0-a4f9-2dda257e6836
@@ -690,7 +690,7 @@ operation:
           FROM {{ ref('GOLD', 'SRC_EMPLOYEE_Load') }} "SRC_EMPLOYEE_Load"
           
           LEFT OUTER JOIN "DOUG_POC"."DP001"."CV_EMPLOYEE"
-            ON EDW_PRODUCTION.P_BI_STGTAB_DB.UDF_CHAR_TO_INT(SRC_EMPLOYEE_Load.EMPLID) = CV_EMPLOYEE.Employee_Id
+            ON {{ ref('UTILITY', 'UDF_CHAR_TO_INT') }}(SRC_EMPLOYEE_Load.EMPLID) = CV_EMPLOYEE.Employee_Id
           
           LEFT OUTER JOIN {{ ref('GOLD', 'DV_LOCATION') }} "DV_LOCATION"
             ON SRC_EMPLOYEE_Load.WORKLOCATION = DV_LOCATION.Location_Code
@@ -699,10 +699,10 @@ operation:
             ON UPPER(TRIM(SRC_EMPLOYEE_Load.USERID) || '@ur.com') = UPPER(TRIM(ETL_LDAP.Logon_Name))
           
           LEFT OUTER JOIN {{ ref('GOLD', 'BUS_FAST_CURRENT_EMP_DRIVER') }} "BUS_FAST_CURRENT_EMP_DRIVER" 
-            ON EDW_PRODUCTION.P_BI_STGTAB_DB.UDF_CHAR_TO_INT(SRC_EMPLOYEE_Load.EMPLID) = BUS_FAST_CURRENT_EMP_DRIVER.Employee_Id
+            ON {{ ref('UTILITY', 'UDF_CHAR_TO_INT') }}(SRC_EMPLOYEE_Load.EMPLID) = BUS_FAST_CURRENT_EMP_DRIVER.Employee_Id
           
           LEFT OUTER JOIN {{ ref('GOLD', 'BUS_EMPLOYEE_USER_ID') }} "BUS_EMPLOYEE_USER_ID"
-            ON EDW_PRODUCTION.P_BI_STGTAB_DB.UDF_CHAR_TO_INT(SRC_EMPLOYEE_Load.EMPLID) = BUS_EMPLOYEE_USER_ID.Payroll_Num
+            ON {{ ref('UTILITY', 'UDF_CHAR_TO_INT') }}(SRC_EMPLOYEE_Load.EMPLID) = BUS_EMPLOYEE_USER_ID.Payroll_Num
           
           LEFT OUTER JOIN (
             SELECT 
