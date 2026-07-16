@@ -7,6 +7,9 @@ operation:
     preSQL: ''
     testsEnabled: true
     insertStrategy: INSERT
+    businessKeyColumns:
+    - COMPANY
+    - ACCT_UNIT
   database: ''
   deployEnabled: true
   description: ''
@@ -30,6 +33,7 @@ operation:
         - columnCounter: 17d62a68-621e-52b1-849e-186901a3a1f1
           stepCounter: 742ff638-5c91-5357-b08c-b3354c8fb73e
         transform: ''
+      isBusinessKey: true
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5a09ca1a-b825-5144-bcc4-aa2b427cc0a3
@@ -58,6 +62,7 @@ operation:
         - columnCounter: a61c6441-6bcc-5d58-97c9-90c8e4110c57
           stepCounter: 742ff638-5c91-5357-b08c-b3354c8fb73e
         transform: ''
+      isBusinessKey: true
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4af19377-1ee5-523c-8e97-88762b2ea79a
@@ -83,15 +88,10 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"DISTRICT\" between '090'\
-          \ and '099' THEN  '999'\n\n               WHEN \"CV_MODEL_FIN_ORGANIZATION\"\
-          .\"DISTRICT\" between '290' and '299' THEN  '999'\n\n               WHEN\
-          \ \"CV_MODEL_FIN_ORGANIZATION\".\"REGION\" in ('099','299') THEN  '999'\n\
-          \n               WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"REGION\" > '299' THEN\
-          \  '999'\n\n               WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"ACCT_UNIT\"\
-          \ between '7000' and '7999' THEN  '999'\n\n               WHEN \"CV_MODEL_FIN_ORGANIZATION\"\
-          .\"CLOSED_DATE\" <> 0 THEN '999'\n\n               ELSE \"CV_MODEL_FIN_ORGANIZATION\"\
-          .\"DISTRICT\"\n\n           END"
+        transform: "CASE WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"DISTRICT\" between '090' and '099' THEN  '999'\n\n               WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"DISTRICT\" between '290' and '299' THEN\
+          \  '999'\n\n               WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"REGION\" in ('099','299') THEN  '999'\n\n               WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"REGION\" > '299' THEN  '999'\n\n  \
+          \             WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"ACCT_UNIT\" between '7000' and '7999' THEN  '999'\n\n               WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"CLOSED_DATE\" <> 0 THEN '999'\n\n  \
+          \             ELSE \"CV_MODEL_FIN_ORGANIZATION\".\"DISTRICT\"\n\n           END"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 64e80e82-ef7a-59ab-8499-a439ae52c9fb
@@ -103,11 +103,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"DISTRICT\" IN ('090',\
-          \ '094', '095') \n\n     THEN 'Office, Overhead and Realignments'\n\n  \
-          \   WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"CLOSED_DATE\" <> 0 \n\n     THEN\
-          \ 'Office, Overhead and Realignments'\n\n     ELSE \"CV_MODEL_FIN_ORGANIZATION\"\
-          .\"DISTRICT_DESC\"\n\nEND"
+        transform: "CASE WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"DISTRICT\" IN ('090', '094', '095') \n\n     THEN 'Office, Overhead and Realignments'\n\n     WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"CLOSED_DATE\"\
+          \ <> 0 \n\n     THEN 'Office, Overhead and Realignments'\n\n     ELSE \"CV_MODEL_FIN_ORGANIZATION\".\"DISTRICT_DESC\"\n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: dc0a9d39-552c-5ff1-aadf-0ccfff805a53
@@ -745,24 +742,13 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"DISTRICT\" between '090'\
-          \ and '099' THEN  'OVERHEAD AND OTHER' /*Region and District Offices */\n\
-          \n                 WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"DISTRICT\" between\
-          \ '290' and '299' THEN  'OVERHEAD AND OTHER' /*Region and District Offices\
-          \ */\n\n                 WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"REGION\" in\
-          \ ('099','299') THEN  'OVERHEAD AND OTHER' /* Corporate Offices*/\n\n  \
-          \               WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"REGION\" > '299' THEN\
-          \  'OVERHEAD AND OTHER' /* Other Regions - Foreign and Inactive*/\n\n  \
-          \               WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"ACCT_UNIT\" between\
-          \ '7000' and '7999' THEN  'OVERHEAD AND OTHER' /* Adjustment Nodes */\n\n\
-          \                 WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"CLOSED_DATE\" <>\
-          \ 0 THEN 'OVERHEAD AND OTHER' /* Inactive locations not moved to Reg 99\
-          \ */\n\n\n\n       /* Since one of the big re-alignments we separated specialty\
-          \ regions to like = like */\n\n\n\n                 WHEN REGION  in ('007','207')\
-          \ THEN 'Power & HVAC'\n\n                 WHEN REGION in ('004','204') \
-          \ THEN 'TRENCH'\n\n                 WHEN REGION  in ('012','212') THEN 'PUMP'\n\
-          \n       /* Set up so the logic ends with all else */\n\n              \
-          \   ELSE 'AERIAL & GENERAL'\n\n           END"
+        transform: "CASE WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"DISTRICT\" between '090' and '099' THEN  'OVERHEAD AND OTHER' /*Region and District Offices */\n\n                 WHEN \"CV_MODEL_FIN_ORGANIZATION\"\
+          .\"DISTRICT\" between '290' and '299' THEN  'OVERHEAD AND OTHER' /*Region and District Offices */\n\n                 WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"REGION\" in ('099','299') THEN  'OVERHEAD\
+          \ AND OTHER' /* Corporate Offices*/\n\n                 WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"REGION\" > '299' THEN  'OVERHEAD AND OTHER' /* Other Regions - Foreign and Inactive*/\n\n         \
+          \        WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"ACCT_UNIT\" between '7000' and '7999' THEN  'OVERHEAD AND OTHER' /* Adjustment Nodes */\n\n                 WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"\
+          CLOSED_DATE\" <> 0 THEN 'OVERHEAD AND OTHER' /* Inactive locations not moved to Reg 99 */\n\n\n\n       /* Since one of the big re-alignments we separated specialty regions to like = like */\n\
+          \n\n\n                 WHEN REGION  in ('007','207') THEN 'Power & HVAC'\n\n                 WHEN REGION in ('004','204')  THEN 'TRENCH'\n\n                 WHEN REGION  in ('012','212') THEN\
+          \ 'PUMP'\n\n       /* Set up so the logic ends with all else */\n\n                 ELSE 'AERIAL & GENERAL'\n\n           END"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 976d69a2-ceae-5f38-b284-1f7cf16779f3
@@ -828,8 +814,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "\"CV_MODEL_FIN_ORGANIZATION\".\"ACCT_UNIT_DESC\" || ' (' || \n\
-          \n\"CV_MODEL_FIN_ORGANIZATION\".\"ORG_KEY\" || ')'"
+        transform: "\"CV_MODEL_FIN_ORGANIZATION\".\"ACCT_UNIT_DESC\" || ' (' || \n\n\"CV_MODEL_FIN_ORGANIZATION\".\"ORG_KEY\" || ')'"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2c5203f8-d11c-51bc-a5f5-84aa40b4d84f
@@ -841,9 +826,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE \"CV_MODEL_FIN_ORGANIZATION\".\"ACTIVE_STATUS\" \n\n WHEN\
-          \ 'A' THEN 'Active' \n\n WHEN 'I' THEN 'Inactive' \n\n ELSE \"CV_MODEL_FIN_ORGANIZATION\"\
-          .\"ACTIVE_STATUS\" \n\nEND"
+        transform: "CASE \"CV_MODEL_FIN_ORGANIZATION\".\"ACTIVE_STATUS\" \n\n WHEN 'A' THEN 'Active' \n\n WHEN 'I' THEN 'Inactive' \n\n ELSE \"CV_MODEL_FIN_ORGANIZATION\".\"ACTIVE_STATUS\" \n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a0ddfb80-c5e4-5949-95e1-6ce98c11acbf
@@ -867,9 +850,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "TRIM(\"CV_MODEL_FIN_ORGANIZATION\".\"DISTRICT_DESC\") || ' ('\
-          \ || \n\nTRIM(\"CV_MODEL_FIN_ORGANIZATION\".\"REGION_DISTRICT_CODE\") ||\
-          \ ')'"
+        transform: "TRIM(\"CV_MODEL_FIN_ORGANIZATION\".\"DISTRICT_DESC\") || ' (' || \n\nTRIM(\"CV_MODEL_FIN_ORGANIZATION\".\"REGION_DISTRICT_CODE\") || ')'"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c5aa61ea-86e8-52dd-baaa-4a9dcd7e7bd5
@@ -881,8 +862,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "TRIM(\"CV_MODEL_FIN_ORGANIZATION\".\"REGION_DESC\") || ' (' ||\
-          \ \n\nTRIM(\"CV_MODEL_FIN_ORGANIZATION\".\"REGION\") || ')'"
+        transform: "TRIM(\"CV_MODEL_FIN_ORGANIZATION\".\"REGION_DESC\") || ' (' || \n\nTRIM(\"CV_MODEL_FIN_ORGANIZATION\".\"REGION\") || ')'"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b5db628d-4bb7-51df-8141-bad3eeb5f11d
@@ -894,9 +874,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\n\n          WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"REGION\"\
-          \ in ('999', '099')\n\n          THEN 'Corporate'\n\n          ELSE 'Operational'\n\
-          \n         END"
+        transform: "CASE\n\n          WHEN \"CV_MODEL_FIN_ORGANIZATION\".\"REGION\" in ('999', '099')\n\n          THEN 'Corporate'\n\n          ELSE 'Operational'\n\n         END"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c9717144-5b63-5e76-a968-9128d0cdbbfa
@@ -908,8 +886,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "'(' || TRIM(\"CV_MODEL_FIN_ORGANIZATION\".\"TRADEAREA\") || ')\
-          \ ' || \n\n       TRIM(\"CV_MODEL_FIN_TRADENAMES\".\"TRADENAME\")"
+        transform: "'(' || TRIM(\"CV_MODEL_FIN_ORGANIZATION\".\"TRADEAREA\") || ') ' || \n\n       TRIM(\"CV_MODEL_FIN_TRADENAMES\".\"TRADENAME\")"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c6b09c2e-e1be-52f0-9a7f-56b4d2eb7490
@@ -1033,8 +1010,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CAST(COALESCE("CV_LU_CES_LOCATION"."CES_LOCATION_FLAG",'N') AS
-          CHAR(1))
+        transform: CAST(COALESCE("CV_LU_CES_LOCATION"."CES_LOCATION_FLAG",'N') AS CHAR(1))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6e5303d3-599c-50df-af7a-3ac86d210ac4
@@ -1121,16 +1097,10 @@ operation:
       - locationName: GOLD
         nodeName: CV_MODEL_FIN_TRADENAMES
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'CV_MODEL_FIN_ORGANIZATION') }} \"CV_MODEL_FIN_ORGANIZATION\"\
-          \n  \nLEFT JOIN {{ ref('GOLD', 'CV_MODEL_FIN_BENCHMARK') }} \"CV_MODEL_FIN_BENCHMARK\"\
-          \nON \"CV_MODEL_FIN_ORGANIZATION\".\"BENCHMARK\" = \"CV_MODEL_FIN_BENCHMARK\"\
-          .\"BENCHMARK\"\n  \nLEFT JOIN {{ ref('GOLD', 'CV_MODEL_FIN_TRADENAMES')\
-          \ }} \"CV_MODEL_FIN_TRADENAMES\"\nON \"CV_MODEL_FIN_ORGANIZATION\".\"TRADEAREA\"\
-          \ = \"CV_MODEL_FIN_TRADENAMES\".\"TRADEAREA\"\n  \nLEFT JOIN {{ ref('GOLD',\
-          \ 'CV_LU_CES_LOCATION') }} \"CV_LU_CES_LOCATION\"\nON \"CV_MODEL_FIN_ORGANIZATION\"\
-          .\"COMPANY\" = \"CV_LU_CES_LOCATION\".\"COMPANY\"\nAND \"CV_MODEL_FIN_ORGANIZATION\"\
-          .\"LOCATION_CODE\" = \"CV_LU_CES_LOCATION\".\"LOCATION_CODE\"\n  \nWHERE\
-          \ \"CV_MODEL_FIN_ORGANIZATION\".\"COMPANY\" NOT IN(19, 9)"
+        joinCondition: "FROM {{ ref('GOLD', 'CV_MODEL_FIN_ORGANIZATION') }} \"CV_MODEL_FIN_ORGANIZATION\"\n  \nLEFT JOIN {{ ref('GOLD', 'CV_MODEL_FIN_BENCHMARK') }} \"CV_MODEL_FIN_BENCHMARK\"\nON \"CV_MODEL_FIN_ORGANIZATION\"\
+          .\"BENCHMARK\" = \"CV_MODEL_FIN_BENCHMARK\".\"BENCHMARK\"\n  \nLEFT JOIN {{ ref('GOLD', 'CV_MODEL_FIN_TRADENAMES') }} \"CV_MODEL_FIN_TRADENAMES\"\nON \"CV_MODEL_FIN_ORGANIZATION\".\"TRADEAREA\"\
+          \ = \"CV_MODEL_FIN_TRADENAMES\".\"TRADEAREA\"\n  \nLEFT JOIN {{ ref('GOLD', 'CV_LU_CES_LOCATION') }} \"CV_LU_CES_LOCATION\"\nON \"CV_MODEL_FIN_ORGANIZATION\".\"COMPANY\" = \"CV_LU_CES_LOCATION\"\
+          .\"COMPANY\"\nAND \"CV_MODEL_FIN_ORGANIZATION\".\"LOCATION_CODE\" = \"CV_LU_CES_LOCATION\".\"LOCATION_CODE\"\n  \nWHERE \"CV_MODEL_FIN_ORGANIZATION\".\"COMPANY\" NOT IN(19, 9)"
       name: M3_FIN_ORGANIZATION
       noLinkRefs: []
   name: M3_FIN_ORGANIZATION

@@ -7,6 +7,8 @@ operation:
     preSQL: ''
     testsEnabled: true
     insertStrategy: INSERT
+    businessKeyColumns:
+    - CALENDAR_DATE
   database: ''
   deployEnabled: true
   description: ''
@@ -30,6 +32,7 @@ operation:
         - columnCounter: 519fd011-46ab-52cc-9073-b93223a6b930
           stepCounter: c8e36bee-bb85-520d-8afa-a3af49a3a286
         transform: ''
+      isBusinessKey: true
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d0b46368-991e-5b6e-b5b7-b9615444e437
@@ -181,9 +184,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tSYS_CALENDAR.Quarter_Of_Year \n\n\tWHEN 1 THEN 2\n\n\tWHEN\
-          \ 2 THEN 1\n\n      WHEN 3 THEN 1\n\n      WHEN 4 THEN 2\n\n      ELSE NULL\n\
-          \nEND"
+        transform: "CASE\tSYS_CALENDAR.Quarter_Of_Year \n\n\tWHEN 1 THEN 2\n\n\tWHEN 2 THEN 1\n\n      WHEN 3 THEN 1\n\n      WHEN 4 THEN 2\n\n      ELSE NULL\n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e178df84-e9fa-5781-973d-ddcc78ca1e28
@@ -195,9 +196,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tSYS_CALENDAR.quarter_of_year\n\n      WHEN 1 THEN 'Winter'\n\
-          \n      WHEN 2 THEN 'Summer'\n\n      WHEN 3 THEN 'Summer'\n\n      WHEN\
-          \ 4 THEN 'Winter'\n\n      ELSE NULL\n\nEND"
+        transform: "CASE\tSYS_CALENDAR.quarter_of_year\n\n      WHEN 1 THEN 'Winter'\n\n      WHEN 2 THEN 'Summer'\n\n      WHEN 3 THEN 'Summer'\n\n      WHEN 4 THEN 'Winter'\n\n      ELSE NULL\n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 971c9a19-3aaa-569f-9b14-adde2d4090fd
@@ -209,8 +208,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: RPAD(Substr(CAST(SYS_CALENDAR.Calendar_Date AS DATE) , 1, 4)||Substr(CAST(SYS_CALENDAR.Calendar_Date
-          AS DATE) , 6, 2), 6)
+        transform: RPAD(Substr(CAST(SYS_CALENDAR.Calendar_Date AS DATE) , 1, 4)||Substr(CAST(SYS_CALENDAR.Calendar_Date AS DATE) , 6, 2), 6)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5351e1d2-1c4b-5bc7-b45d-2cd009336ecc
@@ -258,14 +256,9 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE Substr(CAST(CALENDAR.Calendar_Date AS DATE) , 6, 2)\n\n \
-          \          WHEN '01' THEN 'Jan'\n\n           WHEN '02' THEN 'Feb'\n\n \
-          \          WHEN '03' THEN 'Mar'\n\n           WHEN '04' THEN 'Apr'\n\n \
-          \          WHEN '05' THEN 'May'\n\n           WHEN '06' THEN 'Jun'\n\n \
-          \          WHEN '07' THEN 'Jul'\n\n           WHEN '08' THEN 'Aug'\n\n \
-          \          WHEN '09' THEN 'Sep'\n\n           WHEN '10' THEN 'Oct'\n\n \
-          \          WHEN '11' THEN 'Nov'\n\n           WHEN '12' THEN 'Dec'\n\n \
-          \          ELSE 'Unk' END"
+        transform: "CASE Substr(CAST(CALENDAR.Calendar_Date AS DATE) , 6, 2)\n\n           WHEN '01' THEN 'Jan'\n\n           WHEN '02' THEN 'Feb'\n\n           WHEN '03' THEN 'Mar'\n\n           WHEN '04'\
+          \ THEN 'Apr'\n\n           WHEN '05' THEN 'May'\n\n           WHEN '06' THEN 'Jun'\n\n           WHEN '07' THEN 'Jul'\n\n           WHEN '08' THEN 'Aug'\n\n           WHEN '09' THEN 'Sep'\n\n\
+          \           WHEN '10' THEN 'Oct'\n\n           WHEN '11' THEN 'Nov'\n\n           WHEN '12' THEN 'Dec'\n\n           ELSE 'Unk' END"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9e50319d-d14c-5fb5-b9f4-3c5acbabd6ac
@@ -289,8 +282,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: RPAD(LTRIM(TO_VARCHAR(Cast(TRUNC(Year_Of_Calendar) AS INTEGER)
-          , 'MI9999999999')), 4)
+        transform: RPAD(LTRIM(TO_VARCHAR(Cast(TRUNC(Year_Of_Calendar) AS INTEGER) , 'MI9999999999')), 4)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8c04ec81-92d8-5a21-b78d-b382909d3321
@@ -305,24 +297,21 @@ operation:
         transform: 'CASE WHEN QUARTER_OF_YEAR = 1
 
 
-          THEN RPAD(LTRIM(TO_VARCHAR((Cast(TRUNC(YEAR_OF_CALENDAR) AS INTEGER)  -
-          1), ''MI9999999999'')), 4) || ''-'' || RPAD(LTRIM(TO_VARCHAR(Cast(TRUNC(YEAR_OF_CALENDAR)
-          AS INTEGER) , ''MI9999999999'')), 4) || '' '' || SEASON_DESC
+          THEN RPAD(LTRIM(TO_VARCHAR((Cast(TRUNC(YEAR_OF_CALENDAR) AS INTEGER)  - 1), ''MI9999999999'')), 4) || ''-'' || RPAD(LTRIM(TO_VARCHAR(Cast(TRUNC(YEAR_OF_CALENDAR) AS INTEGER) , ''MI9999999999'')),
+          4) || '' '' || SEASON_DESC
 
 
           WHEN QUARTER_OF_YEAR = 4
 
 
-          THEN RPAD(LTRIM(TO_VARCHAR(Cast(TRUNC(YEAR_OF_CALENDAR) AS INTEGER) , ''MI9999999999'')),
-          4) || ''-'' || RPAD(LTRIM(TO_VARCHAR((Cast(TRUNC(YEAR_OF_CALENDAR) AS INTEGER)  +
-          1), ''MI9999999999'')), 4) || '' '' || SEASON_DESC
+          THEN RPAD(LTRIM(TO_VARCHAR(Cast(TRUNC(YEAR_OF_CALENDAR) AS INTEGER) , ''MI9999999999'')), 4) || ''-'' || RPAD(LTRIM(TO_VARCHAR((Cast(TRUNC(YEAR_OF_CALENDAR) AS INTEGER)  + 1), ''MI9999999999'')),
+          4) || '' '' || SEASON_DESC
 
 
           WHEN QUARTER_OF_YEAR IN ( 2, 3)
 
 
-          THEN RPAD(LTRIM(TO_VARCHAR(Cast(TRUNC(YEAR_OF_CALENDAR) AS INTEGER) , ''MI9999999999'')),
-          4) || ''-'' || SEASON_DESC
+          THEN RPAD(LTRIM(TO_VARCHAR(Cast(TRUNC(YEAR_OF_CALENDAR) AS INTEGER) , ''MI9999999999'')), 4) || ''-'' || SEASON_DESC
 
 
           END'
@@ -337,8 +326,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (RPAD(LTRIM(TO_VARCHAR(Cast(TRUNC(Year_Of_Calendar) AS INTEGER)
-          , 'MI9999999999')), 4)) || ' ' || Quarter_Of_Year_Desc
+        transform: (RPAD(LTRIM(TO_VARCHAR(Cast(TRUNC(Year_Of_Calendar) AS INTEGER) , 'MI9999999999')), 4)) || ' ' || Quarter_Of_Year_Desc
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f944260d-6ef2-5c66-94f6-d3c1f2938849
@@ -350,8 +338,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (RPAD(LTRIM(TO_VARCHAR(Cast(TRUNC(Year_Of_Calendar) AS INTEGER)
-          , 'MI9999999999')), 4)) || ' ' || Month_Of_Year_Desc
+        transform: (RPAD(LTRIM(TO_VARCHAR(Cast(TRUNC(Year_Of_Calendar) AS INTEGER) , 'MI9999999999')), 4)) || ' ' || Month_Of_Year_Desc
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2918cb1f-6fee-55e4-91da-b47d4d7f7ce6
@@ -366,12 +353,10 @@ operation:
         transform: '''Week of ''||
 
 
-          Trim(Extract(YEAR From Min(Calendar_Date) Over (PARTITION BY Week_Of_Calendar_Id)))
-          || ''/'' || CASE
+          Trim(Extract(YEAR From Min(Calendar_Date) Over (PARTITION BY Week_Of_Calendar_Id))) || ''/'' || CASE
 
 
-          WHEN LEN(Trim(Extract(MONTH From Min(Calendar_Date) Over (PARTITION BY Week_Of_Calendar_Id))))
-          = 1
+          WHEN LEN(Trim(Extract(MONTH From Min(Calendar_Date) Over (PARTITION BY Week_Of_Calendar_Id)))) = 1
 
 
           THEN ''0'' ELSE ''''''''
@@ -380,12 +365,10 @@ operation:
           END ||
 
 
-          Trim(Extract(MONTH From Min(Calendar_Date) Over (PARTITION BY Week_Of_Calendar_Id)))
-          || ''/'' || CASE
+          Trim(Extract(MONTH From Min(Calendar_Date) Over (PARTITION BY Week_Of_Calendar_Id))) || ''/'' || CASE
 
 
-          WHEN LEN(Trim(Extract(DAY From Min(Calendar_Date) Over (PARTITION BY Week_Of_Calendar_Id))))
-          = 1
+          WHEN LEN(Trim(Extract(DAY From Min(Calendar_Date) Over (PARTITION BY Week_Of_Calendar_Id)))) = 1
 
 
           THEN ''0'' ELSE ''''''''
@@ -473,8 +456,7 @@ operation:
 
           , {{ ref(''GOLD'', ''FISCALCALENDAR'') }} "FISCALCALENDAR"
 
-          WHERE tgt.Calendar_Date = CALENDAR.Calendar_Date From SYS_CALENDAR.CALENDAR
-          AS CALENDAR
+          WHERE tgt.Calendar_Date = CALENDAR.Calendar_Date From SYS_CALENDAR.CALENDAR AS CALENDAR
 
           Where Calendar_Date between ''1980-01-01'' and ''2020-12-31'''
       name: FISCALCALENDAR
