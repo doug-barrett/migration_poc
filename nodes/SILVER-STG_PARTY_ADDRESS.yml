@@ -296,20 +296,11 @@ operation:
       - locationName: GOLD
         nodeName: PARTY
       join:
-        joinCondition: "FROM (\nSelect\n\"JOURNAL_TYPE\",\n\"JOURNAL_BEGIN_DATE\"\
-          ,\n\"JOURNAL_END_DATE\",\n\"COMPANY_CODE\" as \"COMPANY_CODE\",\n\"ADDRESS_TYPE_CODE\"\
-          \ as \"ADDRESS_TYPE_CODE\",\n\"ADDRESS_LINE_1_TXT\" as \"ADDRESS_LINE_1_TXT\"\
-          ,\n\"ADDRESS_LINE_2_TXT\" as \"ADDRESS_LINE_2_TXT\",\n\"CITY_CODE\" as \"\
-          CITY_CODE\",\n\"STATE_CODE\" as \"STATE_CODE\",\n\"POSTAL_CODE\" as \"POSTAL_CODE\"\
-          ,\n\"CAST\"( 0 as integer) as \"AREA_CODE\",\ncast( 0 as integer) as \"\
-          PHONE_NUM\",\n\"COUNTRY_CODE\" as \"COUNTRY_CODE\",\n\"PARTY_NAME\" AS \"\
-          PARTY_NAME\",\n\"PARTY_TYPE_CODE\" AS \"PARTY_TYPE_CODE\",\n\"CUSTOMER_ACCOUNT_NUM\"\
-          \ AS \"CUSTOMER_ACCOUNT_NUM\",\n\"CUSTOMER_ACCOUNT_CHAR\" AS \"CUSTOMER_ACCOUNT_CHAR\"\
-          \nFrom {{ ref('GOLD', 'WRK_PARTY_ADDR_MAIL') }} \"Union\"\n\nSelect \n\"\
-          JOURNAL_TYPE\",\n\"JOURNAL_BEGIN_DATE\",\n\"JOURNAL_END_DATE\",\n\"COMPANY_CODE\"\
-          ,\n\"ADDRESS_TYPE_CODE\",\n\"EMAIL_ADDRESS\",\n', ',',',0,0,'',\n\"PARTY_NAME\"\
-          ,\n\"PARTY_TYPE_CODE\",\n\"CUSTOMER_ACCOUNT_NUM\",\n\"CUSTOMER_ACCOUNT_CHAR\"\
-          \nFrom IDENTIFIER('\""
+        joinCondition: |-
+          FROM {{ ref('GOLD', 'WRK_PARTY_ADDR_MAIL') }} "WRK_PARTY_ADDR_MAIL"
+          LEFT OUTER JOIN
+          (SELECT COALESCE(MAX("ADDRESS_ID"),0) AS "LAST_ID" FROM {{ ref('GOLD', 'ADDRESS') }} "ADDRESS") "MAX_ID"
+          ON 1=1
       name: STG_PARTY_ADDRESS
       noLinkRefs: []
   name: STG_PARTY_ADDRESS
