@@ -166,20 +166,26 @@ operation:
       - locationName: GOLD
         nodeName: CV_PARTY
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'SRC_CUSMASFL') }} \"SRC_CUSMASFL\"\n\
-          LEFT OUTER JOIN {{ ref('GOLD', 'CV_PARTY') }} \"CV_PARTY\"\nON   SRC_CUSMASFL.CMCMP\
-          \ = CV_PARTY.COMPANY_CODE\nAND  SRC_CUSMASFL.CMCUS0 = CV_PARTY.CUSTOMER_ACCOUNT_NUM\n\
-          AND  CV_PARTY.PARTY_TYPE_CODE = 1\n\n Where SRC_CUSMASFL.AUD_TIME <= (Select\
-          \ MAX(BATCH_END)   from {{ ref('SILVER', 'CDC_BATCH') }})\n AND    SRC_CUSMASFL.AUD_TIME\
-          \ >   (Select MAX(BATCH_START)  from {{ ref('SILVER', 'CDC_BATCH') }}\
-          )\n AND   (SRC_CUSMASFL.AUD_CODE <> 'F' or (SRC_CUSMASFL.AUD_CODE is null\
-          \ and SRC_CUSMASFL.AUD_TYPE = 'RR'))\n\n QUALIFY RANK() \n OVER (PARTITION\
-          \ BY  SRC_CUSMASFL.CMCMP, SRC_CUSMASFL.CMCUS0\n ORDER BY SRC_CUSMASFL.AUD_TIME\
-          \ DESC, SRC_CUSMASFL.AUD_SEQNO DESC, CASE  \n WHEN SRC_CUSMASFL.AUD_TYPE\
-          \ in ('PT','PX','FI')\tTHEN 1 \n WHEN SRC_CUSMASFL.AUD_TYPE in ('UB','FB','FP','BR')\t\
-          THEN 2 \n WHEN SRC_CUSMASFL.AUD_TYPE in ('UP','UR')\tTHEN 3 \n WHEN SRC_CUSMASFL.AUD_TYPE\
-          \ in ('DL','FD')\tTHEN 4 \n WHEN SRC_CUSMASFL.AUD_TYPE in ('RR')\t\tTHEN\
-          \ 5 \n ELSE 0 END DESC) = 1"
+        joinCondition: 'FROM {{ ref(''GOLD'', ''SRC_CUSMASFL'') }} "SRC_CUSMASFL"
+
+          LEFT OUTER JOIN {{ ref(''GOLD'', ''CV_PARTY'') }} "CV_PARTY"
+
+          ON   SRC_CUSMASFL.CMCMP = CV_PARTY.COMPANY_CODE
+
+          AND  SRC_CUSMASFL.CMCUS0 = CV_PARTY.CUSTOMER_ACCOUNT_NUM
+
+          AND  CV_PARTY.PARTY_TYPE_CODE = 1
+
+          WHERE SRC_CUSMASFL.AUD_TIME <= (Select MAX(BATCH_END) from {{ ref(''SILVER'',
+          ''CDC_BATCH'') }}) AND SRC_CUSMASFL.AUD_TIME > (Select MAX(BATCH_START)
+          from {{ ref(''SILVER'', ''CDC_BATCH'') }}) AND (SRC_CUSMASFL.AUD_CODE <>
+          ''F'' or (SRC_CUSMASFL.AUD_CODE is null and SRC_CUSMASFL.AUD_TYPE = ''RR''))
+          QUALIFY RANK() OVER (PARTITION BY SRC_CUSMASFL.CMCMP, SRC_CUSMASFL.CMCUS0
+          ORDER BY SRC_CUSMASFL.AUD_TIME DESC, SRC_CUSMASFL.AUD_SEQNO DESC, CASE WHEN
+          SRC_CUSMASFL.AUD_TYPE in (''PT'',''PX'',''FI'') THEN 1 WHEN SRC_CUSMASFL.AUD_TYPE
+          in (''UB'',''FB'',''FP'',''BR'') THEN 2 WHEN SRC_CUSMASFL.AUD_TYPE in (''UP'',''UR'')
+          THEN 3 WHEN SRC_CUSMASFL.AUD_TYPE in (''DL'',''FD'') THEN 4 WHEN SRC_CUSMASFL.AUD_TYPE
+          in (''RR'') THEN 5 ELSE 0 END DESC) = 1'
       name: ETL_PARTY_SIC
       noLinkRefs: []
   name: ETL_PARTY_SIC

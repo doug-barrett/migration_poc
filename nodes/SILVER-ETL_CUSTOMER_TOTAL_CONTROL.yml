@@ -203,20 +203,39 @@ operation:
       - locationName: GOLD
         nodeName: DV_LOCATION
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'SRC_CUSMASFL') }} \"SRC_CUSMASFL\"\n\n\
-          LEFT OUTER JOIN {{ ref('GOLD', 'DV_PARTY') }} \"DV_PARTY\"\nON  SRC_CUSMASFL.CMCMP\
-          \  = DV_PARTY.Company_Code\nAND SRC_CUSMASFL.CMCUS0 = DV_PARTY.Customer_Account_Num\n\
-          AND DV_PARTY.Party_Type_Code = 1\n\nLEFT OUTER JOIN {{ ref('GOLD', 'DV_LOCATION')\
-          \ }} \"DV_LOCATION_QUOTE\"\nON  SRC_CUSMASFL.CMCMP  = DV_LOCATION_QUOTE.Company_Code\n\
-          AND SRC_CUSMASFL.CMTCRQ = DV_LOCATION_QUOTe.Location_Code\n\nLEFT OUTER\
-          \ JOIN {{ ref('GOLD', 'DV_LOCATION') }} \"DV_LOCATION_RESERV\"\nON  SRC_CUSMASFL.CMCMP\
-          \  = DV_LOCATION_RESERV.Company_Code\nAND SRC_CUSMASFL.CMTCRR = DV_LOCATION_RESERV.Location_Code\
-          \ WHERE AUD_TIME <= (SELECT MAX(BATCH_END) FROM {{ ref('SILVER', 'CDC_BATCH') }})\n  AND AUD_TIME >  (SELECT MAX(BATCH_START) FROM {{ ref('SILVER', 'CDC_BATCH') }})\n  AND (AUD_CODE <> 'F' OR (AUD_CODE IS NULL AND\
-          \ AUD_TYPE = 'RR'))\n\nQUALIFY RANK() \nOVER (PARTITION BY  CMCMP, CMCUS0\
-          \ \nORDER BY AUD_TIME DESC, Aud_Seqno DESC, CASE  \nWHEN AUD_TYPE IN ('PT','PX','FI')\
-          \ THEN 1 \nWHEN AUD_TYPE IN ('UB','FB','FP','BR') THEN 2 \nWHEN AUD_TYPE\
-          \ IN ('UP','UR') THEN 3 \nWHEN AUD_TYPE IN ('DL','FD') THEN 4 \nWHEN AUD_TYPE\
-          \ IN ('RR') THEN 5 \nELSE 0 END DESC) = 1"
+        joinCondition: 'FROM {{ ref(''GOLD'', ''SRC_CUSMASFL'') }} "SRC_CUSMASFL"
+
+
+          LEFT OUTER JOIN {{ ref(''GOLD'', ''DV_PARTY'') }} "DV_PARTY"
+
+          ON  SRC_CUSMASFL.CMCMP  = DV_PARTY.Company_Code
+
+          AND SRC_CUSMASFL.CMCUS0 = DV_PARTY.Customer_Account_Num
+
+          AND DV_PARTY.Party_Type_Code = 1
+
+
+          LEFT OUTER JOIN {{ ref(''GOLD'', ''DV_LOCATION'') }} "DV_LOCATION_QUOTE"
+
+          ON  SRC_CUSMASFL.CMCMP  = DV_LOCATION_QUOTE.Company_Code
+
+          AND SRC_CUSMASFL.CMTCRQ = DV_LOCATION_QUOTe.Location_Code
+
+
+          LEFT OUTER JOIN {{ ref(''GOLD'', ''DV_LOCATION'') }} "DV_LOCATION_RESERV"
+
+          ON  SRC_CUSMASFL.CMCMP  = DV_LOCATION_RESERV.Company_Code
+
+          AND SRC_CUSMASFL.CMTCRR = DV_LOCATION_RESERV.Location_Code
+
+          WHERE AUD_TIME <= (SELECT MAX(BATCH_END) FROM {{ ref(''SILVER'', ''CDC_BATCH'')
+          }}) AND AUD_TIME > (SELECT MAX(BATCH_START) FROM {{ ref(''SILVER'', ''CDC_BATCH'')
+          }}) AND (AUD_CODE <> ''F'' OR (AUD_CODE IS NULL AND AUD_TYPE = ''RR''))
+          QUALIFY RANK() OVER (PARTITION BY CMCMP, CMCUS0 ORDER BY AUD_TIME DESC,
+          Aud_Seqno DESC, CASE WHEN AUD_TYPE IN (''PT'',''PX'',''FI'') THEN 1 WHEN
+          AUD_TYPE IN (''UB'',''FB'',''FP'',''BR'') THEN 2 WHEN AUD_TYPE IN (''UP'',''UR'')
+          THEN 3 WHEN AUD_TYPE IN (''DL'',''FD'') THEN 4 WHEN AUD_TYPE IN (''RR'')
+          THEN 5 ELSE 0 END DESC) = 1'
       name: ETL_CUSTOMER_TOTAL_CONTROL
       noLinkRefs: []
   name: ETL_CUSTOMER_TOTAL_CONTROL

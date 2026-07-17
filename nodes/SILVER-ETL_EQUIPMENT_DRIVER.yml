@@ -178,17 +178,23 @@ operation:
       - locationName: GOLD
         nodeName: DV_EQUIPMENT
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'SRC_EQPDRVFL') }} \"SRC_EQPDRVFL\"\n\n\
-          LEFT OUTER JOIN {{ ref('GOLD', 'DV_EQUIPMENT') }} \"DV_EQUIPMENT\"\nON \
-          \ SRC_EQPDRVFL.DFCMP = DV_EQUIPMENT.Company_Code\nAND SRC_EQPDRVFL.DFEQP0\
-          \ = DV_EQUIPMENT.Equipment_Code WHERE AUD_TIME <= (SELECT MAX(BATCH_END)\
-          \ FROM {{ ref('SILVER', 'CDC_BATCH') }} )\nAND AUD_TIME > (SELECT MAX(BATCH_START)\
-          \ FROM {{ ref('SILVER', 'CDC_BATCH') }})\nAND (AUD_CODE <> 'F' OR (AUD_CODE\
-          \ IS NULL AND AUD_TYPE = 'RR'))\n\nQUALIFY RANK() \nOVER (PARTITION BY \
-          \ DFCMP, DFEQP0 \nORDER BY AUD_TIME DESC, Aud_Seqno DESC, CASE  \nWHEN AUD_TYPE\
-          \ in ('PT','PX','FI')\tTHEN 1 \nWHEN AUD_TYPE in ('UB','FB','FP','BR')\t\
-          THEN 2 \nWHEN AUD_TYPE in ('UP','UR')\tTHEN 3 \nWHEN AUD_TYPE in ('DL','FD')\t\
-          THEN 4 \nWHEN AUD_TYPE in ('RR')\t\tTHEN 5 \nELSE 0 END DESC) = 1"
+        joinCondition: 'FROM {{ ref(''GOLD'', ''SRC_EQPDRVFL'') }} "SRC_EQPDRVFL"
+
+
+          LEFT OUTER JOIN {{ ref(''GOLD'', ''DV_EQUIPMENT'') }} "DV_EQUIPMENT"
+
+          ON  SRC_EQPDRVFL.DFCMP = DV_EQUIPMENT.Company_Code
+
+          AND SRC_EQPDRVFL.DFEQP0 = DV_EQUIPMENT.Equipment_Code
+
+          WHERE AUD_TIME <= (SELECT MAX(BATCH_END) FROM {{ ref(''SILVER'', ''CDC_BATCH'')
+          }} ) AND AUD_TIME > (SELECT MAX(BATCH_START) FROM {{ ref(''SILVER'', ''CDC_BATCH'')
+          }}) AND (AUD_CODE <> ''F'' OR (AUD_CODE IS NULL AND AUD_TYPE = ''RR''))
+          QUALIFY RANK() OVER (PARTITION BY DFCMP, DFEQP0 ORDER BY AUD_TIME DESC,
+          Aud_Seqno DESC, CASE WHEN AUD_TYPE in (''PT'',''PX'',''FI'') THEN 1 WHEN
+          AUD_TYPE in (''UB'',''FB'',''FP'',''BR'') THEN 2 WHEN AUD_TYPE in (''UP'',''UR'')
+          THEN 3 WHEN AUD_TYPE in (''DL'',''FD'') THEN 4 WHEN AUD_TYPE in (''RR'')
+          THEN 5 ELSE 0 END DESC) = 1'
       name: ETL_EQUIPMENT_DRIVER
       noLinkRefs: []
   name: ETL_EQUIPMENT_DRIVER

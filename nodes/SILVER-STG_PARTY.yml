@@ -77,12 +77,15 @@ operation:
         stepCounter: 30790a35-f075-5f98-ad11-95d761da0658
       config: {}
       dataType: NUMBER(38,0)
-      description: STG_PARTY.Party_Type_Code=DV_PARTY.Party_Type_Code STG_PARTY.Company_Code=DV_PARTY.Company_Code STG_PARTY.Customer_Account_Num=DV_PARTY.Customer_Account_Num STG_PARTY.Customer_Account_Char=DV_PARTY.Customer_Account_Char
+      description: STG_PARTY.Party_Type_Code=DV_PARTY.Party_Type_Code STG_PARTY.Company_Code=DV_PARTY.Company_Code
+        STG_PARTY.Customer_Account_Num=DV_PARTY.Customer_Account_Num STG_PARTY.Customer_Account_Char=DV_PARTY.Customer_Account_Char
       name: PARTY_ID
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "\"COALESCE\"(\"DV_PARTY\".\"PARTY_ID\",\n\n \"ROW_NUMBER\"() over(Order by \"DV_PARTY\".\"PARTY_ID\" asc \"NULLS\" \"FIRST\",\n\n Case \n\n when \"JOURNAL_TYPE\" in (1,3,5) then 1 \n\n else 9 end asc) + \"LAST_ID\")"
+        transform: "\"COALESCE\"(\"DV_PARTY\".\"PARTY_ID\",\n\n \"ROW_NUMBER\"() over(Order\
+          \ by \"DV_PARTY\".\"PARTY_ID\" asc \"NULLS\" \"FIRST\",\n\n Case \n\n when\
+          \ \"JOURNAL_TYPE\" in (1,3,5) then 1 \n\n else 9 end asc) + \"LAST_ID\")"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0cdabd30-6b0f-52b2-af5f-c04867eee01c
@@ -164,7 +167,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'CAST(CURRENT_TIMESTAMP AS TIMESTAMP)'
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 54bb05fd-4f86-5db2-8f26-8fc901c32d9e
@@ -176,7 +179,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'CAST(CURRENT_TIMESTAMP AS TIMESTAMP)'
+        transform: CAST(CURRENT_TIMESTAMP AS TIMESTAMP)
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
@@ -188,7 +191,7 @@ operation:
       - locationName: GOLD
         nodeName: WRK_PARTY
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'WRK_PARTY') }} \"WRK_PARTY\"\n\nLEFT OUTER JOIN {{ ref('GOLD', 'DV_PARTY') }} \"DV_PARTY\"\n ON  \"DV_PARTY\".\"COMPANY_CODE\" = \"WRK_PARTY\".\"COMPANY_CODE\"\n AND \"DV_PARTY\".\"CUSTOMER_ACCOUNT_NUM\" = \"WRK_PARTY\".\"CUSTOMER_ACCOUNT_NUM\"\n AND \"DV_PARTY\".\"CUSTOMER_ACCOUNT_CHAR\" = \"WRK_PARTY\".\"CUSTOMER_ACCOUNT_CHAR\"\n AND \"DV_PARTY\".\"PARTY_TYPE_CODE\" = \"WRK_PARTY\".\"PARTY_TYPE_CODE\"\n \n LEFT OUTER JOIN \n (Select \"COALESCE\"(\"MAX\"(\"PARTY_ID\"),0) as \"LAST_ID\" from {{ ref('GOLD', 'PARTY') }} \"PARTY\" ) as \"MAX_ID\" on 1 = 1"
+        joinCondition: FROM {{ ref('GOLD', 'WRK_PARTY') }} "
       name: STG_PARTY
       noLinkRefs:
       - locationName: GOLD

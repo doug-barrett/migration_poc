@@ -3721,21 +3721,16 @@ operation:
       - locationName: GOLD
         nodeName: DV_LOCATION
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'SRC_GPSSIMFL_WSDATA') }} \"SRC_GPSSIMFL_WSDATA\"\
-          \n\nLEFT OUTER JOIN {{ ref('GOLD', 'DV_LOCATION') }} \"DV_LOCATION\"\n \
-          \ ON SRC_GPSSIMFL_WSDATA.GICMP = DV_LOCATION.Company_Code\n  AND SRC_GPSSIMFL_WSDATA.GILOC\
-          \ = DV_LOCATION.Location_Code\n  \n  LEFT OUTER JOIN {{ ref('GOLD', 'DV_EQUIPMENT')\
-          \ }} \"DV_EQUIPMENT\"\n  ON SRC_GPSSIMFL_WSDATA.GICMP = DV_EQUIPMENT.Company_Code\n\
-          \  AND SRC_GPSSIMFL_WSDATA.GIEQP0 = DV_EQUIPMENT.Equipment_Code       Where\
-          \ AUD_TIME <= (Select MAX(BATCH_END) from {{ ref('SILVER', 'CDC_BATCH') }}\
-          \ )\t\t\t\n      AND AUD_TIME > (Select MAX(BATCH_START) from {{ ref('SILVER', 'CDC_BATCH') }})\t\t\t\n      AND (AUD_CODE <> 'F' or (AUD_CODE\
-          \ is null and AUD_TYPE = 'RR'))\t\t\t\n\t\t\t\n      QUALIFY RANK() \t\t\
-          \t\n      OVER (PARTITION BY  GICMP, GILSRC, GISIM\t\t\t\n      ORDER BY\
-          \ AUD_TIME DESC, AUD_CNTRRN DESC, CASE  \t\t\t\n      WHEN AUD_TYPE in ('PT','PX','FI')\t\
-          THEN 1 \t\t\n      WHEN AUD_TYPE in ('UB','FB','FP','BR')\tTHEN 2 \t\t\n\
-          \      WHEN AUD_TYPE in ('UP','UR')\tTHEN 3 \t\t\n      WHEN AUD_TYPE in\
-          \ ('DL','FD')\tTHEN 4 \t\t\n      WHEN AUD_TYPE in ('RR')\t\tTHEN 5 \t\n\
-          \      ELSE 0 END DESC) = 1"
+        joinCondition: 'FROM {{ ref(''GOLD'', ''SRC_GPSSIMFL_WSDATA'') }} "SRC_GPSSIMFL_
+
+          WHERE AUD_TIME <= (Select MAX(BATCH_END) from {{ ref(''SILVER'', ''CDC_BATCH'')
+          }} ) AND AUD_TIME > (Select MAX(BATCH_START) from {{ ref(''SILVER'', ''CDC_BATCH'')
+          }}) AND (AUD_CODE <> ''F'' or (AUD_CODE is null and AUD_TYPE = ''RR''))
+          QUALIFY RANK() OVER (PARTITION BY GICMP, GILSRC, GISIM ORDER BY AUD_TIME
+          DESC, AUD_CNTRRN DESC, CASE WHEN AUD_TYPE in (''PT'',''PX'',''FI'') THEN
+          1 WHEN AUD_TYPE in (''UB'',''FB'',''FP'',''BR'') THEN 2 WHEN AUD_TYPE in
+          (''UP'',''UR'') THEN 3 WHEN AUD_TYPE in (''DL'',''FD'') THEN 4 WHEN AUD_TYPE
+          in (''RR'') THEN 5 ELSE 0 END DESC) = 1'
       name: ETL_GPS_SIM_CODE
       noLinkRefs: []
   name: ETL_GPS_SIM_CODE
