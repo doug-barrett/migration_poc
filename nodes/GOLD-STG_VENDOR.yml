@@ -576,7 +576,6 @@ operation:
     - aliases:
         CDC_IMVENDFL: f91a75e1-95ad-501b-9acd-f226fd66e6ec
         DV_VENDOR: dbf14f8e-fd5d-5421-a642-c77f78265536
-        VENDOR: 09f65784-a818-520f-bf85-1d3893bef600
       customSQL:
         customSQL: ''
       dependencies:
@@ -584,8 +583,6 @@ operation:
         nodeName: CDC_IMVENDFL
       - locationName: GOLD
         nodeName: DV_VENDOR
-      - locationName: GOLD
-        nodeName: VENDOR
       join:
         joinCondition: |-
           FROM {{ ref('GOLD', 'CDC_IMVENDFL') }} "CDC_IMVENDFL"
@@ -593,10 +590,12 @@ operation:
           ON "CDC_IMVENDFL"."MVCMP0" = "DV_VENDOR"."COMPANY_CODE"
           AND "CDC_IMVENDFL"."MVVND0" = "DV_VENDOR"."VENDOR_CODE"
           LEFT OUTER JOIN
-          (SELECT COALESCE(MAX("VENDOR_ID"),0) AS "LAST_ID" FROM {{ ref('GOLD', 'VENDOR') }} "VENDOR") "VENDOR"
+          (SELECT COALESCE(MAX("VENDOR_ID"),0) AS "LAST_ID" FROM {{ ref_no_link('GOLD', 'VENDOR') }} "VENDOR") "MAX_ID"
           ON 1=1
       name: STG_VENDOR
-      noLinkRefs: []
+      noLinkRefs:
+      - locationName: GOLD
+        nodeName: VENDOR
   name: STG_VENDOR
   overrideSQL: false
   schema: ''
