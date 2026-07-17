@@ -22,8 +22,7 @@ operation:
         stepCounter: 722849d8-1c60-56c2-a111-5e81e6d376a9
       config: {}
       dataType: NUMBER(38,0)
-      description: Journal Conversion Transformation 1 = Insert 2 = Update Before
-        3 = Update 4 = Delete 5 = Refresh
+      description: Journal Conversion Transformation 1 = Insert 2 = Update Before 3 = Update 4 = Delete 5 = Refresh
       name: JOURNAL_TYPE
       nullable: true
       sourceColumnReferences:
@@ -42,7 +41,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: AGG_DISTRICT.Last_District_Id
+        transform: '"AGG_DISTRICT"."LAST_DISTRICT_ID"'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ce080232-30a9-5560-99ea-3fde8fcb73a1
@@ -54,16 +53,16 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'COALESCE(DV_DISTRICT.District_Id,
+        transform: '"COALESCE"("DV_DISTRICT"."DISTRICT_ID",
 
 
-          Row_Number() over(Order by DV_DISTRICT.District_Id asc NULLS FIRST,
+          "ROW_NUMBER"() over(Order by "DV_DISTRICT"."DISTRICT_ID" asc "NULLS" "FIRST",
 
 
-          Case when Journal_type in (1,3,5) then 1 else 9 end asc
+          Case when "JOURNAL_TYPE" in (1,3,5) then 1 else 9 end asc
 
 
-          ) + Last_District_Id)'
+          ) + "LAST_DISTRICT_ID")'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 41d71001-c7df-50dc-ac50-b8cfebe7c9d1
@@ -131,7 +130,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(CV_EMPLOYEE.FIRST_NAME||' '|| CV_EMPLOYEE.LAST_NAME, 'UNKNOWN')
+        transform: '"COALESCE"("CV_EMPLOYEE"."FIRST_NAME"||'' ''|| "CV_EMPLOYEE"."LAST_NAME", ''UNKNOWN'')'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b98888e4-b37f-5a23-ac42-256d840b0bf8
@@ -174,14 +173,7 @@ operation:
       - locationName: GOLD
         nodeName: DV_DISTRICT
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'CDC_SYSDSTFL') }} \"CDC_SYSDSTFL\"\n\n\
-          LEFT OUTER JOIN {{ ref('GOLD', 'DV_DISTRICT') }} \"DV_DISTRICT\"\n  ON CDC_SYSDSTFL.ZKCMP\
-          \ = DV_DISTRICT.Company_Code\n  AND CDC_SYSDSTFL.ZKDIST = DV_DISTRICT.District_Code\n\
-          \nLEFT OUTER JOIN \n(SELECT \n  COALESCE(MAX(District_id),0) AS Last_District_Id\
-          \ \n  FROM \"DOUG_POC\".\"DP001\".\"DISTRICT\" \n) AS AGG_DISTRICT \n  ON\
-          \ 1 = 1\n\nLEFT OUTER JOIN {{ ref_no_link('GOLD', 'CV_EMPLOYEE') }} \"CV_EMPLOYEE\"\
-          \ \n  ON UPPER(CDC_SYSDSTFL.ZKUSER) = UPPER(CV_EMPLOYEE.Rentalman_User_ID)\
-          \ \n  AND ZKUSER <> ''"
+        joinCondition: "FROM  {{ ref('GOLD', 'CDC_SYSDSTFL') }} \"CDC_SYSDSTFL\"\n\nLEFT OUTER JOIN {{ ref('GOLD', 'DV_DISTRICT') }} \"DV_DISTRICT\"\n  ON \"CDC_SYSDSTFL\".\"ZKCMP\" = \"DV_DISTRICT\".\"COMPANY_CODE\"\n  AND \"CDC_SYSDSTFL\".\"ZKDIST\" = \"DV_DISTRICT\".\"DISTRICT_CODE\"\n\nLEFT OUTER JOIN \n(SELECT \n  \"COALESCE\"(\"MAX\"(\"DISTRICT_ID\"),0) AS \"LAST_DISTRICT_ID\" \n  "
       name: STG_DISTRICT
       noLinkRefs:
       - locationName: GOLD

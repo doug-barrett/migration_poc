@@ -22,8 +22,7 @@ operation:
         stepCounter: 0c51e783-3ca4-58f2-adda-a76e097f1df3
       config: {}
       dataType: NUMBER(38,0)
-      description: Journal Conversion Transformation 1 = Insert 2 = Update Before
-        3 = Update 4 = Delete 5 = Refresh
+      description: Journal Conversion Transformation 1 = Insert 2 = Update Before 3 = Update 4 = Delete 5 = Refresh
       name: JOURNAL_TYPE
       nullable: true
       sourceColumnReferences:
@@ -42,7 +41,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: Max_ID.Last_Id
+        transform: '"MAX_ID"."LAST_ID"'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: cb46145d-97ba-56d3-b153-36b435dba469
@@ -54,13 +53,13 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'COALESCE(DV_REGION.Region_Id,
+        transform: '"COALESCE"("DV_REGION"."REGION_ID",
 
 
-          Row_Number() over(Order by DV_REGION.Region_Id asc NULLS FIRST,
+          "ROW_NUMBER"() over(Order by "DV_REGION"."REGION_ID" asc "NULLS" "FIRST",
 
 
-          Case when Journal_type in (1,3,5) then 1 else 9 end asc) + Last_Id)'
+          Case when "JOURNAL_TYPE" in (1,3,5) then 1 else 9 end asc) + "LAST_ID")'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5f7cead2-51d8-589d-9052-9171d1bb9f85
@@ -184,11 +183,7 @@ operation:
       - locationName: GOLD
         nodeName: CDC_SYSRGNFL
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'CDC_SYSRGNFL') }} \"CDC_SYSRGNFL\"\n\
-          LEFT OUTER JOIN {{ ref_no_link('GOLD', 'DV_REGION') }} \"DV_REGION\"\nON\
-          \ CDC_SYSRGNFL.ZRCMP = DV_REGION.Company_Code\nAND CDC_SYSRGNFL.ZRRGN =\
-          \ DV_REGION.Region_Code\n\nLEFT OUTER JOIN \n(Select COALESCE(Max(Region_id),0)\
-          \ as Last_Id FROM \"DOUG_POC\".\"DP001\".\"REGION\" ) as Max_ID on 1 = 1"
+        joinCondition: "FROM  {{ ref('GOLD', 'CDC_SYSRGNFL') }} \"CDC_SYSRGNFL\"\nLEFT OUTER JOIN {{ \"REF_NO_LINK\"('GOLD', 'DV_REGION') }} \"DV_REGION\"\nON \"CDC_SYSRGNFL\".\"ZRCMP\" = \"DV_REGION\".\"COMPANY_CODE\"\nAND \"CDC_SYSRGNFL\".\"ZRRGN\" = \"DV_REGION\".\"REGION_CODE\"\n\nLEFT OUTER JOIN \n(Select \"COALESCE\"(\"MAX\"(\"REGION_ID\"),0) as \"LAST_ID\" "
       name: STG_REGION
       noLinkRefs:
       - locationName: GOLD

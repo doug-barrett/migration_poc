@@ -22,8 +22,7 @@ operation:
         stepCounter: 199f3b1c-3207-5f3a-a6a1-c215f14f60ec
       config: {}
       dataType: NUMBER(38,0)
-      description: Journal Conversion Transformation 1 = Insert 2 = Update Before
-        3 = Update 4 = Delete 5 = Refresh
+      description: Journal Conversion Transformation 1 = Insert 2 = Update Before 3 = Update 4 = Delete 5 = Refresh
       name: JOURNAL_TYPE
       nullable: true
       sourceColumnReferences:
@@ -42,7 +41,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MAX_ID.Last_Id
+        transform: '"MAX_ID"."LAST_ID"'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 382aba9f-d14f-5a8b-9aea-675ef3333a05
@@ -54,9 +53,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "COALESCE(DV_CUSTOMER_JOB.Job_Id,\n\nRow_Number() OVER(ORDER BY\
-          \ DV_CUSTOMER_JOB.Job_Id ASC NULLS FIRST,\n\nCASE WHEN CDC_CUSJOBFL.Journal_type\
-          \ in (1,3,5) THEN 1 \n\nELSE 9 END ASC) + Last_Id)"
+        transform: "\"COALESCE\"(\"DV_CUSTOMER_JOB\".\"JOB_ID\",\n\n\"ROW_NUMBER\"() \"OVER\"(ORDER BY \"DV_CUSTOMER_JOB\".\"JOB_ID\" \"ASC\" \"NULLS\" \"FIRST\",\n\nCASE WHEN \"CDC_CUSJOBFL\".\"JOURNAL_TYPE\" in (1,3,5) THEN 1 \n\nELSE 9 END \"ASC\") + \"LAST_ID\")"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c8873e49-1d47-5d9a-83e4-6125ddb7addd
@@ -82,7 +79,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(PARTY.Party_Id,0)
+        transform: '"COALESCE"("PARTY"."PARTY_ID",0)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2d53f8b2-52e2-525d-bd67-3b2f0a1ed14d
@@ -94,7 +91,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(PARTY.Party_Type_Code,0)
+        transform: '"COALESCE"("PARTY"."PARTY_TYPE_CODE",0)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 61c786ee-8f74-58f3-b03d-c8978b6dea02
@@ -120,7 +117,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(LOCATION.Location_Id,0)
+        transform: '"COALESCE"("LOCATION"."LOCATION_ID",0)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 14fa4365-75fa-5ac8-aa51-1480a06f3e72
@@ -188,7 +185,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(ADDRESS_M.Address_Id,0)
+        transform: '"COALESCE"("ADDRESS_M"."ADDRESS_ID",0)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8f162091-46db-58ee-9d41-25442ebf57a3
@@ -956,7 +953,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(ADDRESS_T.ADDRESS_ID,0)
+        transform: '"COALESCE"("ADDRESS_T"."ADDRESS_ID",0)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: eef842ae-84c1-5fc0-a848-dcf793e49b95
@@ -982,7 +979,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(ADDRESS_E.ADDRESS_ID,0)
+        transform: '"COALESCE"("ADDRESS_E"."ADDRESS_ID",0)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: bff8bd95-cf71-5594-b073-50604d44d8bd
@@ -994,7 +991,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(ADDRESS_F.ADDRESS_ID,0)
+        transform: '"COALESCE"("ADDRESS_F"."ADDRESS_ID",0)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 02b9e788-08bb-53d5-a362-df2b167f27ad
@@ -1006,7 +1003,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: COALESCE(ADDRESS_C.ADDRESS_ID,0)
+        transform: '"COALESCE"("ADDRESS_C"."ADDRESS_ID",0)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 86bdb982-78fa-5db9-964f-b724b24ff98d
@@ -1156,54 +1153,11 @@ operation:
       - locationName: GOLD
         nodeName: ADDRESS
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'CDC_CUSJOBFL') }} \"CDC_CUSJOBFL\"\n\n\
-          \    LEFT OUTER JOIN {{ ref('GOLD', 'ADDRESS') }} \"ADDRESS_M\"\n    ON\
-          \  ADDRESS_M.ADDRESS_TYPE_CODE = 'M'\n    AND UPPER(CDC_CUSJOBFL.CJCMP)\
-          \  = UPPER(ADDRESS_M.COMPANY_CODE)\n    AND UPPER(CDC_CUSJOBFL.CJADR1) =\
-          \ UPPER(ADDRESS_M.ADDRESS_TEXT_1)\n    AND UPPER(CDC_CUSJOBFL.CJADR2) =\
-          \ UPPER(ADDRESS_M.ADDRESS_TEXT_2)\n    AND UPPER(CDC_CUSJOBFL.CJCITY) =\
-          \ UPPER(ADDRESS_M.CITY_CODE)\n    AND UPPER(CDC_CUSJOBFL.CJST)   = UPPER(ADDRESS_M.STATE_CODE)\n\
-          \    AND UPPER(CDC_CUSJOBFL.CJZIP)  = UPPER(ADDRESS_M.POSTAL_CODE)\n   \
-          \ AND ADDRESS_M.AREA_CODE = 0\n    AND ADDRESS_M.PHONE_NUM = 0\n    AND\
-          \ ADDRESS_M.COUNTRY_CODE = ''\n\n    LEFT OUTER JOIN {{ ref('GOLD', 'ADDRESS')\
-          \ }} \"ADDRESS_E\"\n    ON  ADDRESS_E.ADDRESS_TYPE_CODE = 'E'\n    AND UPPER(CDC_CUSJOBFL.CJCMP)\
-          \  = UPPER(ADDRESS_E.COMPANY_CODE)\n    AND UPPER(CDC_CUSJOBFL.CJMAIL) =\
-          \ UPPER(ADDRESS_E.ADDRESS_TEXT_1)\n    AND ADDRESS_E.ADDRESS_TEXT_2 = ''\n\
-          \    AND ADDRESS_E.CITY_CODE = ''\n    AND ADDRESS_E.STATE_CODE = ''\n \
-          \   AND ADDRESS_E.POSTAL_CODE = ''\n    AND ADDRESS_E.AREA_CODE = 0\n  \
-          \  AND ADDRESS_E.PHONE_NUM = 0\n    AND ADDRESS_E.COUNTRY_CODE = ''\n\n\
-          \    LEFT OUTER JOIN {{ ref('GOLD', 'ADDRESS') }} \"ADDRESS_T\"\n    ON\
-          \  ADDRESS_T.ADDRESS_TYPE_CODE = 'T'\n    AND UPPER(CDC_CUSJOBFL.CJCMP)\
-          \ = UPPER(ADDRESS_T.COMPANY_CODE)\n    AND ADDRESS_T.ADDRESS_TEXT_1 = ''\n\
-          \    AND ADDRESS_T.ADDRESS_TEXT_2 = ''\n    AND ADDRESS_T.CITY_CODE = ''\n\
-          \    AND ADDRESS_T.STATE_CODE = ''\n    AND ADDRESS_T.POSTAL_CODE = ''\n\
-          \    AND CDC_CUSJOBFL.CJAREA = ADDRESS_T.AREA_CODE\n    AND CDC_CUSJOBFL.CJPHON\
-          \ = ADDRESS_T.PHONE_NUM\n    AND ADDRESS_T.COUNTRY_CODE = ''\n\n    LEFT\
-          \ OUTER JOIN {{ ref('GOLD', 'ADDRESS') }} \"ADDRESS_C\"\n    ON  ADDRESS_C.ADDRESS_TYPE_CODE\
-          \ = 'C'\n    AND UPPER(CDC_CUSJOBFL.CJCMP) = UPPER(ADDRESS_C.COMPANY_CODE)\n\
-          \    AND ADDRESS_C.ADDRESS_TEXT_1 = ''\n    AND ADDRESS_C.ADDRESS_TEXT_2\
-          \ = ''\n    AND ADDRESS_C.CITY_CODE = ''\n    AND ADDRESS_C.STATE_CODE =\
-          \ ''\n    AND ADDRESS_C.POSTAL_CODE = ''\n    AND CDC_CUSJOBFL.CJMOBA =\
-          \ ADDRESS_C.AREA_CODE\n    AND CDC_CUSJOBFL.CJMOB0 = ADDRESS_C.PHONE_NUM\n\
-          \    AND ADDRESS_C.COUNTRY_CODE = ''\n\n    LEFT OUTER JOIN {{ ref('GOLD',\
-          \ 'ADDRESS') }} \"ADDRESS_F\"\n    ON  ADDRESS_F.ADDRESS_TYPE_CODE = 'F'\n\
-          \    AND UPPER(CDC_CUSJOBFL.CJCMP)= UPPER(ADDRESS_F.COMPANY_CODE)\n    AND\
-          \ ADDRESS_F.ADDRESS_TEXT_1 = ''\n    AND ADDRESS_F.ADDRESS_TEXT_2 = ''\n\
-          \    AND ADDRESS_F.CITY_CODE = ''\n    AND ADDRESS_F.STATE_CODE = ''\n \
-          \   AND ADDRESS_F.POSTAL_CODE = ''\n    AND CDC_CUSJOBFL.CJFAXA = ADDRESS_F.AREA_CODE\n\
-          \    AND CDC_CUSJOBFL.CJFAX0 = ADDRESS_F.PHONE_NUM\n    AND ADDRESS_F.COUNTRY_CODE\
-          \ = ''\n\n    LEFT OUTER JOIN {{ ref('GOLD', 'LOCATION') }} \"LOCATION\"\
-          \n    ON  CDC_CUSJOBFL.CJLOC = LOCATION.LOCATION_CODE\n    AND CDC_CUSJOBFL.CJCMP\
-          \ = LOCATION.COMPANY_CODE\n    AND LOCATION.DSS_CURRENT_FLAG = 'Y'\n\n \
-          \   LEFT OUTER JOIN {{ ref('GOLD', 'PARTY') }} \"PARTY\"\n    ON  CDC_CUSJOBFL.CJCUS0\
-          \ = PARTY.CUSTOMER_ACCOUNT_NUM\n    AND CDC_CUSJOBFL.CJCMP = PARTY.COMPANY_CODE\n\
-          \    AND PARTY.CUSTOMER_ACCOUNT_CHAR = ''\n    AND PARTY.PARTY_TYPE_CODE\
-          \ = 1\n    AND PARTY.DSS_CURRENT_FLAG = 'Y'\n\n    LEFT OUTER JOIN {{ ref('GOLD',\
-          \ 'DV_CUSTOMER_JOB') }} \"DV_CUSTOMER_JOB\"\n    ON  CDC_CUSJOBFL.CJCMP\
-          \ = DV_CUSTOMER_JOB.COMPANY_CODE\n    AND CDC_CUSJOBFL.CJJOB0 = DV_CUSTOMER_JOB.JOB_NUM\n\
-          \    AND PARTY.PARTY_ID = DV_CUSTOMER_JOB.PARTY_ID\n  \n    LEFT OUTER JOIN\n\
-          \    (SELECT COALESCE(MAX(JOB_ID),0) AS LAST_ID FROM \"DOUG_POC\".\"DP001\"\
-          .\"CUSTOMER_JOB\" ) AS MAX_ID ON 1 = 1"
+        joinCondition: "FROM  {{ ref('GOLD', 'CDC_CUSJOBFL') }} \"CDC_CUSJOBFL\"\n\n    LEFT OUTER JOIN {{ ref('GOLD', 'ADDRESS') }} \"ADDRESS_M\"\n    ON  \"ADDRESS_M\".\"ADDRESS_TYPE_CODE\" = 'M'\n    AND \"UPPER\"(\"CDC_CUSJOBFL\".\"CJCMP\")  = \"UPPER\"(\"ADDRESS_M\".\"COMPANY_CODE\")\n    AND \"UPPER\"(\"CDC_CUSJOBFL\".\"CJADR1\") = \"UPPER\"(\"ADDRESS_M\".\"ADDRESS_TEXT_1\")\n    AND \"UPPER\"(\"CDC_CUSJOBFL\".\"CJADR2\") = \"UPPER\"(\"ADDRESS_M\".\"ADDRESS_TEXT_2\")\n    AND \"UPPER\"(\"CDC_CUSJOBFL\".\"CJCITY\") = \"UPPER\"(\"ADDRESS_M\".\"CITY_CODE\")\n    AND \"UPPER\"(\"CDC_CUSJOBFL\".\"CJST\")   = \"UPPER\"(\"ADDRESS_M\".\"STATE_CODE\")\n    AND \"UPPER\"(\"CDC_CUSJOBFL\".\"CJZIP\")  = \"UPPER\"(\"ADDRESS_M\".\"POSTAL_CODE\")\n    AND \"ADDRESS_M\".\"AREA_CODE\" = 0\n    AND \"ADDRESS_M\".\"PHONE_NUM\" = 0\n    AND \"ADDRESS_M\".\"COUNTRY_CODE\" = ''\n\n    LEFT OUTER JOIN {{ ref('GOLD', 'ADDRESS') }} \"ADDRESS_E\"\n    ON  \"ADDRESS_E\".\"ADDRESS_TYPE_CODE\" = 'E'\n    AND \"\
+          UPPER\"(\"CDC_CUSJOBFL\".\"CJCMP\")  = \"UPPER\"(\"ADDRESS_E\".\"COMPANY_CODE\")\n    AND \"UPPER\"(\"CDC_CUSJOBFL\".\"CJMAIL\") = \"UPPER\"(\"ADDRESS_E\".\"ADDRESS_TEXT_1\")\n    AND \"ADDRESS_E\".\"ADDRESS_TEXT_2\" = ''\n    AND \"ADDRESS_E\".\"CITY_CODE\" = ''\n    AND \"ADDRESS_E\".\"STATE_CODE\" = ''\n    AND \"ADDRESS_E\".\"POSTAL_CODE\" = ''\n    AND \"ADDRESS_E\".\"AREA_CODE\" = 0\n    AND \"ADDRESS_E\".\"PHONE_NUM\" = 0\n    AND \"ADDRESS_E\".\"COUNTRY_CODE\" = ''\n\n    LEFT OUTER JOIN {{ ref('GOLD', 'ADDRESS') }} \"ADDRESS_T\"\n    ON  \"ADDRESS_T\".\"ADDRESS_TYPE_CODE\" = 'T'\n    AND \"UPPER\"(\"CDC_CUSJOBFL\".\"CJCMP\") = \"UPPER\"(\"ADDRESS_T\".\"COMPANY_CODE\")\n    AND \"ADDRESS_T\".\"ADDRESS_TEXT_1\" = ''\n    AND \"ADDRESS_T\".\"ADDRESS_TEXT_2\" = ''\n    AND \"ADDRESS_T\".\"CITY_CODE\" = ''\n    AND \"ADDRESS_T\".\"STATE_CODE\" = ''\n    AND \"ADDRESS_T\".\"POSTAL_CODE\" = ''\n    AND \"CDC_CUSJOBFL\".\"CJAREA\" = \"ADDRESS_T\".\"AREA_CODE\"\n    AND \"CDC_CUSJOBFL\"\
+          .\"CJPHON\" = \"ADDRESS_T\".\"PHONE_NUM\"\n    AND \"ADDRESS_T\".\"COUNTRY_CODE\" = ''\n\n    LEFT OUTER JOIN {{ ref('GOLD', 'ADDRESS') }} \"ADDRESS_C\"\n    ON  \"ADDRESS_C\".\"ADDRESS_TYPE_CODE\" = 'C'\n    AND \"UPPER\"(\"CDC_CUSJOBFL\".\"CJCMP\") = \"UPPER\"(\"ADDRESS_C\".\"COMPANY_CODE\")\n    AND \"ADDRESS_C\".\"ADDRESS_TEXT_1\" = ''\n    AND \"ADDRESS_C\".\"ADDRESS_TEXT_2\" = ''\n    AND \"ADDRESS_C\".\"CITY_CODE\" = ''\n    AND \"ADDRESS_C\".\"STATE_CODE\" = ''\n    AND \"ADDRESS_C\".\"POSTAL_CODE\" = ''\n    AND \"CDC_CUSJOBFL\".\"CJMOBA\" = \"ADDRESS_C\".\"AREA_CODE\"\n    AND \"CDC_CUSJOBFL\".\"CJMOB0\" = \"ADDRESS_C\".\"PHONE_NUM\"\n    AND \"ADDRESS_C\".\"COUNTRY_CODE\" = ''\n\n    LEFT OUTER JOIN {{ ref('GOLD', 'ADDRESS') }} \"ADDRESS_F\"\n    ON  \"ADDRESS_F\".\"ADDRESS_TYPE_CODE\" = 'F'\n    AND \"UPPER\"(\"CDC_CUSJOBFL\".\"CJCMP\")= \"UPPER\"(\"ADDRESS_F\".\"COMPANY_CODE\")\n    AND \"ADDRESS_F\".\"ADDRESS_TEXT_1\" = ''\n    AND \"ADDRESS_F\".\"ADDRESS_TEXT_2\"\
+          \ = ''\n    AND \"ADDRESS_F\".\"CITY_CODE\" = ''\n    AND \"ADDRESS_F\".\"STATE_CODE\" = ''\n    AND \"ADDRESS_F\".\"POSTAL_CODE\" = ''\n    AND \"CDC_CUSJOBFL\".\"CJFAXA\" = \"ADDRESS_F\".\"AREA_CODE\"\n    AND \"CDC_CUSJOBFL\".\"CJFAX0\" = \"ADDRESS_F\".\"PHONE_NUM\"\n    AND \"ADDRESS_F\".\"COUNTRY_CODE\" = ''\n\n    LEFT OUTER JOIN {{ ref('GOLD', 'LOCATION') }} \"LOCATION\"\n    ON  \"CDC_CUSJOBFL\".\"CJLOC\" = \"LOCATION\".\"LOCATION_CODE\"\n    AND \"CDC_CUSJOBFL\".\"CJCMP\" = \"LOCATION\".\"COMPANY_CODE\"\n    AND \"LOCATION\".\"DSS_CURRENT_FLAG\" = 'Y'\n\n    LEFT OUTER JOIN {{ ref('GOLD', 'PARTY') }} \"PARTY\"\n    ON  \"CDC_CUSJOBFL\".\"CJCUS0\" = \"PARTY\".\"CUSTOMER_ACCOUNT_NUM\"\n    AND \"CDC_CUSJOBFL\".\"CJCMP\" = \"PARTY\".\"COMPANY_CODE\"\n    AND \"PARTY\".\"CUSTOMER_ACCOUNT_CHAR\" = ''\n    AND \"PARTY\".\"PARTY_TYPE_CODE\" = 1\n    AND \"PARTY\".\"DSS_CURRENT_FLAG\" = 'Y'\n\n    LEFT OUTER JOIN {{ ref('GOLD', 'DV_CUSTOMER_JOB') }} \"DV_CUSTOMER_JOB\"\n    ON\
+          \  \"CDC_CUSJOBFL\".\"CJCMP\" = \"DV_CUSTOMER_JOB\".\"COMPANY_CODE\"\n    AND \"CDC_CUSJOBFL\".\"CJJOB0\" = \"DV_CUSTOMER_JOB\".\"JOB_NUM\"\n    AND \"PARTY\".\"PARTY_ID\" = \"DV_CUSTOMER_JOB\".\"PARTY_ID\"\n  \n    LEFT OUTER JOIN\n    (SELECT \"COALESCE\"(\"MAX\"(\"JOB_ID\"),0) AS \"LAST_ID\" "
       name: STG_CUSTOMER_JOB
       noLinkRefs:
       - locationName: GOLD

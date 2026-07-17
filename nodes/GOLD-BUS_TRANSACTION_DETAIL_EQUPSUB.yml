@@ -209,7 +209,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: TO_VARCHAR(HV_OPEN_ORDER_LINE_HIST.Rental_Out_Date, 'YYYYMM')
+        transform: '"TO_VARCHAR"("HV_OPEN_ORDER_LINE_HIST"."RENTAL_OUT_DATE", ''YYYYMM'')'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2e3ea355-6c10-5dca-b86c-9217a298f02c
@@ -375,7 +375,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: ZEROIFNULL(EFTO.Avail_Qty)
+        transform: '"ZEROIFNULL"("EFTO"."AVAIL_QTY")'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8ba82e7e-8067-5c4c-907b-3f39954b8039
@@ -387,7 +387,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: ZEROIFNULL(EFLO.Avail_Qty)
+        transform: '"ZEROIFNULL"("EFLO"."AVAIL_QTY")'
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:
@@ -417,49 +417,8 @@ operation:
       - locationName: GOLD
         nodeName: BUS_LOCATION
       join:
-        joinCondition: "FROM {{ ref('GOLD', 'CV_FISCALCALENDAR') }} \"CV_FISCALCALENDAR\"\
-          \n \nINNER JOIN {{ ref('GOLD', 'CV_M_OPEN_ORDER_HIST') }} \"CV_M_OPEN_ORDER_HIST\"\
-          \nON   CV_FISCALCALENDAR.Calendar_Date BETWEEN CV_M_OPEN_ORDER_HIST.Effective_Begin_Date\
-          \ AND CV_M_OPEN_ORDER_HIST.Effective_End_Date\n \nINNER JOIN {{ ref('GOLD',\
-          \ 'HV_OPEN_ORDER_LINE_HIST') }} \"HV_OPEN_ORDER_LINE_HIST\" \nON   CV_M_OPEN_ORDER_HIST.Company_Code\
-          \ = HV_OPEN_ORDER_LINE_HIST.Company_Code \nAND CV_M_OPEN_ORDER_HIST.Contract_Id\
-          \ = HV_OPEN_ORDER_LINE_HIST.Contract_Id \nAND HV_OPEN_ORDER_LINE_HIST.Order_Type_Code\
-          \ = 'RI' \nAND HV_OPEN_ORDER_LINE_HIST.Bulk_Item_Ind <> 'Y' \nAND CV_FISCALCALENDAR.Calendar_Date\
-          \ BETWEEN \n         HV_OPEN_ORDER_LINE_HIST.Effective_Begin_Date AND \n\
-          \         HV_OPEN_ORDER_LINE_HIST.Effective_End_Date\n\n INNER JOIN (SELECT\
-          \ Company_Code, Contract_Id, Order_Line_Num, MAX(Effective_End_Date) AS\
-          \ Max_End_Date  \n FROM {{ ref('GOLD', 'HV_OPEN_ORDER_LINE_HIST') }} \"\
-          HV_OPEN_ORDER_LINE_HIST\" GROUP BY Company_Code, Contract_Id, Order_Line_Num)\
-          \  OPEN_ORDER_LINE_MAX\n ON   HV_OPEN_ORDER_LINE_HIST.Company_Code = OPEN_ORDER_LINE_MAX.Company_Code\
-          \ \n AND HV_OPEN_ORDER_LINE_HIST.Contract_Id = OPEN_ORDER_LINE_MAX.Contract_Id\
-          \ \n AND HV_OPEN_ORDER_LINE_HIST.Order_Line_Num = OPEN_ORDER_LINE_MAX.Order_Line_Num\n\
-          \n \nINNER JOIN {{ ref('GOLD', 'BUS_EQUIPMENT_SUBSTITUTION') }} \"BUS_EQUIPMENT_SUBSTITUTION\"\
-          \nON   BUS_EQUIPMENT_SUBSTITUTION.Invoice_Num = HV_OPEN_ORDER_LINE_HIST.Contract_Id\
-          \ \nAND BUS_EQUIPMENT_SUBSTITUTION.Line_Num = HV_OPEN_ORDER_LINE_HIST.Order_Line_Num\
-          \ \nAND BUS_EQUIPMENT_SUBSTITUTION.Location_Id = CV_M_OPEN_ORDER_HIST.Location_Id\
-          \ \nAND (HV_OPEN_ORDER_LINE_HIST.Category_Code <>\n          BUS_EQUIPMENT_SUBSTITUTION.Category_Code\
-          \ OR \n          HV_OPEN_ORDER_LINE_HIST.Class_Code <> BUS_EQUIPMENT_SUBSTITUTION.Class_Code)\n\
-          \ \nINNER JOIN \n(SELECT BUS_FIN_ORGANIZATION.REGION_DISTRICT_CODE, \n \t\
-          BUS_FIN_ORGANIZATION.org_key, \n \tBUS_LOCATION.Location_ID\n FROM {{ ref('GOLD',\
-          \ 'BUS_FIN_ORGANIZATION') }} \"BUS_FIN_ORGANIZATION\"\n  \n INNER JOIN {{\
-          \ ref('GOLD', 'BUS_LOCATION') }} \"BUS_LOCATION\"\n ON BUS_FIN_ORGANIZATION.org_key\
-          \ = BUS_LOCATION.Lawson_Account_ID\n) Lawson_Hierarchy\nON CV_M_OPEN_ORDER_HIST.Location_Id\
-          \ = Lawson_Hierarchy.Location_Id \n \nINNER JOIN {{ ref('GOLD', 'BUS_CUSTOMER')\
-          \ }} \"BUS_CUSTOMER\"\nON CV_M_OPEN_ORDER_HIST.Party_Id = BUS_CUSTOMER.Party_Id\n\
-          \ \nLEFT OUTER JOIN \n(SELECT Company_Code, \n \tCategory_Code, \n \tClass_Code\
-          \ , \n \tInventory_Date , \n \tCurrent_Location_Id , \n \tAvail_Qty\n FROM\
-          \ \"DOUG_POC\".\"DP001\".\"BUS_EQUIPMENT_DAILY_AVAIL_FACT\"\n)EFLO\nON HV_OPEN_ORDER_LINE_HIST.Company_Code\
-          \ = EFLO.Company_Code \nAND BUS_EQUIPMENT_SUBSTITUTION.Category_Code = EFLO.Category_Code\
-          \ \nAND BUS_EQUIPMENT_SUBSTITUTION.Class_Code = EFLO.Class_Code \nAND CV_FISCALCALENDAR.Calendar_Date\
-          \ = EFLO.Inventory_Date \nAND Lawson_Hierarchy.Location_Id = EFLO.Current_Location_Id\n\
-          \ \nLEFT OUTER JOIN \n(SELECT Company_Code, \n \tCategory_Code , \n \tClass_Code\
-          \ , \n \tInventory_Date , \n \tREGION_DISTRICT_CODE , \n \tSUM(Avail_Qty)\
-          \ AS Avail_Qty \n FROM \"DOUG_POC\".\"DP001\".\"BUS_EQUIPMENT_DAILY_AVAIL_FACT\"\
-          \n GROUP BY 1,2,3,4,5\n)EFTO\nON HV_OPEN_ORDER_LINE_HIST.Company_Code =\
-          \ EFTO.Company_Code \nAND BUS_EQUIPMENT_SUBSTITUTION.Category_Code = EFTO.Category_Code\
-          \ \nAND BUS_EQUIPMENT_SUBSTITUTION.Class_Code = EFTO.Class_Code \nAND CV_FISCALCALENDAR.Calendar_Date\
-          \ = EFTO.Inventory_Date \nAND Lawson_Hierarchy.REGION_DISTRICT_CODE = EFTO.REGION_DISTRICT_CODE\n\
-          WHERE CV_FISCALCALENDAR.Calendar_Date <> OPEN_ORDER_LINE_MAX.Max_End_Date"
+        joinCondition: "FROM  {{ ref('GOLD', 'CV_FISCALCALENDAR') }} \"CV_FISCALCALENDAR\"\n \nINNER JOIN {{ ref('GOLD', 'CV_M_OPEN_ORDER_HIST') }} \"CV_M_OPEN_ORDER_HIST\"\nON   \"CV_FISCALCALENDAR\".\"CALENDAR_DATE\" BETWEEN \"CV_M_OPEN_ORDER_HIST\".\"EFFECTIVE_BEGIN_DATE\" AND \"CV_M_OPEN_ORDER_HIST\".\"EFFECTIVE_END_DATE\"\n \nINNER JOIN {{ ref('GOLD', 'HV_OPEN_ORDER_LINE_HIST') }} \"HV_OPEN_ORDER_LINE_HIST\" \nON   \"CV_M_OPEN_ORDER_HIST\".\"COMPANY_CODE\" = \"HV_OPEN_ORDER_LINE_HIST\".\"COMPANY_CODE\" \nAND \"CV_M_OPEN_ORDER_HIST\".\"CONTRACT_ID\" = \"HV_OPEN_ORDER_LINE_HIST\".\"CONTRACT_ID\" \nAND \"HV_OPEN_ORDER_LINE_HIST\".\"ORDER_TYPE_CODE\" = 'RI' \nAND \"HV_OPEN_ORDER_LINE_HIST\".\"BULK_ITEM_IND\" <> 'Y' \nAND \"CV_FISCALCALENDAR\".\"CALENDAR_DATE\" BETWEEN \n         \"HV_OPEN_ORDER_LINE_HIST\".\"EFFECTIVE_BEGIN_DATE\" AND \n         \"HV_OPEN_ORDER_LINE_HIST\".\"EFFECTIVE_END_DATE\"\n\n INNER JOIN (SELECT \"COMPANY_CODE\", \"CONTRACT_ID\", \"ORDER_LINE_NUM\", \"MAX\"(\"EFFECTIVE_END_DATE\"\
+          ) AS \"MAX_END_DATE\"  \n \nWHERE \"CV_FISCALCALENDAR\".\"CALENDAR_DATE\" <> \"OPEN_ORDER_LINE_MAX\".\"MAX_END_DATE\""
       name: BUS_TRANSACTION_DETAIL_EQUPSUB
       noLinkRefs: []
   name: BUS_TRANSACTION_DETAIL_EQUPSUB
