@@ -28,9 +28,9 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN Aud_Type in ('PT','PX','FI')\tTHEN 1 \n\n\tWHEN Aud_Type\
-          \ in ('UB','FB','FP','BR')\tTHEN 2 \n\n\tWHEN Aud_Type in ('UP','UR')\t\t\
-          THEN 3 \n\n\tWHEN Aud_Type in ('DL','FD')\t\tTHEN 4 \n\n\tWHEN Aud_Type\
+        transform: "CASE\tWHEN AUD_TYPE in ('PT','PX','FI')\tTHEN 1 \n\n\tWHEN AUD_TYPE\
+          \ in ('UB','FB','FP','BR')\tTHEN 2 \n\n\tWHEN AUD_TYPE in ('UP','UR')\t\t\
+          THEN 3 \n\n\tWHEN AUD_TYPE in ('DL','FD')\t\tTHEN 4 \n\n\tWHEN AUD_TYPE\
           \ in ('RR')\t\t\tTHEN 5 \n\n\tELSE NULL \n\nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -43,8 +43,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN Aud_Type in ('PT' , 'PX' , 'FI' , 'UP', 'UR')\n\n\t\
-          THEN Aud_Time\n\n\tELSE CAST('1997-11-01 00:00:00.000000' as timestamp)\n\
+        transform: "CASE\tWHEN AUD_TYPE in ('PT' , 'PX' , 'FI' , 'UP', 'UR')\n\n\t\
+          THEN AUD_TIME\n\n\tELSE CAST('1997-11-01 00:00:00.000000' as timestamp)\n\
           \nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -57,8 +57,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN Aud_Type in ('UB' , 'FB' , 'FP' , 'DL' , 'FD', 'BR')\n\
-          \n\tTHEN Aud_Time\n\n\tELSE CAST('2999-12-31 00:00:00.000000' as timestamp)\n\
+        transform: "CASE\tWHEN AUD_TYPE in ('UB' , 'FB' , 'FP' , 'DL' , 'FD', 'BR')\n\
+          \n\tTHEN AUD_TIME\n\n\tELSE CAST('2999-12-31 00:00:00.000000' as timestamp)\n\
           \nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -71,10 +71,10 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "NULL/*Period(\n\nCASE\n\n WHEN Aud_Type in ('PT' , 'PX' , 'FI'\
-          \ , 'UP', 'UR')\n\n  THEN Cast(Aud_Time as date)\n\n ELSE  CAST('1997-11-01'\
-          \ as Date)\n\nEND\n\n,\n\nCASE\n\n WHEN Aud_Type in ('UB' , 'FB' , 'FP'\
-          \ , 'DL' , 'FD', 'BR')\n\n  THEN Cast(Aud_Time as date)\n\n ELSE  Cast('9999-12-31'\
+        transform: "NULL/*Period(\n\nCASE\n\n WHEN AUD_TYPE in ('PT' , 'PX' , 'FI'\
+          \ , 'UP', 'UR')\n\n  THEN Cast(AUD_TIME as date)\n\n ELSE  CAST('1997-11-01'\
+          \ as Date)\n\nEND\n\n,\n\nCASE\n\n WHEN AUD_TYPE in ('UB' , 'FB' , 'FP'\
+          \ , 'DL' , 'FD', 'BR')\n\n  THEN Cast(AUD_TIME as date)\n\n ELSE  Cast('9999-12-31'\
           \ as date)\n\nEND\n\n)\n\n*/"
     - appliedColumnTests: {}
       columnReference:
@@ -1304,13 +1304,11 @@ operation:
         nodeName: SRC_RAOHDRFL
       join:
         joinCondition: "FROM {{ ref('GOLD', 'SRC_RAOHDRFL') }} \"SRC_RAOHDRFL\"\n\
-          \ Where Aud_Time <= (Select MAX(Batch_End) FROM \"DOUG_POC\".\"DP001\".\"\
-          CDC_BATCH\" )\nAND Aud_Time > (Select MAX(Batch_Start) FROM \"DOUG_POC\"\
-          .\"DP001\".\"CDC_BATCH\")\nAND (Aud_Code <> 'F' or (Aud_Code is null and\
-          \ Aud_Type = 'RR')) QUALIFY RANK() \nOVER (PARTITION BY  RHCMP, RHCON0\n\
-          ORDER BY AUD_TIME DESC, Aud_Seqno DESC, CASE  \nWHEN Aud_Type in ('PT','PX','FI')\t\
-          THEN 1 \nWHEN Aud_Type in ('UB','FB','FP','BR')\tTHEN 2 \nWHEN Aud_Type\
-          \ in ('UP','UR')\tTHEN 3 \nWHEN Aud_Type in ('DL','FD')\tTHEN 4 \nWHEN Aud_Type\
+          \ Where AUD_TIME <= (Select MAX(BATCH_END) FROM {{ ref('SILVER', 'CDC_BATCH') }} )\nAND AUD_TIME > (Select MAX(BATCH_START) FROM {{ ref('SILVER', 'CDC_BATCH') }})\nAND (AUD_CODE <> 'F' or (AUD_CODE is null and\
+          \ AUD_TYPE = 'RR')) QUALIFY RANK() \nOVER (PARTITION BY  RHCMP, RHCON0\n\
+          ORDER BY AUD_TIME DESC, Aud_Seqno DESC, CASE  \nWHEN AUD_TYPE in ('PT','PX','FI')\t\
+          THEN 1 \nWHEN AUD_TYPE in ('UB','FB','FP','BR')\tTHEN 2 \nWHEN AUD_TYPE\
+          \ in ('UP','UR')\tTHEN 3 \nWHEN AUD_TYPE in ('DL','FD')\tTHEN 4 \nWHEN AUD_TYPE\
           \ in ('RR')\t\tTHEN 5 \n ELSE 0 END DESC) = 1"
       name: CDC_RAOHDRFL
       noLinkRefs: []

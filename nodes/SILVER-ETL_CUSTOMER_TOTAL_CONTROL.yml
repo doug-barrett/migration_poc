@@ -28,10 +28,10 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE \n\n WHEN Aud_Type in ('PT','PX','FI') \n\n  THEN 1 \n\n\
-          \ WHEN Aud_Type in ('UB','FB','FP','BR') \n\n  THEN 2 \n\n WHEN Aud_Type\
-          \ in ('UP','UR') \n\n  THEN 3 \n\n WHEN Aud_Type in ('DL' , 'FD') \n\n \
-          \ THEN 4 \n\n WHEN Aud_Type in ('RR') \n\n  THEN 5 \n\n ELSE NULL \n\nEND"
+        transform: "CASE \n\n WHEN AUD_TYPE in ('PT','PX','FI') \n\n  THEN 1 \n\n\
+          \ WHEN AUD_TYPE in ('UB','FB','FP','BR') \n\n  THEN 2 \n\n WHEN AUD_TYPE\
+          \ in ('UP','UR') \n\n  THEN 3 \n\n WHEN AUD_TYPE in ('DL' , 'FD') \n\n \
+          \ THEN 4 \n\n WHEN AUD_TYPE in ('RR') \n\n  THEN 5 \n\n ELSE NULL \n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6170cc15-9b86-54c3-a640-da9a2924cc20
@@ -211,13 +211,11 @@ operation:
           AND SRC_CUSMASFL.CMTCRQ = DV_LOCATION_QUOTe.Location_Code\n\nLEFT OUTER\
           \ JOIN {{ ref('GOLD', 'DV_LOCATION') }} \"DV_LOCATION_RESERV\"\nON  SRC_CUSMASFL.CMCMP\
           \  = DV_LOCATION_RESERV.Company_Code\nAND SRC_CUSMASFL.CMTCRR = DV_LOCATION_RESERV.Location_Code\
-          \ WHERE Aud_Time <= (SELECT MAX(Batch_End) FROM \"DOUG_POC\".\"DP001\".\"\
-          CDC_BATCH\")\n  AND Aud_Time >  (SELECT MAX(Batch_Start) FROM \"DOUG_POC\"\
-          .\"DP001\".\"CDC_BATCH\")\n  AND (Aud_Code <> 'F' OR (Aud_Code IS NULL AND\
-          \ Aud_Type = 'RR'))\n\nQUALIFY RANK() \nOVER (PARTITION BY  CMCMP, CMCUS0\
-          \ \nORDER BY Aud_Time DESC, Aud_Seqno DESC, CASE  \nWHEN Aud_Type IN ('PT','PX','FI')\
-          \ THEN 1 \nWHEN Aud_Type IN ('UB','FB','FP','BR') THEN 2 \nWHEN Aud_Type\
-          \ IN ('UP','UR') THEN 3 \nWHEN Aud_Type IN ('DL','FD') THEN 4 \nWHEN Aud_Type\
+          \ WHERE AUD_TIME <= (SELECT MAX(BATCH_END) FROM {{ ref('SILVER', 'CDC_BATCH') }})\n  AND AUD_TIME >  (SELECT MAX(BATCH_START) FROM {{ ref('SILVER', 'CDC_BATCH') }})\n  AND (AUD_CODE <> 'F' OR (AUD_CODE IS NULL AND\
+          \ AUD_TYPE = 'RR'))\n\nQUALIFY RANK() \nOVER (PARTITION BY  CMCMP, CMCUS0\
+          \ \nORDER BY AUD_TIME DESC, Aud_Seqno DESC, CASE  \nWHEN AUD_TYPE IN ('PT','PX','FI')\
+          \ THEN 1 \nWHEN AUD_TYPE IN ('UB','FB','FP','BR') THEN 2 \nWHEN AUD_TYPE\
+          \ IN ('UP','UR') THEN 3 \nWHEN AUD_TYPE IN ('DL','FD') THEN 4 \nWHEN AUD_TYPE\
           \ IN ('RR') THEN 5 \nELSE 0 END DESC) = 1"
       name: ETL_CUSTOMER_TOTAL_CONTROL
       noLinkRefs: []

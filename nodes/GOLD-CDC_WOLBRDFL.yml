@@ -28,10 +28,10 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE \n\n WHEN Aud_Type in ('PT','PX','FI') \n\n  THEN 1 \n\n\
-          \ WHEN Aud_Type in ('UB','FB','FP','BR') \n\n  THEN 2 \n\n WHEN Aud_Type\
-          \ in ('UP','UR') \n\n  THEN 3 \n\n WHEN Aud_Type in ('DL' , 'FD') \n\n \
-          \ THEN 4 \n\n WHEN Aud_Type in ('RR') \n\n  THEN 5 \n\n ELSE NULL \n\nEND"
+        transform: "CASE \n\n WHEN AUD_TYPE in ('PT','PX','FI') \n\n  THEN 1 \n\n\
+          \ WHEN AUD_TYPE in ('UB','FB','FP','BR') \n\n  THEN 2 \n\n WHEN AUD_TYPE\
+          \ in ('UP','UR') \n\n  THEN 3 \n\n WHEN AUD_TYPE in ('DL' , 'FD') \n\n \
+          \ THEN 4 \n\n WHEN AUD_TYPE in ('RR') \n\n  THEN 5 \n\n ELSE NULL \n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8d5111ce-1fa3-5b25-9951-22f9cc784bb6
@@ -43,8 +43,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\n\n WHEN Aud_Type in ('PT' , 'PX' , 'FI' , 'UP','UR')\n\n\
-          \  THEN Aud_Time\n\n ELSE  CAST('1997-11-01 00:00:00.000000' as timestamp)\n\
+        transform: "CASE\n\n WHEN AUD_TYPE in ('PT' , 'PX' , 'FI' , 'UP','UR')\n\n\
+          \  THEN AUD_TIME\n\n ELSE  CAST('1997-11-01 00:00:00.000000' as timestamp)\n\
           \nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -57,8 +57,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\n\n WHEN Aud_Type in ('UB' , 'FB' , 'FP' , 'DL' , 'FD','BR')\n\
-          \n  THEN Aud_Time\n\n ELSE  CAST('2999-12-31 00:00:00.000000' as timestamp)\n\
+        transform: "CASE\n\n WHEN AUD_TYPE in ('UB' , 'FB' , 'FP' , 'DL' , 'FD','BR')\n\
+          \n  THEN AUD_TIME\n\n ELSE  CAST('2999-12-31 00:00:00.000000' as timestamp)\n\
           \nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -390,13 +390,12 @@ operation:
         nodeName: SRC_WOLBRDFL
       join:
         joinCondition: "FROM {{ ref('GOLD', 'SRC_WOLBRDFL') }} \"SRC_WOLBRDFL\"\n\
-          \ Where Aud_Time <= (Select MAX(Batch_End) FROM \"DOUG_POC\".\"DP001\".\"\
-          CDC_BATCH\")\nAND (Aud_Code <> 'F' or (Aud_Code is null and Aud_Type = 'RR'))\n\
+          \ Where AUD_TIME <= (Select MAX(BATCH_END) FROM {{ ref('SILVER', 'CDC_BATCH') }})\nAND (AUD_CODE <> 'F' or (AUD_CODE is null and AUD_TYPE = 'RR'))\n\
           \ QUALIFY RANK() \nOVER (PARTITION BY  VLCMP, \nVLWO0, \nVLPRFD,       \
           \          \nVLMECH, \nVLSEQ0, \nVLSYSD, \nVLSYST\nORDER BY AUD_TIME DESC,\
-          \ CASE  \nWHEN Aud_Type in ('PT','PX','FI')   THEN 1 \nWHEN Aud_Type in\
-          \ ('UB','FB','FP','BR')  THEN 2 \nWHEN Aud_Type in ('UP','UR')         \
-          \      THEN 3 \nWHEN Aud_Type in ('DL' , 'FD')      THEN 4 \nWHEN Aud_Type\
+          \ CASE  \nWHEN AUD_TYPE in ('PT','PX','FI')   THEN 1 \nWHEN AUD_TYPE in\
+          \ ('UB','FB','FP','BR')  THEN 2 \nWHEN AUD_TYPE in ('UP','UR')         \
+          \      THEN 3 \nWHEN AUD_TYPE in ('DL' , 'FD')      THEN 4 \nWHEN AUD_TYPE\
           \ in ('RR')              THEN 5 \n ELSE 0 END DESC) = 1"
       name: CDC_WOLBRDFL
       noLinkRefs: []

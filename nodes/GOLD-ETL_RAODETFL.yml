@@ -118,10 +118,10 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE \n\n WHEN  SRC_RAODETFL.Aud_Type in ('PT','PX','FI') \n\n\
-          \  THEN 1 \n\n WHEN SRC_RAODETFL.Aud_Type in ('UB','FB','FP') \n\n  THEN\
-          \ 2 \n\n WHEN SRC_RAODETFL.Aud_Type in ('UP') \n\n  THEN 3 \n\n WHEN SRC_RAODETFL.Aud_Type\
-          \ in ('DL' , 'FD') \n\n  THEN 4 \n\n WHEN SRC_RAODETFL.Aud_Type in ('RR')\
+        transform: "CASE \n\n WHEN  SRC_RAODETFL.AUD_TYPE in ('PT','PX','FI') \n\n\
+          \  THEN 1 \n\n WHEN SRC_RAODETFL.AUD_TYPE in ('UB','FB','FP') \n\n  THEN\
+          \ 2 \n\n WHEN SRC_RAODETFL.AUD_TYPE in ('UP') \n\n  THEN 3 \n\n WHEN SRC_RAODETFL.AUD_TYPE\
+          \ in ('DL' , 'FD') \n\n  THEN 4 \n\n WHEN SRC_RAODETFL.AUD_TYPE in ('RR')\
           \ \n\n  THEN 5 \n\n ELSE NULL \n\nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -146,8 +146,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\n\n WHEN SRC_RAODETFL.Aud_Type in ('PT' , 'PX' , 'FI' , 'UP')\n\
-          \n  THEN SRC_RAODETFL.Aud_Time\n\n ELSE  CAST('1997-11-01 00:00:00.000000'\
+        transform: "CASE\n\n WHEN SRC_RAODETFL.AUD_TYPE in ('PT' , 'PX' , 'FI' , 'UP')\n\
+          \n  THEN SRC_RAODETFL.AUD_TIME\n\n ELSE  CAST('1997-11-01 00:00:00.000000'\
           \ as timestamp)\n\nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -160,8 +160,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\n\n WHEN SRC_RAODETFL.Aud_Type in ('UB' , 'FB' , 'FP' , 'DL'\
-          \ , 'FD')\n\n  THEN SRC_RAODETFL.Aud_Time\n\n ELSE  CAST('2999-12-31 00:00:00.000000'\
+        transform: "CASE\n\n WHEN SRC_RAODETFL.AUD_TYPE in ('UB' , 'FB' , 'FP' , 'DL'\
+          \ , 'FD')\n\n  THEN SRC_RAODETFL.AUD_TIME\n\n ELSE  CAST('2999-12-31 00:00:00.000000'\
           \ as timestamp)\n\nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -1651,17 +1651,16 @@ operation:
           \ AND CASE WHEN SRC_RAODETFL.RDCATG = 0 THEN  SRC_RAODETFL.RDITEM ELSE \
           \ Null END\n = ID_ITEM.Item_Code\n AND CASE WHEN SRC_RAODETFL.RDCATG = 0\
           \ and RTRIM(SRC_RAODETFL.RDSTKC) = ''\n     THEN  'MCI'  ELSE  SRC_RAODETFL.RDSTKC\
-          \ END\n = ID_ITEM.Stock_Class_Code\n \n  \n Where SRC_RAODETFL.Aud_Time\
-          \ <= (Select MAX(Batch_End) from  \"DOUG_POC\".\"DP001\".\"CDC_BATCH\")\n\
-          \ AND SRC_RAODETFL.Aud_Time > (Select MAX(Batch_Start) from  \"DOUG_POC\"\
-          .\"DP001\".\"CDC_BATCH\")\n AND (SRC_RAODETFL.Aud_Code <> 'F' or (SRC_RAODETFL.Aud_Code\
-          \ is null and SRC_RAODETFL.Aud_Type = 'RR')) QUALIFY RANK() \n OVER (PARTITION\
+          \ END\n = ID_ITEM.Stock_Class_Code\n \n  \n Where SRC_RAODETFL.AUD_TIME\
+          \ <= (Select MAX(BATCH_END) from  {{ ref('SILVER', 'CDC_BATCH') }})\n\
+          \ AND SRC_RAODETFL.AUD_TIME > (Select MAX(BATCH_START) from  {{ ref('SILVER', 'CDC_BATCH') }})\n AND (SRC_RAODETFL.AUD_CODE <> 'F' or (SRC_RAODETFL.AUD_CODE\
+          \ is null and SRC_RAODETFL.AUD_TYPE = 'RR')) QUALIFY RANK() \n OVER (PARTITION\
           \ BY  SRC_RAODETFL.RDCMP,      \n SRC_RAODETFL.RDCON0,         \n SRC_RAODETFL.RDTYPE,\
-          \     \n SRC_RAODETFL.RDSEQ0 \n ORDER BY SRC_RAODETFL.Aud_Time DESC, AUD_SEQNO\
-          \ DESC, CASE  \n WHEN SRC_RAODETFL.Aud_Type in ('PT','PX','FI')   THEN 1\
-          \ \n WHEN SRC_RAODETFL.Aud_Type in ('UB','FB','FP')  THEN 2 \n WHEN SRC_RAODETFL.Aud_Type\
-          \ in ('UP')               THEN 3 \n WHEN SRC_RAODETFL.Aud_Type in ('DL'\
-          \ , 'FD')      THEN 4 \n WHEN SRC_RAODETFL.Aud_Type in ('RR')          \
+          \     \n SRC_RAODETFL.RDSEQ0 \n ORDER BY SRC_RAODETFL.AUD_TIME DESC, AUD_SEQNO\
+          \ DESC, CASE  \n WHEN SRC_RAODETFL.AUD_TYPE in ('PT','PX','FI')   THEN 1\
+          \ \n WHEN SRC_RAODETFL.AUD_TYPE in ('UB','FB','FP')  THEN 2 \n WHEN SRC_RAODETFL.AUD_TYPE\
+          \ in ('UP')               THEN 3 \n WHEN SRC_RAODETFL.AUD_TYPE in ('DL'\
+          \ , 'FD')      THEN 4 \n WHEN SRC_RAODETFL.AUD_TYPE in ('RR')          \
           \    THEN 5 \n  ELSE 0 END DESC) = 1"
       name: ETL_RAODETFL
       noLinkRefs: []

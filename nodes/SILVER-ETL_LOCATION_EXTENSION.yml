@@ -28,9 +28,9 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN Aud_Type in ('PT','PX','FI')\tTHEN 1 \n\n\tWHEN Aud_Type\
-          \ in ('UB','FB','FP','BR')\tTHEN 2 \n\n\tWHEN Aud_Type in ('UP','UR')\t\t\
-          THEN 3 \n\n\tWHEN Aud_Type in ('DL','FD')\t\tTHEN 4 \n\n\tWHEN Aud_Type\
+        transform: "CASE\tWHEN AUD_TYPE in ('PT','PX','FI')\tTHEN 1 \n\n\tWHEN AUD_TYPE\
+          \ in ('UB','FB','FP','BR')\tTHEN 2 \n\n\tWHEN AUD_TYPE in ('UP','UR')\t\t\
+          THEN 3 \n\n\tWHEN AUD_TYPE in ('DL','FD')\t\tTHEN 4 \n\n\tWHEN AUD_TYPE\
           \ in ('RR')\t\t\tTHEN 5 \n\n\tELSE NULL \n\nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -43,8 +43,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN Aud_Type in ('PT' , 'PX' , 'FI' , 'UP', 'UR')\n\n\t\
-          THEN Aud_Time\n\n\tELSE CAST('1997-11-01 00:00:00.000000' as timestamp)\n\
+        transform: "CASE\tWHEN AUD_TYPE in ('PT' , 'PX' , 'FI' , 'UP', 'UR')\n\n\t\
+          THEN AUD_TIME\n\n\tELSE CAST('1997-11-01 00:00:00.000000' as timestamp)\n\
           \nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -57,8 +57,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN Aud_Type in ('UB' , 'FB' , 'FP' , 'DL' , 'FD', 'BR')\n\
-          \n\tTHEN Aud_Time\n\n\tELSE CAST('2999-12-31 00:00:00.000000' as timestamp)\n\
+        transform: "CASE\tWHEN AUD_TYPE in ('UB' , 'FB' , 'FP' , 'DL' , 'FD', 'BR')\n\
+          \n\tTHEN AUD_TIME\n\n\tELSE CAST('2999-12-31 00:00:00.000000' as timestamp)\n\
           \nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -1079,13 +1079,13 @@ operation:
         joinCondition: "FROM {{ ref('GOLD', 'SRC_SYSLC2FL') }} \"SRC_SYSLC2FL\"\n\
           INNER JOIN {{ ref('GOLD', 'DV_LOCATION') }} \"DV_LOCATION\"\nON   SRC_SYSLC2FL.Z2CMP\
           \ = DV_LOCATION.Company_Code\nAND  SRC_SYSLC2FL.Z2LOC = DV_LOCATION.Location_Code\n\
-          \nWhere (Aud_Code <> 'F' or (Aud_Code is null and Aud_Type = 'RR'))\nAND\
-          \ Aud_Time <= (Select MAX(Batch_End) from \"DOUG_POC\".\"DP001\".\"CDC_BATCH\"\
+          \nWhere (AUD_CODE <> 'F' or (AUD_CODE is null and AUD_TYPE = 'RR'))\nAND\
+          \ AUD_TIME <= (Select MAX(BATCH_END) from {{ ref('SILVER', 'CDC_BATCH') }}\
           \ )\n\nQUALIFY RANK() \n   OVER (PARTITION BY  Z2CMP, Z2LOC  \n   ORDER\
-          \ BY AUD_TIME DESC, AUD_SEQNO DESC, CASE  \n   WHEN Aud_Type in ('PT','PX','FI')\
-          \   THEN 1 \n   WHEN Aud_Type in ('UB','FB','FP','BR')  THEN 2 \n   WHEN\
-          \ Aud_Type in ('UP','UR')        THEN 3 \n   WHEN Aud_Type in ('DL' , 'FD')\
-          \      THEN 4 \n   WHEN Aud_Type in ('RR')             THEN 5 \n   ELSE\
+          \ BY AUD_TIME DESC, AUD_SEQNO DESC, CASE  \n   WHEN AUD_TYPE in ('PT','PX','FI')\
+          \   THEN 1 \n   WHEN AUD_TYPE in ('UB','FB','FP','BR')  THEN 2 \n   WHEN\
+          \ AUD_TYPE in ('UP','UR')        THEN 3 \n   WHEN AUD_TYPE in ('DL' , 'FD')\
+          \      THEN 4 \n   WHEN AUD_TYPE in ('RR')             THEN 5 \n   ELSE\
           \ 0 END DESC) = 1"
       name: ETL_LOCATION_EXTENSION
       noLinkRefs: []

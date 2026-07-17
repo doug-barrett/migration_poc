@@ -28,9 +28,9 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\n\n WHEN Aud_Type in ('PT','PX','FI')\n\n  THEN 1\n\n WHEN\
-          \ Aud_Type in ('UB','FB','FP','BR')\n\n  THEN 2\n\n WHEN Aud_Type in ('UP','UR')\n\
-          \n  THEN 3\n\n WHEN Aud_Type in ('DL' , 'FD')\n\n  THEN 4\n\n WHEN Aud_Type\
+        transform: "CASE\n\n WHEN AUD_TYPE in ('PT','PX','FI')\n\n  THEN 1\n\n WHEN\
+          \ AUD_TYPE in ('UB','FB','FP','BR')\n\n  THEN 2\n\n WHEN AUD_TYPE in ('UP','UR')\n\
+          \n  THEN 3\n\n WHEN AUD_TYPE in ('DL' , 'FD')\n\n  THEN 4\n\n WHEN AUD_TYPE\
           \ in ('RR')\n\n  THEN 5\n\n ELSE NULL\n\nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -122,13 +122,11 @@ operation:
         nodeName: SRC_EQPDEXFL
       join:
         joinCondition: "FROM {{ ref('GOLD', 'SRC_EQPDEXFL') }} \"SRC_EQPDEXFL\"\n\n\
-          WHERE Aud_Time <= (SELECT MAX(Batch_End) FROM \"DOUG_POC\".\"DP001\".\"\
-          CDC_BATCH\" )\n  AND Aud_Time > (SELECT MAX(Batch_Start) FROM \"DOUG_POC\"\
-          .\"DP001\".\"CDC_BATCH\")\n  AND (Aud_Code <> 'F' OR (Aud_Code IS NULL AND\
-          \ Aud_Type = 'RR'))\n\nQUALIFY RANK()\nOVER (PARTITION BY  GDCMP, GDPID0\n\
-          ORDER BY Aud_Time DESC, Aud_Seqno DESC, CASE\nWHEN Aud_Type in ('PT','PX','FI')\t\
-          THEN 1\nWHEN Aud_Type in ('UB','FB','FP','BR')\tTHEN 2\nWHEN Aud_Type in\
-          \ ('UP','UR')\tTHEN 3\nWHEN Aud_Type in ('DL','FD')\tTHEN 4\nWHEN Aud_Type\
+          WHERE AUD_TIME <= (SELECT MAX(BATCH_END) FROM {{ ref('SILVER', 'CDC_BATCH') }} )\n  AND AUD_TIME > (SELECT MAX(BATCH_START) FROM {{ ref('SILVER', 'CDC_BATCH') }})\n  AND (AUD_CODE <> 'F' OR (AUD_CODE IS NULL AND\
+          \ AUD_TYPE = 'RR'))\n\nQUALIFY RANK()\nOVER (PARTITION BY  GDCMP, GDPID0\n\
+          ORDER BY AUD_TIME DESC, Aud_Seqno DESC, CASE\nWHEN AUD_TYPE in ('PT','PX','FI')\t\
+          THEN 1\nWHEN AUD_TYPE in ('UB','FB','FP','BR')\tTHEN 2\nWHEN AUD_TYPE in\
+          \ ('UP','UR')\tTHEN 3\nWHEN AUD_TYPE in ('DL','FD')\tTHEN 4\nWHEN AUD_TYPE\
           \ in ('RR')\t\tTHEN 5\nELSE 0 END DESC) = 1"
       name: ETL_VEHICLE_DRIVER_EXCEPTION
       noLinkRefs: []

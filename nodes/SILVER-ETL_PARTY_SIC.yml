@@ -29,10 +29,10 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN SRC_CUSMASFL.Aud_Type in ('PT','PX','FI')\tTHEN 1 \n\
-          \n\tWHEN SRC_CUSMASFL.Aud_Type in ('UB','FB','FP','BR')\tTHEN 2 \n\n\tWHEN\
-          \ SRC_CUSMASFL.Aud_Type in ('UP','UR')\t\tTHEN 3 \n\n\tWHEN SRC_CUSMASFL.Aud_Type\
-          \ in ('DL','FD')\t\tTHEN 4 \n\n\tWHEN SRC_CUSMASFL.Aud_Type in ('RR')\t\t\
+        transform: "CASE\tWHEN SRC_CUSMASFL.AUD_TYPE in ('PT','PX','FI')\tTHEN 1 \n\
+          \n\tWHEN SRC_CUSMASFL.AUD_TYPE in ('UB','FB','FP','BR')\tTHEN 2 \n\n\tWHEN\
+          \ SRC_CUSMASFL.AUD_TYPE in ('UP','UR')\t\tTHEN 3 \n\n\tWHEN SRC_CUSMASFL.AUD_TYPE\
+          \ in ('DL','FD')\t\tTHEN 4 \n\n\tWHEN SRC_CUSMASFL.AUD_TYPE in ('RR')\t\t\
           \tTHEN 5 \n\n\tELSE NULL \n\nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -45,8 +45,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN SRC_CUSMASFL.Aud_Type in ('PT' , 'PX' , 'FI' , 'UP',\
-          \ 'UR')\n\n\tTHEN SRC_CUSMASFL.Aud_Time\n\n\tELSE CAST('1997-11-01 00:00:00.000000'\
+        transform: "CASE\tWHEN SRC_CUSMASFL.AUD_TYPE in ('PT' , 'PX' , 'FI' , 'UP',\
+          \ 'UR')\n\n\tTHEN SRC_CUSMASFL.AUD_TIME\n\n\tELSE CAST('1997-11-01 00:00:00.000000'\
           \ as timestamp)\n\nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -59,8 +59,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN SRC_CUSMASFL.Aud_Type in ('UB' , 'FB' , 'FP' , 'DL'\
-          \ , 'FD', 'BR')\n\n\tTHEN SRC_CUSMASFL.Aud_Time\n\n\tELSE CAST('2999-12-31\
+        transform: "CASE\tWHEN SRC_CUSMASFL.AUD_TYPE in ('UB' , 'FB' , 'FP' , 'DL'\
+          \ , 'FD', 'BR')\n\n\tTHEN SRC_CUSMASFL.AUD_TIME\n\n\tELSE CAST('2999-12-31\
           \ 00:00:00.000000' as timestamp)\n\nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -169,16 +169,16 @@ operation:
         joinCondition: "FROM {{ ref('GOLD', 'SRC_CUSMASFL') }} \"SRC_CUSMASFL\"\n\
           LEFT OUTER JOIN {{ ref('GOLD', 'CV_PARTY') }} \"CV_PARTY\"\nON   SRC_CUSMASFL.CMCMP\
           \ = CV_PARTY.COMPANY_CODE\nAND  SRC_CUSMASFL.CMCUS0 = CV_PARTY.CUSTOMER_ACCOUNT_NUM\n\
-          AND  CV_PARTY.PARTY_TYPE_CODE = 1\n\n Where SRC_CUSMASFL.Aud_Time <= (Select\
-          \ MAX(Batch_End)   from \"DOUG_POC\".\"DP001\".\"CDC_BATCH\")\n AND    SRC_CUSMASFL.Aud_Time\
-          \ >   (Select MAX(Batch_Start)  from \"DOUG_POC\".\"DP001\".\"CDC_BATCH\"\
-          )\n AND   (SRC_CUSMASFL.Aud_Code <> 'F' or (SRC_CUSMASFL.Aud_Code is null\
-          \ and SRC_CUSMASFL.Aud_Type = 'RR'))\n\n QUALIFY RANK() \n OVER (PARTITION\
+          AND  CV_PARTY.PARTY_TYPE_CODE = 1\n\n Where SRC_CUSMASFL.AUD_TIME <= (Select\
+          \ MAX(BATCH_END)   from {{ ref('SILVER', 'CDC_BATCH') }})\n AND    SRC_CUSMASFL.AUD_TIME\
+          \ >   (Select MAX(BATCH_START)  from {{ ref('SILVER', 'CDC_BATCH') }}\
+          )\n AND   (SRC_CUSMASFL.AUD_CODE <> 'F' or (SRC_CUSMASFL.AUD_CODE is null\
+          \ and SRC_CUSMASFL.AUD_TYPE = 'RR'))\n\n QUALIFY RANK() \n OVER (PARTITION\
           \ BY  SRC_CUSMASFL.CMCMP, SRC_CUSMASFL.CMCUS0\n ORDER BY SRC_CUSMASFL.AUD_TIME\
-          \ DESC, SRC_CUSMASFL.AUD_SEQNO DESC, CASE  \n WHEN SRC_CUSMASFL.Aud_Type\
-          \ in ('PT','PX','FI')\tTHEN 1 \n WHEN SRC_CUSMASFL.Aud_Type in ('UB','FB','FP','BR')\t\
-          THEN 2 \n WHEN SRC_CUSMASFL.Aud_Type in ('UP','UR')\tTHEN 3 \n WHEN SRC_CUSMASFL.Aud_Type\
-          \ in ('DL','FD')\tTHEN 4 \n WHEN SRC_CUSMASFL.Aud_Type in ('RR')\t\tTHEN\
+          \ DESC, SRC_CUSMASFL.AUD_SEQNO DESC, CASE  \n WHEN SRC_CUSMASFL.AUD_TYPE\
+          \ in ('PT','PX','FI')\tTHEN 1 \n WHEN SRC_CUSMASFL.AUD_TYPE in ('UB','FB','FP','BR')\t\
+          THEN 2 \n WHEN SRC_CUSMASFL.AUD_TYPE in ('UP','UR')\tTHEN 3 \n WHEN SRC_CUSMASFL.AUD_TYPE\
+          \ in ('DL','FD')\tTHEN 4 \n WHEN SRC_CUSMASFL.AUD_TYPE in ('RR')\t\tTHEN\
           \ 5 \n ELSE 0 END DESC) = 1"
       name: ETL_PARTY_SIC
       noLinkRefs: []

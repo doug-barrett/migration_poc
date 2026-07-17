@@ -28,10 +28,10 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE \n\n WHEN Aud_Type in ('PT','PX','FI') \n\n  THEN 1 \n\n\
-          \ WHEN Aud_Type in ('UB','FB','FP','BR') \n\n  THEN 2 \n\n WHEN Aud_Type\
-          \ in ('UP','UR') \n\n  THEN 3 \n\n WHEN Aud_Type in ('DL' , 'FD') \n\n \
-          \ THEN 4 \n\n WHEN Aud_Type in ('RR') \n\n  THEN 5 \n\n ELSE NULL \n\nEND"
+        transform: "CASE \n\n WHEN AUD_TYPE in ('PT','PX','FI') \n\n  THEN 1 \n\n\
+          \ WHEN AUD_TYPE in ('UB','FB','FP','BR') \n\n  THEN 2 \n\n WHEN AUD_TYPE\
+          \ in ('UP','UR') \n\n  THEN 3 \n\n WHEN AUD_TYPE in ('DL' , 'FD') \n\n \
+          \ THEN 4 \n\n WHEN AUD_TYPE in ('RR') \n\n  THEN 5 \n\n ELSE NULL \n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2b66159f-c9ac-5973-b683-b00a585e5bf4
@@ -181,14 +181,14 @@ operation:
         joinCondition: "FROM {{ ref('GOLD', 'SRC_EQPDRVFL') }} \"SRC_EQPDRVFL\"\n\n\
           LEFT OUTER JOIN {{ ref('GOLD', 'DV_EQUIPMENT') }} \"DV_EQUIPMENT\"\nON \
           \ SRC_EQPDRVFL.DFCMP = DV_EQUIPMENT.Company_Code\nAND SRC_EQPDRVFL.DFEQP0\
-          \ = DV_EQUIPMENT.Equipment_Code WHERE Aud_Time <= (SELECT MAX(Batch_End)\
-          \ FROM \"DOUG_POC\".\"DP001\".\"CDC_BATCH\" )\nAND Aud_Time > (SELECT MAX(Batch_Start)\
-          \ FROM \"DOUG_POC\".\"DP001\".\"CDC_BATCH\")\nAND (Aud_Code <> 'F' OR (Aud_Code\
-          \ IS NULL AND Aud_Type = 'RR'))\n\nQUALIFY RANK() \nOVER (PARTITION BY \
-          \ DFCMP, DFEQP0 \nORDER BY Aud_Time DESC, Aud_Seqno DESC, CASE  \nWHEN Aud_Type\
-          \ in ('PT','PX','FI')\tTHEN 1 \nWHEN Aud_Type in ('UB','FB','FP','BR')\t\
-          THEN 2 \nWHEN Aud_Type in ('UP','UR')\tTHEN 3 \nWHEN Aud_Type in ('DL','FD')\t\
-          THEN 4 \nWHEN Aud_Type in ('RR')\t\tTHEN 5 \nELSE 0 END DESC) = 1"
+          \ = DV_EQUIPMENT.Equipment_Code WHERE AUD_TIME <= (SELECT MAX(BATCH_END)\
+          \ FROM {{ ref('SILVER', 'CDC_BATCH') }} )\nAND AUD_TIME > (SELECT MAX(BATCH_START)\
+          \ FROM {{ ref('SILVER', 'CDC_BATCH') }})\nAND (AUD_CODE <> 'F' OR (AUD_CODE\
+          \ IS NULL AND AUD_TYPE = 'RR'))\n\nQUALIFY RANK() \nOVER (PARTITION BY \
+          \ DFCMP, DFEQP0 \nORDER BY AUD_TIME DESC, Aud_Seqno DESC, CASE  \nWHEN AUD_TYPE\
+          \ in ('PT','PX','FI')\tTHEN 1 \nWHEN AUD_TYPE in ('UB','FB','FP','BR')\t\
+          THEN 2 \nWHEN AUD_TYPE in ('UP','UR')\tTHEN 3 \nWHEN AUD_TYPE in ('DL','FD')\t\
+          THEN 4 \nWHEN AUD_TYPE in ('RR')\t\tTHEN 5 \nELSE 0 END DESC) = 1"
       name: ETL_EQUIPMENT_DRIVER
       noLinkRefs: []
   name: ETL_EQUIPMENT_DRIVER

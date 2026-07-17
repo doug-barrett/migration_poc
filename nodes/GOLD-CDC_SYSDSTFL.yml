@@ -28,10 +28,10 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE \n\n WHEN Aud_Type in ('PT','PX','FI') \n\n  THEN 1 \n\n\
-          \ WHEN Aud_Type in ('UB','FB','FP','BR') \n\n  THEN 2 \n\n WHEN Aud_Type\
-          \ in ('UP','UR') \n\n  THEN 3 \n\n WHEN Aud_Type in ('DL' , 'FD') \n\n \
-          \ THEN 4 \n\n WHEN Aud_Type in ('RR') \n\n  THEN 5 \n\n ELSE NULL \n\nEND"
+        transform: "CASE \n\n WHEN AUD_TYPE in ('PT','PX','FI') \n\n  THEN 1 \n\n\
+          \ WHEN AUD_TYPE in ('UB','FB','FP','BR') \n\n  THEN 2 \n\n WHEN AUD_TYPE\
+          \ in ('UP','UR') \n\n  THEN 3 \n\n WHEN AUD_TYPE in ('DL' , 'FD') \n\n \
+          \ THEN 4 \n\n WHEN AUD_TYPE in ('RR') \n\n  THEN 5 \n\n ELSE NULL \n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 06627921-5507-5280-837e-8c3d1c7fee50
@@ -43,8 +43,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\n\n WHEN Aud_Type in ('PT' , 'PX' , 'FI' , 'UP','UR')\n\n\
-          \  THEN Aud_Time\n\n ELSE  CAST('1997-11-01 00:00:00.000000' as timestamp)\n\
+        transform: "CASE\n\n WHEN AUD_TYPE in ('PT' , 'PX' , 'FI' , 'UP','UR')\n\n\
+          \  THEN AUD_TIME\n\n ELSE  CAST('1997-11-01 00:00:00.000000' as timestamp)\n\
           \nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -57,8 +57,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\n\n WHEN Aud_Type in ('UB' , 'FB' , 'FP' , 'DL' , 'FD','BR')\n\
-          \n  THEN Aud_Time\n\n ELSE  CAST('2999-12-31 00:00:00.000000' as timestamp)\n\
+        transform: "CASE\n\n WHEN AUD_TYPE in ('UB' , 'FB' , 'FP' , 'DL' , 'FD','BR')\n\
+          \n  THEN AUD_TIME\n\n ELSE  CAST('2999-12-31 00:00:00.000000' as timestamp)\n\
           \nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -71,10 +71,10 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "/*Period(\n\nCASE\n\n WHEN Aud_Type in ('PT' , 'PX' , 'FI' , 'UP',\
-          \ 'UR')\n\n  THEN Cast(Aud_Time as date)\n\n ELSE  CAST('1997-11-01' as\
-          \ Date)\n\nEND\n\n,\n\nCASE\n\n WHEN Aud_Type in ('UB' , 'FB' , 'FP' , 'DL'\
-          \ , 'FD', 'BR')\n\n  THEN Cast(Aud_Time as date)\n\n ELSE  Cast('9999-12-31'\
+        transform: "/*Period(\n\nCASE\n\n WHEN AUD_TYPE in ('PT' , 'PX' , 'FI' , 'UP',\
+          \ 'UR')\n\n  THEN Cast(AUD_TIME as date)\n\n ELSE  CAST('1997-11-01' as\
+          \ Date)\n\nEND\n\n,\n\nCASE\n\n WHEN AUD_TYPE in ('UB' , 'FB' , 'FP' , 'DL'\
+          \ , 'FD', 'BR')\n\n  THEN Cast(AUD_TIME as date)\n\n ELSE  Cast('9999-12-31'\
           \ as date)\n\nEND\n\n)*/Null"
     - appliedColumnTests: {}
       columnReference:
@@ -270,14 +270,12 @@ operation:
         nodeName: SRC_SYSDSTFL
       join:
         joinCondition: "FROM {{ ref('GOLD', 'SRC_SYSDSTFL') }} \"SRC_SYSDSTFL\"\n\
-          \ Where Aud_Time <= (Select MAX(Batch_End) FROM \"DOUG_POC\".\"DP001\".\"\
-          CDC_BATCH\" )\nand      Aud_Time  >  (Select MAX(Batch_Start) FROM \"DOUG_POC\"\
-          .\"DP001\".\"CDC_BATCH\")\nAND (Aud_Code <> 'F' or (Aud_Code is null and\
-          \ Aud_Type = 'RR')) QUALIFY RANK() \nOVER (PARTITION BY  ZKCMP, ZKDIST\n\
-          ORDER BY AUD_TIME DESC, AUD_SEQNO DESC, CASE  \nWHEN Aud_Type in ('PT','PX','FI')\
-          \   THEN 1 \nWHEN Aud_Type in ('UB','FB','FP','BR')  THEN 2 \nWHEN Aud_Type\
-          \ in ('UP','UR')               THEN 3 \nWHEN Aud_Type in ('DL' , 'FD') \
-          \     THEN 4 \nWHEN Aud_Type in ('RR')              THEN 5 \n ELSE 0 END\
+          \ Where AUD_TIME <= (Select MAX(BATCH_END) FROM {{ ref('SILVER', 'CDC_BATCH') }} )\nand      AUD_TIME  >  (Select MAX(BATCH_START) FROM {{ ref('SILVER', 'CDC_BATCH') }})\nAND (AUD_CODE <> 'F' or (AUD_CODE is null and\
+          \ AUD_TYPE = 'RR')) QUALIFY RANK() \nOVER (PARTITION BY  ZKCMP, ZKDIST\n\
+          ORDER BY AUD_TIME DESC, AUD_SEQNO DESC, CASE  \nWHEN AUD_TYPE in ('PT','PX','FI')\
+          \   THEN 1 \nWHEN AUD_TYPE in ('UB','FB','FP','BR')  THEN 2 \nWHEN AUD_TYPE\
+          \ in ('UP','UR')               THEN 3 \nWHEN AUD_TYPE in ('DL' , 'FD') \
+          \     THEN 4 \nWHEN AUD_TYPE in ('RR')              THEN 5 \n ELSE 0 END\
           \ DESC) = 1"
       name: CDC_SYSDSTFL
       noLinkRefs: []

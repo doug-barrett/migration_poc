@@ -104,9 +104,9 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN Aud_Type in ('PT','PX','FI')\tTHEN 1 \n\n\tWHEN Aud_Type\
-          \ in ('UB','FB','FP','BR')\tTHEN 2 \n\n\tWHEN Aud_Type in ('UP','UR')\t\t\
-          THEN 3 \n\n\tWHEN Aud_Type in ('DL','FD')\t\tTHEN 4 \n\n\tWHEN Aud_Type\
+        transform: "CASE\tWHEN AUD_TYPE in ('PT','PX','FI')\tTHEN 1 \n\n\tWHEN AUD_TYPE\
+          \ in ('UB','FB','FP','BR')\tTHEN 2 \n\n\tWHEN AUD_TYPE in ('UP','UR')\t\t\
+          THEN 3 \n\n\tWHEN AUD_TYPE in ('DL','FD')\t\tTHEN 4 \n\n\tWHEN AUD_TYPE\
           \ in ('RR')\t\t\tTHEN 5 \n\n\tELSE NULL \n\nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -131,8 +131,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN Aud_Type in ('PT' , 'PX' , 'FI' , 'UP', 'UR')\n\n\t\
-          THEN Aud_Time\n\n\tELSE CAST('1997-11-01 00:00:00.000000' as timestamp)\n\
+        transform: "CASE\tWHEN AUD_TYPE in ('PT' , 'PX' , 'FI' , 'UP', 'UR')\n\n\t\
+          THEN AUD_TIME\n\n\tELSE CAST('1997-11-01 00:00:00.000000' as timestamp)\n\
           \nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -145,8 +145,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE\tWHEN Aud_Type in ('UB' , 'FB' , 'FP' , 'DL' , 'FD', 'BR')\n\
-          \n\tTHEN Aud_Time\n\n\tELSE CAST('2999-12-31 00:00:00.000000' as timestamp)\n\
+        transform: "CASE\tWHEN AUD_TYPE in ('UB' , 'FB' , 'FP' , 'DL' , 'FD', 'BR')\n\
+          \n\tTHEN AUD_TIME\n\n\tELSE CAST('2999-12-31 00:00:00.000000' as timestamp)\n\
           \nEND"
     - appliedColumnTests: {}
       columnReference:
@@ -1458,15 +1458,14 @@ operation:
         joinCondition: "FROM {{ ref('GOLD', 'SRC_RASDETFL') }} \"SRC_RASDETFL\"\n\n\
           LEFT OUTER JOIN \"DOUG_POC\".\"DP001\".\"ID_ITEM\"\nON SRC_RASDETFL.RSCMP\
           \ = ID_ITEM.Company_Code\nAND  SRC_RASDETFL.RSITEM = ID_ITEM.Item_Code\n\
-          AND SRC_RASDETFL.RSSTKC = ID_ITEM.Stock_Class_Code\n\n \nWhere SRC_RASDETFL.Aud_Time\
-          \ <= (Select MAX(Batch_End) FROM \"DOUG_POC\".\"DP001\".\"CDC_BATCH\")\n\
-          AND SRC_RASDETFL.Aud_Time > (Select MAX(Batch_Start) FROM \"DOUG_POC\".\"\
-          DP001\".\"CDC_BATCH\")\nAND (SRC_RASDETFL.Aud_Code <> 'F' or (SRC_RASDETFL.Aud_Code\
-          \ is null and SRC_RASDETFL.Aud_Type = 'RR')) QUALIFY RANK() \nOVER (PARTITION\
+          AND SRC_RASDETFL.RSSTKC = ID_ITEM.Stock_Class_Code\n\n \nWhere SRC_RASDETFL.AUD_TIME\
+          \ <= (Select MAX(BATCH_END) FROM {{ ref('SILVER', 'CDC_BATCH') }})\n\
+          AND SRC_RASDETFL.AUD_TIME > (Select MAX(BATCH_START) FROM {{ ref('SILVER', 'CDC_BATCH') }})\nAND (SRC_RASDETFL.AUD_CODE <> 'F' or (SRC_RASDETFL.AUD_CODE\
+          \ is null and SRC_RASDETFL.AUD_TYPE = 'RR')) QUALIFY RANK() \nOVER (PARTITION\
           \ BY  RSCMP, RSCON0, RSSEQ0, RSOSEQ, RSISEQ \nORDER BY SRC_RASDETFL.AUD_TIME\
-          \ DESC, CASE  \nWHEN Aud_Type in ('PT','PX','FI')\tTHEN 1 \nWHEN Aud_Type\
-          \ in ('UB','FB','FP','BR')\tTHEN 2 \nWHEN Aud_Type in ('UP','UR')\tTHEN\
-          \ 3 \nWHEN Aud_Type in ('DL','FD')\tTHEN 4 \nWHEN Aud_Type in ('RR')\t\t\
+          \ DESC, CASE  \nWHEN AUD_TYPE in ('PT','PX','FI')\tTHEN 1 \nWHEN AUD_TYPE\
+          \ in ('UB','FB','FP','BR')\tTHEN 2 \nWHEN AUD_TYPE in ('UP','UR')\tTHEN\
+          \ 3 \nWHEN AUD_TYPE in ('DL','FD')\tTHEN 4 \nWHEN AUD_TYPE in ('RR')\t\t\
           THEN 5 \n ELSE 0 END DESC) = 1"
       name: ETL_RASDETFL
       noLinkRefs: []
