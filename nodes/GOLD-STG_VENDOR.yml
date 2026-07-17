@@ -67,7 +67,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "\"COALESCE\"(\"DV_VENDOR\".\"VENDOR_ID\",\n\n\"ROW_NUMBER\"() over(Order by \"DV_VENDOR\".\"VENDOR_ID\" asc \"NULLS\" \"FIRST\",\n\nCase \n\nwhen \"JOURNAL_TYPE\" in (1,3,5) then 1 \n\nelse 9 end asc) + \"LAST_ID\")"
+        transform: "COALESCE(\"DV_VENDOR\".\"VENDOR_ID\",\n\nROW_NUMBER() OVER(ORDER BY \"DV_VENDOR\".\"VENDOR_ID\" ASC NULLS FIRST,\n\nCASE \n\nWHEN \"JOURNAL_TYPE\" IN (1,3,5) THEN 1 \n\nELSE 9 END ASC) + \"LAST_ID\")"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 010f288b-5f09-52d4-b5a4-da0440bf714f
@@ -576,6 +576,7 @@ operation:
     - aliases:
         CDC_IMVENDFL: f91a75e1-95ad-501b-9acd-f226fd66e6ec
         DV_VENDOR: dbf14f8e-fd5d-5421-a642-c77f78265536
+        VENDOR: 09f65784-a818-520f-bf85-1d3893bef600
       customSQL:
         customSQL: ''
       dependencies:
@@ -583,8 +584,17 @@ operation:
         nodeName: CDC_IMVENDFL
       - locationName: GOLD
         nodeName: DV_VENDOR
+      - locationName: GOLD
+        nodeName: VENDOR
       join:
-        joinCondition: "FROM  {{ ref('GOLD', 'CDC_IMVENDFL') }} \"CDC_IMVENDFL\"\nLEFT OUTER JOIN {{ ref('GOLD', 'DV_VENDOR') }} \"DV_VENDOR\"\nON \"CDC_IMVENDFL\".\"MVCMP0\" = \"DV_VENDOR\".\"COMPANY_CODE\"\nAND \"CDC_IMVENDFL\".\"MVVND0\" = \"DV_VENDOR\".\"VENDOR_CODE\"\n\nLEFT OUTER JOIN \n(Select \"COALESCE\"(\"MAX\"(\"VENDOR_ID\"),0) as \"LAST_ID\" "
+        joinCondition: |-
+          FROM {{ ref('GOLD', 'CDC_IMVENDFL') }} "CDC_IMVENDFL"
+          LEFT OUTER JOIN {{ ref('GOLD', 'DV_VENDOR') }} "DV_VENDOR"
+          ON "CDC_IMVENDFL"."MVCMP0" = "DV_VENDOR"."COMPANY_CODE"
+          AND "CDC_IMVENDFL"."MVVND0" = "DV_VENDOR"."VENDOR_CODE"
+          LEFT OUTER JOIN
+          (SELECT COALESCE(MAX("VENDOR_ID"),0) AS "LAST_ID" FROM {{ ref('GOLD', 'VENDOR') }} "VENDOR") "VENDOR"
+          ON 1=1
       name: STG_VENDOR
       noLinkRefs: []
   name: STG_VENDOR
