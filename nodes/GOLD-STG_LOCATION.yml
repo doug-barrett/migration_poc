@@ -53,7 +53,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "\"COALESCE\"(\"DV_LOCATION\".\"LOCATION_ID\",\n\n\"ROW_NUMBER\"() \"OVER\"(ORDER BY \"DV_LOCATION\".\"LOCATION_ID\" \"ASC\" \"NULLS\" \"FIRST\",\n\nCASE \n\nWHEN \"JOURNAL_TYPE\" IN (1,3,5) THEN 1 \n\nELSE 9 END \"ASC\") + \"LAST_ID\")"
+        transform: "COALESCE(\"DV_LOCATION\".\"LOCATION_ID\",\n\nROW_NUMBER() OVER(ORDER BY \"DV_LOCATION\".\"LOCATION_ID\" ASC NULLS FIRST,\n\nCASE \n\nWHEN \"JOURNAL_TYPE\" IN (1,3,5) THEN 1 \n\nELSE 9 END ASC) + \"LAST_ID\")"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3ea09b28-7967-53f0-81d0-b4a5c8f96a07
@@ -1076,8 +1076,49 @@ operation:
       - locationName: GOLD
         nodeName: REGION
       join:
-        joinCondition: "FROM  {{ ref('GOLD', 'CDC_SYSLOCFL') }} \"CDC_SYSLOCFL\"\n\nLEFT OUTER JOIN {{ \"REF_NO_LINK\"('GOLD', 'DV_LOCATION') }} \"DV_LOCATION\"\nON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"DV_LOCATION\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLLOC\" = \"DV_LOCATION\".\"LOCATION_CODE\"\n\nLEFT OUTER JOIN {{ ref('GOLD', 'REGION') }} \"REGION_A\"\nON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"REGION_A\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLARGN\" = \"REGION_A\".\"REGION_CODE\"\nAND \"REGION_A\".\"DSS_CURRENT_FLAG\" = 'Y'\n\nLEFT OUTER JOIN {{ ref('GOLD', 'REGION') }} \"REGION_I\"\nON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"REGION_I\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLIRGN\" = \"REGION_I\".\"REGION_CODE\"\nAND \"REGION_I\".\"DSS_CURRENT_FLAG\" = 'Y'\n\nLEFT OUTER JOIN {{ ref('GOLD', 'MARKET') }} \"MARKET\"\nON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"MARKET\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLMRKT\" = \"MARKET\".\"MARKET_CODE\"\nAND \"MARKET\".\"DSS_CURRENT_FLAG\" = 'Y'\nAND \"MARKET\"\
-          .\"MARKET_TYPE_CODE\" = 'R'\n\nLEFT OUTER JOIN {{ ref('GOLD', 'MARKET') }} \"MARKET_S\"\nON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"MARKET_S\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLMRKT\" = \"MARKET_S\".\"MARKET_CODE\"\nAND \"MARKET_S\".\"DSS_CURRENT_FLAG\" = 'Y'\nAND \"MARKET_S\".\"MARKET_TYPE_CODE\" = 'S'\n\nLEFT OUTER JOIN {{ \"REF_NO_LINK\"('GOLD', 'DISTRICT') }} \"DISTRICT\"\nON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"DISTRICT\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLDIST\" = \"DISTRICT\".\"DISTRICT_CODE\"\nAnd \"DISTRICT\".\"DSS_CURRENT_FLAG\" = 'Y'\n\nLEFT OUTER JOIN {{ ref('GOLD', 'TRADE_AREA') }} \"TRADE_AREA\"\nON   \"CDC_SYSLOCFL\".\"ZLCMP\" = \"TRADE_AREA\".\"COMPANY_CODE\"\nAND \"CDC_SYSLOCFL\".\"ZLWEBS\" = \"TRADE_AREA\".\"TRADE_AREA_CODE\"\nAND \"TRADE_AREA\".\"DSS_CURRENT_FLAG\" = 'Y'\n\nLEFT OUTER JOIN \n(Select \"COALESCE\"(\"MAX\"(\"LOCATION_ID\"),0) as \"LAST_ID\" "
+        joinCondition: |-
+          FROM  {{ ref('GOLD', 'CDC_SYSLOCFL') }} "CDC_SYSLOCFL"
+
+          LEFT OUTER JOIN {{ ref_no_link('GOLD', 'DV_LOCATION') }} "DV_LOCATION"
+          ON   "CDC_SYSLOCFL"."ZLCMP" = "DV_LOCATION"."COMPANY_CODE"
+          AND "CDC_SYSLOCFL"."ZLLOC" = "DV_LOCATION"."LOCATION_CODE"
+
+          LEFT OUTER JOIN {{ ref('GOLD', 'REGION') }} "REGION_A"
+          ON   "CDC_SYSLOCFL"."ZLCMP" = "REGION_A"."COMPANY_CODE"
+          AND "CDC_SYSLOCFL"."ZLARGN" = "REGION_A"."REGION_CODE"
+          AND "REGION_A"."DSS_CURRENT_FLAG" = 'Y'
+
+          LEFT OUTER JOIN {{ ref('GOLD', 'REGION') }} "REGION_I"
+          ON   "CDC_SYSLOCFL"."ZLCMP" = "REGION_I"."COMPANY_CODE"
+          AND "CDC_SYSLOCFL"."ZLIRGN" = "REGION_I"."REGION_CODE"
+          AND "REGION_I"."DSS_CURRENT_FLAG" = 'Y'
+
+          LEFT OUTER JOIN {{ ref('GOLD', 'MARKET') }} "MARKET"
+          ON   "CDC_SYSLOCFL"."ZLCMP" = "MARKET"."COMPANY_CODE"
+          AND "CDC_SYSLOCFL"."ZLMRKT" = "MARKET"."MARKET_CODE"
+          AND "MARKET"."DSS_CURRENT_FLAG" = 'Y'
+          AND "MARKET"\
+          ."MARKET_TYPE_CODE" = 'R'
+
+          LEFT OUTER JOIN {{ ref('GOLD', 'MARKET') }} "MARKET_S"
+          ON   "CDC_SYSLOCFL"."ZLCMP" = "MARKET_S"."COMPANY_CODE"
+          AND "CDC_SYSLOCFL"."ZLMRKT" = "MARKET_S"."MARKET_CODE"
+          AND "MARKET_S"."DSS_CURRENT_FLAG" = 'Y'
+          AND "MARKET_S"."MARKET_TYPE_CODE" = 'S'
+
+          LEFT OUTER JOIN {{ ref_no_link('GOLD', 'DISTRICT') }} "DISTRICT"
+          ON   "CDC_SYSLOCFL"."ZLCMP" = "DISTRICT"."COMPANY_CODE"
+          AND "CDC_SYSLOCFL"."ZLDIST" = "DISTRICT"."DISTRICT_CODE"
+          And "DISTRICT"."DSS_CURRENT_FLAG" = 'Y'
+
+          LEFT OUTER JOIN {{ ref('GOLD', 'TRADE_AREA') }} "TRADE_AREA"
+          ON   "CDC_SYSLOCFL"."ZLCMP" = "TRADE_AREA"."COMPANY_CODE"
+          AND "CDC_SYSLOCFL"."ZLWEBS" = "TRADE_AREA"."TRADE_AREA_CODE"
+          AND "TRADE_AREA"."DSS_CURRENT_FLAG" = 'Y'
+
+          LEFT OUTER JOIN
+          (SELECT COALESCE(MAX("LOCATION_ID"),0) AS "LAST_ID" FROM {{ ref_no_link('GOLD', 'LOCATION') }} "LOCATION") "MAX_ID"
+          ON 1=1
       name: STG_LOCATION
       noLinkRefs:
       - locationName: GOLD

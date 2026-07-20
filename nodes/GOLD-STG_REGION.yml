@@ -56,7 +56,7 @@ operation:
         transform: 'COALESCE("DV_REGION"."REGION_ID",
 
 
-          ROW_NUMBER() over(Order by "DV_REGION"."REGION_ID" asc "NULLS" "FIRST",
+          ROW_NUMBER() over(Order by "DV_REGION"."REGION_ID" asc NULLS FIRST,
 
 
           Case when "JOURNAL_TYPE" in (1,3,5) then 1 else 9 end asc) + "LAST_ID")'
@@ -183,7 +183,15 @@ operation:
       - locationName: GOLD
         nodeName: CDC_SYSRGNFL
       join:
-        joinCondition: "FROM  {{ ref('GOLD', 'CDC_SYSRGNFL') }} \"CDC_SYSRGNFL\"\nLEFT OUTER JOIN {{ \"REF_NO_LINK\"('GOLD', 'DV_REGION') }} \"DV_REGION\"\nON \"CDC_SYSRGNFL\".\"ZRCMP\" = \"DV_REGION\".\"COMPANY_CODE\"\nAND \"CDC_SYSRGNFL\".\"ZRRGN\" = \"DV_REGION\".\"REGION_CODE\"\n\nLEFT OUTER JOIN \n(Select \"COALESCE\"(\"MAX\"(\"REGION_ID\"),0) as \"LAST_ID\" "
+        joinCondition: |-
+          FROM  {{ ref('GOLD', 'CDC_SYSRGNFL') }} "CDC_SYSRGNFL"
+          LEFT OUTER JOIN {{ ref_no_link('GOLD', 'DV_REGION') }} "DV_REGION"
+          ON "CDC_SYSRGNFL"."ZRCMP" = "DV_REGION"."COMPANY_CODE"
+          AND "CDC_SYSRGNFL"."ZRRGN" = "DV_REGION"."REGION_CODE"
+
+          LEFT OUTER JOIN
+          (SELECT COALESCE(MAX("REGION_ID"),0) AS "LAST_ID" FROM {{ ref_no_link('GOLD', 'REGION') }} "REGION") "MAX_ID"
+          ON 1=1
       name: STG_REGION
       noLinkRefs:
       - locationName: GOLD

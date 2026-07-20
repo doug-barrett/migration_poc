@@ -349,22 +349,10 @@ operation:
         transform: '''"WEEK" of ''||
 
 
-          TRIM(EXTRACT("YEAR" From MIN("CALENDAR_DATE") "OVER" ("PARTITION" BY "WEEK_OF_CALENDAR_ID"))) || ''/'' || CASE
+          TRIM(EXTRACT(YEAR From MIN("CALENDAR_DATE") OVER (PARTITION BY "WEEK_OF_CALENDAR_ID"))) || ''/'' || CASE
 
 
-          WHEN LEN(TRIM(EXTRACT("MONTH" From MIN("CALENDAR_DATE") "OVER" ("PARTITION" BY "WEEK_OF_CALENDAR_ID")))) = 1
-
-
-          THEN ''0'' ELSE ''''''''
-
-
-          END ||
-
-
-          TRIM(EXTRACT("MONTH" From MIN("CALENDAR_DATE") "OVER" ("PARTITION" BY "WEEK_OF_CALENDAR_ID"))) || ''/'' || CASE
-
-
-          WHEN LEN(TRIM(EXTRACT("DAY" From MIN("CALENDAR_DATE") "OVER" ("PARTITION" BY "WEEK_OF_CALENDAR_ID")))) = 1
+          WHEN LEN(TRIM(EXTRACT(MONTH From MIN("CALENDAR_DATE") OVER (PARTITION BY "WEEK_OF_CALENDAR_ID")))) = 1
 
 
           THEN ''0'' ELSE ''''''''
@@ -373,7 +361,19 @@ operation:
           END ||
 
 
-          TRIM(EXTRACT("DAY" From MIN("CALENDAR_DATE") "OVER" ("PARTITION" BY "WEEK_OF_CALENDAR_ID")))'
+          TRIM(EXTRACT(MONTH From MIN("CALENDAR_DATE") OVER (PARTITION BY "WEEK_OF_CALENDAR_ID"))) || ''/'' || CASE
+
+
+          WHEN LEN(TRIM(EXTRACT(DAY From MIN("CALENDAR_DATE") OVER (PARTITION BY "WEEK_OF_CALENDAR_ID")))) = 1
+
+
+          THEN ''0'' ELSE ''''''''
+
+
+          END ||
+
+
+          TRIM(EXTRACT(DAY From MIN("CALENDAR_DATE") OVER (PARTITION BY "WEEK_OF_CALENDAR_ID")))'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4515a633-0830-52a1-8624-f5b513148011
@@ -385,7 +385,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ("MOD"(("CALENDAR_DATE"-"DATE" '1900-01-01'), 7)) + 1
+        transform: ("MOD"(("CALENDAR_DATE"-DATE '1900-01-01'), 7)) + 1
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 42aba52e-ada5-5e4b-8fc0-dd9c4f379047
@@ -397,7 +397,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: 'CASE ("MOD"(("CALENDAR_DATE"-"DATE" ''1900-01-01''), 7)) + 1
+        transform: 'CASE ("MOD"(("CALENDAR_DATE"-DATE ''1900-01-01''), 7)) + 1
 
 
           WHEN 1 THEN ''Monday''
@@ -436,7 +436,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: trunc(("CALENDAR_DATE" - "DATE" '1900-01-01') / 7)
+        transform: trunc(("CALENDAR_DATE" - DATE '1900-01-01') / 7)
     cteString: ''
     enabledColumnTestIDs: []
     sourceMapping:

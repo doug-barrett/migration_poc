@@ -608,7 +608,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: "CASE \n\n  WHEN \"BUS_FAST_CURRENT_EMP_DRIVER\".\"DRIVER_NAME\" \"IS\" NULL \n\n    THEN \"COALESCE\"(\"CV_EMPLOYEE\".\"DRIVER_NAME\", 'UNKNOWN')\n\n  ELSE \"BUS_FAST_CURRENT_EMP_DRIVER\".\"DRIVER_NAME\"\n\nEND"
+        transform: "CASE \n\n  WHEN \"BUS_FAST_CURRENT_EMP_DRIVER\".\"DRIVER_NAME\" \"IS\" NULL \n\n    THEN COALESCE(\"CV_EMPLOYEE\".\"DRIVER_NAME\", 'UNKNOWN')\n\n  ELSE \"BUS_FAST_CURRENT_EMP_DRIVER\".\"DRIVER_NAME\"\n\nEND"
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d9ccb8e2-9b87-529a-8bd9-5d0d2b909e2c
@@ -674,7 +674,7 @@ operation:
         nodeName: CV_ADDRESS
       join:
         joinCondition: "FROM  {{ ref('GOLD', 'SRC_EMPLOYEE_Load') }} \"SRC_EMPLOYEE_Load\"\n\nLEFT OUTER JOIN {{ ref('GOLD', 'CV_EMPLOYEE') }} \"CV_EMPLOYEE\"\n  ON \"UR\".\"UTILITY\".\"UDF_CHAR_TO_INT\"(\"SRC_EMPLOYEE_LOAD\".\"EMPLID\") = \"CV_EMPLOYEE\".\"EMPLOYEE_ID\"\n\nLEFT OUTER JOIN {{ ref('GOLD', 'DV_LOCATION') }} \"DV_LOCATION\"\n  ON \"SRC_EMPLOYEE_LOAD\".\"WORKLOCATION\" = \"DV_LOCATION\".\"LOCATION_CODE\"\n\nLEFT OUTER JOIN {{ ref('GOLD', 'ETL_LDAP') }} \"ETL_LDAP\"\n  ON \"UPPER\"(\"TRIM\"(\"SRC_EMPLOYEE_LOAD\".\"USERID\") || '@\"UR\".\"COM\"') = \"UPPER\"(\"TRIM\"(\"ETL_LDAP\".\"LOGON_NAME\"))\n\nLEFT OUTER JOIN {{ ref('GOLD', 'BUS_FAST_CURRENT_EMP_DRIVER') }} \"BUS_FAST_CURRENT_EMP_DRIVER\" \n  ON \"UR\".\"UTILITY\".\"UDF_CHAR_TO_INT\"(\"SRC_EMPLOYEE_LOAD\".\"EMPLID\") = \"BUS_FAST_CURRENT_EMP_DRIVER\".\"EMPLOYEE_ID\"\n\nLEFT OUTER JOIN {{ ref('GOLD', 'BUS_EMPLOYEE_USER_ID') }} \"BUS_EMPLOYEE_USER_ID\"\n  ON \"UR\".\"UTILITY\".\"UDF_CHAR_TO_INT\"(\"SRC_EMPLOYEE_LOAD\".\"EMPLID\"\
-          ) = \"BUS_EMPLOYEE_USER_ID\".\"PAYROLL_NUM\"\n\nLEFT OUTER JOIN (\n  SELECT \n      \"ADDRESS_ID\"\n    , \"ADDRESS_TEXT_1\" \n    \nWHERE \"ADDRESS_TYPE_CODE\" = 'E'\n      AND \"COMPANY_CODE\" = 'U1'\n  ) AS \"CV_ADDRESS\"\n  ON \"UPPER\"(\"SRC_EMPLOYEE_LOAD\".\"BUSNEMAIL\") = \"UPPER\"(\"CV_ADDRESS\".\"ADDRESS_TEXT_1\") WHERE \"CAST\"(\"SRC_EMPLOYEE_LOAD\".\"LOAD_DTTM\" AS \"DATE\") > (SELECT \"MAX\"(\"HV_EMPLOYEE\".\"EFFECTIVE_BEGIN_DATE\")"
+          ) = \"BUS_EMPLOYEE_USER_ID\".\"PAYROLL_NUM\"\n\nLEFT OUTER JOIN (\n  SELECT \n      \"ADDRESS_ID\"\n    , \"ADDRESS_TEXT_1\" \n    \nWHERE \"ADDRESS_TYPE_CODE\" = 'E'\n      AND \"COMPANY_CODE\" = 'U1'\n  ) AS \"CV_ADDRESS\"\n  ON \"UPPER\"(\"SRC_EMPLOYEE_LOAD\".\"BUSNEMAIL\") = \"UPPER\"(\"CV_ADDRESS\".\"ADDRESS_TEXT_1\") WHERE \"CAST\"(\"SRC_EMPLOYEE_LOAD\".\"LOAD_DTTM\" AS \"DATE\") > (SELECT MAX(\"HV_EMPLOYEE\".\"EFFECTIVE_BEGIN_DATE\")"
       name: ETL_EMPLOYEE
       noLinkRefs: []
   name: ETL_EMPLOYEE
