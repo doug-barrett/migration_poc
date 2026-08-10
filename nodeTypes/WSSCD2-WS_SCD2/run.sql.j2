@@ -1,0 +1,239 @@
+{# WhereScape SCD2 Dimension - RUN (4-step MINUS-based change detection) #}
+{# Pattern: UPDATE expire -> UPDATE surrogate -> INSERT new versions -> UPDATE finalize flags #}
+{# Mirrors the upd_* scripts from WhereScape RED #}
+
+{% for test in node.tests if config.testsEnabled %}
+    {% if test.runOrder == 'Before' %}
+        {{ test_stage(test.name, test.continueOnFailure) }}
+        {{ test.templateString }}
+    {% endif %}
+{% endfor %}
+
+{% if config.preSQL %}
+    {{ stage('Pre-SQL') }}
+    {{ config.preSQL }}
+{% endif %}
+
+{% set source = sources[0] %}
+{% set src_alias = source.name %}
+
+{# Determine if staging has JOURNAL_TYPE column #}
+{% set has_journal_type = source.columns | selectattr("name", "equalto", "Journal_Type") | list | length > 0 %}
+
+{# ═══════════════════════════════════════════════════════════════════════════ #}
+{# STEP 1: Expire changed rows - set dss_current_flag = 'P'                  #}
+{# Uses MINUS to detect attribute changes between staging and current target  #}
+{# ═══════════════════════════════════════════════════════════════════════════ #}
+
+{{ stage('Step 1: Expire Changed Rows') }}
+
+UPDATE {{ ref_no_link(node.location.name, node.name) }}
+SET "{{ get_value_by_column_attribute("isSystemEndDate") }}" = CASE
+    {% if has_journal_type %}
+        WHEN "{{ src_alias }}"."JOURNAL_TYPE" IN (2, 4)
+            THEN "{{ src_alias }}"."{{ get_value_by_column_attribute("isSystemEndDate") }}"
+        ELSE DATEADD(DAY, -1, "{{ src_alias }}"."{{ get_value_by_column_attribute("isSystemStartDate") }}")
+    {% else %}
+        WHEN 1=0 THEN NULL
+        ELSE DATEADD(DAY, -1, "{{ src_alias }}"."{{ get_value_by_column_attribute("isSystemStartDate") }}")
+    {% endif %}
+    END,
+    "{{ get_value_by_column_attribute("isSystemCurrentFlag") }}" = 'P',
+    "{{ get_value_by_column_attribute("isSystemUpdateDate") }}" = CURRENT_TIMESTAMP
+FROM (SELECT
+    {% for col in source.columns if col.isBusinessKey or col.isChangeTracking %}
+        {{ get_source_transform(col) }} AS "{{ col.name }}"
+        {%- if not loop.last -%}, {% endif %}
+    {% endfor %}
+    {{ source.join }}) AS "{{ src_alias }}",
+    (
+        SELECT
+        {% for col in source.columns if col.isBusinessKey or col.isChangeTracking %}
+            {{ get_source_transform(col) }} AS "{{ col.name }}"
+            {%- if not loop.last -%}, {% endif %}
+        {% endfor %}
+        {{ source.join }}
+        MINUS
+        SELECT
+        {% for col in source.columns if col.isBusinessKey or col.isChangeTracking %}
+            "{{ col.name }}"
+            {%- if not loop.last -%}, {% endif %}
+        {% endfor %}
+        FROM {{ ref_no_link(node.location.name, node.name) }}
+        WHERE "{{ get_value_by_column_attribute("isSystemCurrentFlag") }}" = 'Y'
+    ) AS "CHANGES"
+WHERE
+{% for col in source.columns if col.isBusinessKey -%}
+    {% if not loop.first %} AND {% endif %}
+    "{{ node.name }}"."{{ col.name }}" = "{{ src_alias }}"."{{ col.name }}"
+{% endfor %}
+AND "{{ node.name }}"."{{ get_value_by_column_attribute("isSystemCurrentFlag") }}" = 'Y'
+{% for col in source.columns if col.isBusinessKey -%}
+    AND "{{ src_alias }}"."{{ col.name }}" = "CHANGES"."{{ col.name }}"
+{% endfor %}
+
+
+{# ═══════════════════════════════════════════════════════════════════════════ #}
+{# STEP 2: Update timestamp for surrogate key changes                         #}
+{# ═══════════════════════════════════════════════════════════════════════════ #}
+
+{{ stage('Step 2: Update Surrogate Key Changes') }}
+
+UPDATE {{ ref_no_link(node.location.name, node.name) }}
+SET "{{ get_value_by_column_attribute("isSystemUpdateDate") }}" = CURRENT_TIMESTAMP
+FROM (SELECT
+    {% for col in source.columns if col.isBusinessKey %}
+        {{ get_source_transform(col) }} AS "{{ col.name }}"
+        {%- if not loop.last -%}, {% endif %}
+    {% endfor %}
+    {%- for col in source.columns if col.isSurrogateKey %},
+        {{ get_source_transform(col) }} AS "{{ col.name }}"
+    {% endfor %}
+    {{ source.join }}) AS "{{ src_alias }}",
+    (
+        SELECT
+        {% for col in source.columns if col.isBusinessKey %}
+            {{ get_source_transform(col) }} AS "{{ col.name }}"
+            {%- if not loop.last -%}, {% endif %}
+        {% endfor %}
+        {%- for col in source.columns if col.isSurrogateKey %},
+            {{ get_source_transform(col) }} AS "{{ col.name }}"
+        {% endfor %}
+        {{ source.join }}
+        MINUS
+        SELECT
+        {% for col in source.columns if col.isBusinessKey %}
+            "{{ col.name }}"
+            {%- if not loop.last -%}, {% endif %}
+        {% endfor %}
+        {%- for col in source.columns if col.isSurrogateKey %},
+            "{{ col.name }}"
+        {% endfor %}
+        FROM {{ ref_no_link(node.location.name, node.name) }}
+    ) AS "CHANGES"
+WHERE
+{% for col in source.columns if col.isBusinessKey -%}
+    {% if not loop.first %} AND {% endif %}
+    "{{ node.name }}"."{{ col.name }}" = "{{ src_alias }}"."{{ col.name }}"
+{% endfor %}
+AND "{{ node.name }}"."{{ get_value_by_column_attribute("isSystemCurrentFlag") }}" = 'Y'
+{% for col in source.columns if col.isBusinessKey -%}
+    AND "{{ src_alias }}"."{{ col.name }}" = "CHANGES"."{{ col.name }}"
+{% endfor %}
+
+
+{# ═══════════════════════════════════════════════════════════════════════════ #}
+{# STEP 3: Insert new version rows                                            #}
+{# Uses MINUS to find changed rows, LEFT JOIN for max version                 #}
+{# ═══════════════════════════════════════════════════════════════════════════ #}
+
+{{ stage('Step 3: Insert New Versions') }}
+
+INSERT INTO {{ ref_no_link(node.location.name, node.name) }} (
+{%- for col in source.columns if not col.isSurrogateKey %}
+    "{{ col.name }}"
+    {%- if not loop.last -%}, {% endif %}
+{% endfor -%}
+)
+SELECT
+{% for col in source.columns if not col.isSurrogateKey %}
+    {% if col.isSystemStartDate %}
+        COALESCE(CAST("{{ src_alias }}"."{{ col.name }}" AS DATE), TO_DATE('1900-01-01', 'YYYY-MM-DD'))
+    {% elif col.isSystemEndDate %}
+        COALESCE(CAST("{{ src_alias }}"."{{ col.name }}" AS DATE), TO_DATE('9999-12-31', 'YYYY-MM-DD'))
+    {% elif col.isSystemCurrentFlag %}
+        'Y'
+    {% elif col.isSystemVersion %}
+        CASE WHEN "VERS"."{{ get_value_by_column_attribute("isSystemVersion") }}" IS NULL
+            THEN 1
+            ELSE "VERS"."{{ get_value_by_column_attribute("isSystemVersion") }}" + 1
+        END
+    {% elif col.isSystemCreateDate or col.isSystemUpdateDate %}
+        CURRENT_TIMESTAMP
+    {% else %}
+        "{{ src_alias }}"."{{ col.name }}"
+    {% endif %}
+    AS "{{ col.name }}"
+    {%- if not loop.last -%}, {% endif %}
+{% endfor %}
+FROM (SELECT
+    {% for col in source.columns if not col.isSurrogateKey %}
+        {{ get_source_transform(col) }} AS "{{ col.name }}"
+        {%- if not loop.last -%}, {% endif %}
+    {% endfor %}
+    {{ source.join }}) AS "{{ src_alias }}"
+LEFT OUTER JOIN (
+    SELECT
+    {% for col in source.columns if col.isBusinessKey %}
+        "{{ col.name }}",
+    {% endfor %}
+        MAX("{{ get_value_by_column_attribute("isSystemVersion") }}") AS "{{ get_value_by_column_attribute("isSystemVersion") }}"
+    FROM {{ ref_no_link(node.location.name, node.name) }}
+    GROUP BY
+    {% for col in source.columns if col.isBusinessKey %}
+        "{{ col.name }}"
+        {%- if not loop.last -%}, {% endif %}
+    {% endfor %}
+) AS "VERS"
+ON
+{% for col in source.columns if col.isBusinessKey -%}
+    {% if not loop.first %} AND {% endif %}
+    "{{ src_alias }}"."{{ col.name }}" = "VERS"."{{ col.name }}"
+{% endfor %}
+JOIN (
+    SELECT
+    {% for col in source.columns if col.isBusinessKey or col.isChangeTracking %}
+        {{ get_source_transform(col) }} AS "{{ col.name }}",
+    {% endfor %}
+        'Y' AS "{{ get_value_by_column_attribute("isSystemCurrentFlag") }}"
+    {{ source.join }}
+    MINUS
+    SELECT
+    {% for col in source.columns if col.isBusinessKey or col.isChangeTracking %}
+        "{{ col.name }}",
+    {% endfor %}
+        "{{ get_value_by_column_attribute("isSystemCurrentFlag") }}"
+    FROM {{ ref_no_link(node.location.name, node.name) }}
+    WHERE "{{ get_value_by_column_attribute("isSystemCurrentFlag") }}" = 'Y'
+) AS "CHANGES"
+ON
+{% for col in source.columns if col.isBusinessKey -%}
+    {% if not loop.first %} AND {% endif %}
+    "{{ src_alias }}"."{{ col.name }}" = "CHANGES"."{{ col.name }}"
+{% endfor %}
+{% if has_journal_type %}
+WHERE "{{ src_alias }}"."JOURNAL_TYPE" IN (1, 3, 5)
+{% endif %}
+
+
+{# ═══════════════════════════════════════════════════════════════════════════ #}
+{# STEP 4: Finalize - flip 'P' to 'N'                                        #}
+{# ═══════════════════════════════════════════════════════════════════════════ #}
+
+{{ stage('Step 4: Finalize Expired Flags') }}
+
+UPDATE {{ ref_no_link(node.location.name, node.name) }}
+SET "{{ get_value_by_column_attribute("isSystemCurrentFlag") }}" = 'N'
+WHERE "{{ get_value_by_column_attribute("isSystemCurrentFlag") }}" = 'P'
+
+
+{% if config.postSQL %}
+    {{ stage('Post-SQL') }}
+    {{ config.postSQL }}
+{% endif %}
+
+{% if config.testsEnabled %}
+    {% for test in node.tests %}
+        {% if test.runOrder == 'After' %}
+            {{ test_stage(test.name, test.continueOnFailure) }}
+            {{ test.templateString }}
+        {% endif %}
+    {% endfor %}
+
+    {% for column in columns %}
+        {% for test in column.tests %}
+            {{ test_stage(column.name + ": " + test.name) }}
+            {{ test.templateString }}
+        {% endfor %}
+    {% endfor %}
+{% endif %}
