@@ -4,10 +4,13 @@ name: I_SALESFORCEGENERATION
 operation:
   config:
     insertStrategy: INSERT
+    postSQL: ""
+    preSQL: ""
+    testsEnabled: true
     truncateBefore: true
   database: ""
   deployEnabled: true
-  description: Salesforce Generation details from work order and cases
+  description: Salesforce Generation details from work order and cases.  Multi select will be turned off for this field, but there is not harm in creating records for all values coming into here for now
   isMultisource: false
   locationName: SILVER
   materializationType: table
@@ -16,35 +19,45 @@ operation:
     columns:
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: "1"
-          stepCounter: "1"
+          columnCounter: 5c290707-e373-4712-8674-2e8406de2d80
+          stepCounter: 7ad8f427-3c07-053e-96a1-79cda25b84ed
         config: {}
         dataType: VARCHAR(64)
-        description: Generation Type
+        description: "Generation Type"
         name: GENERATIONTYPE
-        nullable: false
-        transform: COALESCE(I_SALESFORCECASES.GENERATIONTYPE, I_SALESFORCEWORKORDERS.GENERATIONTYPE)
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "COALESCE(I_SALESFORCECASES.GENERATIONTYPE, I_SALESFORCEWORKORDERS.GENERATIONTYPE)"
       - appliedColumnTests: {}
         columnReference:
-          columnCounter: "2"
-          stepCounter: "1"
+          columnCounter: afcc331b-9706-43ee-bfbe-ced457da8407
+          stepCounter: 7ad8f427-3c07-053e-96a1-79cda25b84ed
         config: {}
         dataType: VARCHAR(64)
-        description: Energy Storage Type
+        description: "Energy Storage Type"
         name: ENERGYSTORAGETYPE
-        nullable: false
-        transform: "CASE \t\tWHEN COALESCE(I_SALESFORCEWORKORDERS.ENERGYSTORAGETYPE, 'Not Applicable') = 'Not Applicable' THEN COALESCE(I_SALESFORCECASES.ENERGYSTORAGETYPE, 'Not Applicable') \t\tELSE COALESCE(I_SALESFORCEWORKORDERS.ENERGYSTORAGETYPE, 'Not Applicable') \tEND"
+        nullable: true
+        sourceColumnReferences:
+          - columnReferences: []
+            transform: "CASE    WHEN COALESCE(I_SALESFORCEWORKORDERS.ENERGYSTORAGETYPE, 'Not Applicable') = 'Not Applicable' THEN COALESCE(I_SALESFORCECASES.ENERGYSTORAGETYPE, 'Not Applicable')    ELSE COALESCE(I_SALESFORCEWORKORDERS.ENERGYSTORAGETYPE, 'Not Applicable')   END"
+    cteString: ""
     enabledColumnTestIDs: []
     sourceMapping:
-      - aliases: {}
+      - aliases:
+          I_SALESFORCEWORKORDERS: 03099748-2745-8f66-1b5a-99323df3853c
+        customSQL:
+          customSQL: ""
         dependencies:
           - locationName: SILVER
-            nodeName: I_SALESFORCECASES
+            nodeName: I_SALESFORCEWORKORDERS
         join:
-          joinCondition: FROM {{ ref('SILVER', 'I_SALESFORCECASES') }}
-        name: source1
+          joinCondition: |-
+            FROM {{ ref('SILVER', 'I_SALESFORCEWORKORDERS') }} "I_SALESFORCEWORKORDERS"
+        name: I_SALESFORCEGENERATION
         noLinkRefs: []
   name: I_SALESFORCEGENERATION
+  overrideSQL: false
   schema: ""
   sqlType: Stage
   type: sql
