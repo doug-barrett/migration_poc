@@ -1,0 +1,130 @@
+name: I_SALESFORCELOCATIONS
+id: 9aed4208-83b7-3517-82d9-bc64eb954728
+fileVersion: 1
+type: Node
+operation:
+  locationName: SILVER
+  name: I_SALESFORCELOCATIONS
+  sqlType: Stage
+  type: sql
+  version: 1
+  description: Sales force locations with geolocation information
+  materializationType: table
+  isMultisource: false
+  config:
+    truncateBefore: true
+    insertStrategy: INSERT
+  metadata:
+    sourceMapping:
+      - name: source1
+        join:
+          joinCondition: 'FROM {{ ref(''BRONZE'', ''L_SALESFORCE_LOCATIONS'') }}'
+        dependencies:
+          - locationName: BRONZE
+            nodeName: L_SALESFORCE_LOCATIONS
+    columns:
+      - name: LOCATIONCODE
+        dataType: VARCHAR(64)
+        description: Location Code
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '1'
+        transform: '"L_SALESFORCE_LOCATIONS"."RECORDID"'
+      - name: LOCATION
+        dataType: VARCHAR(64)
+        description: Location
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '2'
+        transform: '"L_SALESFORCE_LOCATIONS"."LOCATION"'
+      - name: DELETED
+        dataType: VARCHAR(64)
+        description: Deleted
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '3'
+        transform: 'COALESCE(L_SALESFORCE_LOCATIONS.DELETED, ''Not Applicable'')'
+      - name: GOOGLEMAPS
+        dataType: VARCHAR(16777216)
+        description: Google Maps
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '4'
+        transform: 'COALESCE(L_SALESFORCE_LOCATIONS.GOOGLEMAPS, ''Not Applicable'')'
+      - name: LATITUDE
+        dataType: VARCHAR(64)
+        description: Latitude
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '5'
+        transform: 'SUBSTR(GEOLOCATION, POSITION(''"Latitude":'' IN GEOLOCATION) + 11, POSITION(''}'' IN GEOLOCATION) - (POSITION(''"Latitude":'' IN GEOLOCATION) + 11))'
+      - name: LONGITUDE
+        dataType: VARCHAR(64)
+        description: Longitude
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '6'
+        transform: 'SUBSTR(GEOLOCATION, POSITION(''"Longitude":'' IN GEOLOCATION) + 12, POSITION('' IN "Latitude"'', GEOLOCATION) - (POSITION(''"Longitude":'' IN GEOLOCATION) + 12))'
+      - name: MODIFIEDDATE
+        dataType: VARCHAR(64)
+        description: Modified Date
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '7'
+        transform: '"L_SALESFORCE_LOCATIONS"."MODIFIEDDATE"'
+      - name: LATESTRECORDNUMBER
+        dataType: NUMBER(38,0)
+        description: Latest Record Number
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '8'
+        transform: 'ROW_NUMBER() OVER(PARTITION BY L_SALESFORCE_LOCATIONS.RECORDID ORDER BY  MODIFIEDDATE DESC)'
+      - name: HOUSENUMBER
+        dataType: VARCHAR(64)
+        description: House Number
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '9'
+        transform: 'COALESCE(L_SALESFORCE_LOCATIONS.HOUSENUMBER, ''Unknown'')'
+      - name: STREETADDRESS
+        dataType: VARCHAR(64)
+        description: Street Address
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '10'
+        transform: 'COALESCE(L_SALESFORCE_LOCATIONS.STREETADDRESS, ''Unknown'')'
+      - name: SUBURB
+        dataType: VARCHAR(64)
+        description: Suburb
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '11'
+        transform: 'COALESCE(L_SALESFORCE_LOCATIONS.SUBURB, ''Unknown'')'
+      - name: CITY
+        dataType: VARCHAR(64)
+        description: City
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '12'
+        transform: 'COALESCE(L_SALESFORCE_LOCATIONS.CITY, ''Unknown'')'
+      - name: ICPORFSL
+        dataType: VARCHAR(64)
+        description: ICP or FSL
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '13'
+        transform: '"L_SALESFORCE_LOCATIONS"."ICP"'
+      - name: ODSCREATEDATE
+        dataType: TIMESTAMP
+        description: Date and time the row was created in the data warehouse.
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '14'
+        transform: 'ODSCREATEDATE'
+      - name: ODSUPDATEDATE
+        dataType: TIMESTAMP
+        description: Date and time the row was updated in the data warehouse.
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '15'
+        transform: 'ODSUPDATEDATE'

@@ -1,0 +1,275 @@
+name: S_SALESFORCECASES
+id: 38e87d19-ae65-19ca-585a-b82f11b73e46
+fileVersion: 1
+type: Node
+operation:
+  locationName: SILVER
+  name: S_SALESFORCECASES
+  sqlType: Stage
+  type: sql
+  version: 1
+  description: Salesforce Cases
+  materializationType: table
+  isMultisource: false
+  config:
+    truncateBefore: true
+    insertStrategy: INSERT
+  metadata:
+    sourceMapping:
+      - name: source1
+        join:
+          joinCondition: 'FROM {{ ref(''SILVER'', ''I_SALESFORCECASES'') }}
+LEFT JOIN {{ ref(''SILVER'', ''D_SALESFORCECASEDETAILS'') }} "D_SALESFORCECASEDETAILS"
+    ON I_SALESFORCECASES.CASECODE = D_SALESFORCECASEDETAILS.CASECODE
+LEFT JOIN {{ ref(''SILVER'', ''D_SALESFORCELOCATIONS'') }} "D_SALESFORCELOCATIONS"
+    ON I_SALESFORCECASES.LOCATIONCODE = D_SALESFORCELOCATIONS.LOCATIONCODE
+LEFT JOIN {{ ref(''SILVER'', ''D_SALESFORCERECORDTYPES'') }} "D_SALESFORCERECORDTYPES"
+    ON I_SALESFORCECASES.RECORDTYPECODE = D_SALESFORCERECORDTYPES.RECORDTYPECODE
+LEFT JOIN {{ ref(''SILVER'', ''D_DATE'') }} "D_DATE"
+    ON I_SALESFORCECASES.CREATEDDATE = D_DATE.CALENDARDATE
+LEFT JOIN {{ ref(''SILVER'', ''D_ICP'') }} "D_ICP"
+    ON D_SALESFORCELOCATIONS.ICPORFSL = D_ICP.INSTALL
+LEFT JOIN {{ ref(''SILVER'', ''D_SALESFORCEGENERATION'') }} "D_SALESFORCEGENERATION"
+    ON I_SALESFORCECASES.GENERATIONTYPE = D_SALESFORCEGENERATION.GENERATIONTYPE AND I_SALESFORCECASES.ENERGYSTORAGETYPE = D_SALESFORCEGENERATION.ENERGYSTORAGETYPE
+LEFT JOIN {{ ref(''SILVER'', ''D_SALESFORCEFEEDBACK'') }} "D_SALESFORCEFEEDBACK"
+    ON I_SALESFORCECASES.FEEDBACKAREA = D_SALESFORCEFEEDBACK.FEEDBACKAREA AND I_SALESFORCECASES.TYPEOFCOMPLAINT = D_SALESFORCEFEEDBACK.TYPEOFCOMPLAINT
+LEFT JOIN {{ ref(''SILVER'', ''D_CLOSEDDATE'') }} "D_CLOSEDDATE"
+    ON I_SALESFORCECASES.CLOSEDDATE = D_CLOSEDDATE.CLOSEDDATE
+WHERE LATESTRECORDNUMBER = 1'
+        dependencies:
+          - locationName: SILVER
+            nodeName: I_SALESFORCECASES
+          - locationName: SILVER
+            nodeName: D_SALESFORCECASEDETAILS
+          - locationName: SILVER
+            nodeName: D_SALESFORCELOCATIONS
+          - locationName: SILVER
+            nodeName: D_SALESFORCERECORDTYPES
+          - locationName: SILVER
+            nodeName: D_DATE
+          - locationName: SILVER
+            nodeName: D_ICP
+          - locationName: SILVER
+            nodeName: D_SALESFORCEGENERATION
+          - locationName: SILVER
+            nodeName: D_SALESFORCEFEEDBACK
+          - locationName: SILVER
+            nodeName: D_CLOSEDDATE
+    columns:
+      - name: D_SALESFORCECASEDETAIL_KEY
+        dataType: NUMBER(38,0)
+        description: D Salesforcecasedetail Key
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '1'
+        transform: '"D_SALESFORCECASEDETAILS"."D_SALESFORCECASEDETAIL_KEY"'
+      - name: CASECODE
+        dataType: VARCHAR(64)
+        description: Case Code
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '2'
+        transform: '"I_SALESFORCECASES"."CASECODE"'
+      - name: CASENUMBER
+        dataType: VARCHAR(100)
+        description: Case Number
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '3'
+        transform: '"I_SALESFORCECASES"."CASENUMBER"'
+      - name: D_SALESFORCELOCATIONS_KEY
+        dataType: NUMBER(38,0)
+        description: D Salesforcelocations Key
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '4'
+        transform: '"D_SALESFORCELOCATIONS"."D_SALESFORCELOCATIONS_KEY"'
+      - name: LOCATIONCODE
+        dataType: VARCHAR(64)
+        description: Location Code
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '5'
+        transform: '"I_SALESFORCECASES"."LOCATIONCODE"'
+      - name: D_SALESFORCERECORDTYPE_KEY
+        dataType: NUMBER(38,0)
+        description: D Salesforcerecordtype Key
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '6'
+        transform: '"D_SALESFORCERECORDTYPES"."D_SALESFORCERECORDTYPE_KEY"'
+      - name: RECORDTYPECODE
+        dataType: VARCHAR(64)
+        description: Record Type Code
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '7'
+        transform: '"I_SALESFORCECASES"."RECORDTYPECODE"'
+      - name: CONNECTIONCODE
+        dataType: VARCHAR(64)
+        description: Connection Code
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '8'
+        transform: '"I_SALESFORCECASES"."CONNECTIONCODE"'
+      - name: D_DATE_KEY
+        dataType: NUMBER(38,0)
+        description: D Date Key
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '9'
+        transform: '"D_DATE"."D_DATE_KEY"'
+      - name: CREATEDDATE
+        dataType: DATE
+        description: Created Date
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '10'
+        transform: '"I_SALESFORCECASES"."CREATEDDATE"'
+      - name: ICPORFSL
+        dataType: NUMBER(19,0)
+        description: ICP or FSL
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '11'
+        transform: 'CASE 		WHEN ICPORFSL = ''unknown'' THEN 0 		WHEN LEFT(ICPORFSL, 3) = ''000'' AND 			ISNUMERIC(RIGHT(LEFT(D_SALESFORCELOCATIONS.ICPORFSL, 10), 6)) = 1 THEN RIGHT(LEFT(D_SALESFORCELOCATIONS.ICPORFSL, 10), 6) 		ELSE 0 	END'
+      - name: D_ICP_KEY
+        dataType: NUMBER(38,0)
+        description: D Icp Key
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '12'
+        transform: '"D_ICP"."D_ICP_KEY"'
+      - name: GENERATIONTYPE
+        dataType: VARCHAR(64)
+        description: Generation Type
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '13'
+        transform: '"I_SALESFORCECASES"."GENERATIONTYPE"'
+      - name: ENERGYSTORAGETYPE
+        dataType: VARCHAR(64)
+        description: Energy Storage Type
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '14'
+        transform: '"I_SALESFORCECASES"."ENERGYSTORAGETYPE"'
+      - name: D_SALESFORCEGENERATION_KEY
+        dataType: NUMBER(38,0)
+        description: D Salesforcegeneration Key
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '15'
+        transform: '"D_SALESFORCEGENERATION"."D_SALESFORCEGENERATION_KEY"'
+      - name: D_SALESFORCEFEEDBACK_KEY
+        dataType: NUMBER(38,0)
+        description: D Salesforcefeedback Key
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '16'
+        transform: '"D_SALESFORCEFEEDBACK"."D_SALESFORCEFEEDBACK_KEY"'
+      - name: FEEDBACKAREA
+        dataType: VARCHAR(64)
+        description: Feedback Area
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '17'
+        transform: '"I_SALESFORCECASES"."FEEDBACKAREA"'
+      - name: TYPEOFCOMPLAINT
+        dataType: VARCHAR(64)
+        description: Type Of Complaint
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '18'
+        transform: '"I_SALESFORCECASES"."TYPEOFCOMPLAINT"'
+      - name: D_CLOSEDDATE_KEY
+        dataType: NUMBER(38,0)
+        description: D Closeddate Key
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '19'
+        transform: '"D_CLOSEDDATE"."D_CLOSEDDATE_KEY"'
+      - name: CLOSEDDATE
+        dataType: TIMESTAMP
+        description: Closed Date
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '20'
+        transform: '"I_SALESFORCECASES"."CLOSEDDATE"'
+      - name: CASESGENERATIONCAPACITY
+        dataType: DECIMAL(15,2)
+        description: Cases Generation Capacity
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '21'
+        transform: '"I_SALESFORCECASES"."GENERATIONCAPACITY"'
+      - name: CASESENERGYSTORAGECAPACITY
+        dataType: DECIMAL(15,2)
+        description: Cases Energy Storage Capacity
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '22'
+        transform: '"I_SALESFORCECASES"."ENERGYSTORAGECAPACITY"'
+      - name: CASESCOUNT
+        dataType: NUMBER(38,0)
+        description: Cases Count
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '23'
+        transform: '--EXCLUDING DELETED RECORDS FROM THE TOTAL COUNT CASE 		WHEN ISDELETED = ''True'' THEN 0 		ELSE 1 	END'
+      - name: CASESCLOSEDCOUNT
+        dataType: NUMBER(38,0)
+        description: Cases Closed Count
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '24'
+        transform: 'CASE 		WHEN ISCLOSED = ''True'' AND 			I_SALESFORCECASES.ISDELETED = ''False'' THEN 1 		ELSE 0 	END'
+      - name: CASESOPENCOUNT
+        dataType: NUMBER(38,0)
+        description: Cases Open Count
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '25'
+        transform: 'CASE 		WHEN ISCLOSED = ''False'' AND 			I_SALESFORCECASES.ISDELETED = ''False'' THEN 1 		ELSE 0 	END'
+      - name: CASESTOTALLOAD
+        dataType: DECIMAL(15,2)
+        description: Cases Total Load
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '26'
+        transform: '"I_SALESFORCECASES"."TOTALLOAD"'
+      - name: CASESTOTALLOTS
+        dataType: DECIMAL(15,2)
+        description: Cases Total Lots
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '27'
+        transform: '--NEED TO COUNT AS ONE WHEN RECORD TYPE IS  SUBDIVISION CASE CASE 		WHEN TOTALLOTS = 0 AND 			RECORDTYPE = ''Subdivision Application'' THEN 1 		ELSE TOTALLOTS 	END'
+      - name: CASESCAPACITYCHARGELOAD
+        dataType: DECIMAL(15,2)
+        description: Cases Capacity Charge Load
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '28'
+        transform: '"I_SALESFORCECASES"."CAPACITYCHARGELOAD"'
+      - name: CASESCAPACITYCHARGELOTS
+        dataType: DECIMAL(15,2)
+        description: Cases Capacity Charge Lots
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '29'
+        transform: '"I_SALESFORCECASES"."CAPACITYCHARGELOTS"'
+      - name: ODSCREATEDATE
+        dataType: TIMESTAMP
+        description: Date and time the row was created in the data warehouse.
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '30'
+        transform: 'ODSCREATEDATE'
+      - name: ODSUPDATEDATE
+        dataType: TIMESTAMP
+        description: Date and time the row was updated in the data warehouse.
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '31'
+        transform: 'ODSUPDATEDATE'

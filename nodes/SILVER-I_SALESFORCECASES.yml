@@ -1,0 +1,410 @@
+name: I_SALESFORCECASES
+id: 5c93b6c0-9502-c529-8553-76626b94c2ed
+fileVersion: 1
+type: Node
+operation:
+  locationName: SILVER
+  name: I_SALESFORCECASES
+  sqlType: Stage
+  type: sql
+  version: 1
+  description: Saleforce Case information
+  materializationType: table
+  isMultisource: false
+  config:
+    truncateBefore: true
+    insertStrategy: INSERT
+  metadata:
+    sourceMapping:
+      - name: source1
+        join:
+          joinCondition: 'FROM {{ ref(''BRONZE'', ''L_SALESFORCE_CASES'') }}'
+        dependencies:
+          - locationName: BRONZE
+            nodeName: L_SALESFORCE_CASES
+    columns:
+      - name: CASECODE
+        dataType: VARCHAR(64)
+        description: Case Code
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '1'
+        transform: '"L_SALESFORCE_CASES"."ID"'
+      - name: CASENUMBER
+        dataType: NUMBER(38,0)
+        description: Case Number
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '2'
+        transform: '"L_SALESFORCE_CASES"."CASENUMBER"'
+      - name: SUBJECT
+        dataType: VARCHAR(256)
+        description: Subject
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '3'
+        transform: '"L_SALESFORCE_CASES"."SUBJECT"'
+      - name: STATUS
+        dataType: VARCHAR(64)
+        description: Status
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '4'
+        transform: '"L_SALESFORCE_CASES"."STATUS"'
+      - name: RECORDTYPECODE
+        dataType: VARCHAR(64)
+        description: Record Type Code
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '5'
+        transform: '"L_SALESFORCE_CASES"."RECORDTYPEID"'
+      - name: TYPE
+        dataType: VARCHAR(100)
+        description: Type
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '6'
+        transform: 'COALESCE(L_SALESFORCE_CASES.TYPE, ''Not Applicable'')'
+      - name: CREATEDDATE
+        dataType: TIMESTAMP
+        description: Created Date
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '7'
+        transform: '"L_SALESFORCE_CASES"."CREATEDDATE"'
+      - name: ISCLOSED
+        dataType: VARCHAR(24)
+        description: Is Closed
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '8'
+        transform: '"L_SALESFORCE_CASES"."ISCLOSED"'
+      - name: ISDELETED
+        dataType: VARCHAR(24)
+        description: Is Deleted
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '9'
+        transform: '"L_SALESFORCE_CASES"."ISDELETED"'
+      - name: ICPPREMISETYPE
+        dataType: VARCHAR(100)
+        description: ICP Premise Type
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '10'
+        transform: 'COALESCE(L_SALESFORCE_CASES.ICPPREMISETYPE, ''Not Applicable'')'
+      - name: PRIORITY
+        dataType: VARCHAR(64)
+        description: Priority
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '11'
+        transform: '"L_SALESFORCE_CASES"."PRIORITY"'
+      - name: LOCATIONCODE
+        dataType: VARCHAR(64)
+        description: Location Code
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '12'
+        transform: 'COALESCE(L_SALESFORCE_CASES.LOCATIONID, ''Unknown'')'
+      - name: LOCALITY
+        dataType: VARCHAR(64)
+        description: Locality
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '13'
+        transform: 'COALESCE(L_SALESFORCE_CASES.LOCALITY, ''Not Applicable'')'
+      - name: REASONFORCLOSURE
+        dataType: VARCHAR(64)
+        description: Reason For Closure
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '14'
+        transform: 'COALESCE(L_SALESFORCE_CASES.REASONFORCLOSURE, ''Not Applicable'')'
+      - name: GOOGLEMAPS
+        dataType: VARCHAR(100)
+        description: GoogleMaps
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '15'
+        transform: 'COALESCE(L_SALESFORCE_CASES.GOOGLEMAPS, ''Not Applicable'')'
+      - name: LATITUDE
+        dataType: VARCHAR(100)
+        description: Latitude
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '16'
+        transform: 'CASE 		WHEN LEFT(GOOGLEMAPS, 24) = ''https://maps.google.com/'' THEN SUBSTR(GOOGLEMAPS, POSITION(''/?q='' IN GOOGLEMAPS) + 4, POSITION('' IN '', GOOGLEMAPS) - (POSITION(''='' IN GOOGLEMAPS) + 1)) 		ELSE NULL 	END'
+      - name: LONGITUDE
+        dataType: VARCHAR(100)
+        description: Longitude
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '17'
+        transform: 'CASE 		WHEN LEFT(GOOGLEMAPS, 24) = ''https://maps.google.com/'' THEN SUBSTR(GOOGLEMAPS, POSITION('' IN '', GOOGLEMAPS) + 1, POSITION(''&'' IN GOOGLEMAPS) - (POSITION('' IN '', GOOGLEMAPS) + 1)) 		ELSE NULL 	END'
+      - name: CASEORIGIN
+        dataType: VARCHAR(64)
+        description: Case Origin
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '18'
+        transform: 'COALESCE(L_SALESFORCE_CASES.CASEORIGIN, ''Not Applicable'')'
+      - name: GENERATIONTYPE
+        dataType: VARCHAR(64)
+        description: Generation Type
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '19'
+        transform: '--ONLY NEED THE FIRST VALUE AS COULD BE MULTI-SELECT UNTIL THE CHANGE THIS TO SINGLE SELECT CASE 		WHEN L_SALESFORCE_CASES.GENERATIONTYPE = ''[]'' THEN ''Not Applicable'' 		ELSE CASE 				WHEN POSITION('' IN '', L_SALESFORCE_CASES.GENERATIONTYPE) < 1 THEN LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(L_SALESFORCE_CASES.GENERATIONTYPE, ''"'', ''''), '']'', ''''), ''['', ''''))) 				ELSE LEFT( 					LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(L_SALESFORCE_CASES.GENERATIONTYPE, ''"'', ''''), '']'', ''''), ''['', ''''))) 					, -1 + POSITION('' IN '', LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(L_SALESFORCE_CASES.GENERATIONTYPE, ''"'', ''''), '']'', ''''), ''['', ''''))) 					)) 			END 	END'
+      - name: GENERATIONCAPACITY
+        dataType: DECIMAL(15,2)
+        description: Generation Capacity
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '20'
+        transform: 'CASE 		WHEN TRY_TO_NUMBER(GENERATIONCAPACITY) IS NOT NULL THEN COALESCE(TRY_CAST(2 AS DECIMAL(15), REPLACE(L_SALESFORCE_CASES.GENERATIONCAPACITY, '','', '''')), 0)  		ELSE 0 	END'
+      - name: ENERGYSTORAGECAPACITY
+        dataType: DECIMAL(15,2)
+        description: Energy Storage Capacity
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '21'
+        transform: 'CASE 		WHEN TRY_TO_NUMBER(ENERGYSTORAGECAPACITY) IS NOT NULL THEN COALESCE(TRY_CAST(2 AS DECIMAL(15), REPLACE(L_SALESFORCE_CASES.ENERGYSTORAGECAPACITY, '','', '''')), 0) 		ELSE 0.00 	END'
+      - name: ENERGYSTORAGETYPE
+        dataType: VARCHAR(64)
+        description: Energy Storage Type
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '22'
+        transform: 'COALESCE(L_SALESFORCE_CASES.ENERGYSTORAGETYPE, ''Not Applicable'')'
+      - name: CONNECTIONCODE
+        dataType: VARCHAR(64)
+        description: Connection Code
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '23'
+        transform: 'COALESCE(L_SALESFORCE_CASES.CONNECTION, ''Unknown'')'
+      - name: PREFERREDRETAILER
+        dataType: VARCHAR(64)
+        description: Preferred Retailer
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '24'
+        transform: 'COALESCE(L_SALESFORCE_CASES.PREFERREDRETAILER, ''Not Applicable'')'
+      - name: MODIFIEDDATE
+        dataType: TIMESTAMP
+        description: Modified Date
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '25'
+        transform: '"L_SALESFORCE_CASES"."MODIFIEDDATE"'
+      - name: ASSETNUMBER
+        dataType: VARCHAR(64)
+        description: Asset Number
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '26'
+        transform: 'COALESCE(L_SALESFORCE_CASES.ASSETNUMBER, ''Not Applicable'')'
+      - name: CAPACITYCHARGELOAD
+        dataType: DECIMAL(15,2)
+        description: Capacity Charge Load
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '27'
+        transform: 'CASE 		WHEN TRY_TO_NUMBER(L_SALESFORCE_CASES.CAPACITYCHARGELOAD) IS NOT NULL THEN COALESCE(TRY_CAST(2 AS DECIMAL(15), REPLACE(L_SALESFORCE_CASES.CAPACITYCHARGELOAD, '','', '''')), 0)  ELSE 0 END'
+      - name: CAPACITYCHARGELOTS
+        dataType: DECIMAL(15,2)
+        description: Capacity Charge Lots
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '28'
+        transform: 'CASE 		WHEN TRY_TO_NUMBER(L_SALESFORCE_CASES.CAPACITYCHARGELOTS) IS NOT NULL THEN COALESCE(TRY_CAST(2 AS DECIMAL(15), REPLACE(L_SALESFORCE_CASES.CAPACITYCHARGELOTS, '','', '''')), 0)  ELSE 0 END'
+      - name: CONNECTIONPOINT
+        dataType: VARCHAR(64)
+        description: Connection Point
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '29'
+        transform: 'COALESCE(L_SALESFORCE_CASES.CONNECTIONPOINT, ''Not Applicable'')'
+      - name: CONNECTIONTYPE
+        dataType: VARCHAR(64)
+        description: Connection Type
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '30'
+        transform: 'COALESCE(L_SALESFORCE_CASES.CONNECTIONTYPE, ''Not Applicable'')'
+      - name: CONNECTIONVOLTAGE
+        dataType: VARCHAR(64)
+        description: Connection Voltage
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '31'
+        transform: 'COALESCE(L_SALESFORCE_CASES.CONNECTIONVOLTAGE, ''Not Applicable'')'
+      - name: DATEADVISED
+        dataType: TIMESTAMP
+        description: Date Advised
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '32'
+        transform: '"L_SALESFORCE_CASES"."DATEADVISED"'
+      - name: DATEFEEDBACKRECEIVED
+        dataType: TIMESTAMP
+        description: Date Feedback Received
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '33'
+        transform: '"L_SALESFORCE_CASES"."DATEFEEDBACKRECEIVED"'
+      - name: DSUB
+        dataType: VARCHAR(64)
+        description: DSUB
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '34'
+        transform: 'COALESCE(L_SALESFORCE_CASES.DSUB, ''Not Applicable'')'
+      - name: FEEDBACKAREA
+        dataType: VARCHAR(64)
+        description: Feedback Area
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '35'
+        transform: '--ONLY USE THE FIRST VALUE AS THIS CAN BE MULTI SELECT UNTIL THE CHANGE IT SINGLE VALUE CASE 		WHEN L_SALESFORCE_CASES.FEEDBACKAREA = ''[]'' THEN ''Unknown'' 		ELSE CASE 				WHEN POSITION('' IN '', L_SALESFORCE_CASES.GENERATIONTYPE) < 1 THEN LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(L_SALESFORCE_CASES.FEEDBACKAREA, ''"'', ''''), '']'', ''''), ''['', ''''))) 				ELSE LEFT(LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(L_SALESFORCE_CASES.FEEDBACKAREA, ''"'', ''''), '']'', ''''), ''['', ''''))) 					, -1 + POSITION('' IN '', LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(L_SALESFORCE_CASES.FEEDBACKAREA, ''"'', ''''), '']'', ''''), ''['', ''''))) 					)) 			END 	END'
+      - name: GENERATIONPHASE
+        dataType: VARCHAR(64)
+        description: Generation Phase
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '36'
+        transform: 'COALESCE(L_SALESFORCE_CASES.GENERATIONPHASE, ''Not Applicable'')'
+      - name: GENERATIONPHASECOLOUR
+        dataType: VARCHAR(64)
+        description: Generation Phase Colour
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '37'
+        transform: 'COALESCE(L_SALESFORCE_CASES.GENERATIONPHASECOLOUR, ''Not Applicable'')'
+      - name: INVERTERMANUFACTURER
+        dataType: VARCHAR(64)
+        description: Inverter Manufacturer
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '38'
+        transform: 'COALESCE(L_SALESFORCE_CASES.INVERTERMANUFACTURER, ''Not Applicable'')'
+      - name: INVERTERMODEL
+        dataType: VARCHAR(100)
+        description: Inverter Model
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '39'
+        transform: 'COALESCE(L_SALESFORCE_CASES.INVERTERMODEL, ''Not Applicable'')'
+      - name: KVAANDPHASE
+        dataType: VARCHAR(64)
+        description: KVA And Phase
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '40'
+        transform: 'COALESCE(L_SALESFORCE_CASES.KVAANDPHASE, ''Not Applicable'')'
+      - name: NUMBEROFSTAGES
+        dataType: VARCHAR(64)
+        description: Number Of Stages
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '41'
+        transform: 'COALESCE(L_SALESFORCE_CASES.NUMBEROFSTAGES, ''Not Applicable'')'
+      - name: PHASE
+        dataType: VARCHAR(64)
+        description: Phase
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '42'
+        transform: 'COALESCE(L_SALESFORCE_CASES.PHASE, ''Not Applicable'')'
+      - name: PHASECOLOUR
+        dataType: VARCHAR(64)
+        description: Phase Colour
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '43'
+        transform: 'COALESCE(L_SALESFORCE_CASES.PHASECOLOUR, ''Not Applicable'')'
+      - name: STAGE
+        dataType: VARCHAR(64)
+        description: Stage
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '44'
+        transform: 'COALESCE(L_SALESFORCE_CASES.STAGE, ''Not Applicable'')'
+      - name: TOTALLOAD
+        dataType: DECIMAL(15,2)
+        description: Total Load
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '45'
+        transform: 'CASE 		WHEN TRY_TO_NUMBER(L_SALESFORCE_CASES.TOTALLOAD) IS NOT NULL THEN COALESCE(TRY_CAST(2 AS DECIMAL(15), REPLACE(L_SALESFORCE_CASES.TOTALLOAD, '','', '''')), 0)  ELSE 0 END'
+      - name: TOTALLOTS
+        dataType: DECIMAL(15,2)
+        description: Total Lots
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '46'
+        transform: 'CASE 		WHEN TRY_TO_NUMBER(L_SALESFORCE_CASES.TOTALLOTS) IS NOT NULL THEN COALESCE(TRY_CAST(2 AS DECIMAL(15), REPLACE(L_SALESFORCE_CASES.TOTALLOTS, '','', '''')), 0)  ELSE 0 END'
+      - name: TYPEOFCOMPLAINT
+        dataType: VARCHAR(64)
+        description: Type Of Complaint
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '47'
+        transform: 'COALESCE(L_SALESFORCE_CASES.TYPEOFCOMPLAINT, ''Unknown'')'
+      - name: UNSAFESERVICELINETYPE
+        dataType: VARCHAR(16777216)
+        description: Unsafe Service Line Type
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '48'
+        transform: 'CASE 		WHEN L_SALESFORCE_CASES.UNSAFESERVICELINETYPE = ''[]'' THEN ''Not Applicable'' 		ELSE LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(L_SALESFORCE_CASES.UNSAFESERVICELINETYPE, ''"'', ''''), '']'', ''''), ''['', ''''))) 	END'
+      - name: UTILITYDISPUTESLTD
+        dataType: VARCHAR(64)
+        description: Utility Disputes Ltd
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '49'
+        transform: 'COALESCE(L_SALESFORCE_CASES.UTILITYDISPUTESLTD, ''Not Applicable'')'
+      - name: CLOSEDDATE
+        dataType: TIMESTAMP
+        description: Closed Date
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '50'
+        transform: '"L_SALESFORCE_CASES"."CLOSEDDATE"'
+      - name: LATESTRECORDNUMBER
+        dataType: NUMBER(38,0)
+        description: Latest Record Number
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '51'
+        transform: 'ROW_NUMBER() OVER(PARTITION BY ID ORDER BY  MODIFIEDDATE DESC)'
+      - name: FIBREPREBUILD
+        dataType: VARCHAR(64)
+        description: Fibre Prebuild
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '52'
+        transform: 'COALESCE(L_SALESFORCE_CASES.FIBREPREBUILD, ''Unknown'')'
+      - name: FIBREAVAILABLE
+        dataType: VARCHAR(64)
+        description: Fibre Available
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '53'
+        transform: 'COALESCE(L_SALESFORCE_CASES.FIBREAVAILABLE, ''Unknown'')'
+      - name: ODSCREATEDATE
+        dataType: TIMESTAMP
+        description: Date and time the row was created in the data warehouse.
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '54'
+        transform: 'ODSCREATEDATE'
+      - name: ODSUPDATEDATE
+        dataType: TIMESTAMP
+        description: Date and time the row was updated in the data warehouse.
+        columnReference:
+          stepCounter: '1'
+          columnCounter: '55'
+        transform: 'ODSUPDATEDATE'
