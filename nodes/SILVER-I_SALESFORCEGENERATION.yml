@@ -1,39 +1,52 @@
-name: I_SALESFORCEGENERATION
-id: 7ad8f427-3c07-053e-96a1-79cda25b84ed
 fileVersion: 1
-type: Node
+id: 7ad8f427-3c07-053e-96a1-79cda25b84ed
+name: I_SALESFORCEGENERATION
 operation:
-  locationName: SILVER
-  name: I_SALESFORCEGENERATION
-  sqlType: Stage
-  type: sql
-  version: 1
-  description: Salesforce Generation details from work order and cases
-  materializationType: table
-  isMultisource: false
   config:
-    truncateBefore: true
     insertStrategy: INSERT
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: Salesforce Generation details from work order and cases
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
   metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: "1"
+          stepCounter: "1"
+        config: {}
+        dataType: VARCHAR(64)
+        description: Generation Type
+        name: GENERATIONTYPE
+        nullable: false
+        transform: COALESCE(I_SALESFORCECASES.GENERATIONTYPE, I_SALESFORCEWORKORDERS.GENERATIONTYPE)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: "2"
+          stepCounter: "1"
+        config: {}
+        dataType: VARCHAR(64)
+        description: Energy Storage Type
+        name: ENERGYSTORAGETYPE
+        nullable: false
+        transform: "CASE \t\tWHEN COALESCE(I_SALESFORCEWORKORDERS.ENERGYSTORAGETYPE, 'Not Applicable') = 'Not Applicable' THEN COALESCE(I_SALESFORCECASES.ENERGYSTORAGETYPE, 'Not Applicable') \t\tELSE COALESCE(I_SALESFORCEWORKORDERS.ENERGYSTORAGETYPE, 'Not Applicable') \tEND"
+    enabledColumnTestIDs: []
     sourceMapping:
-      - name: source1
-        join:
-          joinCondition: 'FROM {{ ref(''SILVER'', ''I_SALESFORCECASES'') }}'
+      - aliases: {}
         dependencies:
           - locationName: SILVER
             nodeName: I_SALESFORCECASES
-    columns:
-      - name: GENERATIONTYPE
-        dataType: VARCHAR(64)
-        description: Generation Type
-        columnReference:
-          stepCounter: '1'
-          columnCounter: '1'
-        transform: 'COALESCE(I_SALESFORCECASES.GENERATIONTYPE, I_SALESFORCEWORKORDERS.GENERATIONTYPE)'
-      - name: ENERGYSTORAGETYPE
-        dataType: VARCHAR(64)
-        description: Energy Storage Type
-        columnReference:
-          stepCounter: '1'
-          columnCounter: '2'
-        transform: 'CASE 		WHEN COALESCE(I_SALESFORCEWORKORDERS.ENERGYSTORAGETYPE, ''Not Applicable'') = ''Not Applicable'' THEN COALESCE(I_SALESFORCECASES.ENERGYSTORAGETYPE, ''Not Applicable'') 		ELSE COALESCE(I_SALESFORCEWORKORDERS.ENERGYSTORAGETYPE, ''Not Applicable'') 	END'
+        join:
+          joinCondition: FROM {{ ref('SILVER', 'I_SALESFORCECASES') }}
+        name: source1
+        noLinkRefs: []
+  name: I_SALESFORCEGENERATION
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

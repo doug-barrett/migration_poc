@@ -1,39 +1,52 @@
-name: I_SALESFORCECASESFEEDBACK
-id: 1ccfa691-8cff-12a6-b4f3-8a121a5fb283
 fileVersion: 1
-type: Node
+id: 1ccfa691-8cff-12a6-b4f3-8a121a5fb283
+name: I_SALESFORCECASESFEEDBACK
 operation:
-  locationName: SILVER
-  name: I_SALESFORCECASESFEEDBACK
-  sqlType: Stage
-  type: sql
-  version: 1
-  description: Salesforce Cases Feedback
-  materializationType: table
-  isMultisource: false
   config:
-    truncateBefore: true
     insertStrategy: INSERT
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: Salesforce Cases Feedback
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
   metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: "1"
+          stepCounter: "1"
+        config: {}
+        dataType: VARCHAR(64)
+        description: Feedback Area
+        name: FEEDBACKAREA
+        nullable: false
+        transform: "--ONLY NEED THE FIRST VALUE AS COULD BE MULTI-SELECT UNTIL THE CHANGE THIS TO SINGLE SELECT CASE \t\tWHEN I_SALESFORCECASES.FEEDBACKAREA = '[]' THEN 'Not Applicable' \t\tELSE CASE \t\t\t\tWHEN POSITION(' IN ', I_SALESFORCECASES.FEEDBACKAREA) < 1 THEN LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(I_SALESFORCECASES.FEEDBACKAREA, '\"', ''), ']', ''), '[', ''))) \t\t\t\tELSE LEFT( \t\t\t\t\tLTRIM(RTRIM(REPLACE(REPLACE(REPLACE(I_SALESFORCECASES.FEEDBACKAREA, '\"', ''), ']', ''), '[', ''))) \t\t\t\t\t, -1 + POSITION(' IN ', LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(I_SALESFORCECASES.FEEDBACKAREA, '\"', ''), ']', ''), '[', ''))) \t\t\t\t\t)) \t\t\tEND \tEND"
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: "2"
+          stepCounter: "1"
+        config: {}
+        dataType: VARCHAR(64)
+        description: Type Of Complaint
+        name: TYPEOFCOMPLAINT
+        nullable: false
+        transform: "\"I_SALESFORCECASES\".\"TYPEOFCOMPLAINT\""
+    enabledColumnTestIDs: []
     sourceMapping:
-      - name: source1
-        join:
-          joinCondition: 'FROM {{ ref(''SILVER'', ''I_SALESFORCECASES'') }}'
+      - aliases: {}
         dependencies:
           - locationName: SILVER
             nodeName: I_SALESFORCECASES
-    columns:
-      - name: FEEDBACKAREA
-        dataType: VARCHAR(64)
-        description: Feedback Area
-        columnReference:
-          stepCounter: '1'
-          columnCounter: '1'
-        transform: '--ONLY NEED THE FIRST VALUE AS COULD BE MULTI-SELECT UNTIL THE CHANGE THIS TO SINGLE SELECT CASE 		WHEN I_SALESFORCECASES.FEEDBACKAREA = ''[]'' THEN ''Not Applicable'' 		ELSE CASE 				WHEN POSITION('' IN '', I_SALESFORCECASES.FEEDBACKAREA) < 1 THEN LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(I_SALESFORCECASES.FEEDBACKAREA, ''"'', ''''), '']'', ''''), ''['', ''''))) 				ELSE LEFT( 					LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(I_SALESFORCECASES.FEEDBACKAREA, ''"'', ''''), '']'', ''''), ''['', ''''))) 					, -1 + POSITION('' IN '', LTRIM(RTRIM(REPLACE(REPLACE(REPLACE(I_SALESFORCECASES.FEEDBACKAREA, ''"'', ''''), '']'', ''''), ''['', ''''))) 					)) 			END 	END'
-      - name: TYPEOFCOMPLAINT
-        dataType: VARCHAR(64)
-        description: Type Of Complaint
-        columnReference:
-          stepCounter: '1'
-          columnCounter: '2'
-        transform: '"I_SALESFORCECASES"."TYPEOFCOMPLAINT"'
+        join:
+          joinCondition: FROM {{ ref('SILVER', 'I_SALESFORCECASES') }}
+        name: source1
+        noLinkRefs: []
+  name: I_SALESFORCECASESFEEDBACK
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

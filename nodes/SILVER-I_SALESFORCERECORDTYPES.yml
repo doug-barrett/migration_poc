@@ -1,67 +1,92 @@
-name: I_SALESFORCERECORDTYPES
-id: 5be9e6dd-297e-66ff-398d-f70159eb6511
 fileVersion: 1
-type: Node
+id: 5be9e6dd-297e-66ff-398d-f70159eb6511
+name: I_SALESFORCERECORDTYPES
 operation:
-  locationName: SILVER
-  name: I_SALESFORCERECORDTYPES
-  sqlType: Stage
-  type: sql
-  version: 1
-  description: Salesforce record type of cases or work orders
-  materializationType: table
-  isMultisource: false
   config:
-    truncateBefore: true
     insertStrategy: INSERT
+    truncateBefore: true
+  database: ""
+  deployEnabled: true
+  description: Salesforce record type of cases or work orders
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
   metadata:
+    appliedNodeTests: []
+    columns:
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: "1"
+          stepCounter: "1"
+        config: {}
+        dataType: VARCHAR(64)
+        description: Record Type Code
+        name: RECORDTYPECODE
+        nullable: false
+        transform: "\"L_SALESFORCE_RECORDTYPES\".\"RECORDTYPEID\""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: "2"
+          stepCounter: "1"
+        config: {}
+        dataType: VARCHAR(64)
+        description: Record Type
+        name: RECORDTYPE
+        nullable: false
+        transform: "\"L_SALESFORCE_RECORDTYPES\".\"NAME\""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: "3"
+          stepCounter: "1"
+        config: {}
+        dataType: NUMBER(38,0)
+        description: Latest Record Number
+        name: LATESTRECORDNUMBER
+        nullable: false
+        transform: ROW_NUMBER() OVER(PARTITION BY L_SALESFORCE_RECORDTYPES.RECORDTYPEID ORDER BY  MODIFIEDDATE DESC)
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: "4"
+          stepCounter: "1"
+        config: {}
+        dataType: VARCHAR(64)
+        description: Modified Date
+        name: MODIFIEDDATE
+        nullable: false
+        transform: "\"L_SALESFORCE_RECORDTYPES\".\"MODIFIEDDATE\""
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: "5"
+          stepCounter: "1"
+        config: {}
+        dataType: TIMESTAMP
+        description: Date and time the row was created in the data warehouse.
+        name: ODSCREATEDATE
+        nullable: false
+        transform: ODSCREATEDATE
+      - appliedColumnTests: {}
+        columnReference:
+          columnCounter: "6"
+          stepCounter: "1"
+        config: {}
+        dataType: TIMESTAMP
+        description: Date and time the row was updated in the data warehouse.
+        name: ODSUPDATEDATE
+        nullable: false
+        transform: ODSUPDATEDATE
+    enabledColumnTestIDs: []
     sourceMapping:
-      - name: source1
-        join:
-          joinCondition: 'FROM {{ ref(''BRONZE'', ''L_SALESFORCE_RECORDTYPES'') }}'
+      - aliases: {}
         dependencies:
           - locationName: BRONZE
             nodeName: L_SALESFORCE_RECORDTYPES
-    columns:
-      - name: RECORDTYPECODE
-        dataType: VARCHAR(64)
-        description: Record Type Code
-        columnReference:
-          stepCounter: '1'
-          columnCounter: '1'
-        transform: '"L_SALESFORCE_RECORDTYPES"."RECORDTYPEID"'
-      - name: RECORDTYPE
-        dataType: VARCHAR(64)
-        description: Record Type
-        columnReference:
-          stepCounter: '1'
-          columnCounter: '2'
-        transform: '"L_SALESFORCE_RECORDTYPES"."NAME"'
-      - name: LATESTRECORDNUMBER
-        dataType: NUMBER(38,0)
-        description: Latest Record Number
-        columnReference:
-          stepCounter: '1'
-          columnCounter: '3'
-        transform: 'ROW_NUMBER() OVER(PARTITION BY L_SALESFORCE_RECORDTYPES.RECORDTYPEID ORDER BY  MODIFIEDDATE DESC)'
-      - name: MODIFIEDDATE
-        dataType: VARCHAR(64)
-        description: Modified Date
-        columnReference:
-          stepCounter: '1'
-          columnCounter: '4'
-        transform: '"L_SALESFORCE_RECORDTYPES"."MODIFIEDDATE"'
-      - name: ODSCREATEDATE
-        dataType: TIMESTAMP
-        description: Date and time the row was created in the data warehouse.
-        columnReference:
-          stepCounter: '1'
-          columnCounter: '5'
-        transform: 'ODSCREATEDATE'
-      - name: ODSUPDATEDATE
-        dataType: TIMESTAMP
-        description: Date and time the row was updated in the data warehouse.
-        columnReference:
-          stepCounter: '1'
-          columnCounter: '6'
-        transform: 'ODSUPDATEDATE'
+        join:
+          joinCondition: FROM {{ ref('BRONZE', 'L_SALESFORCE_RECORDTYPES') }}
+        name: source1
+        noLinkRefs: []
+  name: I_SALESFORCERECORDTYPES
+  schema: ""
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node
