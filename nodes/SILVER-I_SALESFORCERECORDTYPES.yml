@@ -23,7 +23,7 @@ operation:
           stepCounter: 5be9e6dd-297e-66ff-398d-f70159eb6511
         config: {}
         dataType: VARCHAR(64)
-        description: "Record Type Code"
+        description: Record Type Code
         name: RECORDTYPECODE
         nullable: true
         sourceColumnReferences:
@@ -37,7 +37,7 @@ operation:
           stepCounter: 5be9e6dd-297e-66ff-398d-f70159eb6511
         config: {}
         dataType: VARCHAR(64)
-        description: "Record Type"
+        description: Record Type
         name: RECORDTYPE
         nullable: true
         sourceColumnReferences:
@@ -51,19 +51,19 @@ operation:
           stepCounter: 5be9e6dd-297e-66ff-398d-f70159eb6511
         config: {}
         dataType: NUMBER(38,0)
-        description: "Latest Record Number"
+        description: Latest Record Number
         name: LATESTRECORDNUMBER
         nullable: true
         sourceColumnReferences:
           - columnReferences: []
-            transform: "ROW_NUMBER() OVER(PARTITION BY L_SALESFORCE_RECORDTYPES.RECORDTYPEID ORDER BY  MODIFIEDDATE DESC)"
+            transform: ROW_NUMBER() OVER(PARTITION BY L_SALESFORCE_RECORDTYPES.RECORDTYPEID ORDER BY  MODIFIEDDATE DESC)
       - appliedColumnTests: {}
         columnReference:
           columnCounter: 7f28ef30-abac-49e5-b83c-0f6dfd276735
           stepCounter: 5be9e6dd-297e-66ff-398d-f70159eb6511
         config: {}
         dataType: VARCHAR(64)
-        description: "Modified Date"
+        description: Modified Date
         name: MODIFIEDDATE
         nullable: true
         sourceColumnReferences:
@@ -77,24 +77,24 @@ operation:
           stepCounter: 5be9e6dd-297e-66ff-398d-f70159eb6511
         config: {}
         dataType: TIMESTAMP
-        description: "Date and time the row was created in the data warehouse."
+        description: Date and time the row was created in the data warehouse.
         name: ODSCREATEDATE
         nullable: true
         sourceColumnReferences:
           - columnReferences: []
-            transform: "ODSCREATEDATE"
+            transform: ODSCREATEDATE
       - appliedColumnTests: {}
         columnReference:
           columnCounter: 37ad302f-5b19-49cc-909e-30054738168f
           stepCounter: 5be9e6dd-297e-66ff-398d-f70159eb6511
         config: {}
         dataType: TIMESTAMP
-        description: "Date and time the row was updated in the data warehouse."
+        description: Date and time the row was updated in the data warehouse.
         name: ODSUPDATEDATE
         nullable: true
         sourceColumnReferences:
           - columnReferences: []
-            transform: "ODSUPDATEDATE"
+            transform: ODSUPDATEDATE
     cteString: ""
     enabledColumnTestIDs: []
     sourceMapping:
@@ -105,11 +105,19 @@ operation:
         dependencies:
           - locationName: BRONZE
             nodeName: L_SALESFORCE_RECORDTYPES
+          - locationName: BRONZE
+            nodeName: L_SALESFORCE_WORKORDERS
         join:
-          joinCondition: |-
+          joinCondition: |
             FROM {{ ref('BRONZE', 'L_SALESFORCE_RECORDTYPES') }} "L_SALESFORCE_RECORDTYPES"
+
+            {{ref_no_link('BRONZE', 'L_SALESFORCE_LOCATIONS') }}
+
+            {{ref_link('BRONZE','L_SALESFORCE_WORKORDERS')}}
         name: I_SALESFORCERECORDTYPES
-        noLinkRefs: []
+        noLinkRefs:
+          - locationName: BRONZE
+            nodeName: L_SALESFORCE_LOCATIONS
   name: I_SALESFORCERECORDTYPES
   overrideSQL: false
   schema: ""
