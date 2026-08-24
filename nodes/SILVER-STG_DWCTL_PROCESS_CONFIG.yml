@@ -1,0 +1,99 @@
+fileVersion: 1
+id: 894bd843-190b-3337-8c5b-253702de1e09
+name: STG_DWCTL_PROCESS_CONFIG
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: Prep/transform for DWCTL_PROCESS_CONFIG (from IICS m_dw_product_usm_dtl_dwsa_ato_mats_usi_config)
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c21bc8ae-9a23-28d0-1a98-3f31af4f5e24
+        stepCounter: 894bd843-190b-3337-8c5b-253702de1e09
+      config: {}
+      dataType: VARCHAR(50)
+      defaultValue: ''
+      description: ''
+      name: PROCESS_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: "'ATO_MATS_SUBMITEXT'"
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 909f3e51-08c4-1993-dfc2-d80eff5202dc
+        stepCounter: 894bd843-190b-3337-8c5b-253702de1e09
+      config: {}
+      dataType: VARCHAR(30)
+      defaultValue: ''
+      description: ''
+      name: TASK_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: ae165792-9346-0a89-b5a6-38266602a670
+          stepCounter: 503c8ea4-6735-e31f-358d-cdd64b833e17
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6b2dd42e-d7e6-d751-bb80-f949c4cc966f
+        stepCounter: 894bd843-190b-3337-8c5b-253702de1e09
+      config: {}
+      dataType: VARCHAR(2000)
+      defaultValue: ''
+      description: ''
+      name: CONFIG_VALUE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 23fc0a2a-4caf-bae0-ac24-4bb905af68b9
+          stepCounter: 503c8ea4-6735-e31f-358d-cdd64b833e17
+        - columnCounter: 6d653386-833b-487f-d79a-1d95737ca8be
+          stepCounter: 5c27f047-72af-f3c6-24a8-afaa9adcf52a
+        transform: "CASE src_config.TASK_CODE WHEN 'OPUS_BALSTRT_DATE' THEN '31-MAY-' || TO_CHAR(YEAR(CURRENT_TIMESTAMP)) WHEN 'PAS_BALEND_DATE' THEN '30-JUN-' || TO_CHAR(YEAR(CURRENT_TIMESTAMP)) WHEN 'BAL_DATE' THEN TO_CHAR(ADD_MONTHS(TO_DATE(src_config.CONFIG_VALUE, 'DD-MON-YYYY'), 12), 'DD-MON-YYYY') WHEN 'OPUS_BALEXT_DATE' THEN cal.CALENDAR_DATE_TEXT WHEN 'PAS_BALEXT_DATE' THEN cal.CALENDAR_DATE_TEXT ELSE src_config.CONFIG_VALUE END"
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: cc7f51a1-c746-d9c8-6efa-ef638f9f4ca6
+        stepCounter: 894bd843-190b-3337-8c5b-253702de1e09
+      config: {}
+      dataType: VARCHAR(30)
+      defaultValue: ''
+      description: ''
+      name: PROCESS_STEP_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CAST(NULL AS VARCHAR(30))
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        DIM_CALENDAR: 5c27f047-72af-f3c6-24a8-afaa9adcf52a
+        DWCTL_PROCESS_CONFIG: 503c8ea4-6735-e31f-358d-cdd64b833e17
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: BRONZE
+        nodeName: DWCTL_PROCESS_CONFIG
+      - locationName: BRONZE
+        nodeName: DIM_CALENDAR
+      join:
+        joinCondition: "FROM {{ ref('BRONZE','DWCTL_PROCESS_CONFIG') }} src_config\nLEFT JOIN {{ ref('BRONZE','DIM_CALENDAR') }} cal\n    ON cal.YEAR_NUM = YEAR(CURRENT_TIMESTAMP)"
+      name: STG_DWCTL_PROCESS_CONFIG
+      noLinkRefs: []
+  name: STG_DWCTL_PROCESS_CONFIG
+  overrideSQL: false
+  schema: ''
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

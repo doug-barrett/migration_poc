@@ -1,0 +1,126 @@
+fileVersion: 1
+id: 412cc138-2451-7490-25ec-29bcf7ddf4b4
+name: DW_CONTRACT_EVENT_TRNX_AL4
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: 'Migrated from IICS mapping m_al4_stg_deventtrnx_dw_contract_event_trnx (folder 04_cnf). Transforms: Sourcex3, Joinerx2, Expressionx2, Targetx1.'
+  isMultisource: false
+  locationName: GOLD
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 23f34745-6b29-4b16-b7a0-14c778e3d206
+        stepCounter: 412cc138-2451-7490-25ec-29bcf7ddf4b4
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: EVENT_STATUS_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: DECODE(EVENT_STATUS_CODE,'P','PENDING','S','SETTLED','R','REVERSED',EVENT_STATUS_CODE)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f418d240-82db-9c41-3438-bd993229d0ba
+        stepCounter: 412cc138-2451-7490-25ec-29bcf7ddf4b4
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: SRC_DLVRD_EFTV_DTTM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (EFTV_DATE IS NULL) THEN PROCESS_DATE ELSE EFTV_DATE END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: bf4c3649-ef79-c8cc-d38f-242dcd00c8de
+        stepCounter: 412cc138-2451-7490-25ec-29bcf7ddf4b4
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: CREATED_DTTM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CURRENT_TIMESTAMP
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 56756779-dd15-29f2-7532-76f8db4c63f9
+        stepCounter: 412cc138-2451-7490-25ec-29bcf7ddf4b4
+      config: {}
+      dataType: NUMBER(29,0)
+      defaultValue: ''
+      description: ''
+      name: CREATED_TASK_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: TO_NUMBER($in_task_id$)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 42b981c6-99e7-a628-dcc1-7ce7d761a80c
+        stepCounter: 412cc138-2451-7490-25ec-29bcf7ddf4b4
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: PAY_METHOD_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '''NA'''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ed7ff0c9-4ca2-bc50-56e6-22c74350be0f
+        stepCounter: 412cc138-2451-7490-25ec-29bcf7ddf4b4
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: EVENT_TYPE_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN EVENT_TYPE_CODE='REDEMPTION' THEN DECODE(CLAIM_PAY_TYPE_CODE,'PRT','REDEMPTP','FUL','REDEMPTF') ELSE EVENT_TYPE_CODE END
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        AL4_DEVENTTRNX: 4a674d85-e999-3a3e-e703-6d942f27c99f
+        DW_CONTRACT: 49afe4d4-b8de-827c-baa6-dc1914b9ca5f
+        DW_EVENT_TYPE: d674cea3-5b68-6e48-3de6-16d96a7dde4b
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: SILVER
+        nodeName: AL4_DEVENTTRNX
+      - locationName: BRONZE
+        nodeName: DW_CONTRACT
+      - locationName: BRONZE
+        nodeName: DW_EVENT_TYPE
+      join:
+        joinCondition: 'FROM {{ ref(''SILVER'', ''AL4_DEVENTTRNX'') }} al4_deventtrnx
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_EVENT_TYPE'') }} dw_event_type ON /* TODO join key (Joiner) */ 1=1'
+      name: source1
+      noLinkRefs: []
+  name: DW_CONTRACT_EVENT_TRNX_AL4
+  overrideSQL: false
+  schema: ''
+  sqlType: Fact
+  type: sql
+  version: 1
+type: Node

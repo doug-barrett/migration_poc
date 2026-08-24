@@ -1,0 +1,169 @@
+fileVersion: 1
+id: 4a674d85-e999-3a3e-e703-6d942f27c99f
+name: AL4_DEVENTTRNX
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: 'Migrated from IICS mapping m_al4_stg_deventtrnx_data_validation (folder 03_dq). Transforms: Sourcex2, Targetx1, Joinerx1, TmplRuleSpecificationx1, Expressionx1, Lookupx2.'
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 1dce9162-2ea0-704c-94ed-7750899a3a8f
+        stepCounter: 4a674d85-e999-3a3e-e703-6d942f27c99f
+      config: {}
+      dataType: VARCHAR(50)
+      defaultValue: ''
+      description: ''
+      name: CONTRACT_ID
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f9f963e5-625c-3f16-7cfb-28498ba37852
+        stepCounter: 4a674d85-e999-3a3e-e703-6d942f27c99f
+      config: {}
+      dataType: NUMBER(18,2)
+      defaultValue: ''
+      description: ''
+      name: EVENT_NUM
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e8b1761d-7116-c193-61d8-2182405f8d32
+        stepCounter: 4a674d85-e999-3a3e-e703-6d942f27c99f
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: EVENT_TYPE_CODE
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: 5da00e59-2c39-d612-4077-21c9f98db78f
+          stepCounter: 7a885aa3-ba49-938a-e591-d11496010090
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c0c86bc2-4b5b-d25b-0a54-fc97bc69ef98
+        stepCounter: 4a674d85-e999-3a3e-e703-6d942f27c99f
+      config: {}
+      dataType: VARCHAR(256)
+      defaultValue: ''
+      description: ''
+      name: _FILE_NAME
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 42e3321c-5b41-0b94-25df-5be7a26affaa
+        stepCounter: 4a674d85-e999-3a3e-e703-6d942f27c99f
+      config: {}
+      dataType: NUMBER(18,2)
+      defaultValue: ''
+      description: ''
+      name: CASH_EVENT_NUM
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4a1d2f64-c982-e1c6-0bc9-f00e7396feb7
+        stepCounter: 4a674d85-e999-3a3e-e703-6d942f27c99f
+      config: {}
+      dataType: VARCHAR(50)
+      defaultValue: ''
+      description: ''
+      name: PRODUCT_SYSTEM_CODE
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ab53ec2d-b427-3522-9e10-03cb6544a96e
+        stepCounter: 4a674d85-e999-3a3e-e703-6d942f27c99f
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: ERROR_IND
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: v_error_ind
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a2c9d9ee-2b35-f071-2874-e47bb92b122b
+        stepCounter: 4a674d85-e999-3a3e-e703-6d942f27c99f
+      config: {}
+      dataType: VARCHAR(5000)
+      defaultValue: ''
+      description: ''
+      name: ERROR_DESC
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: v_error_desc
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a7ae0bad-550f-1ad5-512e-e25d83d55955
+        stepCounter: 4a674d85-e999-3a3e-e703-6d942f27c99f
+      config: {}
+      dataType: VARCHAR(20)
+      defaultValue: ''
+      description: ''
+      name: CLAIM_TYPE_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (CLAIM_TYPE_CODE IS NULL) THEN 'NA' ELSE CASE WHEN (/*LKP:lkp_claim_type('AL4-'||CLAIM_TYPE_CODE)*/ NULL IS NULL) THEN 'UNK' ELSE NULL END END
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        CLAIM_TYPE: 59a58a5a-5186-191b-508a-610273369d4a
+        DW_CONTRACT: 49afe4d4-b8de-827c-baa6-dc1914b9ca5f
+        EVENT_TYPE: 7a885aa3-ba49-938a-e591-d11496010090
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: BRONZE
+        nodeName: DW_CONTRACT
+      - locationName: BRONZE
+        nodeName: CLAIM_TYPE
+      - locationName: BRONZE
+        nodeName: EVENT_TYPE
+      join:
+        joinCondition: '-- FROM AL4_DEVENTTRNX (source node not generated)
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''BRONZE'', ''CLAIM_TYPE'') }} claim_type ON claim_type.CODE = al4_deventtrnx.PAS_CLAIM_TYPE_CODE
+
+          LEFT JOIN {{ ref(''BRONZE'', ''EVENT_TYPE'') }} event_type ON event_type.EVENT_TYPE_CODE = al4_deventtrnx.SRC_EVENT_TYPE_CODE AND event_type.SOURCE_SYSTEM_CODE = al4_deventtrnx.SRC_SOURCE_SYSTEM_CODE'
+      name: source1
+      noLinkRefs: []
+  name: AL4_DEVENTTRNX
+  overrideSQL: false
+  schema: ''
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

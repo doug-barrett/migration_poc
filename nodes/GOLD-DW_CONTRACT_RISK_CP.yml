@@ -1,0 +1,1034 @@
+fileVersion: 1
+id: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+name: DW_CONTRACT_RISK_CP
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: 'Migrated from IICS mapping m_cp_dbcp_dw_contract_risk (folder 04_cnf). Transforms: Sourcex10, Unionx3, Joinerx8, Expressionx10, Filterx4, Lookupx12, Aggregatorx2, Rankx1, Targetx4, Sorterx8, Routerx2, Sequencex1.'
+  isMultisource: false
+  locationName: GOLD
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b0bbea1c-e253-6845-c3f4-7d8ac37e2cb1
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(20)
+      defaultValue: ''
+      description: ''
+      isBusinessKey: true
+      name: PRODUCT_SYSTEM_CODE
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences:
+        - columnCounter: a1f2f512-eeb4-2792-ceb3-994cd020dddb
+          stepCounter: f8bc692b-8b19-faf3-f0c6-c2496d9c65a4
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a5b9fc02-2092-befa-6268-8a3ee2ea4137
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: NUMBER(38,0)
+      defaultValue: ''
+      description: ''
+      isBusinessKey: true
+      name: CONTRACT_RISK_KEY
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3f92eadb-99ce-3678-5b3f-d6817ffdf0ed
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: TIMESTAMP
+      defaultValue: ''
+      description: ''
+      isBusinessKey: true
+      name: REC_EFTV_DTTM
+      nullable: false
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: ''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 18f240c0-4f90-a1b7-5bbc-e770378e9666
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(20)
+      defaultValue: ''
+      description: ''
+      name: PADDED_CLIENT_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '''0'' || RPAD (BC1_CLIENT_ID,15, ''0'')'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 01b03ca3-ce05-2942-7cfc-8115a3175afc
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(20)
+      defaultValue: ''
+      description: ''
+      name: PADDED_ID_P7
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '''0'' || RPAD (n_un_BC1_CLIENT_ID,15, ''0'')'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 446b482c-c88e-0f9b-65c7-e0cf289770cf
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: EXP_ROW_STATUS
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: DECODE (n_BC1_COVERAGE_STATUS_CODE, '1', 'ACTIVE', '2', 'ACTIVE', '3', 'ACTIVE', 'R', 'ACTIVE', 'INACTIVE' )
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f9034137-8214-8cda-6941-9ce7290c6591
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: PARTY_KEY
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: :LKP.lkp_dw_party(LTRIM(RTRIM(ref_BI_ID)))
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e1116789-147c-e1e0-84ac-97ba007283d2
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: LKP_FREQ_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: :LKP.lkp_dwsa_freq_convert(LTRIM(RTRIM(p_PC1_PAYMENT_FREQ)))
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: aa0d5561-a164-06ce-3b4b-9acfff4a974b
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: STATE_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (n_BC1_SDUTY_STATE_CODE IS NULL) THEN 'NA' ELSE :LKP.lkp_ref360_state(LTRIM(RTRIM(n_BC1_SDUTY_STATE_CODE))) END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7c2ebf6f-49c8-b9c7-5660-c4852b2c097f
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: OVERALL_CLAIM_IND
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN aggr_claim_sum = 0 THEN 'N' ELSE 'Y' END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5d169257-5150-b89f-a24e-6c04ea9426d3
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: NUMBER(38,0)
+      defaultValue: ''
+      description: ''
+      name: PRODUCT_OPTION_KEY
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: :LKP.lkp_dw_product_option(LTRIM(RTRIM(n_PRODUCT_KEY)), LTRIM(RTRIM(n_BC1_PLAN_CODE)))
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c5ce4c2b-92fb-d5a1-bf21-78132320dc7b
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: OVERALL_STATUS_NEW
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: aggr_status_new
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a10af7f3-974b-d11f-3803-6ee14a360ed3
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(100)
+      defaultValue: ''
+      description: ''
+      name: RANK_FIELD
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: TO_CHAR(v_row_status)||TO_CHAR(n_BC1_COVERAGE_NUMBER)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 42f4a957-f14f-ac47-e762-704c156b307b
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: SMOKER_STATUS_CODE_TEMP
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: :LKP.lkp_smoker_status_convert(LTRIM(RTRIM(n_BC1_SMOKERS_CODE)))
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ede0202e-6757-861f-1544-5b636fe8f39c
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: RISK_STATUS_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: :LKP.lkp_status_convert(LTRIM(RTRIM(n_BC1_COVERAGE_STATUS_CODE)))
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7da93416-77fe-46d3-96c7-2ee64d2d5026
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: ASSESS_CODE_TEMP
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: /*LKP:lkp_dw_assess(v_assess_code)*/ NULL
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e832db1a-f7f5-4952-5680-70e6d13d8910
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: OCUPTN_CLASS_CODE_TEMP
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: :LKP.lkp_dw_ocuptn_class(LTRIM(RTRIM('CP-'||n_BC1_OCCUPATION_CODE)))
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 62a5a92d-d4a3-3295-bd30-9b5b7b7cc060
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: CLOSE_TYPE_CODE_TEMP
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: :LKP.lkp_close_type(LTRIM(RTRIM('CP-'||n_BC1_COVERAGE_STATUS_CODE)))
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f0a9599d-72b3-df0c-7c5a-f3e7e9da2272
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: IMPAIRMENT_CODE_TEMP
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: :LKP.lkp_impairment(LTRIM(RTRIM('CP-'||n_BC1_IMPAIRMENT_CODE)))
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6dbcfca5-1456-fcfe-b276-bbc56392e226
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: ASSESS_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (o_assess_code_temp IS NULL) THEN 'NA' ELSE o_assess_code_temp END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2f88546f-bd44-6cd2-a406-dafd4d41d69a
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: OCUPTN_CLASS_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (o_ocuptn_class_code_temp IS NULL) THEN 'NA' ELSE o_ocuptn_class_code_temp END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 70e3c867-a672-40c9-44d9-8484653eb7e7
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: SMOKER_STATUS_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (o_smoker_status_code_temp IS NULL) THEN 'NA' ELSE o_smoker_status_code_temp END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: bb8a97f6-4dcc-9c00-e55e-797a6b506478
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: IMPAIRMENT_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (o_impairment_code_temp IS NULL) THEN 'NA' ELSE o_impairment_code_temp END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4e6e39ae-e6d0-1c01-af5a-ccaa457d195a
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: CLOSE_TYPE_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN o_close_type_code_temp='1' OR o_close_type_code_temp='3' THEN 'NA' ELSE o_close_type_code_temp END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 875c2dbb-0303-0571-5304-bb2323940b30
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: TEMP_ASSESS_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (v_temp_assess_code_temp IS NULL) THEN 'NA' ELSE v_temp_assess_code_temp END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 35542feb-cb1f-5a6d-f4c1-c1d397face07
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(3)
+      defaultValue: ''
+      description: ''
+      name: INDEX_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN n_BC1_CPI_WANTED_IND='Y' AND n_BC1_CPI_ASSESS_IND='Y' THEN 'Y' ELSE 'N' END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 20a233c1-56ec-4835-8570-111b7d339519
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: LINKED_INSURE_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN n_BC1_BUS_SAFEGUARD_IND='Y' THEN CASE WHEN n_BC1_PLAN_CODE<> 'BSDB' THEN CASE WHEN n_BC1_PLAN_CODE<> 'BSDC' THEN 'BS' ELSE 'NA' END ELSE 'NA' END ELSE 'NA' END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: be699569-487c-8243-c844-3d55f771fa0c
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: MEDICAL_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (n_BC1_MEDICAL_IND IS NULL)=1 THEN 'NA' ELSE n_BC1_MEDICAL_IND END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: fe17e792-d8ee-37da-0543-2b679878b67c
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: REINSURE_COMPANY_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (n_BC1_REINSURANCE_COMPY_CODE IS NULL)=1 THEN 'NA' ELSE n_BC1_REINSURANCE_COMPY_CODE END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6fa30f84-23ae-ef0a-ae57-684be55f414c
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: STEP_LVL_PREM_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (n_BC1_PREM_TYPE_IND IS NULL)=1 THEN 'NA' ELSE n_BC1_PREM_TYPE_IND END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 83d637a0-fd86-51a2-debe-6c13535e8e84
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: LINKED_BENEFIT_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (n_BC1_BNFT_LNK_OPTN_CDE IS NULL)=1 THEN 'NA' ELSE n_BC1_BNFT_LNK_OPTN_CDE END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3aa1834f-5b47-7d9b-7eca-d7de220ab218
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: REINSUR_IND
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (n_BC1_REINSURANCE_IND IS NULL)=1 THEN 'N' ELSE n_BC1_REINSURANCE_IND END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: aa192188-83e5-1525-ee2d-dc38b367ed80
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: RISK_CMSN_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (p_PC1_COMM_REGIME_LEVEL IS NULL)=1 THEN 'NA' ELSE p_PC1_COMM_REGIME_LEVEL END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 26a88f03-0eca-2376-70e3-f8b211cb0a41
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: REINSTATED_COVER_IND
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (n_BC1_REINSTATED_COVER_IND IS NULL)=1 THEN 'N' ELSE n_BC1_REINSTATED_COVER_IND END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e85851af-baa2-a495-3dce-7243d6f09e99
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: INSUR_CLASS_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN p_PC1_COMM_REGIME_OPTION= 'P' THEN 'SUP' ELSE NULL END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f630c655-101d-9afb-fd93-999d081f52a3
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: INSURER_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '''NA'''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e803ce7d-5f6a-cf16-11d0-9b0c6b98d8b3
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: ON_HOLD_STATUS_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '''NA'''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d6b8c2dd-f56d-ce20-3210-ef08c6b050e7
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: SUPER_CONTRB_OPT_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '''NA'''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: cf693977-f87f-8df3-c880-5ca06a00a036
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: RISK_CMSN_TYPE_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '''NA'''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c9163757-b1e0-5751-6aaa-44611d5c1988
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: REINSURE_OUT_TYPE_KEY
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '''-1'''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b607d3fa-24b0-80a3-64d8-d6f4cf437484
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: NUMBER(20,3)
+      defaultValue: ''
+      description: ''
+      name: AGGR_N_BC1_TEMP_ASSESS_RATE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: n_BC1_TEMP_ASSESS_RATE
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a0ca4f7b-fed8-3cfd-f632-2679b014ade9
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: NUMBER(20,3)
+      defaultValue: ''
+      description: ''
+      name: AGGR_N_BC1_INDX_MIN_RATE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: n_BC1_INDX_MIN_RATE
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9eea7b90-386a-66da-be1f-448b19ac39a6
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: NUMBER(20,3)
+      defaultValue: ''
+      description: ''
+      name: AGGR_N_BC1_MAX_SUM_INS_AMT
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: n_BC1_MAX_SUM_INS_AMT
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 8e97ff17-f953-aa4c-f846-670f9cc8bde8
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: NUMBER(7,4)
+      defaultValue: ''
+      description: ''
+      name: AGGR_N_BC1_REINSURANCE_PERC
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: n_BC1_REINSURANCE_PERC
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 15b441e1-6638-ffab-ef27-17512ffc3d97
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: FREQ_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN IN(LTRIM(RTRIM(p_PC1_BASIC_PLAN_CODE)),'TLI','CCI','FCI','SIM') THEN lkp_freq_code ELSE 'MNTH' END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f84027ca-267d-2914-c99d-6d823b72b108
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: BC1_COVERAGE_NUMBER
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: TO_CHAR(n_BC1_COVERAGE_NUMBER)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 67e0aec3-97e1-24aa-e404-f67aecb1e03f
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: FILE_PRODUCED_DATE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: TO_DATE(SUBSTR(n__file_produced_date,1,19),'MM/DD/YYYY HH24:MI:SS')
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 09470cd4-966c-e8a2-a9f1-f1ed24aa3900
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(5)
+      defaultValue: ''
+      description: ''
+      name: DAY_1_ACCIDENT_IND
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '''N'''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a125d16a-d762-985a-741a-a323a1445452
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(2)
+      defaultValue: ''
+      description: ''
+      name: VALN_STEP_LVL_PREM_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (n_BC1_PREM_TYPE_IND IS NULL)=1 THEN 'S' ELSE n_BC1_PREM_TYPE_IND END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 678c94b8-8c29-ed9b-ffdb-87cdb8b2b059
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(32)
+      defaultValue: ''
+      description: ''
+      name: SRC_MD5_REC
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: MD5(TO_CHAR(CASE WHEN (o_assess_code IS NULL) THEN 'NA' ELSE o_assess_code END)||  TO_CHAR(CASE WHEN (o_ocuptn_class_code IS NULL) THEN 'NA' ELSE o_ocuptn_class_code END)||  TO_CHAR(CASE WHEN (sum_insured_amt IS NULL) THEN -1.000 ELSE sum_insured_amt END)||  TO_CHAR(CASE WHEN (o_smoker_status_code IS NULL) THEN 'NA' ELSE o_smoker_status_code END)||  TO_CHAR(CASE WHEN (o_risk_status_code IS NULL) THEN 'NA' ELSE o_risk_status_code END)||  TO_CHAR(CASE WHEN (out_risk_start_date IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(out_risk_start_date,'mm/dd/yyyy hh24:mi:ss') END)||  TO_CHAR(CASE WHEN (o_medical_code IS NULL) THEN 'NA' ELSE o_medical_code END)||  TO_CHAR(CASE WHEN (o_prem_amt IS NULL) THEN -1.000 ELSE o_prem_amt END)||  TO_CHAR(CASE WHEN (o_index_code IS NULL) THEN 'NA' ELSE o_index_code END)||  TO_CHAR(CASE WHEN (n_BC1_EXPY_DATE IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(n_BC1_EXPY_DATE,'mm/dd/yyyy hh24:mi:ss') END)||  TO_CHAR(CASE WHEN (o_reinsure_company_code
+          IS NULL) THEN 'NA' ELSE o_reinsure_company_code END)||  TO_CHAR(CASE WHEN (o_aggr_n_BC1_REINSURANCE_PERC IS NULL) THEN -1.0000 ELSE o_aggr_n_BC1_REINSURANCE_PERC END)||  TO_CHAR(CASE WHEN (o_linked_benefit_code IS NULL) THEN 'NA' ELSE o_linked_benefit_code END)||  TO_CHAR(CASE WHEN (o_aggr_n_BC1_MAX_SUM_INS_AMT IS NULL) THEN -1.000 ELSE o_aggr_n_BC1_MAX_SUM_INS_AMT END)||  TO_CHAR(CASE WHEN (o_aggr_n_BC1_INDX_MIN_RATE IS NULL) THEN -1.000 ELSE o_aggr_n_BC1_INDX_MIN_RATE END)||  TO_CHAR(CASE WHEN (o_impairment_code IS NULL) THEN 'NA' ELSE o_impairment_code END)||  TO_CHAR(CASE WHEN (o_temp_assess_code IS NULL) THEN 'NA' ELSE o_temp_assess_code END)||  TO_CHAR(CASE WHEN (n_BC1_TEMP_ASSESS_DUR IS NULL) THEN -1 ELSE n_BC1_TEMP_ASSESS_DUR END)||  TO_CHAR(CASE WHEN (o_aggr_n_BC1_TEMP_ASSESS_RATE IS NULL) THEN -1.000 ELSE o_aggr_n_BC1_TEMP_ASSESS_RATE END)||  TO_CHAR(CASE WHEN (n_BC1_REINSURANCE_IND IS NULL) THEN 'N' ELSE n_BC1_REINSURANCE_IND END)||  TO_CHAR(CASE WHEN (linked_insure_code
+          IS NULL) THEN 'NA' ELSE linked_insure_code END)||  TO_CHAR(CASE WHEN (sum_sduty_amt IS NULL) THEN -1.000 ELSE sum_sduty_amt END)||  TO_CHAR(CASE WHEN (sum_gst_amt IS NULL) THEN -1.000 ELSE sum_gst_amt END)||  TO_CHAR(CASE WHEN (at_risk_amt IS NULL) THEN -1.000 ELSE at_risk_amt END)||  TO_CHAR(CASE WHEN (n_BC1_PREV_BEN_INC_DATE IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(n_BC1_PREV_BEN_INC_DATE,'mm/dd/yyyy hh24:mi:ss') END)||  TO_CHAR(CASE WHEN (overall_claim_ind IS NULL) THEN 'NA' ELSE overall_claim_ind END)||  TO_CHAR(CASE WHEN (o_state_code IS NULL) THEN 'NA' ELSE o_state_code END)||  TO_CHAR(CASE WHEN (n_BC1_REINSTATED_COVER_IND IS NULL) THEN 'N' ELSE n_BC1_REINSTATED_COVER_IND END)||  TO_CHAR(CASE WHEN (n_BC1_CPI_EXPY_DATE IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(n_BC1_CPI_EXPY_DATE,'mm/dd/yyyy hh24:mi:ss') END)||  TO_CHAR(CASE WHEN (n_BC1_PERM_ASSESS_MULTIPLY IS NULL) THEN -1.00 ELSE n_BC1_PERM_ASSESS_MULTIPLY END)||  TO_CHAR(CASE WHEN (n_BC1_PTCPTN_TYPE_CODE
+          IS NULL) THEN 'NA' ELSE n_BC1_PTCPTN_TYPE_CODE END)||  TO_CHAR(CASE WHEN (n_BC1_RATE_SCALE IS NULL) THEN 'NA' ELSE n_BC1_RATE_SCALE END)||  TO_CHAR(CASE WHEN (n_BC1_NON_CPI_FACE_AMT IS NULL) THEN -1.00 ELSE n_BC1_NON_CPI_FACE_AMT END)||  TO_CHAR(CASE WHEN (step_lvl_prem_code IS NULL) THEN 'NA' ELSE step_lvl_prem_code END)||  TO_CHAR(CASE WHEN (n_OCUPTN_LOAD_PCNT IS NULL) THEN -1.0000 ELSE n_OCUPTN_LOAD_PCNT END)||  TO_CHAR(CASE WHEN (n_CMSN_DD_PCNT IS NULL) THEN -1.0000 ELSE n_CMSN_DD_PCNT END)||  TO_CHAR(CASE WHEN (n_UNWAIVED_PREM_AMT IS NULL) THEN -1.000 ELSE n_UNWAIVED_PREM_AMT END)||  TO_CHAR(CASE WHEN (aggr_p_PC1_COMM_REGIME_LEVEL IS NULL) THEN 'NA' ELSE aggr_p_PC1_COMM_REGIME_LEVEL END)||  TO_CHAR(CASE WHEN (o_insur_class_code IS NULL) THEN 'NA' ELSE o_insur_class_code END)||  TO_CHAR(CASE WHEN (o_freq_code IS NULL) THEN 'NA' ELSE o_freq_code END))
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 59820892-f782-05d0-16fd-e6aec6d02638
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(32)
+      defaultValue: ''
+      description: ''
+      name: MD5_REC
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: MD5(TO_CHAR(CASE WHEN (TGT_ASSESS_CODE IS NULL) THEN 'NA' ELSE TGT_ASSESS_CODE END)||  TO_CHAR(CASE WHEN (TGT_OCUPTN_CLASS_CODE IS NULL) THEN 'NA' ELSE TGT_OCUPTN_CLASS_CODE END)||  TO_CHAR(CASE WHEN (TGT_SUM_INSURED_AMT IS NULL) THEN -1.000 ELSE TGT_SUM_INSURED_AMT END)||  TO_CHAR(CASE WHEN (TGT_SMOKER_STATUS_CODE IS NULL) THEN 'NA' ELSE TGT_SMOKER_STATUS_CODE END)||  TO_CHAR(CASE WHEN (TGT_RISK_STATUS_CODE IS NULL) THEN 'NA' ELSE TGT_RISK_STATUS_CODE END)||  TO_CHAR(CASE WHEN (TGT_RISK_START_DTTM IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(TGT_RISK_START_DTTM, 'mm/dd/yyyy hh24:mi:ss') END)||  TO_CHAR(CASE WHEN (TGT_MEDICAL_CODE IS NULL) THEN 'NA' ELSE TGT_MEDICAL_CODE END)||  TO_CHAR(CASE WHEN (TGT_PREM_AMT IS NULL) THEN -1.000 ELSE TGT_PREM_AMT END)||  TO_CHAR(CASE WHEN (TGT_INDEX_CODE IS NULL) THEN 'NA' ELSE TGT_INDEX_CODE END)||  TO_CHAR(CASE WHEN (TGT_RISK_EXPR_DTTM IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(TGT_RISK_EXPR_DTTM, 'mm/dd/yyyy hh24:mi:ss')
+          END)||  TO_CHAR(CASE WHEN (TGT_REINSURE_COMPANY_CODE IS NULL) THEN 'NA' ELSE TGT_REINSURE_COMPANY_CODE END)||  TO_CHAR(CASE WHEN (TGT_REINSURE_PCNT IS NULL) THEN -1.0000 ELSE TGT_REINSURE_PCNT END)||  TO_CHAR(CASE WHEN (TGT_LINKED_BENEFIT_CODE IS NULL) THEN 'NA' ELSE TGT_LINKED_BENEFIT_CODE END)||  TO_CHAR(CASE WHEN (TGT_MAX_SUM_INSURED_AMT IS NULL) THEN -1.000 ELSE TGT_MAX_SUM_INSURED_AMT END)||  TO_CHAR(CASE WHEN (TGT_INDEX_MIN_RATE_AMT IS NULL) THEN -1.000 ELSE TGT_INDEX_MIN_RATE_AMT END)||  TO_CHAR(CASE WHEN (TGT_IMPAIRMENT_CODE IS NULL) THEN 'NA' ELSE TGT_IMPAIRMENT_CODE END)||  TO_CHAR(CASE WHEN (TGT_TEMP_ASSESS_CODE IS NULL) THEN 'NA' ELSE TGT_TEMP_ASSESS_CODE END)||  TO_CHAR(CASE WHEN (TGT_TEMP_ASSESS_DURATION IS NULL) THEN -1 ELSE TGT_TEMP_ASSESS_DURATION END)||  TO_CHAR(CASE WHEN (TGT_TEMP_ASSESS_RATE IS NULL) THEN -1.000 ELSE TGT_TEMP_ASSESS_RATE END)||  TO_CHAR(CASE WHEN (TGT_REINSURE_IND IS NULL) THEN 'N' ELSE TGT_REINSURE_IND END)||  TO_CHAR(CASE WHEN (TGT_LINKED_INSURE_CODE
+          IS NULL) THEN 'NA' ELSE TGT_LINKED_INSURE_CODE END)||  TO_CHAR(CASE WHEN (TGT_SDUTY_AMT IS NULL) THEN -1.000 ELSE TGT_SDUTY_AMT END)||  TO_CHAR(CASE WHEN (TGT_GST_AMT IS NULL) THEN -1.000 ELSE TGT_GST_AMT END)||  TO_CHAR(CASE WHEN (TGT_AT_RISK_AMT IS NULL) THEN -1.000 ELSE TGT_AT_RISK_AMT END)||  TO_CHAR(CASE WHEN (TGT_LST_FRML_INCR_DTTM IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(TGT_LST_FRML_INCR_DTTM,'mm/dd/yyyy hh24:mi:ss') END)||  TO_CHAR(CASE WHEN (TGT_CLAIM_IND IS NULL) THEN 'NA' ELSE TGT_CLAIM_IND END)||  TO_CHAR(CASE WHEN (TGT_SDUTY_STATE_CODE IS NULL) THEN 'NA' ELSE TGT_SDUTY_STATE_CODE END)||  TO_CHAR(CASE WHEN (TGT_REINSTATED_COVER_IND IS NULL) THEN 'N' ELSE TGT_REINSTATED_COVER_IND END)||  TO_CHAR(CASE WHEN (TGT_CPI_EXPRY_DTTM IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(TGT_CPI_EXPRY_DTTM, 'mm/dd/yyyy hh24:mi:ss') END)||  TO_CHAR(CASE WHEN (TGT_PERM_ASSESS_MULTI IS NULL) THEN -1.00 ELSE TGT_PERM_ASSESS_MULTI END)||  TO_CHAR(CASE WHEN (TGT_PTCPTN_TYPE_CODE
+          IS NULL) THEN 'NA' ELSE TGT_PTCPTN_TYPE_CODE END)||  TO_CHAR(CASE WHEN (TGT_RATE_SCALE_CODE IS NULL) THEN 'NA' ELSE TGT_RATE_SCALE_CODE END)||  TO_CHAR(CASE WHEN (TGT_NON_CPI_FACE_AMT IS NULL) THEN -1.00 ELSE TGT_NON_CPI_FACE_AMT END)||  TO_CHAR(CASE WHEN (TGT_STEP_LVL_PREM_CODE IS NULL) THEN 'NA' ELSE TGT_STEP_LVL_PREM_CODE END)||  TO_CHAR(CASE WHEN (TGT_OCUPTN_LOAD_PCNT IS NULL) THEN -1.0000 ELSE TGT_OCUPTN_LOAD_PCNT END)||  TO_CHAR(CASE WHEN (TGT_TRAIL_CMSN_DD_PCNT IS NULL) THEN -1.0000 ELSE TGT_TRAIL_CMSN_DD_PCNT END)||  TO_CHAR(CASE WHEN (TGT_UNWAIVED_PREM_AMT IS NULL) THEN -1.000 ELSE TGT_UNWAIVED_PREM_AMT END)|| TO_CHAR(CASE WHEN (TGT_RISK_CMSN_CODE IS NULL) THEN 'NA' ELSE TGT_RISK_CMSN_CODE END)||  TO_CHAR(CASE WHEN (TGT_INSUR_CLASS_CODE IS NULL) THEN 'NA' ELSE TGT_INSUR_CLASS_CODE END)||  TO_CHAR(CASE WHEN (TGT_FREQ_CODE IS NULL) THEN 'NA' ELSE TGT_FREQ_CODE END))
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 84ac68f8-916a-4825-6fe3-fbce91f358b8
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(32)
+      defaultValue: ''
+      description: ''
+      name: SRC_MD5_BUSN_KEY
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: MD5(TO_CHAR(n_CONTRACT_KEY)||  TO_CHAR(o_product_option_key)||  TO_CHAR(n_BC1_CLIENT_ID))
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: dbf1b735-c897-07c6-9efc-171afbdeb121
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: NUMBER(10,0)
+      defaultValue: ''
+      description: ''
+      name: ROW_STATUS_IND
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN o_risk_status_code='A' THEN 1 ELSE 0 END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2edc1397-bc54-f9d8-045d-9d7878c2a94c
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: END_EXPR_DTTM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: To_Date('12/31/3000','MM/DD/YYYY')
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: aba1b6d5-a30a-1ac6-82f1-42f7711d0782
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: CREATED_DTTM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CURRENT_TIMESTAMP
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6ba5d50f-3214-1fd1-d8e1-ded1f05a923b
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: NUMBER(19,0)
+      defaultValue: ''
+      description: ''
+      name: TASK_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: TO_NUMBER($in_task_id$)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 44bd91f7-d3ef-98db-563f-ffac7a5f8db9
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: RISK_END_DATE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN o_risk_status_code= 'C' THEN CASE WHEN (n_BC1_STATUS_CHANGED_DATE IS NULL) THEN out_file_produced_date ELSE n_BC1_STATUS_CHANGED_DATE END ELSE To_Date('12/31/3000','MM/DD/YYYY') END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c26b8ceb-43e1-0814-5319-fcce958b861a
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: CLOSURE_PROCESS_DATE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: v_process_date
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3e47710d-1574-e3f4-e52c-c2bade6be89a
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: REC_EXPR_DTTM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: Add_To_Date(v_process_date, 'SS', -1)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7be838c7-3823-32fd-1a02-0b805c415ea7
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: CLOSURE_REC_EXPR_DTTM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: TO_DATE('31/12/3000','DD/MM/YYYY')
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 52739daa-8e64-e1ae-70f3-7026548d2d64
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: NUMBER(19,0)
+      defaultValue: ''
+      description: ''
+      name: UPDATED_TASK_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: TO_NUMBER($in_task_id$)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d1c6a255-ac2c-d4a2-b740-643ddb060fec
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: NUMBER(19,0)
+      defaultValue: ''
+      description: ''
+      name: CLOSURE_CREATED_TASK_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: TO_NUMBER ($in_task_id$)*-1
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e503c0dd-5cc6-5d6f-f76d-0a7e55bf014c
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: UPDATED_DTTM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CURRENT_TIMESTAMP
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 48baca26-78d6-a96b-ab1b-4e5d08b02a17
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(32)
+      defaultValue: ''
+      description: ''
+      name: CLOSURE_MD5_REC
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: MD5(TO_CHAR(CASE WHEN (tgt_product_option_key IS NULL) THEN '-1' ELSE TO_CHAR(tgt_product_option_key) END)||TO_CHAR(CASE WHEN (tgt_party_key IS NULL) THEN '-1' ELSE TO_CHAR(tgt_party_key) END) ||TO_CHAR(CASE WHEN (v_eftv_date IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(v_eftv_date,'mm/dd/yyyy hh24:mi:ss') END) ||TO_CHAR(CASE WHEN (tgt_RISK_END_DTTM IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(tgt_RISK_END_DTTM,'mm/dd/yyyy hh24:mi:ss') END) ||TO_CHAR(CASE WHEN (tgt_PRODUCT_SYSTEM_CODE IS NULL) THEN 'NA' ELSE tgt_PRODUCT_SYSTEM_CODE END)||TO_CHAR(CASE WHEN (tgt_ASSESS_CODE IS NULL) THEN '-1' ELSE tgt_ASSESS_CODE END) ||TO_CHAR(CASE WHEN (tgt_OCUPTN_CLASS_CODE IS NULL) THEN '-1' ELSE tgt_OCUPTN_CLASS_CODE END) ||TO_CHAR(CASE WHEN (tgt_SUM_INSURED_AMT IS NULL) THEN '-1' ELSE TO_CHAR(tgt_SUM_INSURED_AMT) END) ||TO_CHAR(CASE WHEN (tgt_PREM_WAIVER_TO_DTTM IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(tgt_PREM_WAIVER_TO_DTTM,'mm/dd/yyyy hh24:mi:ss') END)  ||TO_CHAR(CASE
+          WHEN (tgt_AUTO_COVER_AMT IS NULL) THEN '-1' ELSE TO_CHAR(tgt_AUTO_COVER_AMT) END) ||TO_CHAR(CASE WHEN (tgt_QLFY_PERIOD IS NULL) THEN '-1' ELSE tgt_QLFY_PERIOD END) ||TO_CHAR(CASE WHEN (tgt_CLAIM_IND IS NULL) THEN '-1' ELSE TO_CHAR(tgt_CLAIM_IND) END)||TO_CHAR(CASE WHEN (tgt_RISK_STATUS_CODE IS NULL) THEN 'NA' ELSE tgt_RISK_STATUS_CODE END) ||TO_CHAR(CASE WHEN (tgt_RISK_START_DTTM IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(tgt_RISK_START_DTTM,'mm/dd/yyyy hh24:mi:ss') END) ||TO_CHAR(CASE WHEN (tgt_MEDICAL_CODE IS NULL) THEN '-1' ELSE tgt_MEDICAL_CODE END)  ||TO_CHAR(CASE WHEN (tgt_PREM_AMT IS NULL) THEN '-1' ELSE TO_CHAR(tgt_PREM_AMT) END)||TO_CHAR(CASE WHEN (tgt_FREQ_CODE IS NULL) THEN 'NA' ELSE tgt_FREQ_CODE END)  ||TO_CHAR(CASE WHEN (tgt_INSURE_COVER_MULTI IS NULL) THEN '-1' ELSE TO_CHAR(tgt_INSURE_COVER_MULTI) END) ||TO_CHAR(CASE WHEN (tgt_INDEX_CODE IS NULL) THEN '-1' ELSE tgt_INDEX_CODE END)||TO_CHAR(CASE WHEN (tgt_BENEFIT_PERIOD IS NULL) THEN '-1' ELSE tgt_BENEFIT_PERIOD
+          END) ||TO_CHAR(CASE WHEN (tgt_UNIT_QTY IS NULL) THEN '-1' ELSE TO_CHAR(tgt_UNIT_QTY) END) ||TO_CHAR(CASE WHEN (tgt_CRISIS_COVER_PCNT IS NULL) THEN '-1' ELSE TO_CHAR(tgt_CRISIS_COVER_PCNT) END ||TO_CHAR(CASE WHEN (tgt_ADTNL_DEATH_BENEFIT_AMT IS NULL) THEN '-1' ELSE TO_CHAR(tgt_ADTNL_DEATH_BENEFIT_AMT) END))||TO_CHAR(CASE WHEN (tgt_INSURER_CODE IS NULL) THEN '-1' ELSE tgt_INSURER_CODE END)  ||TO_CHAR(CASE WHEN (tgt_LINKED_INSURE_CODE IS NULL) THEN '-1' ELSE tgt_LINKED_INSURE_CODE END)  ||TO_CHAR(CASE WHEN (tgt_ON_HOLD_STATUS_CODE IS NULL) THEN '-1' ELSE tgt_ON_HOLD_STATUS_CODE END)||TO_CHAR(CASE WHEN (tgt_SUPER_CONTRB_OPT_CODE IS NULL) THEN '-1' ELSE tgt_SUPER_CONTRB_OPT_CODE END) ||TO_CHAR(CASE WHEN (tgt_EXTRA_BENEFIT_NEXT_OPT_DTTM IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(tgt_EXTRA_BENEFIT_NEXT_OPT_DTTM,'mm/dd/yyyy hh24:mi:ss') END) ||TO_CHAR(CASE WHEN (tgt_EXTRA_BENEFIT_VAL_AMT IS NULL) THEN '-1' ELSE TO_CHAR(tgt_EXTRA_BENEFIT_VAL_AMT) END) ||TO_CHAR(CASE WHEN (tgt_RISK_CMSN_TYPE_CODE
+          IS NULL) THEN '-1' ELSE tgt_RISK_CMSN_TYPE_CODE END) ||TO_CHAR(CASE WHEN (tgt_SUPER_PLAN_CMSN_FEE_RATE IS NULL) THEN '-1' ELSE TO_CHAR(tgt_SUPER_PLAN_CMSN_FEE_RATE) END) ||TO_CHAR(CASE WHEN (tgt_RISK_EXPR_DTTM IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(tgt_RISK_EXPR_DTTM,'mm/dd/yyyy hh24:mi:ss') END) ||TO_CHAR(CASE WHEN (tgt_RISK_PAY_PERIOD IS NULL) THEN '-1' ELSE tgt_RISK_PAY_PERIOD END) ||TO_CHAR(CASE WHEN (tgt_REINSURE_EFTV_DTTM IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(tgt_REINSURE_EFTV_DTTM,'mm/dd/yyyy hh24:mi:ss') END)||TO_CHAR(CASE WHEN (tgt_REINSURE_COMMENCE_DTTM IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(tgt_REINSURE_COMMENCE_DTTM,'mm/dd/yyyy hh24:mi:ss') END) ||TO_CHAR(CASE WHEN (tgt_REINSURE_COMPANY_CODE IS NULL) THEN '-1' ELSE tgt_REINSURE_COMPANY_CODE END) ||TO_CHAR(CASE WHEN (tgt_REINSURE_OUT_SUM_INSURE_AMT IS NULL) THEN '-1' ELSE TO_CHAR(tgt_REINSURE_OUT_SUM_INSURE_AMT) END) ||TO_CHAR(CASE WHEN (tgt_REINSURE_OUT_TYPE_CODE IS NULL) THEN '-1' ELSE
+          TO_CHAR(tgt_REINSURE_OUT_TYPE_CODE) END)||TO_CHAR(CASE WHEN (tgt_REINSURE_PCNT IS NULL) THEN '-1' ELSE TO_CHAR(tgt_REINSURE_PCNT) END)||TO_CHAR(CASE WHEN (tgt_REINSURE_IND IS NULL) THEN '-1' ELSE tgt_REINSURE_IND END) ||TO_CHAR(CASE WHEN (tgt_EXPRY_AGE IS NULL) THEN '-1' ELSE tgt_EXPRY_AGE END)||TO_CHAR(CASE WHEN (tgt_STEP_LVL_PREM_CODE IS NULL) THEN '-1' ELSE tgt_STEP_LVL_PREM_CODE END) ||TO_CHAR(CASE WHEN (tgt_SDUTY_AMT IS NULL) THEN '-1' ELSE TO_CHAR(tgt_SDUTY_AMT) END)||TO_CHAR(CASE WHEN (tgt_GST_AMT IS NULL) THEN '-1' ELSE TO_CHAR(tgt_GST_AMT) END) ||TO_CHAR(CASE WHEN (tgt_CLOSE_TYPE_CODE IS NULL) THEN '-1' ELSE tgt_CLOSE_TYPE_CODE END)||TO_CHAR(CASE WHEN (tgt_MAX_SUM_INSURED_AMT IS NULL) THEN '-1' ELSE TO_CHAR(tgt_MAX_SUM_INSURED_AMT) END) ||TO_CHAR(CASE WHEN (tgt_INDEX_MIN_RATE_AMT IS NULL) THEN '-1' ELSE TO_CHAR(tgt_INDEX_MIN_RATE_AMT) END) ||TO_CHAR(CASE WHEN (tgt_CHRONIC_OPTION_START_DTTM IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(tgt_CHRONIC_OPTION_START_DTTM,'mm/dd/yyyy
+          hh24:mi:ss') END) ||TO_CHAR(CASE WHEN (tgt_INDMNTY_OPTION_CODE IS NULL) THEN '-1' ELSE tgt_INDMNTY_OPTION_CODE END) ||TO_CHAR(CASE WHEN (tgt_INDMNTY_OPTION_START_DTTM IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(tgt_INDMNTY_OPTION_START_DTTM,'mm/dd/yyyy hh24:mi:ss') END) ||TO_CHAR(CASE WHEN (tgt_SUPER_CONTRB_OPT_START_DTTM IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(tgt_SUPER_CONTRB_OPT_START_DTTM,'mm/dd/yyyy hh24:mi:ss') END)||TO_CHAR(CASE WHEN (tgt_RISK_CMSN_CODE IS NULL) THEN '-1' ELSE tgt_RISK_CMSN_CODE END) ||TO_CHAR(CASE WHEN (tgt_PAS_RISK_STATUS_CODE IS NULL) THEN '-1' ELSE TO_CHAR(tgt_PAS_RISK_STATUS_CODE) END) ||TO_CHAR(CASE WHEN (tgt_AT_RISK_AMT IS NULL) THEN '-1' ELSE TO_CHAR(tgt_AT_RISK_AMT) END)||TO_CHAR(CASE WHEN (tgt_LST_FRML_INCR_DTTM IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(tgt_LST_FRML_INCR_DTTM,'mm/dd/yyyy hh24:mi:ss') END) ||TO_CHAR(CASE WHEN (tgt_SUPER_CONTRB_RATE IS NULL) THEN '-1' ELSE TO_CHAR(tgt_SUPER_CONTRB_RATE) END) ||TO_CHAR(CASE WHEN
+          (tgt_SDUTY_STATE_CODE IS NULL) THEN 'NA' ELSE tgt_SDUTY_STATE_CODE END)||TO_CHAR(CASE WHEN (tgt_CPI_ON_CLAIM_IND IS NULL) THEN '-1' ELSE TO_CHAR(tgt_CPI_ON_CLAIM_IND) END) ||TO_CHAR(CASE WHEN (tgt_REINSTATED_COVER_IND IS NULL) THEN '-1' ELSE tgt_REINSTATED_COVER_IND END)||TO_CHAR(CASE WHEN (tgt_DAY_1_ACCIDENT_IND IS NULL) THEN '-1' ELSE tgt_DAY_1_ACCIDENT_IND END) ||TO_CHAR(CASE WHEN (tgt_COVERAGE_NUMBER IS NULL) THEN '-1' ELSE tgt_COVERAGE_NUMBER END) ||TO_CHAR(IIF((tgt_PAS_CLIENT_ID IS NULL),'-1',tgt_PAS_CLIENT_ID))||TO_CHAR(IIF((tgt_PERM_ASSESS_MULTI IS NULL),'-1',TO_CHAR(tgt_PERM_ASSESS_MULTI))) ||TO_CHAR(IIF((tgt_INSURANCE_GROUP_CODE IS NULL),'-1',tgt_INSURANCE_GROUP_CODE))||TO_CHAR(IIF((tgt_PTCPTN_TYPE_CODE IS NULL),'-1',tgt_PTCPTN_TYPE_CODE)) ||TO_CHAR(IIF((tgt_LINKED_BENEFIT_CODE IS NULL),'-1',tgt_LINKED_BENEFIT_CODE))||TO_CHAR(IIF((tgt_INSR_BASE_PREM_VAL IS NULL),'-1',TO_CHAR(tgt_INSR_BASE_PREM_VAL))) ||TO_CHAR(IIF((tgt_AT_WORK_CODE IS NULL),'-1',tgt_AT_WORK_CODE))||TO_CHAR(IIF((tgt_ACTIVITY_TYPE_CODE
+          IS NULL),'NA',TO_CHAR(tgt_ACTIVITY_TYPE_CODE))) ||TO_CHAR(IIF((tgt_SICKNESS_BENEFIT_PERIOD IS NULL),'-1',tgt_SICKNESS_BENEFIT_PERIOD))||TO_CHAR(IIF((tgt_INJURY_BENEFIT_PERIOD IS NULL),'-1',TO_CHAR(tgt_INJURY_BENEFIT_PERIOD))) ||TO_CHAR(IIF((tgt_ANNUAL_PREM_AMT IS NULL),'-1',TO_CHAR(tgt_ANNUAL_PREM_AMT)))||TO_CHAR(IIF((tgt_IDL_REFERENCE IS NULL),'-1',TO_CHAR(tgt_IDL_REFERENCE))) ||TO_CHAR(IIF((tgt_ACTRL_VALUTN_TABLE_CODE IS NULL),'-1',tgt_ACTRL_VALUTN_TABLE_CODE))||TO_CHAR(IIF((tgt_FREQ_LDNG_AMT IS NULL),'-1',TO_CHAR(tgt_FREQ_LDNG_AMT))) ||TO_CHAR(IIF((tgt_SWITCH_AGE IS NULL),'-1',TO_CHAR(tgt_SWITCH_AGE)))||TO_CHAR(IIF((tgt_ANNUAL_RENEW_CMSN_AMT IS NULL),'-1',TO_CHAR(tgt_ANNUAL_RENEW_CMSN_AMT))) ||TO_CHAR(IIF((tgt_ANNUAL_SDUTY_AMT IS NULL),'-1',TO_CHAR(tgt_ANNUAL_SDUTY_AMT)))||TO_CHAR(IIF((tgt_FULL_DAY_CVRG_CODE IS NULL),'-1',TO_CHAR(tgt_FULL_DAY_CVRG_CODE))) ||TO_CHAR(IIF((tgt_INCR_CLAIM_OPT_PCNT IS NULL),'-1',TO_CHAR(tgt_INCR_CLAIM_OPT_PCNT)))||TO_CHAR(IIF((tgt_SOURCE_STATUS_CODE
+          IS NULL),'-1',TO_CHAR(tgt_SOURCE_STATUS_CODE))) ||TO_CHAR(IIF((tgt_PREM_FREEZE_IND IS NULL),'-1',tgt_PREM_FREEZE_IND))||TO_CHAR(IIF((tgt_LDGMNT_DTTM IS NULL),'12/31/3000 00:00:00',TO_CHAR(tgt_LDGMNT_DTTM,'mm/dd/yyyy hh24:mi:ss'))) ||TO_CHAR(IIF((tgt_AIDS_CVRG_CODE IS NULL),'-1',TO_CHAR(tgt_AIDS_CVRG_CODE)))||TO_CHAR(IIF((tgt_SERIES_START_DTTM IS NULL),'12/31/3000 00:00:00',TO_CHAR(tgt_SERIES_START_DTTM,'mm/dd/yyyy hh24:mi:ss'))) ||TO_CHAR(IIF((tgt_INSUR_CLASS_CODE IS NULL),'-1',TO_CHAR(tgt_INSUR_CLASS_CODE)))||TO_CHAR(IIF((tgt_INITIAL_COMM_RATE IS NULL),'-1',TO_CHAR(tgt_INITIAL_COMM_RATE))) ||TO_CHAR(IIF((tgt_RENEW_COMM_RATE IS NULL),'-1',TO_CHAR(tgt_RENEW_COMM_RATE)))||TO_CHAR(IIF((tgt_INITIAL_COMM_RATE_AMS IS NULL),'-1',TO_CHAR(tgt_INITIAL_COMM_RATE_AMS))) ||TO_CHAR(IIF((tgt_RENEW_COMM_RATE_AMS IS NULL),'-1',TO_CHAR(tgt_RENEW_COMM_RATE_AMS)))||TO_CHAR(IIF((tgt_MYSUPER_IND IS NULL),'-1',TO_CHAR(tgt_MYSUPER_IND))) ||TO_CHAR(IIF((tgt_MYSUPER_SUM_INSURED_AMT IS NULL),'-1',TO_CHAR(tgt_MYSUPER_SUM_INSURED_AMT))||TO_CHAR(IIF((tgt_RATE_SCALE_CODE
+          IS NULL),'-1',TO_CHAR(tgt_RATE_SCALE_CODE))) ||TO_CHAR(IIF((tgt_BUS_SAFEGUARD_IND IS NULL),'-1',TO_CHAR(tgt_BUS_SAFEGUARD_IND)))||TO_CHAR(IIF((tgt_NON_CPI_FACE_AMT IS NULL),'-1',TO_CHAR(tgt_NON_CPI_FACE_AMT))) ||TO_CHAR(IIF((tgt_CESSATION_AGE IS NULL),'-1',TO_CHAR(tgt_CESSATION_AGE)))||TO_CHAR(IIF((tgt_AGE_ADJ_IND IS NULL),'-1',TO_CHAR(tgt_AGE_ADJ_IND))) ||TO_CHAR(IIF((tgt_INDEX_DESC IS NULL),'-1',TO_CHAR(tgt_INDEX_DESC)))||TO_CHAR(IIF((tgt_PREM_EXPR_DTTM IS NULL),'12/31/3000 00:00:00',TO_CHAR(tgt_PREM_EXPR_DTTM,'mm/dd/yyyy hh24:mi:ss'))) ||TO_CHAR(IIF((tgt_STEP_LVL_PREM_PERIOD IS NULL),'-1',TO_CHAR(tgt_STEP_LVL_PREM_PERIOD)))) ||TO_CHAR(IIF((tgt_ASSESS_LOADING_PCNT IS NULL),'-1',TO_CHAR(tgt_ASSESS_LOADING_PCNT))) ||TO_CHAR(IIF((tgt_ASSESS_LOADING_RATE IS NULL),'-1',TO_CHAR(tgt_ASSESS_LOADING_RATE))) ||TO_CHAR(IIF((tgt_NEXT_RENEW_DTTM IS NULL),'12/31/3000 00:00:00',TO_CHAR(tgt_NEXT_RENEW_DTTM,'mm/dd/yyyy hh24:mi:ss'))) ||TO_CHAR(IIF((tgt_CROSS_SELL_CODE IS NULL),'-1',TO_CHAR(tgt_CROSS_SELL_CODE)))||TO_CHAR(IIF((tgt_NZ_LIFE_TAX_IND
+          IS NULL),'-1',TO_CHAR(tgt_NZ_LIFE_TAX_IND))) ||TO_CHAR(IIF((tgt_NZ_LIFE_TAX_REASON_CODE IS NULL),'-1',TO_CHAR(tgt_NZ_LIFE_TAX_REASON_CODE))) ||TO_CHAR(IIF((tgt_OCUPTN_LOAD_PCNT IS NULL),'-1',TO_CHAR(tgt_OCUPTN_LOAD_PCNT))) ||TO_CHAR(IIF((tgt_INIT_CMSN_DD_PCNT IS NULL),'-1',TO_CHAR(tgt_INIT_CMSN_DD_PCNT))) ||TO_CHAR(IIF((tgt_TRAIL_CMSN_DD_PCNT IS NULL),'-1',TO_CHAR(tgt_TRAIL_CMSN_DD_PCNT))) ||TO_CHAR(IIF((tgt_UNWAIVED_PREM_AMT IS NULL),'-1',TO_CHAR(tgt_UNWAIVED_PREM_AMT))) ||TO_CHAR(IIF((tgt_CONTRACT_FEE_AMT IS NULL),'-1',TO_CHAR(tgt_CONTRACT_FEE_AMT))) ||TO_CHAR(IIF((tgt_CHRONIC_ILLNESS_LOADING_PCNT IS NULL),'-1',TO_CHAR(tgt_CHRONIC_ILLNESS_LOADING_PCNT))) ||TO_CHAR(IIF((tgt_DAY_1_ACCIDENT_RATE IS NULL),'-1',TO_CHAR(tgt_DAY_1_ACCIDENT_RATE))) ||TO_CHAR(IIF((tgt_PSD_DTTM IS NULL),'12/31/3000 00:00:00',TO_CHAR(tgt_PSD_DTTM,'mm/dd/yyyy hh24:mi:ss'))) ||TO_CHAR(IIF((tgt_DISC_ADJ_IND IS NULL),'-1',TO_CHAR(tgt_DISC_ADJ_IND)))||TO_CHAR(IIF((tgt_LSID_SI_AMT IS NULL),'-1',TO_CHAR(tgt_LSID_SI_AMT)))
+          ||TO_CHAR(IIF((tgt_IAR_CODE IS NULL),'-1',TO_CHAR(tgt_IAR_CODE))))
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6d780104-af49-5a21-31c6-4b7494ac0af0
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: CLOSURE_EFTV_DATE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: v_eftv_date
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 67ad6d9c-0f36-d7a1-4bc6-62eb16e6a7b4
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: CLOSURE_RISK_STATUS_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: v_risk_status_code
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e586b401-a613-8095-7f96-922325a24f8d
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: MRV_UPDATED_DTTM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CURRENT_TIMESTAMP
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5a2ae699-2594-1c40-4b58-f37a973680ba
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: ROW_END_DTTM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: Add_To_Date(out_file_produced_date, 'SS', -1)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e50f9f59-4d69-40b3-51ec-eff845973151
+        stepCounter: 80246b6a-6cb2-c6f0-ce24-c3d085feb93a
+      config: {}
+      dataType: NUMBER(19,0)
+      defaultValue: ''
+      description: ''
+      name: MRV_UPDATED_TASK_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: TO_NUMBER($in_task_id$)
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        ASSESS_CONVERT: ad942489-9c77-4d02-99cb-648713cbfa12
+        CLOSE_TYPE: f8bc692b-8b19-faf3-f0c6-c2496d9c65a4
+        CP_DPCP1: 755cb26e-e581-ee79-283c-a83c9096c928
+        CP_DPCP2: bb0db059-e756-164f-e4a3-ad8b2c8d86bc
+        CP_DPCP3: b862ba66-ccab-6e43-d98d-bd573cbf1598
+        DWSA_FREQ_CONVERT: 61ae1fd0-b173-2bf5-8b28-4718286d38ab
+        DW_ASSESS: 7e391311-722d-b4ab-6544-ec6a640eb8d5
+        DW_CONTRACT: 49afe4d4-b8de-827c-baa6-dc1914b9ca5f
+        DW_OCUPTN_CLASS: c416ecfd-bf4c-17f5-e7d9-9c0dc4baf454
+        DW_PARTY: bb382647-fad0-4afe-380c-3a7be4aeae9f
+        DW_PRODUCT_OPTION: e07b3200-215a-b568-11cb-bb646f733e66
+        IMPAIRMENT: 64583f80-7c28-e2d3-9ae2-b288e26c0a6a
+        REF360_STATE: 619cb02f-e7a1-5b01-20b2-b429300f4317
+        SMOKER_STATUS_CONVERT: 4f786264-9870-b6f1-d806-db4d534a6b06
+        STATUS_CONVERT: 426bfc5c-3832-90f0-6338-42692202390a
+        YD_DEIREF: b59bb265-0ee4-a1e7-389e-ffad04261e04
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: BRONZE
+        nodeName: DW_CONTRACT
+      - locationName: SILVER
+        nodeName: CP_DPCP1
+      - locationName: SILVER
+        nodeName: CP_DPCP2
+      - locationName: SILVER
+        nodeName: CP_DPCP3
+      - locationName: BRONZE
+        nodeName: YD_DEIREF
+      - locationName: BRONZE
+        nodeName: DW_PARTY
+      - locationName: BRONZE
+        nodeName: DWSA_FREQ_CONVERT
+      - locationName: BRONZE
+        nodeName: REF360_STATE
+      - locationName: BRONZE
+        nodeName: DW_PRODUCT_OPTION
+      - locationName: BRONZE
+        nodeName: CLOSE_TYPE
+      - locationName: BRONZE
+        nodeName: IMPAIRMENT
+      - locationName: BRONZE
+        nodeName: SMOKER_STATUS_CONVERT
+      - locationName: BRONZE
+        nodeName: ASSESS_CONVERT
+      - locationName: BRONZE
+        nodeName: DW_ASSESS
+      - locationName: BRONZE
+        nodeName: DW_OCUPTN_CLASS
+      - locationName: BRONZE
+        nodeName: STATUS_CONVERT
+      join:
+        joinCondition: '-- FROM CP_DBCP1 (source node not generated)
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP1'') }} cp_dpcp1 ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP2'') }} cp_dpcp2 ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP3'') }} cp_dpcp3 ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''BRONZE'', ''YD_DEIREF'') }} yd_deiref ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_PARTY'') }} dw_party ON dw_party.PARTY_ID = cp_dbcp1.REF_BI_ID
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DWSA_FREQ_CONVERT'') }} dwsa_freq_convert ON dwsa_freq_convert.SOURCE_SYSTEM_CODE = cp_dbcp1.FREQ_CODE
+
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_STATE'') }} ref360_state ON ref360_state.CODE = cp_dbcp1.BC1_SDUTY_STATE_CODE
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_OPTION'') }} dw_product_option ON dw_product_option.PRODUCT_KEY = cp_dbcp1.PRODUCT_KEY AND dw_product_option.PRODUCT_OPTION_CODE = cp_dbcp1.BC1_PLAN_CODE
+
+          LEFT JOIN {{ ref(''BRONZE'', ''CLOSE_TYPE'') }} close_type ON close_type.CLOSE_TYPE_CODE = cp_dbcp1.BC1_COVERAGE_STATUS_CODE
+
+          LEFT JOIN {{ ref(''BRONZE'', ''IMPAIRMENT'') }} impairment ON impairment.PRODUCT_SYSTEM_CODE = cp_dbcp1.BC1_IMPAIRMENT_CODE
+
+          LEFT JOIN {{ ref(''BRONZE'', ''SMOKER_STATUS_CONVERT'') }} smoker_status_convert ON smoker_status_convert.SOURCE_SYSTEM_CODE = cp_dbcp1.BC1_SMOKER_CODE
+
+          LEFT JOIN {{ ref(''BRONZE'', ''ASSESS_CONVERT'') }} assess_convert ON assess_convert.SOURCE_SYSTEM_CODE = cp_dbcp1.TC1_PERM_ASSESS_CODE
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_ASSESS'') }} dw_assess ON dw_assess.CODE = cp_dbcp1.AC_ASSESS_CODE
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_OCUPTN_CLASS'') }} dw_ocuptn_class ON dw_ocuptn_class.CODE = cp_dbcp1.BC1_OCCUPATION_CODE
+
+          LEFT JOIN {{ ref(''BRONZE'', ''STATUS_CONVERT'') }} status_convert ON status_convert.SOURCE_SYSTEM_CODE = cp_dbcp1.BC1_COVERAGE_STATUS_CODE'
+      name: source1
+      noLinkRefs: []
+  name: DW_CONTRACT_RISK_CP
+  overrideSQL: false
+  schema: ''
+  sqlType: Dimension
+  type: sql
+  version: 1
+type: Node

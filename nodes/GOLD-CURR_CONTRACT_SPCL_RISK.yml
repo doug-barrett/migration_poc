@@ -1,0 +1,209 @@
+fileVersion: 1
+id: ae94e6cc-58af-5c1d-fe98-57dce2fb40ca
+name: CURR_CONTRACT_SPCL_RISK
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: 'Migrated from IICS mapping m_mrvconformed_mrvcons_current_contract_spcl_risk (folder 05_dm_Currentview). Transforms: Sourcex1, Targetx1, Sorterx7, Expressionx6, Filterx7, Lookupx5, Joinerx2, Unionx2.'
+  isMultisource: false
+  locationName: GOLD
+  materializationType: view
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f9450c3b-b424-0a8d-ca7c-26a489cb62f3
+        stepCounter: ae94e6cc-58af-5c1d-fe98-57dce2fb40ca
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: SPCL_RISK_FDA
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN v_contract_risk_key_prev=v_contract_risk_key_curr AND v_spcl_risk_type_key_prev=v_spcl_risk_type_key_curr AND upper(v_spcl_risk_oride_txt_prev)=upper(v_spcl_risk_oride_txt_curr) THEN 'NA' ELSE CASE WHEN (NOT in(SPCL_RISK_TYPE_KEY,1802285,1802286)) AND /*LKP:U_Lookup(contract_risk_key)*/ NULL='FDA' THEN 'FDA' ELSE 'NA' END END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e9cd2c7b-67a8-7fff-8aac-d47b8127317e
+        stepCounter: ae94e6cc-58af-5c1d-fe98-57dce2fb40ca
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: SPCL_RISK_NON_FDA
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN v_contract_risk_key_prev=v_contract_risk_key_curr AND v_spcl_risk_type_key_prev=v_spcl_risk_type_key_curr THEN 'NA' ELSE CASE WHEN /*LKP:U_Lookup(contract_risk_key)*/ NULL !='FDA' THEN 'NON-FDA' ELSE 'NA' END END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f6cec9e4-7b48-0c2a-0c67-ec12be8b03f1
+        stepCounter: ae94e6cc-58af-5c1d-fe98-57dce2fb40ca
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: PRODUCT_SYSTEM_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: /*LKP:U_Lookup(CONTRACT_RISK_KEY)*/ NULL
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7ff752a0-0093-7770-14e4-bedc42675142
+        stepCounter: ae94e6cc-58af-5c1d-fe98-57dce2fb40ca
+      config: {}
+      dataType: VARCHAR(100)
+      defaultValue: ''
+      description: ''
+      name: SPCL_RISK_ORDIE_TXT
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN /*LKP:U_Lookup(CONTRACT_RISK_KEY)*/ NULL='FDA' THEN v_r_desc_spcl_risk_ordie_txt ELSE v_r_desc_spcl_risk_ordie_txt_non_fda END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 99a20ba5-01bd-3cc5-edce-92703eb8879b
+        stepCounter: ae94e6cc-58af-5c1d-fe98-57dce2fb40ca
+      config: {}
+      dataType: VARCHAR(20)
+      defaultValue: ''
+      description: ''
+      name: SPCL_RISK_TYPE_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: Substr(/*LKP:lkp_mrv_dw_spcl_risk_type_v(spcl_risk_type_key)*/ NULL ,0,Instr(/*LKP:lkp_mrv_dw_spcl_risk_type_v( spcl_risk_type_key)*/ NULL ,'_',1)-1)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a2e9a5fb-1c04-a5ab-201e-44bdc692c128
+        stepCounter: ae94e6cc-58af-5c1d-fe98-57dce2fb40ca
+      config: {}
+      dataType: VARCHAR(100)
+      defaultValue: ''
+      description: ''
+      name: SPCL_RISK_TYPE_DESC
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: Substr(/*LKP:lkp_mrv_dw_spcl_risk_type_v(spcl_risk_type_key)*/ NULL ,Instr(/*LKP:lkp_mrv_dw_spcl_risk_type_v( spcl_risk_type_key)*/ NULL ,'_',1)+1, Length(/*LKP:lkp_mrv_dw_spcl_risk_type_v(spcl_risk_type_key)*/ NULL ) )
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 809ac6a8-dc3b-2560-903f-bb0fa85b1149
+        stepCounter: ae94e6cc-58af-5c1d-fe98-57dce2fb40ca
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: CREATED_DTTM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CURRENT_TIMESTAMP
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3ecddfa3-1b2e-4c6b-ed10-ad7293da75e6
+        stepCounter: ae94e6cc-58af-5c1d-fe98-57dce2fb40ca
+      config: {}
+      dataType: NUMBER(19,0)
+      defaultValue: ''
+      description: ''
+      name: CREATED_TASK_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: TO_NUMBER($in_task_id$)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 99b420a5-55f5-aa4e-cbf4-a261d79f53b4
+        stepCounter: ae94e6cc-58af-5c1d-fe98-57dce2fb40ca
+      config: {}
+      dataType: VARCHAR(100)
+      defaultValue: ''
+      description: ''
+      name: SPCL_RISK_DESC
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: /*LKP:lkp_mrv_dw_spcl_risk_v(spcl_risk_key)*/ NULL
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 24887f6d-f55c-c80f-b034-c8d82cc173b5
+        stepCounter: ae94e6cc-58af-5c1d-fe98-57dce2fb40ca
+      config: {}
+      dataType: VARCHAR(100)
+      defaultValue: ''
+      description: ''
+      name: CONTRACT_RISK_SRGT_KEY
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: /*LKP:lkp_curr_contract_risk_v(contract_risk_key)*/ NULL
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 2f71c05d-c07f-4db0-ecd1-32924ce3202c
+        stepCounter: ae94e6cc-58af-5c1d-fe98-57dce2fb40ca
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: SPCL_RISK
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN v_contract_risk_key_prev=v_contract_risk_key_curr AND v_spcl_risk_type_key_prev=v_spcl_risk_type_key_curr AND (NOT (/*LKP:U_Lookup1(CONTRACT_RISK_KEY, TRANCHE_NUM)*/ NULL IS NULL) ) THEN 'NA' ELSE 'RISK' END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6b4e10c5-d68c-5ba6-d0b5-98d6dbac436e
+        stepCounter: ae94e6cc-58af-5c1d-fe98-57dce2fb40ca
+      config: {}
+      dataType: VARCHAR(20)
+      defaultValue: ''
+      description: ''
+      name: TRANCHE_NUM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: v_dcsr_tranche_num
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        CURR_CONTRACT_RISK_V: 81a62ad8-7a62-8c6a-79d6-d1824e32bcc9
+        MRV_DW_CONTRACT_SPCL_RISK_V: 803afac7-6b90-4d2c-ee24-e85502f17fd2
+        MRV_DW_SPCL_RISK_TYPE_V: 576fb680-5447-a233-5c6a-f636c244890a
+        MRV_DW_SPCL_RISK_V: 43491268-e0f9-01d7-2af6-e1db63abfef1
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: BRONZE
+        nodeName: MRV_DW_CONTRACT_SPCL_RISK_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_SPCL_RISK_TYPE_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_SPCL_RISK_V
+      - locationName: BRONZE
+        nodeName: CURR_CONTRACT_RISK_V
+      join:
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_SPCL_RISK_V'') }} mrv_dw_contract_spcl_risk_v
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_SPCL_RISK_TYPE_V'') }} mrv_dw_spcl_risk_type_v ON mrv_dw_spcl_risk_type_v.SPCL_RISK_TYPE_KEY = mrv_dw_contract_spcl_risk_v.SPCL_RISK_TYPE_KEY
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_SPCL_RISK_V'') }} mrv_dw_spcl_risk_v ON mrv_dw_spcl_risk_v.SPCL_RISK_KEY = mrv_dw_contract_spcl_risk_v.SPCL_RISK_KEY
+
+          LEFT JOIN {{ ref(''BRONZE'', ''CURR_CONTRACT_RISK_V'') }} curr_contract_risk_v ON curr_contract_risk_v.CONTRACT_RISK_KEY = mrv_dw_contract_spcl_risk_v.CONTRACT_RISK_KEY'
+      name: source1
+      noLinkRefs: []
+  name: CURR_CONTRACT_SPCL_RISK
+  overrideSQL: false
+  schema: ''
+  sqlType: View
+  type: sql
+  version: 1
+type: Node

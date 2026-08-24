@@ -1,0 +1,120 @@
+fileVersion: 1
+id: 18612c47-11bd-7a58-6cbd-3142b63d924b
+name: SST_SUPER_STREAM_EMPL_MATCH1
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: 'Migrated from IICS mapping m_ato_contract_match_SST_SUPER_STREAM_EMPL_MATCH1 (folder 04_cnf). Transforms: Sourcex4, Aggregatorx3, Routerx3, Targetx1, Joinerx5, Filterx3, Sorterx16, Unionx2, Expressionx5, Rankx1, Lookupx1.'
+  isMultisource: false
+  locationName: GOLD
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 290abbdb-1684-127c-fbc0-d57da17ff701
+        stepCounter: 18612c47-11bd-7a58-6cbd-3142b63d924b
+      config: {}
+      dataType: VARCHAR(50)
+      defaultValue: ''
+      description: ''
+      name: DISPLAY_CTRCT_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: UPPER(DISPLAY_CONTRACT_ID)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d3661f7f-f820-e7ba-592c-2176ca34a2e6
+        stepCounter: 18612c47-11bd-7a58-6cbd-3142b63d924b
+      config: {}
+      dataType: VARCHAR(11)
+      defaultValue: ''
+      description: ''
+      name: EMPL_ABN
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (EMPL_ABN IS NULL) THEN 'XYZ' ELSE EMPL_ABN END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: bcb30437-c4e4-6879-7475-02754bce3ffd
+        stepCounter: 18612c47-11bd-7a58-6cbd-3142b63d924b
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: CREATED_DTTM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CURRENT_TIMESTAMP
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7d6000a1-c26c-6e52-b101-0f1995d6a8a6
+        stepCounter: 18612c47-11bd-7a58-6cbd-3142b63d924b
+      config: {}
+      dataType: NUMBER(19,0)
+      defaultValue: ''
+      description: ''
+      name: CREATED_TASK_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: TO_NUMBER($in_task_id$)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 05cfa74a-bc3e-fc4d-774b-7366caccb578
+        stepCounter: 18612c47-11bd-7a58-6cbd-3142b63d924b
+      config: {}
+      dataType: VARCHAR(20)
+      defaultValue: ''
+      description: ''
+      name: EMPL_PAYROLL_NUM_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN NOT (EMPL_PAYROLL_NUM_ID IS NULL) AND RLIKE(CASE WHEN (EMPL_PAYROLL_NUM_ID IS NULL) THEN 'XYZ' ELSE LTRIM(RTRIM(EMPL_PAYROLL_NUM_ID)) END, '^[0-9a-zA-Z \.\,\?\(\)\{\}\:\;'||CHR(39)||'\|\_\=\\/\@/#/$/%/*/=/&/"\-]*$') THEN EMPL_PAYROLL_NUM_ID ELSE NULL END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d25a4550-5f64-6673-cd7a-f8f83e68d87d
+        stepCounter: 18612c47-11bd-7a58-6cbd-3142b63d924b
+      config: {}
+      dataType: VARCHAR(200)
+      defaultValue: ''
+      description: ''
+      name: EMPL_END_REASON_DESC
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN NOT (EMPL_END_REASON_DESC IS NULL) AND RLIKE(CASE WHEN (EMPL_END_REASON_DESC IS NULL) THEN 'XYZ' ELSE LTRIM(RTRIM(EMPL_END_REASON_DESC)) END, '^[0-9a-zA-Z \.\,\?\(\)\{\}\:\;'||CHR(39)||'\|\_\=\\/\@/#/$/%/*/=/&/"\-]*$') THEN EMPL_END_REASON_DESC ELSE NULL END
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        DW_CONTRACT: 49afe4d4-b8de-827c-baa6-dc1914b9ca5f
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: BRONZE
+        nodeName: DW_CONTRACT
+      join:
+        joinCondition: '-- FROM SST_SUPER_STREAM_EMPL_HIST (source node not generated)
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON dw_contract.CONTRACT_KEY = sst_super_stream_empl_hist.CET_EMPL_CONTRACT_KEY AND dw_contract.CONTRACT_KEY = sst_super_stream_empl_hist.CC_CONTRACT_KEY'
+      name: source1
+      noLinkRefs: []
+  name: SST_SUPER_STREAM_EMPL_MATCH1
+  overrideSQL: false
+  schema: ''
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

@@ -1,0 +1,572 @@
+fileVersion: 1
+id: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+name: DW_BCKDT_EXPOSURE_TRNX
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: 'Migrated from IICS mapping m_or_dcash_dw_ctrt_optn_bckdt_exp_sduty_trnx (folder 04_cnf). Transforms: Sourcex2, Rankx1, Lookupx5, Expressionx17, Joinerx2, Aggregatorx1, Routerx3, Targetx3, Sorterx4, Unionx1, Sequencex1, Filterx1.'
+  isMultisource: false
+  locationName: GOLD
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: a4a3c058-cc46-8faf-963e-4e8144d1ac6e
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(38,0)
+      defaultValue: ''
+      description: ''
+      name: SD_PRODUCT_OPTION_KEY
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN CSH_PROD_CATEGORY='CI' THEN v_product_option_key ELSE :LKP.ulkp_dw_product_option(product_key,CASE WHEN (csh_sd_ben_type IS NULL) or csh_sd_ben_type='SPR' THEN 'NA' ELSE csh_sd_ben_type END) END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 33cdf675-7535-94d3-b59a-0b64fa0297bc
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(38,0)
+      defaultValue: ''
+      description: ''
+      name: PRODUCT_OPTION_KEY
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: v_product_option_key
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 510d83f5-c241-0d9f-2abc-c26a85cfdc71
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(38,0)
+      defaultValue: ''
+      description: ''
+      name: SD_TRNX_TYPE_KEY
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: /*LKP:ulkp_dw_trnx_type(csh_sd_basis_method ||csh_sd_standalone_ind||csh_sd_type||csh_sd_amp_pay_ind, csh_prod_category)*/ NULL
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ee052d1c-d09e-afe4-556a-4119820e00f7
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: SD_STATE_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: /*LKP:ulkp_ref360_state(csh_sd_state_code)*/ NULL
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c00526cd-71ee-7cd9-9ebb-8db0ef463b3b
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(38,0)
+      defaultValue: ''
+      description: ''
+      name: MGR_TRNX_TYPE_KEY
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN CSH_PROD_CATEGORY='CI' THEN 1 ELSE /*LKP:ulkp_dw_trnx_type('MGR', csh_prod_category)*/ NULL END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4ae51ef6-5319-b49a-be47-ace0cb06732c
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(38,0)
+      defaultValue: ''
+      description: ''
+      name: BRK_TRNX_TYPE_KEY
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN CSH_PROD_CATEGORY='CI' THEN 1 ELSE /*LKP:ulkp_dw_trnx_type('BRK', csh_prod_category)*/ NULL END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 97d1f333-b383-03c9-721a-8bf8326250b6
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(100)
+      defaultValue: ''
+      description: ''
+      name: EVENT_NUM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: TO_CHAR(TO_CHAR(csh_proc_date, 'YYYYMMDD') || csh_cash_seq_no || csh_cash_array_seq_no || TO_CHAR(csh_il_cash_eff_date,'YYYYMMDD') || csh_register_code || csh_chis_cash_seq_numb_cmplmt || csh_week_recd || TO_CHAR(csh_cash_complement_date,'YYYYMMDD') || csh_cash_hist_ind)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 93f5d7e3-140e-10b8-7d20-90c6522fe903
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(38,0)
+      defaultValue: ''
+      description: ''
+      name: TRNX_TYPE_KEY
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN csh_prod_category='CI' THEN /*LKP:ulkp_dw_trnx_type(csh_cash_cause||csh_report_ind, csh_prod_category)*/ NULL ELSE /*LKP:ulkp_dw_trnx_type(csh_cash_cause||csh_trans_ind, csh_prod_category)*/ NULL END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 12001152-fc34-8a57-50e0-ef3b7e456c85
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(10,0)
+      defaultValue: ''
+      description: ''
+      name: ERROR
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: v_error_ind
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9c2596f1-e0b6-6763-bbc1-186944648a9a
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(10,0)
+      defaultValue: ''
+      description: ''
+      name: REJ
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: v_reject_ind
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 1f4f7b1e-aa9c-6bb3-8ddf-cc8445e196bb
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: CSH_POL_NUM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (CSH_POL_NUM IS NULL) THEN '#' ELSE CSH_POL_NUM END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 76365921-6d18-f123-ba84-da822a8af3d9
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: CSH_PROC_DATE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (CSH_PROC_DATE IS NULL) THEN TO_DATE('12/31/3000 00:00:00','mm/dd/yyyy hh24:mi:ss') ELSE CSH_PROC_DATE END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 80fe70ef-3cfb-6f7c-831a-b5d758ac3c4c
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(10,0)
+      defaultValue: ''
+      description: ''
+      name: CSH_CASH_SEQ_NO
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (CSH_CASH_SEQ_NO IS NULL) THEN 9999 ELSE CSH_CASH_SEQ_NO END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3e8e83a1-464b-3813-d638-f867b4d7fa4b
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(10,0)
+      defaultValue: ''
+      description: ''
+      name: CSH_CASH_ARRAY_SEQ_NO
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (CSH_CASH_ARRAY_SEQ_NO IS NULL) THEN 9999 ELSE CSH_CASH_ARRAY_SEQ_NO END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0cf8dce9-2113-9055-606d-cbfb8bee2b8a
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: CSH_IL_CASH_EFF_DATE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (CSH_IL_CASH_EFF_DATE IS NULL) THEN TO_DATE('12/31/3000 00:00:00','mm/dd/yyyy hh24:mi:ss') ELSE CSH_IL_CASH_EFF_DATE END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 37c7d3ad-c555-a4bb-b919-037b449bf54f
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(1)
+      defaultValue: ''
+      description: ''
+      name: CSH_REGISTER_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (CSH_REGISTER_CODE IS NULL) THEN 'A' ELSE CSH_REGISTER_CODE END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0ec4f1b5-d7c0-97a4-9771-ac9741c5fc14
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(10,0)
+      defaultValue: ''
+      description: ''
+      name: CSH_CHIS_CASH_SEQ_NUMB_CMPLMT
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (CSH_CHIS_CASH_SEQ_NUMB_CMPLMT IS NULL) THEN 9999 ELSE CSH_CHIS_CASH_SEQ_NUMB_CMPLMT END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 438ef314-102b-dee4-b031-d73e2234bccb
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(10,0)
+      defaultValue: ''
+      description: ''
+      name: CSH_WEEK_RECD
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (CSH_WEEK_RECD IS NULL) THEN 9999 ELSE CSH_WEEK_RECD END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 59b389d4-663c-dd5f-ef77-f3720850f3b9
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: CSH_CASH_DATE_COMPLEMENT
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (CSH_CASH_COMPLEMENT_DATE IS NULL) THEN TO_DATE('12/31/3000 00:00:00','mm/dd/yyyy hh24:mi:ss') ELSE CSH_CASH_COMPLEMENT_DATE END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 850dc995-c8ad-b7d9-bbf2-a2910d6874e3
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(1)
+      defaultValue: ''
+      description: ''
+      name: CSH_CASH_HIST_IND
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (CSH_CASH_HIST_IND IS NULL) THEN 'Z' ELSE CSH_CASH_HIST_IND END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: dc27fc5f-0879-68fe-2ea1-85c08c3a566d
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(20)
+      defaultValue: ''
+      description: ''
+      name: POL_NUM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CSH_POL_NUM
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e3c630e1-f557-235f-84f4-79aa699976a9
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(1)
+      defaultValue: ''
+      description: ''
+      name: NTNL_TRNX_IND1
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN o_unit_type_code='SI' THEN 'Y' ELSE 'N' END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e1ea4683-84b9-b03a-2b54-a3b176232641
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(38,0)
+      defaultValue: ''
+      description: ''
+      name: TASK_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: $in_task_id$
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 00b9b754-a6c8-ade5-c620-71f44cc646dc
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: CREATED_DTTM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CURRENT_TIMESTAMP
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b011c174-93cb-3a7a-7105-60026ab3cf61
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(20,0)
+      defaultValue: ''
+      description: ''
+      name: SRC_O_CONTRACT_OPTION_TRNX_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: NEXTVAL
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 58b8ad98-0f25-4ff1-07df-4e4c7e7eb70d
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(100)
+      defaultValue: ''
+      description: ''
+      name: TRNX_NUM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN src_csh_cash_cause != 'LS' THEN TO_CHAR(src_csh_cash_array_seq_no || src_csh_cash_seq_no || src_RANKINDEX) ELSE TO_CHAR(src_csh_cash_array_seq_no || src_csh_cash_seq_no || src_csh_sd_activity_code) END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7c2d7fe9-656c-7108-8bbd-d347279c5e7e
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: UPDATED_TSTP
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: 'NULL'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: f98906cb-28bb-cee0-d8bf-ea542b019172
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: PRODUCT_SYSTEM_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '''OR'''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: fc47c300-2dd4-6949-1f54-7fc6ac96ecc9
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: UNIT_TYPE_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '''INI'''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d91eaf80-b52f-a4b1-9836-c4d8b5a042d2
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(2)
+      defaultValue: ''
+      description: ''
+      name: DEBIT_CREDIT_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN v_trnx_amt >= 0 THEN 'CR' ELSE 'DR' END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5a51b9e2-d173-a623-5f22-ee96c93389bc
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(16,6)
+      defaultValue: ''
+      description: ''
+      name: UNIT_PRICE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN v_unit_alloc_price!=0 THEN v_unit_alloc_price ELSE v_unit_release_price END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ce767703-413c-cb18-5b24-a564c9f2b88a
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: UNIT_PRICE_TYPE_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN v_unit_alloc_price!=0 THEN v_unit_price_type_code ELSE v_unit_release_price_type_code END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 9ed72afd-189a-a0a4-1608-0e69c87a51ba
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(20,3)
+      defaultValue: ''
+      description: ''
+      name: TRNX_AMT
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: v_trnx_amt
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 5abbc114-68b8-96a8-e8f9-eb33af72c633
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(29,9)
+      defaultValue: ''
+      description: ''
+      name: UNIT_QTY
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: v_unit_qty
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0881e4b8-9bb9-e0ad-b0f7-1250a94dd1f9
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(20)
+      defaultValue: ''
+      description: ''
+      name: SPIN_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: 'NULL'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 6619c41c-b7cd-511b-0291-4333a904f809
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: NUMBER(23,6)
+      defaultValue: ''
+      description: ''
+      name: DISPLAY_UNIT_BAL
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: 'NULL'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: ecb3528b-a174-ae74-8dd2-abcd1258eb12
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(1)
+      defaultValue: ''
+      description: ''
+      name: NTNL_TRNX_IND
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '''N'''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: e9d1459b-8a23-68d6-02de-620e0b122af3
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(5)
+      defaultValue: ''
+      description: ''
+      name: FUND_MANAGER_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: 'NULL'
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 3433d156-b701-cd2f-4265-627ea6cc9118
+        stepCounter: 0ab3f669-0cfc-97ca-0f31-6fa9cbaafa4e
+      config: {}
+      dataType: VARCHAR(10)
+      defaultValue: ''
+      description: ''
+      name: TRNX_STATUS_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN SRC_csh_revrsl_ind ='Y' THEN 'REVERSED' ELSE SRC_csh_trans_status END
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        DWSA_OR_OPT_CONVERT: 970fa567-d70b-93e5-bbf4-5726da3d9b98
+        DW_CONTRACT: 49afe4d4-b8de-827c-baa6-dc1914b9ca5f
+        DW_EVENT_TYPE: d674cea3-5b68-6e48-3de6-16d96a7dde4b
+        DW_PRODUCT_OPTION: e07b3200-215a-b568-11cb-bb646f733e66
+        DW_TRNX_TYPE: c4bae737-7f2e-b20f-5b3e-1904dfd70eaa
+        REF360_STATE: 619cb02f-e7a1-5b01-20b2-b429300f4317
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: BRONZE
+        nodeName: DW_CONTRACT
+      - locationName: BRONZE
+        nodeName: DW_TRNX_TYPE
+      - locationName: BRONZE
+        nodeName: DWSA_OR_OPT_CONVERT
+      - locationName: BRONZE
+        nodeName: DW_PRODUCT_OPTION
+      - locationName: BRONZE
+        nodeName: REF360_STATE
+      - locationName: BRONZE
+        nodeName: DW_EVENT_TYPE
+      join:
+        joinCondition: '-- FROM OR_DCASH (source node not generated)
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_TRNX_TYPE'') }} dw_trnx_type ON dw_trnx_type.SOURCE_TRNX_TYPE_CODE = or_dcash.CSH_CASH_CAUSE AND dw_trnx_type.BUSN_LINE = or_dcash.CSH_PROD_CATEGORY
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DWSA_OR_OPT_CONVERT'') }} dwsa_or_opt_convert ON dwsa_or_opt_convert.COUNTRY_CODE = or_dcash.V_BRANCH_CODE AND dwsa_or_opt_convert.STAT_FUND_CODE = or_dcash.CSH_STAT_FUND AND dwsa_or_opt_convert.UNIT_CLASS = or_dcash.CSH_UNIT_CLASS
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_OPTION'') }} dw_product_option ON dw_product_option.PRODUCT_KEY = or_dcash.PRODUCT_KEY AND dw_product_option.PRODUCT_OPTION_CODE = or_dcash.INVEST_OPT_CODE
+
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_STATE'') }} ref360_state ON ref360_state.CODE = or_dcash.CSH_SD_STATE_CODE
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_EVENT_TYPE'') }} dw_event_type ON dw_event_type.EVENT_TYPE_CODE = or_dcash.EVENT_TYPE_CODE AND dw_event_type.SOURCE_SYSTEM_CODE = or_dcash.SRC_SYS_CODE'
+      name: source1
+      noLinkRefs: []
+  name: DW_BCKDT_EXPOSURE_TRNX
+  overrideSQL: false
+  schema: ''
+  sqlType: Fact
+  type: sql
+  version: 1
+type: Node

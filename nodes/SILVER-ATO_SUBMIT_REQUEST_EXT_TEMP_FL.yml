@@ -1,0 +1,170 @@
+fileVersion: 1
+id: 25b3a918-81ef-2d88-27a7-1c5ef8391c0b
+name: ATO_SUBMIT_REQUEST_EXT_TEMP_FL
+operation:
+  config:
+    insertStrategy: INSERT
+    postSQL: ''
+    preSQL: ''
+    testsEnabled: true
+  database: ''
+  deployEnabled: true
+  description: 'Migrated from IICS mapping m_fl_ato_submit_request_ext_temp (folder 04_cnf). Transforms: Sourcex2, Routerx2, Aggregatorx1, Joinerx7, Sorterx10, Filterx1, Expressionx2, Rankx2, Targetx1.'
+  isMultisource: false
+  locationName: SILVER
+  materializationType: table
+  metadata:
+    appliedNodeTests: []
+    columns:
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: b44a57dc-fa04-70e4-6aa4-8663661ed29f
+        stepCounter: 25b3a918-81ef-2d88-27a7-1c5ef8391c0b
+      config: {}
+      dataType: VARCHAR(100)
+      defaultValue: ''
+      description: ''
+      name: CONTRIBUTION_TYPE_DESC
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN (EMPL_CONTRIBUTION_TYPE_DESC IS NULL) THEN CONTRIBUTION_TYPE_DESC ELSE EMPL_CONTRIBUTION_TYPE_DESC END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 59115b55-90de-4f98-b781-f57228dde2f7
+        stepCounter: 25b3a918-81ef-2d88-27a7-1c5ef8391c0b
+      config: {}
+      dataType: VARCHAR(30)
+      defaultValue: ''
+      description: ''
+      name: MSG_TSTP
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: $$message_timestamp
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 1aa59045-b78a-788c-430a-eb16c5c8b702
+        stepCounter: 25b3a918-81ef-2d88-27a7-1c5ef8391c0b
+      config: {}
+      dataType: NUMBER(20,3)
+      defaultValue: ''
+      description: ''
+      name: EMPL_AMT
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN EMPLYR_REC_SPLIT_TYPE='C' THEN EMPL_AMT ELSE CASE WHEN NOT (SF_CONTRACT_KEY IS NULL) THEN SF_submit_agg_empl_amt ELSE CASE WHEN NOT (CF_CONTRACT_KEY IS NULL) THEN CF_negative_agg_empl_amt ELSE CASE WHEN NOT (AF_CONTRACT_KEY IS NULL) THEN AF_agg_empl_amt ELSE EMPL_AMT END END END END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: d3ae44e2-9914-27b5-a177-fdb380e3033f
+        stepCounter: 25b3a918-81ef-2d88-27a7-1c5ef8391c0b
+      config: {}
+      dataType: NUMBER(20,3)
+      defaultValue: ''
+      description: ''
+      name: CONTRIBUTION_AMT
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN NOT (SF_CONTRACT_KEY IS NULL) THEN SF_submit_agg_contribution_amt ELSE CASE WHEN NOT (CF_CONTRACT_KEY IS NULL) THEN CF_negative_agg_contribution_amt ELSE CASE WHEN NOT (AF_CONTRACT_KEY IS NULL) THEN AF_agg_contribution_amt ELSE CONTRIBUTION_AMT END END END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 7403ad35-6371-b979-004d-7afcc2cf323c
+        stepCounter: 25b3a918-81ef-2d88-27a7-1c5ef8391c0b
+      config: {}
+      dataType: VARCHAR(1)
+      defaultValue: ''
+      description: ''
+      name: SUBMIT_REC_IND
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: -- 1. Check if SF_CONTRACT_KEY and CF_CONTRACT_KEY are NULL. -- 2. Check if ERROR_CODE equals 'MANUAL_ADHOC_TRNX'. -- 3. Return 'Y' if ERROR_CODE is 'MANUAL_ADHOC_TRNX'. -- 4. Return 'N' if both keys are NULL and ERROR_CODE is not 'MANUAL_ADHOC_TRNX'. -- 5. Return 'Y' if any key is not NULL and ERROR_CODE is not 'MANUAL_ADHOC_TRNX'. CASE WHEN ERROR_CODE = 'MANUAL_ADHOC_TRNX' THEN CASE WHEN (AF_CONTRACT_KEY IS NULL) THEN 'N' ELSE 'Y' END ELSE CASE WHEN (SF_CONTRACT_KEY IS NULL) AND (CF_CONTRACT_KEY IS NULL) THEN 'N' ELSE 'Y' END END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 98665a72-a335-904e-8d89-791cabd1468f
+        stepCounter: 25b3a918-81ef-2d88-27a7-1c5ef8391c0b
+      config: {}
+      dataType: VARCHAR(1)
+      defaultValue: ''
+      description: ''
+      name: CANCEL_REC_IND
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: '''N'''
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 73b0ed03-1501-ed47-b5fe-75c4406f4373
+        stepCounter: 25b3a918-81ef-2d88-27a7-1c5ef8391c0b
+      config: {}
+      dataType: VARCHAR(1)
+      defaultValue: ''
+      description: ''
+      name: ERROR_IND
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN mbr_VAL_IND='Y' AND VAL_IND='Y' THEN 'N' ELSE 'Y' END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 0a310003-f01d-e0a0-1e0e-54812a7b0f10
+        stepCounter: 25b3a918-81ef-2d88-27a7-1c5ef8391c0b
+      config: {}
+      dataType: VARCHAR(50)
+      defaultValue: ''
+      description: ''
+      name: ERROR_CODE
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CASE WHEN NOT (mbr_ERROR_CODE IS NULL) THEN mbr_ERROR_CODE ELSE ERROR_CODE END
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: c60be286-7484-d790-20ad-9b0d1e544d86
+        stepCounter: 25b3a918-81ef-2d88-27a7-1c5ef8391c0b
+      config: {}
+      dataType: NUMBER(28,0)
+      defaultValue: ''
+      description: ''
+      name: TASK_ID
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: TO_NUMBER($task_id$)
+    - appliedColumnTests: {}
+      columnReference:
+        columnCounter: 4566bce6-4143-7010-572a-f0346c045ac2
+        stepCounter: 25b3a918-81ef-2d88-27a7-1c5ef8391c0b
+      config: {}
+      dataType: VARCHAR(29)
+      defaultValue: ''
+      description: ''
+      name: CREATED_DTTM
+      nullable: true
+      sourceColumnReferences:
+      - columnReferences: []
+        transform: CURRENT_TIMESTAMP
+    enabledColumnTestIDs: []
+    sourceMapping:
+    - aliases:
+        ATO_SUBMIT_REQUEST_TRNX_TEMP: 9778a293-a836-2282-7987-fccefcfcdf5b
+      customSQL:
+        customSQL: ''
+      dependencies:
+      - locationName: SILVER
+        nodeName: ATO_SUBMIT_REQUEST_TRNX_TEMP
+      join:
+        joinCondition: '-- FROM ATO_SUBMIT_REQUEST_MEMBER_TEMP (source node not generated)
+
+          LEFT JOIN {{ ref(''SILVER'', ''ATO_SUBMIT_REQUEST_TRNX_TEMP'') }} ato_submit_request_trnx_temp ON /* TODO join key (Joiner) */ 1=1'
+      name: source1
+      noLinkRefs: []
+  name: ATO_SUBMIT_REQUEST_EXT_TEMP_FL
+  overrideSQL: false
+  schema: ''
+  sqlType: Stage
+  type: sql
+  version: 1
+type: Node

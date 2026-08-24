@@ -1,0 +1,79 @@
+# IDMC → Coalesce converter
+
+Reusable converter that migrates an **Informatica IDMC / IICS** export package
+into **Coalesce Transform** node YAML. Built for the Acenda POC
+(`Acenda_Coalesce_IDMC_Jobs`), it turns all 59 exported mappings into a
+complete, validating Coalesce DAG.
+
+## What it does
+
+For every Informatica mapping it reads two assets:
+
+| Asset | Holds | Used for |
+|-------|-------|----------|
+| `*.DTEMPLATE` (`bin/@N.bin`) | the mapping **logic** — transformations, expressions, lookups, links | transforms, joins, column derivations |
+| `*.MTT.zip` (`mtTask.json`) | the runtime **bindings** — concrete source/target/lookup objects + connections | table names, layers, dependencies |
+
+and emits Coalesce V1 nodes:
+
+- **one BRONZE `Source`** per external raw / reference / lookup table
+- **one node per mapping**, layered from its target:
+  - `03_dq` / `STG_*` / `*_VALIDATION` / `*_TEMP` → **SILVER `Stage`**
+  - `05_dm_Currentview` / `MRVCONS_*` → **GOLD `View`**
+  - conformed `DW_*_TRNX|EVENT|BALANCE|…` → **GOLD `Fact`**
+  - conformed `DW_*` → **GOLD `Dimension`**
+- `joinCondition` = `FROM <primary source>` + `LEFT JOIN <lookup> ON <keys>` + `WHERE <filters>`
+- Expression outputs → column `transform`s, translated Informatica → Snowflake
+  (`IIF`→`CASE`, `ISNULL`→`IS NULL`, `REG_MATCH`→`RLIKE`, `SYSDATE`→`CURRENT_TIMESTAMP`, …)
+- deterministic UUIDs, so re-runs are stable and diffable
+- downstream **type propagation** so a column adopts its upstream's precise type
+
+Hand-built nodes already in `nodes/` are **never overwritten** — the converter
+tracks its own output in `nodes/.idmc_generated.json` and only rewrites those.
+
+## Run
+
+```bash
+cd migration/converter
+python3 idmc_convert.py \
+  --export ~/work/POC/Acenda_Coalesce_IDMC_Jobs \
+  --repo   ../.. \
+  --write            # omit --write, add --summary for a dry-run report
+coa validate         # from repo root
+```
+
+Requires Python 3.10+ and `pyyaml`.
+
+## Files
+
+| File | Responsibility |
+|------|----------------|
+| `idmc_imf.py` | decode the IMF `$$ID`/`##ID` object graph; platform-type → Snowflake |
+| `idmc_expr.py` | Informatica expression → Snowflake SQL translation |
+| `idmc_model.py` | DTEMPLATE + MTT → migration IR (sources, targets, lookups, filters, outputs) |
+| `idmc_emit.py` | IR → Coalesce V1 node YAML (layering, joins, lineage, type propagation) |
+| `idmc_convert.py` | orchestrator: discover → pair by frsGuid → model → classify → emit |
+
+## Result (Acenda export)
+
+- 59 mappings parsed, 59/59 targets resolved
+- **159 nodes generated** — 102 BRONZE sources, 12 SILVER, 45 GOLD — plus 22
+  hand-built pilot nodes
+- `coa validate`: **0 errors**; every converter-generated node is warning-free
+
+## Known limitations (by design — for hand-finishing)
+
+The IDMC export does not contain everything a warehouse does, so a few things
+are captured as clearly-marked TODOs rather than guessed:
+
+- **Parameterised source/target schemas** carry no columns in the export;
+  source columns are reconstructed from mapping usage + embedded lookup schemas
+  (stated in each node's description).
+- **Joiner join keys** are not in the export → emitted as
+  `LEFT JOIN … ON /* TODO join key (Joiner) */ 1=1`.
+- **Unconnected lookups** called inside expressions (`:LKP.name(...)`) become
+  `/*LKP:name(args)*/ NULL` placeholders.
+- **SCD2 mechanics** (surrogate-key sequences, change-hash, effective dating)
+  are represented structurally; full SCD2 is applied when a pipeline is
+  hand-finished (see `GOLD-DW_CUST_CONTRACT` and its SILVER stages for the
+  fully-finished exemplar).
