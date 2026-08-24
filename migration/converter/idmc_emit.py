@@ -149,6 +149,21 @@ def _clean_port(sc: str) -> bool:
     return bool(re.match(r'^[A-Z_][A-Z0-9_]*$', sc)) and not sc.startswith("V_")
 
 
+def _joinkey_registry(irs) -> dict:
+    """table -> set(columns) that appear as Joiner keys for that table.  Gives
+    otherwise-schemaless source views enough columns to exist as nodes so join
+    chains through them resolve."""
+    reg = {}
+    for ir in irs:
+        for e in ir.joins:
+            for (mcol, _op, dcol) in e.conditions:
+                if mcol:
+                    reg.setdefault(e.master, set()).add(mcol)
+                if dcol:
+                    reg.setdefault(e.detail, set()).add(dcol)
+    return reg
+
+
 def _source_ports_registry(irs) -> dict:
     """table -> set(reconstructed source columns) from mapping usage.
 
@@ -210,6 +225,7 @@ def _valid_table(t: str) -> bool:
 def _plan_specs(irs, produced, external, existing):
     lookup_reg = _lookup_schema_registry(irs)
     srcport_reg = _source_ports_registry(irs)
+    joinkey_reg = _joinkey_registry(irs)
 
     # Real external sources = MTT-bound source objects  +  lookup tables that
     # carry an embedded schema.  Everything else (unconnected-lookup macros,
@@ -275,6 +291,10 @@ def _plan_specs(irs, produced, external, existing):
         if not cols:
             for c in sorted(srcport_reg.get(tbl, set())):
                 cols[c] = heuristic_type(c)
+        # always include Joiner-key columns so schemaless source views still
+        # get a node (and the join chains through them resolve)
+        for c in sorted(joinkey_reg.get(tbl, set())):
+            cols.setdefault(c, heuristic_type(c))
         if not cols:
             # last resort: keys used to join to this table, so the node is not
             # empty and lineage still resolves

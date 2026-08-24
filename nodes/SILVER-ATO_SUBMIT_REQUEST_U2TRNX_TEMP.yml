@@ -62,6 +62,7 @@ operation:
         DWSA_ATO_MATS_USI_CONFIG: 09602e60-4eed-0aaa-0665-955699c3bd8d
         DW_CONTRACT: 49afe4d4-b8de-827c-baa6-dc1914b9ca5f
         DW_CONTRACT_EVENT_TRNX_AL4: 412cc138-2451-7490-25ec-29bcf7ddf4b4
+        DW_CONTRACT_MASTER_CUSTOMER: 6235bb51-a63d-11cc-d4f4-5b20abe32d7a
         DW_CONTRACT_OPTION_TRNX_AL4: db488054-d501-8438-b650-8fa0e642b51f
         DW_PRODUCT_USM_DTL: 77e45a5b-df9c-f696-3287-14af937e7c84
         DW_TRNX_TYPE: c4bae737-7f2e-b20f-5b3e-1904dfd70eaa
@@ -71,31 +72,35 @@ operation:
       - locationName: BRONZE
         nodeName: DW_CONTRACT
       - locationName: BRONZE
+        nodeName: DW_CONTRACT_MASTER_CUSTOMER
+      - locationName: BRONZE
+        nodeName: DW_PRODUCT_USM_DTL
+      - locationName: BRONZE
         nodeName: DWSA_ATO_MATS_USI_CONFIG
-      - locationName: GOLD
-        nodeName: DW_CONTRACT_EVENT_TRNX_AL4
       - locationName: GOLD
         nodeName: DW_CONTRACT_OPTION_TRNX_AL4
       - locationName: SILVER
         nodeName: DWCTL_PROCESS_CONFIG
       - locationName: BRONZE
-        nodeName: DW_PRODUCT_USM_DTL
-      - locationName: BRONZE
         nodeName: DW_TRNX_TYPE
+      - locationName: GOLD
+        nodeName: DW_CONTRACT_EVENT_TRNX_AL4
       join:
         joinCondition: 'FROM {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DWSA_ATO_MATS_USI_CONFIG'') }} dwsa_ato_mats_usi_config ON /* TODO join key (Joiner not resolved) */ 1=1
+          INNER JOIN {{ ref(''BRONZE'', ''DW_CONTRACT_MASTER_CUSTOMER'') }} dw_contract_master_customer ON dw_contract.CONTRACT_KEY = dw_contract_master_customer.CONTRACT_KEY
 
-          LEFT JOIN {{ ref(''GOLD'', ''DW_CONTRACT_EVENT_TRNX_AL4'') }} dw_contract_event_trnx_al4 ON /* TODO join key (Joiner not resolved) */ 1=1
+          INNER JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_USM_DTL'') }} dw_product_usm_dtl ON dw_contract_master_customer.PRODUCT_KEY = dw_product_usm_dtl.PRODUCT_KEY AND dw_contract_master_customer.CUST_CONTRACT_RLSHP_TYPE_CODE = dw_product_usm_dtl.CUST_CONTRACT_RLSHP_TYPE_CODE
 
-          INNER JOIN {{ ref(''GOLD'', ''DW_CONTRACT_OPTION_TRNX_AL4'') }} dw_contract_option_trnx_al4 ON dw_contract_option_trnx.EVENT_NUM = dw_contract_event_trnx.EVENT_NUM AND dw_contract_option_trnx.CONTRACT_KEY = dw_contract_event_trnx.CONTRACT_KEY AND dw_contract_option_trnx.SRC_DLVRD_EFTV_DTTM = dw_contract_event_trnx.SRC_DLVRD_EFTV_DTTM
+          INNER JOIN {{ ref(''BRONZE'', ''DWSA_ATO_MATS_USI_CONFIG'') }} dwsa_ato_mats_usi_config ON dw_contract_master_customer.USI_CODE = dwsa_ato_mats_usi_config.USI_CODE
 
-          LEFT JOIN {{ ref(''SILVER'', ''DWCTL_PROCESS_CONFIG'') }} dwctl_process_config ON /* TODO join key (Joiner not resolved) */ 1=1
+          INNER JOIN {{ ref(''GOLD'', ''DW_CONTRACT_OPTION_TRNX_AL4'') }} dw_contract_option_trnx_al4 ON dw_contract_master_customer.CONTRACT_KEY = dw_contract_option_trnx.CONTRACT_KEY
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_USM_DTL'') }} dw_product_usm_dtl ON /* TODO join key (Joiner not resolved) */ 1=1
+          INNER JOIN {{ ref(''SILVER'', ''DWCTL_PROCESS_CONFIG'') }} dwctl_process_config ON dw_contract_master_customer.MATS_CODE = dwctl_process_config.CONFIG_VALUE
 
-          INNER JOIN {{ ref(''BRONZE'', ''DW_TRNX_TYPE'') }} dw_trnx_type ON dw_contract_option_trnx.TRNX_TYPE_KEY = dw_trnx_type.TRNX_TYPE_KEY AND dw_contract_option_trnx.PRODUCT_SYSTEM_CODE = dw_trnx_type.SOURCE_SYSTEM_CODE'
+          INNER JOIN {{ ref(''BRONZE'', ''DW_TRNX_TYPE'') }} dw_trnx_type ON dw_contract_option_trnx.TRNX_TYPE_KEY = dw_trnx_type.TRNX_TYPE_KEY AND dw_contract_option_trnx.PRODUCT_SYSTEM_CODE = dw_trnx_type.SOURCE_SYSTEM_CODE
+
+          INNER JOIN {{ ref(''GOLD'', ''DW_CONTRACT_EVENT_TRNX_AL4'') }} dw_contract_event_trnx_al4 ON dw_contract_option_trnx.EVENT_NUM = dw_contract_event_trnx.EVENT_NUM AND dw_contract_option_trnx.CONTRACT_KEY = dw_contract_event_trnx.CONTRACT_KEY AND dw_contract_option_trnx.SRC_DLVRD_EFTV_DTTM = dw_contract_event_trnx.SRC_DLVRD_EFTV_DTTM'
       name: source1
       noLinkRefs: []
   name: ATO_SUBMIT_REQUEST_U2TRNX_TEMP

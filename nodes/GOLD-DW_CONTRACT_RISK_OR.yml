@@ -1201,8 +1201,11 @@ operation:
         DW_PARTY: bb382647-fad0-4afe-380c-3a7be4aeae9f
         DW_PRODUCT_OPTION: e07b3200-215a-b568-11cb-bb646f733e66
         DW_STATE: 8c0ef221-d8c4-028f-d00b-b47d3fedf996
+        OR_DBENE: 54401f8a-4073-9b6c-899f-7c4254d5b280
         OR_DBETR: 24e55826-30ab-a359-cd95-707b931f007f
+        OR_DPOLY: 7ad3c430-7134-a18f-9bb4-0ed49b55892b
         SMOKER_STATUS_CONVERT: 4f786264-9870-b6f1-d806-db4d534a6b06
+        YD_CLIENT_ID_XREF: 58dc49d2-78d4-6110-b9a7-5ca431d06ef4
         YD_DEIREF: b59bb265-0ee4-a1e7-389e-ffad04261e04
       customSQL:
         customSQL: ''
@@ -1210,9 +1213,15 @@ operation:
       - locationName: BRONZE
         nodeName: OR_DBETR
       - locationName: BRONZE
+        nodeName: OR_DPOLY
+      - locationName: BRONZE
         nodeName: YD_DEIREF
       - locationName: BRONZE
         nodeName: DW_CONTRACT
+      - locationName: BRONZE
+        nodeName: OR_DBENE
+      - locationName: BRONZE
+        nodeName: YD_CLIENT_ID_XREF
       - locationName: BRONZE
         nodeName: ASSESS_CONVERT
       - locationName: BRONZE
@@ -1230,9 +1239,15 @@ operation:
       join:
         joinCondition: 'FROM {{ ref(''BRONZE'', ''OR_DBETR'') }} or_dbetr
 
-          LEFT JOIN {{ ref(''BRONZE'', ''YD_DEIREF'') }} yd_deiref ON /* TODO join key (Joiner not resolved) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''OR_DPOLY'') }} or_dpoly ON or_dpoly.UN_POL_NUM = or_dbetr.TC1_BEN_POL_NUM AND or_dpoly.UN_BEN_TYPE = or_dbetr.TC1_BEN_TYPE /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON /* TODO join key (Joiner not resolved) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''YD_DEIREF'') }} yd_deiref ON or_dpoly.BC1_CLIENT_ID = yd_deiref.EI_ID /* Detail Outer Join */
+
+          INNER JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON or_dpoly.UN_POL_NUM = dw_contract.CONTRACT_ID
+
+          LEFT JOIN {{ ref(''BRONZE'', ''OR_DBENE'') }} or_dbene ON or_dpoly.POL_NUM = or_dbene.BC1_BEN_POL_NUM AND or_dpoly.BEN_TYPE = or_dbene.BC1_BEN_TYPE /* Detail Outer Join */
+
+          INNER JOIN {{ ref(''BRONZE'', ''YD_CLIENT_ID_XREF'') }} yd_client_id_xref ON yd_client_id_xref.EI_ID1 = or_dbene.BC1_CLIENT_ID
 
           LEFT JOIN {{ ref(''BRONZE'', ''ASSESS_CONVERT'') }} assess_convert ON assess_convert.SOURCE_SYSTEM_CODE = or_dbetr.TC1_PERM_ASSESS_CODE AND assess_convert.SOURCE_PRODUCT_SYSTEM = or_dbetr.SOURCE_PRODUCT_SYSTEM_CODE AND assess_convert.REF360_REFERENCE_DATA_SET = or_dbetr.REF360_REFERENCE_DATA_SET
 

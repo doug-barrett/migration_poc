@@ -459,6 +459,7 @@ operation:
         DW_CONTRACT: 49afe4d4-b8de-827c-baa6-dc1914b9ca5f
         DW_CONTRACT_RISK_AL4: e86cf127-2d40-34b0-8711-0531a2105463
         DW_PRODUCT_OPTION: e07b3200-215a-b568-11cb-bb646f733e66
+        OPS_DCONTRISKDISC: 8f89212d-cfa1-c9d1-339b-528f04a3d7c8
       customSQL:
         customSQL: ''
       dependencies:
@@ -467,11 +468,15 @@ operation:
       - locationName: GOLD
         nodeName: DW_CONTRACT_RISK_AL4
       - locationName: BRONZE
+        nodeName: OPS_DCONTRISKDISC
+      - locationName: BRONZE
         nodeName: DW_PRODUCT_OPTION
       join:
         joinCondition: 'FROM {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract
 
           INNER JOIN {{ ref(''GOLD'', ''DW_CONTRACT_RISK_AL4'') }} dw_contract_risk_al4 ON dw_contract.DW_CONTRACT_KEY = dw_contract_risk.DWR_CONTRACT_KEY AND dw_contract.PRODUCT_OPTION_KEY = dw_contract_risk.DWR_PRODUCT_OPTION_KEY AND dw_contract.COVERAGE_NUMBER = dw_contract_risk.DWR_COVERAGE_NUMBER
+
+          INNER JOIN {{ ref(''BRONZE'', ''OPS_DCONTRISKDISC'') }} ops_dcontriskdisc ON ops_dcontriskdisc.CONTRACT_ID = dw_contract.DW_CONTRACT_ID
 
           LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_OPTION'') }} dw_product_option ON dw_product_option.PRODUCT_KEY = dw_contract.PRODUCT_KEY AND dw_product_option.PRODUCT_OPTION_CODE = dw_contract.RISK_OPTION_CODE'
       name: source1

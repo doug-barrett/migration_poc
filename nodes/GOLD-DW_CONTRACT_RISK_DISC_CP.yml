@@ -465,17 +465,23 @@ operation:
         DW_CONTRACT: 49afe4d4-b8de-827c-baa6-dc1914b9ca5f
         DW_CONTRACT_RISK_AL4: e86cf127-2d40-34b0-8711-0531a2105463
         DW_PRODUCT_OPTION: e07b3200-215a-b568-11cb-bb646f733e66
+        INTERFACE_LOG: 32ae2f9a-e24a-317b-a9fc-af00d2f5dab0
+        YD_CLIENT_ID_XREF: 58dc49d2-78d4-6110-b9a7-5ca431d06ef4
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: BRONZE
         nodeName: CP_DBCP1
+      - locationName: BRONZE
+        nodeName: YD_CLIENT_ID_XREF
       - locationName: SILVER
         nodeName: CP_DPCP3
       - locationName: BRONZE
         nodeName: DW_CONTRACT
       - locationName: GOLD
         nodeName: DW_CONTRACT_RISK_AL4
+      - locationName: BRONZE
+        nodeName: INTERFACE_LOG
       - locationName: SILVER
         nodeName: CP_DPCP1
       - locationName: SILVER
@@ -485,11 +491,15 @@ operation:
       join:
         joinCondition: 'FROM {{ ref(''BRONZE'', ''CP_DBCP1'') }} cp_dbcp1
 
+          LEFT JOIN {{ ref(''BRONZE'', ''YD_CLIENT_ID_XREF'') }} yd_client_id_xref ON yd_client_id_xref.EI_ID_DEIREF = cp_dbcp1.PADDED_CLIENT_ID /* Detail Outer Join */
+
           LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP3'') }} cp_dpcp3 ON cp_dbcp1.BC1_POLICY_NUMBER = cp_dpcp3.PC1_POLICY_NUMBER_POLICY /* Master Outer Join */
 
           LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON dw_contract.CONTRACT_ID = cp_dpcp3.BC1_POLICY_NUMBER /* Master Outer Join */
 
           LEFT JOIN {{ ref(''GOLD'', ''DW_CONTRACT_RISK_AL4'') }} dw_contract_risk_al4 ON cp_dpcp3.CONTRACT_KEY = dw_contract_risk.CONTRACT_KEY_CONTRACT_RISK AND cp_dpcp3.PRODUCT_OPTION_KEY = dw_contract_risk.PRODUCT_OPTION_KEY_CONTRACT_RISK AND cp_dpcp3.BC1_CLIENT_ID_RISK1 = dw_contract_risk.PAS_CLIENT_ID_CONTRACT_RISK AND cp_dpcp3.FILE_EFTV_TSTP = dw_contract_risk.SRC_DLVRD_EFTV_DTTM_CONTRACT_RISK /* Detail Outer Join */
+
+          INNER JOIN {{ ref(''BRONZE'', ''INTERFACE_LOG'') }} interface_log ON interface_log.JNR_FIELD_LOG = cp_dpcp3.FIELD
 
           LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP1'') }} cp_dpcp1 ON /* TODO join key (Joiner not resolved) */ 1=1
 

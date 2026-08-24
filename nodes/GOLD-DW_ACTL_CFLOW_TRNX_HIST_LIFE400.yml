@@ -28,7 +28,9 @@ operation:
       name: CORRELATION_ID
       nullable: false
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 226d1783-7903-ee6b-30a2-98cba9153135
+          stepCounter: c3062d50-ce3a-04c2-0266-868b3dd1659f
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -293,10 +295,16 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
+        ACTL_CFLOW_TRNX_TRNSLTN_HIST: 3e1f4e55-80b4-4af8-0072-2b21d5da48c8
+        IFRS_TRNX_SRC_TGT_XREF: a03f1dab-24bd-1322-199d-29af1a3940fe
         MRV_DW_ACTL_CFLOW_TRNX_HIST_V: d38a7c08-4a5b-cf96-80b2-b977170e0eaf
         MRV_DW_ACTL_CFLOW_TRNX_V: 8d676e56-8f04-696a-c215-ff120601a157
         MRV_DW_CONTRACT_RISK_V: 347033e8-7cf2-ccb0-4dec-05a632e0de4c
+        MRV_DW_CONTRACT_V: 788539a0-1f72-1b1e-85f6-7e12f9dcec29
+        MRV_DW_CONTRACT_VRBL_V: db4a8994-19a5-efbf-89a4-d465f8b37d96
+        MRV_DW_PRODUCT_OPTION_V: c3062d50-ce3a-04c2-0266-868b3dd1659f
         MRV_IFRS_CASHFLOW_STATUS_REF_V: c8ce09df-027a-d862-e5b8-765ae08067dc
+        MRV_IFRS_TRNX_SRC_TGT_XREF_V: da24eb23-2150-630e-1a00-6fb3cf7773b2
         MRV_REF360_IFRS_OPTION_TYPE_CURR_V: a598a198-6449-38de-aea2-aa2e82f584d8
       customSQL:
         customSQL: ''
@@ -304,23 +312,48 @@ operation:
       - locationName: BRONZE
         nodeName: MRV_REF360_IFRS_OPTION_TYPE_CURR_V
       - locationName: BRONZE
-        nodeName: MRV_DW_ACTL_CFLOW_TRNX_HIST_V
+        nodeName: MRV_DW_PRODUCT_OPTION_V
       - locationName: BRONZE
         nodeName: MRV_DW_CONTRACT_RISK_V
       - locationName: BRONZE
+        nodeName: MRV_DW_CONTRACT_VRBL_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_ACTL_CFLOW_TRNX_HIST_V
+      - locationName: BRONZE
+        nodeName: IFRS_TRNX_SRC_TGT_XREF
+      - locationName: BRONZE
+        nodeName: MRV_DW_CONTRACT_V
+      - locationName: BRONZE
         nodeName: MRV_IFRS_CASHFLOW_STATUS_REF_V
       - locationName: BRONZE
+        nodeName: MRV_IFRS_TRNX_SRC_TGT_XREF_V
+      - locationName: BRONZE
         nodeName: MRV_DW_ACTL_CFLOW_TRNX_V
+      - locationName: BRONZE
+        nodeName: ACTL_CFLOW_TRNX_TRNSLTN_HIST
       join:
         joinCondition: 'FROM {{ ref(''BRONZE'', ''MRV_REF360_IFRS_OPTION_TYPE_CURR_V'') }} mrv_ref360_ifrs_option_type_curr_v
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_HIST_V'') }} mrv_dw_actl_cflow_trnx_hist_v ON /* TODO join key (Joiner not resolved) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_PRODUCT_OPTION_V'') }} mrv_dw_product_option_v ON mrv_dw_product_option_v.IFRS_OPTION_TYPE_CODE = mrv_ref360_ifrs_option_type_curr_v.CODE /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_RISK_V'') }} mrv_dw_contract_risk_v ON mrv_dw_actl_cflow_trnx_hist_v.CLM_CONTRACT_ID = mrv_dw_contract_risk_v.CONTRACT_ID /* Master Outer Join */
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_RISK_V'') }} mrv_dw_contract_risk_v ON mrv_dw_product_option_v.CONTRACT_KEY = mrv_dw_contract_risk_v.CONTRACT_KEY AND mrv_dw_product_option_v.PRODUCT_OPTION_KEY = mrv_dw_contract_risk_v.PRODUCT_OPTION_KEY AND mrv_dw_product_option_v.COVERAGE_NUMBER = mrv_dw_contract_risk_v.COVERAGE_NUMBER /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_IFRS_CASHFLOW_STATUS_REF_V'') }} mrv_ifrs_cashflow_status_ref_v ON /* TODO join key (Joiner not resolved) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_VRBL_V'') }} mrv_dw_contract_vrbl_v ON mrv_dw_contract_vrbl_v.VRBL_PRODUCT_KEY = mrv_dw_product_option_v.PRODUCT_KEY AND mrv_dw_contract_vrbl_v.PRODUCT_OPTION_CODE = mrv_dw_product_option_v.PRODUCT_OPTION_CODE /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_V'') }} mrv_dw_actl_cflow_trnx_v ON /* TODO join key (Joiner not resolved) */ 1=1'
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_HIST_V'') }} mrv_dw_actl_cflow_trnx_hist_v ON mrv_dw_actl_cflow_trnx_hist_v.CLM_CONTRACT_ID = mrv_dw_contract_risk_v.CONTRACT_ID /* Master Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''IFRS_TRNX_SRC_TGT_XREF'') }} ifrs_trnx_src_tgt_xref ON ifrs_trnx_src_tgt_xref.CLM_SOURCE_CODE_1 = mrv_dw_actl_cflow_trnx_hist_v.TRNX_REF_KEY_1 AND ifrs_trnx_src_tgt_xref.CLM_SOURCE_CODE_2 = mrv_dw_actl_cflow_trnx_hist_v.TRNX_REF_KEY_2 AND ifrs_trnx_src_tgt_xref.CLM_SOURCE_CODE_3 = mrv_dw_actl_cflow_trnx_hist_v.TRNX_REF_KEY_3 /* Master Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_V'') }} mrv_dw_contract_v ON mrv_dw_actl_cflow_trnx_hist_v.CONTRACT_ID = mrv_dw_contract_v.CONTRACT_ID AND mrv_dw_actl_cflow_trnx_hist_v.PRODUCT_SYSTEM_CODE = mrv_dw_contract_v.PRODUCT_SYSTEM_CODE /* Detail Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_IFRS_CASHFLOW_STATUS_REF_V'') }} mrv_ifrs_cashflow_status_ref_v ON ifrs_trnx_src_tgt_xref.TRNSLTN_CASHFLOW_TYPE = mrv_ifrs_cashflow_status_ref_v.STAT_CASHFLOW_TYPE_CODE /* Detail Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_IFRS_TRNX_SRC_TGT_XREF_V'') }} mrv_ifrs_trnx_src_tgt_xref_v ON mrv_ifrs_cashflow_status_ref_v.TRNX_REF_KEY_1 = mrv_ifrs_trnx_src_tgt_xref_v.SOURCE_CODE_1 AND mrv_ifrs_cashflow_status_ref_v.TRNX_REF_KEY_2 = mrv_ifrs_trnx_src_tgt_xref_v.SOURCE_CODE_2 AND mrv_ifrs_cashflow_status_ref_v.TRNX_REF_KEY_3 = mrv_ifrs_trnx_src_tgt_xref_v.SOURCE_CODE_3 AND mrv_ifrs_cashflow_status_ref_v.PRODUCT_SYSTEM_CODE = mrv_ifrs_trnx_src_tgt_xref_v.PRODUCT_SYSTEM_CODE /* Detail Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_V'') }} mrv_dw_actl_cflow_trnx_v ON mrv_ifrs_trnx_src_tgt_xref_v.MRV_MD5_BUSN_KEY = mrv_dw_actl_cflow_trnx_v._MRV_MD5_BUSN_KEY /* Detail Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''ACTL_CFLOW_TRNX_TRNSLTN_HIST'') }} actl_cflow_trnx_trnsltn_hist ON mrv_dw_actl_cflow_trnx_hist_v.TRNX_REF_KEY_1 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_1 AND mrv_dw_actl_cflow_trnx_hist_v.TRNX_REF_KEY_2 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_2 AND mrv_dw_actl_cflow_trnx_hist_v.TRNX_REF_KEY_3 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_3 AND mrv_dw_actl_cflow_trnx_hist_v.TRNX_REF_KEY_4 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_4 AND mrv_dw_actl_cflow_trnx_hist_v.TRNX_REF_KEY_5 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_5 AND mrv_dw_actl_cflow_trnx_hist_v.TRNX_REF_KEY_6 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_6 AND mrv_dw_actl_cflow_trnx_hist_v.TRNX_REF_KEY_7 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_7 AND mrv_dw_actl_cflow_trnx_hist_v.TRNX_REF_KEY_8 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_8 AND mrv_dw_actl_cflow_trnx_hist_v.TRNX_REF_KEY_9 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_9 AND mrv_dw_actl_cflow_trnx_hist_v.TRNX_REF_KEY_10
+          = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_10 AND mrv_dw_actl_cflow_trnx_hist_v.ADMIN_SYS_ID = actl_cflow_trnx_trnsltn_hist.ADMIN_SYS_ID /* Detail Outer Join */'
       name: source1
       noLinkRefs: []
   name: DW_ACTL_CFLOW_TRNX_HIST_LIFE400

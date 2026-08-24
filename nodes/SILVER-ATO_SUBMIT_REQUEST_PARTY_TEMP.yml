@@ -346,17 +346,22 @@ operation:
     - aliases:
         ATO_SUBMIT_REQUEST_TRNX_TEMP: 11eff41a-ab07-1432-9824-68d4042c188a
         DWSA_ATO_CONTRACT_CONFIG: 9afaf392-6855-8f9f-dbbe-d7ded84af351
+        DW_CONTRACT_ASSOC_MTH: cd7db2b4-5dc0-f25e-15f5-256dbfcb2457
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: BRONZE
         nodeName: DWSA_ATO_CONTRACT_CONFIG
       - locationName: BRONZE
+        nodeName: DW_CONTRACT_ASSOC_MTH
+      - locationName: BRONZE
         nodeName: ATO_SUBMIT_REQUEST_TRNX_TEMP
       join:
         joinCondition: 'FROM {{ ref(''BRONZE'', ''DWSA_ATO_CONTRACT_CONFIG'') }} dwsa_ato_contract_config
 
-          LEFT JOIN {{ ref(''BRONZE'', ''ATO_SUBMIT_REQUEST_TRNX_TEMP'') }} ato_submit_request_trnx_temp ON dwsa_ato_contract_config.CONTRACT_KEY = ato_submit_request_trnx_temp.CONTRACT_KEY14 /* Master Outer Join */'
+          INNER JOIN {{ ref(''BRONZE'', ''DW_CONTRACT_ASSOC_MTH'') }} dw_contract_assoc_mth ON dwsa_ato_contract_config.CONTRACT_KEY = dw_contract_assoc_mth.CONTRACT_KEY
+
+          LEFT JOIN {{ ref(''BRONZE'', ''ATO_SUBMIT_REQUEST_TRNX_TEMP'') }} ato_submit_request_trnx_temp ON ato_submit_request_trnx_temp.CONTRACT_KEY14 = dw_contract_assoc_mth.CONTRACT_KEY /* Detail Outer Join */'
       name: source1
       noLinkRefs: []
   name: ATO_SUBMIT_REQUEST_PARTY_TEMP

@@ -204,17 +204,43 @@ operation:
     - aliases:
         MRV_DW_ACTL_CFLOW_TRNX_V: 8d676e56-8f04-696a-c215-ff120601a157
         MRV_DW_CLAIM_BENEFIT_CONTRACT_RISK_ASSOC_V: fdf8e990-18ea-5ff6-c222-3e87590b0e01
+        MRV_DW_CLAIM_BENEFIT_V: c9cfb72c-c661-fa54-f7b1-bc8a8706c95a
+        MRV_DW_CLAIM_BENEFIT_VRBL_V: 82d1ee17-bea3-f7d3-cd75-4eefe5ea75e5
+        MRV_DW_CLAIM_V: 8244003d-7bc0-2f11-77b8-9ea27f2df337
+        MRV_DW_CLAIM_VRBL_V: 06ad1a47-9565-0f72-97b4-0c10c943f8e7
+        MULTIGAAP_ACTL_CFLOW_TRNX_TRNSLTN: 08a307ef-d1b7-391f-8a24-f46291a28e18
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: BRONZE
         nodeName: MRV_DW_ACTL_CFLOW_TRNX_V
       - locationName: BRONZE
+        nodeName: MULTIGAAP_ACTL_CFLOW_TRNX_TRNSLTN
+      - locationName: BRONZE
         nodeName: MRV_DW_CLAIM_BENEFIT_CONTRACT_RISK_ASSOC_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_CLAIM_BENEFIT_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_CLAIM_BENEFIT_VRBL_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_CLAIM_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_CLAIM_VRBL_V
       join:
         joinCondition: 'FROM {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_V'') }} mrv_dw_actl_cflow_trnx_v
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CLAIM_BENEFIT_CONTRACT_RISK_ASSOC_V'') }} mrv_dw_claim_benefit_contract_risk_assoc_v ON /* TODO join key (Joiner not resolved) */ 1=1'
+          LEFT JOIN {{ ref(''BRONZE'', ''MULTIGAAP_ACTL_CFLOW_TRNX_TRNSLTN'') }} multigaap_actl_cflow_trnx_trnsltn ON multigaap_actl_cflow_trnx_trnsltn.ADMIN_SYS_ID = mrv_dw_actl_cflow_trnx_v.ADMIN_SYS_ID AND multigaap_actl_cflow_trnx_trnsltn.TRNX_REF_KEY_1 = mrv_dw_actl_cflow_trnx_v.TRNX_REF_KEY_1 AND multigaap_actl_cflow_trnx_trnsltn.TRNX_REF_KEY_2 = mrv_dw_actl_cflow_trnx_v.TRNX_REF_KEY_2 AND multigaap_actl_cflow_trnx_trnsltn.TRNX_REF_KEY_3 = mrv_dw_actl_cflow_trnx_v.TRNX_REF_KEY_3 AND multigaap_actl_cflow_trnx_trnsltn.TRNX_REF_KEY_4 = mrv_dw_actl_cflow_trnx_v.TRNX_REF_KEY_4 AND multigaap_actl_cflow_trnx_trnsltn.TRNX_REF_KEY_5 = mrv_dw_actl_cflow_trnx_v.TRNX_REF_KEY_5 AND multigaap_actl_cflow_trnx_trnsltn.TRNX_REF_KEY_6 = mrv_dw_actl_cflow_trnx_v.TRNX_REF_KEY_6 AND multigaap_actl_cflow_trnx_trnsltn.TRNX_REF_KEY_7 = mrv_dw_actl_cflow_trnx_v.TRNX_REF_KEY_7 AND multigaap_actl_cflow_trnx_trnsltn.TRNX_REF_KEY_8 = mrv_dw_actl_cflow_trnx_v.TRNX_REF_KEY_8 AND multigaap_actl_cflow_trnx_trnsltn.TRNX_REF_KEY_9
+          = mrv_dw_actl_cflow_trnx_v.TRNX_REF_KEY_9 AND multigaap_actl_cflow_trnx_trnsltn.TRNX_REF_KEY_10 = mrv_dw_actl_cflow_trnx_v.TRNX_REF_KEY_10 AND multigaap_actl_cflow_trnx_trnsltn.IFRS_OPTION_TYPE_CODE = mrv_dw_actl_cflow_trnx_v.IFRS_OPTION_TYPE_CODE AND multigaap_actl_cflow_trnx_trnsltn.IFRS_TRNX_GROUP_CODE = mrv_dw_actl_cflow_trnx_v.IFRS_TRNX_GROUP_CODE /* Master Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CLAIM_BENEFIT_CONTRACT_RISK_ASSOC_V'') }} mrv_dw_claim_benefit_contract_risk_assoc_v ON multigaap_actl_cflow_trnx_trnsltn.MULTIGAAP_CONTRACT_RISK_KEY = mrv_dw_claim_benefit_contract_risk_assoc_v.CONTRACT_RISK_KEY /* Detail Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CLAIM_BENEFIT_V'') }} mrv_dw_claim_benefit_v ON mrv_dw_claim_benefit_contract_risk_assoc_v.CLAIM_BENEFIT_KEY = mrv_dw_claim_benefit_v.CLAIM_BENEFIT_KEY /* Detail Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CLAIM_BENEFIT_VRBL_V'') }} mrv_dw_claim_benefit_vrbl_v ON mrv_dw_claim_benefit_contract_risk_assoc_v.CLAIM_BENEFIT_KEY = mrv_dw_claim_benefit_vrbl_v.VRBL_CLAIM_BENEFIT_KEY /* Detail Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CLAIM_V'') }} mrv_dw_claim_v ON mrv_dw_claim_benefit_vrbl_v.CLAIM_KEY = mrv_dw_claim_v.CLAIM_KEY /* Detail Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CLAIM_VRBL_V'') }} mrv_dw_claim_vrbl_v ON mrv_dw_claim_v.CLAIM_KEY = mrv_dw_claim_vrbl_v.VRBL_CLAIM_KEY /* Detail Outer Join */'
       name: source1
       noLinkRefs: []
   name: DW_ACTL_CFLOW_TRNX_CONF
