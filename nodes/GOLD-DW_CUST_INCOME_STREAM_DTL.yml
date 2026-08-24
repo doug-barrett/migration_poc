@@ -522,17 +522,17 @@ operation:
       - locationName: BRONZE
         nodeName: CP_DXCP1
       - locationName: BRONZE
-        nodeName: CP_DQCP1
+        nodeName: YD_DEIREF
       - locationName: BRONZE
         nodeName: CP_DQCP2
-      - locationName: BRONZE
-        nodeName: CP_DQCP3
       - locationName: BRONZE
         nodeName: DW_CONTRACT
       - locationName: BRONZE
         nodeName: DW_PARTY
       - locationName: BRONZE
-        nodeName: YD_DEIREF
+        nodeName: CP_DQCP1
+      - locationName: BRONZE
+        nodeName: CP_DQCP3
       - locationName: BRONZE
         nodeName: INCOME_STM_RCPT1
       - locationName: BRONZE
@@ -542,17 +542,17 @@ operation:
       join:
         joinCondition: 'FROM {{ ref(''BRONZE'', ''CP_DXCP1'') }} cp_dxcp1
 
-          LEFT JOIN {{ ref(''BRONZE'', ''CP_DQCP1'') }} cp_dqcp1 ON /* TODO join key (Joiner) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''YD_DEIREF'') }} yd_deiref ON cp_dxcp1.PADDED_CLIENT_ID = yd_deiref.EI_ID /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''CP_DQCP2'') }} cp_dqcp2 ON /* TODO join key (Joiner) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''CP_DQCP2'') }} cp_dqcp2 ON yd_deiref.XC1_POLICY_NUMBER = cp_dqcp2.QC1_POLICY_NUMBER /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''CP_DQCP3'') }} cp_dqcp3 ON /* TODO join key (Joiner) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON yd_deiref.XC1_POLICY_NUMBER = dw_contract.CONTRACT_ID /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON /* TODO join key (Joiner) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_PARTY'') }} dw_party ON yd_deiref.BI_ID = dw_party.PARTY_ID /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_PARTY'') }} dw_party ON /* TODO join key (Joiner) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''CP_DQCP1'') }} cp_dqcp1 ON /* TODO join key (Joiner not resolved) */ 1=1
 
-          LEFT JOIN {{ ref(''BRONZE'', ''YD_DEIREF'') }} yd_deiref ON /* TODO join key (Joiner) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''CP_DQCP3'') }} cp_dqcp3 ON /* TODO join key (Joiner not resolved) */ 1=1
 
           LEFT JOIN {{ ref(''BRONZE'', ''INCOME_STM_RCPT1'') }} income_stm_rcpt1 ON income_stm_rcpt1.XC1_POLICY_NUMBER = cp_dxcp1.POL_NUM AND income_stm_rcpt1.XC1_ANNUITANT_NUMBER = cp_dxcp1.ANNT_NUM
 

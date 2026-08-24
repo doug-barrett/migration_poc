@@ -471,29 +471,29 @@ operation:
       - locationName: BRONZE
         nodeName: CP_DBCP1
       - locationName: SILVER
-        nodeName: CP_DPCP1
-      - locationName: SILVER
-        nodeName: CP_DPCP2
-      - locationName: SILVER
         nodeName: CP_DPCP3
       - locationName: BRONZE
         nodeName: DW_CONTRACT
       - locationName: GOLD
         nodeName: DW_CONTRACT_RISK_AL4
+      - locationName: SILVER
+        nodeName: CP_DPCP1
+      - locationName: SILVER
+        nodeName: CP_DPCP2
       - locationName: BRONZE
         nodeName: DW_PRODUCT_OPTION
       join:
         joinCondition: 'FROM {{ ref(''BRONZE'', ''CP_DBCP1'') }} cp_dbcp1
 
-          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP1'') }} cp_dpcp1 ON /* TODO join key (Joiner) */ 1=1
+          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP3'') }} cp_dpcp3 ON cp_dbcp1.BC1_POLICY_NUMBER = cp_dpcp3.PC1_POLICY_NUMBER_POLICY /* Master Outer Join */
 
-          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP2'') }} cp_dpcp2 ON /* TODO join key (Joiner) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON dw_contract.CONTRACT_ID = cp_dpcp3.BC1_POLICY_NUMBER /* Master Outer Join */
 
-          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP3'') }} cp_dpcp3 ON /* TODO join key (Joiner) */ 1=1
+          LEFT JOIN {{ ref(''GOLD'', ''DW_CONTRACT_RISK_AL4'') }} dw_contract_risk_al4 ON cp_dpcp3.CONTRACT_KEY = dw_contract_risk.CONTRACT_KEY_CONTRACT_RISK AND cp_dpcp3.PRODUCT_OPTION_KEY = dw_contract_risk.PRODUCT_OPTION_KEY_CONTRACT_RISK AND cp_dpcp3.BC1_CLIENT_ID_RISK1 = dw_contract_risk.PAS_CLIENT_ID_CONTRACT_RISK AND cp_dpcp3.FILE_EFTV_TSTP = dw_contract_risk.SRC_DLVRD_EFTV_DTTM_CONTRACT_RISK /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON /* TODO join key (Joiner) */ 1=1
+          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP1'') }} cp_dpcp1 ON /* TODO join key (Joiner not resolved) */ 1=1
 
-          LEFT JOIN {{ ref(''GOLD'', ''DW_CONTRACT_RISK_AL4'') }} dw_contract_risk_al4 ON /* TODO join key (Joiner) */ 1=1
+          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP2'') }} cp_dpcp2 ON /* TODO join key (Joiner not resolved) */ 1=1
 
           LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_OPTION'') }} dw_product_option ON dw_product_option.PRODUCT_KEY = cp_dbcp1.PRODUCT_KEY AND dw_product_option.PRODUCT_OPTION_CODE = cp_dbcp1.BC1_PLAN_CODE'
       name: source1

@@ -60,6 +60,14 @@ class Col:
 
 
 @dataclass
+class JoinEdge:
+    master: str                    # master-side source table
+    detail: str                    # detail-side source table
+    join_type: str                 # Normal / Detail Outer / Master Outer / Full
+    conditions: list               # [(master_col, op, detail_col), ...]
+
+
+@dataclass
 class Lookup:
     table: str                         # reconstructed table name (dw_party ...)
     conditions: list                   # [(lkp_col, op, in_port), ...]
@@ -75,6 +83,7 @@ class MappingIR:
     targets: list = field(default_factory=list)   # [(schema, table), ...]
     target_update_cols: list = field(default_factory=list)
     lookups: list = field(default_factory=list)   # [Lookup, ...]
+    joins: list = field(default_factory=list)     # [JoinEdge, ...]
     filters: list = field(default_factory=list)   # [condition_str, ...]
     outputs: list = field(default_factory=list)   # [Col, ...] expression outs
     ref_ports: set = field(default_factory=set)   # source ports referenced
@@ -198,14 +207,114 @@ def _mtt_bindings(mtt: dict):
     return sources, targets, tgt_cols
 
 
+def clean_join_operand(op: str) -> str:
+    """Recover the underlying column name from a joiner port operand.
+
+    Detail-side ports are usually renamed with a lowercase table-hint prefix
+    (dw_CONTRACT_ID, tgt_CONTRACT_KEY); real columns are upper-case, so strip a
+    single leading lowercase prefix."""
+    o = (op or "").strip()
+    o = re.sub(r'^[a-z][a-z0-9]*_', '', o)
+    return o.upper()
+
+
+def _source_tx_tables(mtt: dict) -> dict:
+    """source transformation name -> (schema, table).  The MTT source param is
+    named '$' + source-transformation-name + '$'."""
+    out = {}
+    if not mtt:
+        return out
+    for p in mtt.get("parameters", []) or []:
+        if "SOURCE" not in (p.get("type") or "").upper():
+            continue
+        txn = (p.get("name") or "").strip("$")
+        eo = p.get("extendedObject") or {}
+        objs = eo.get("objects") or ([eo.get("object")] if eo.get("object") else [])
+        names = [o.get("name") for o in objs if o and o.get("name")]
+        if names:
+            sch, tbl = _split_obj(names[0])
+            if tbl:
+                out[txn] = (sch, tbl)
+    return out
+
+
+def _extract_joins(imf, mtt, target_tables):
+    """Reconstruct source-to-source joins from Joiner transformations.
+
+    Traces each Joiner's Master/Detail inputs back to their originating source
+    tables via the link graph, and pairs them with the Joiner's joinConditions.
+    Joins where one side is the mapping target (SCD2 look-back against the
+    existing target) are skipped -- Coalesce handles that internally."""
+    src_tbl = _source_tx_tables(mtt)
+    name2tx = {t.get("name"): t for t in imf.transformations}
+    grp = {}
+    for t in imf.transformations:
+        for g in t.get("groups", []) or []:
+            grp[g.get("$$ID")] = g.get("name")
+    # reverse adjacency: to_tx -> [(from_tx, to_group_name)]
+    rev = {}
+    for l in imf.links:
+        fo = imf.index.get(l.get("fromTransformation", {}).get("##ID"), {})
+        to = imf.index.get(l.get("toTransformation", {}).get("##ID"), {})
+        gname = grp.get(l.get("toGroup", {}).get("##ID"), "")
+        rev.setdefault(to.get("name"), []).append((fo.get("name"), gname))
+
+    def trace(txn, seen=None):
+        if seen is None:
+            seen = set()
+        if not txn or txn in seen:
+            return None
+        seen.add(txn)
+        t = name2tx.get(txn, {})
+        cn = imf.class_name(t.get("$$class")).split(".")[-1]
+        if cn == "TmplSource":
+            st = src_tbl.get(txn)
+            return st[1] if st else None
+        for (frm, _g) in rev.get(txn, []):
+            r = trace(frm, seen)
+            if r:
+                return r
+        return None
+
+    edges = []
+    for t in imf.transformations:
+        if not imf.class_name(t.get("$$class")).split(".")[-1] == "TmplJoiner":
+            continue
+        sides = {}
+        for (frm, g) in rev.get(t.get("name"), []):
+            if g in ("Master", "Detail") and g not in sides:
+                sides[g] = trace(frm)
+        master, detail = sides.get("Master"), sides.get("Detail")
+        if not master or not detail or master == detail:
+            continue
+        if master in target_tables or detail in target_tables:
+            continue                      # SCD2 look-back, not a real join
+        conds = []
+        for c in t.get("joinConditions", []) or []:
+            l = clean_join_operand(c.get("leftOperand", ""))
+            r = clean_join_operand(c.get("rightOperand", ""))
+            if l and r:
+                conds.append((l, c.get("operator", "="), r))
+        if conds:
+            edges.append(JoinEdge(master=master, detail=detail,
+                                  join_type=t.get("joinType", "Normal Join"),
+                                  conditions=conds))
+    return edges
+
+
 def build_ir(dtemplate_path: str, mtt_path: str | None, folder: str) -> MappingIR:
     imf = load_dtemplate(dtemplate_path)
     ir = MappingIR(name=imf.name, folder=folder)
 
     # --- MTT bindings (concrete source/target tables) ---
+    mtt = None
     if mtt_path and os.path.exists(mtt_path):
         mtt = load_mtt(mtt_path)
         ir.sources, ir.targets, ir.target_update_cols = _mtt_bindings(mtt)
+
+    # --- source-to-source joins reconstructed from Joiner transformations ---
+    target_tables = {t for _s, t in ir.targets}
+    ir.joins = _extract_joins(imf, mtt, target_tables)
 
     # --- transformations ---
     for tx in imf.transformations:

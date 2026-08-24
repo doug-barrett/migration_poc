@@ -964,12 +964,12 @@ operation:
         nodeName: DW_CONTRACT
       - locationName: SILVER
         nodeName: CP_DPCP1
+      - locationName: BRONZE
+        nodeName: YD_DEIREF
       - locationName: SILVER
         nodeName: CP_DPCP2
       - locationName: SILVER
         nodeName: CP_DPCP3
-      - locationName: BRONZE
-        nodeName: YD_DEIREF
       - locationName: BRONZE
         nodeName: DW_PARTY
       - locationName: BRONZE
@@ -995,15 +995,15 @@ operation:
       join:
         joinCondition: 'FROM {{ ref(''BRONZE'', ''CP_DBCP1'') }} cp_dbcp1
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON /* TODO join key (Joiner) */ 1=1
+          INNER JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON cp_dbcp1.BC1_POLICY_NUMBER = dw_contract.CONTRACT_ID
 
-          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP1'') }} cp_dpcp1 ON /* TODO join key (Joiner) */ 1=1
+          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP1'') }} cp_dpcp1 ON cp_dbcp1.BC1_POLICY_NUMBER = cp_dpcp1.PC1_POLICY_NUMBER /* Master Outer Join */
 
-          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP2'') }} cp_dpcp2 ON /* TODO join key (Joiner) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''YD_DEIREF'') }} yd_deiref ON cp_dbcp1.ID_P7 = yd_deiref.EI_ID /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP3'') }} cp_dpcp3 ON /* TODO join key (Joiner) */ 1=1
+          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP2'') }} cp_dpcp2 ON /* TODO join key (Joiner not resolved) */ 1=1
 
-          LEFT JOIN {{ ref(''BRONZE'', ''YD_DEIREF'') }} yd_deiref ON /* TODO join key (Joiner) */ 1=1
+          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP3'') }} cp_dpcp3 ON /* TODO join key (Joiner not resolved) */ 1=1
 
           LEFT JOIN {{ ref(''BRONZE'', ''DW_PARTY'') }} dw_party ON dw_party.PARTY_ID = cp_dbcp1.REF_BI_ID
 

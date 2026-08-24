@@ -428,6 +428,40 @@ def _plan_specs(irs, produced, external, existing):
     return specs, registry
 
 
+def _has_joiner_edge(ir, table, joined):
+    for e in ir.joins:
+        if (table == e.detail and e.master in joined) or \
+           (table == e.master and e.detail in joined):
+            return True
+    return False
+
+
+def _joiner_on(ir, table, joined):
+    """Build (join_keyword, on_clause) for `table` using the mapping's
+    reconstructed Joiner edges, pairing it with an already-joined counterpart.
+    Falls back to a TODO placeholder when no edge connects them."""
+    for e in ir.joins:
+        if table == e.detail and e.master in joined:
+            other, this_cols, other_first = e.master, "detail", True
+        elif table == e.master and e.detail in joined:
+            other, this_cols, other_first = e.detail, "master", True
+        else:
+            continue
+        a_other, a_this = other.lower(), table.lower()
+        preds = []
+        for (mcol, op, dcol) in e.conditions:
+            if this_cols == "detail":     # other=master, this=detail
+                preds.append(f"{a_other}.{mcol} {op} {a_this}.{dcol}")
+            else:                          # other=detail, this=master
+                preds.append(f"{a_this}.{mcol} {op} {a_other}.{dcol}")
+        kw = "INNER JOIN" if e.join_type == "Normal Join" else "LEFT JOIN"
+        on = " AND ".join(preds)
+        if e.join_type not in ("Normal Join",):
+            on += f" /* {e.join_type} */"
+        return kw, on
+    return "LEFT JOIN", "/* TODO join key (Joiner not resolved) */ 1=1"
+
+
 def _resolve_join(spec, ir, resolver, registry, raw_of=None):
     """Fill spec.deps and spec.join_condition using an authoritative
     table->(location, node) resolver.  A node never depends on itself or on a
@@ -472,18 +506,39 @@ def _resolve_join(spec, ir, resolver, registry, raw_of=None):
         from_line = "-- FROM <no source bound>"
 
     join_lines = [from_line]
+    joined = {primary[1]} if primary else set()
 
-    # other MTT sources (joiners) -> LEFT JOIN (condition unknown -> commented)
+    # other MTT sources -> JOIN using the reconstructed Joiner conditions.
+    # Place a source once its Joiner counterpart is already in the FROM (a
+    # fixpoint, so join chains resolve regardless of source ordering).
+    pending = []
     for (s, t) in sources:
         if primary and t == primary[1]:
             continue
         r = resolve_table(t)
         if r:
-            loc, nm = r
-            deps.append((loc, nm))
-            join_lines.append(
-                f"LEFT JOIN {{{{ ref('{loc}', '{nm}') }}}} {nm.lower()} "
-                f"ON /* TODO join key (Joiner) */ 1=1")
+            pending.append((t, r))
+
+    def _emit(t, r):
+        loc, nm = r
+        deps.append((loc, nm))
+        kw, on = _joiner_on(ir, t, joined)
+        join_lines.append(f"{kw} {{{{ ref('{loc}', '{nm}') }}}} {nm.lower()} ON {on}")
+        joined.add(t)
+
+    progress = True
+    while progress and pending:
+        progress = False
+        still = []
+        for (t, r) in pending:
+            if _has_joiner_edge(ir, t, joined):
+                _emit(t, r)
+                progress = True
+            else:
+                still.append((t, r))
+        pending = still
+    for (t, r) in pending:        # no Joiner edge (SCD2 look-back / independent)
+        _emit(t, r)
 
     # lookups -> LEFT JOIN with ON from lookup conditions
     for lk in ir.lookups:

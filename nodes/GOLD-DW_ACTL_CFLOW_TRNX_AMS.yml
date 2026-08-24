@@ -290,23 +290,23 @@ operation:
       - locationName: BRONZE
         nodeName: CURR_CONTRACT_INVEST_OPT
       - locationName: BRONZE
-        nodeName: MRV_DW_ACTL_CFLOW_TRNX_HIST_V
-      - locationName: BRONZE
         nodeName: MRV_DW_CONTRACT_RISK_V
       - locationName: BRONZE
         nodeName: MRV_REF360_IFRS_OPTION_TYPE_CURR_V
       - locationName: BRONZE
         nodeName: MRV_DW_ACTL_CFLOW_TRNX_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_ACTL_CFLOW_TRNX_HIST_V
       join:
         joinCondition: 'FROM {{ ref(''BRONZE'', ''CURR_CONTRACT_INVEST_OPT'') }} curr_contract_invest_opt
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_HIST_V'') }} mrv_dw_actl_cflow_trnx_hist_v ON /* TODO join key (Joiner) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_RISK_V'') }} mrv_dw_contract_risk_v ON mrv_dw_contract_risk_v.CONTRACT_KEY = curr_contract_invest_opt.CONTRACT_KEY AND mrv_dw_contract_risk_v.PRODUCT_SYSTEM_CODE = curr_contract_invest_opt.PRODUCT_SYSTEM_CODE /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_RISK_V'') }} mrv_dw_contract_risk_v ON /* TODO join key (Joiner) */ 1=1
+          INNER JOIN {{ ref(''BRONZE'', ''MRV_REF360_IFRS_OPTION_TYPE_CURR_V'') }} mrv_ref360_ifrs_option_type_curr_v ON mrv_dw_contract_risk_v.IFRS_OPTION_TYPE_CODE = mrv_ref360_ifrs_option_type_curr_v.OTC2_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_REF360_IFRS_OPTION_TYPE_CURR_V'') }} mrv_ref360_ifrs_option_type_curr_v ON /* TODO join key (Joiner) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_V'') }} mrv_dw_actl_cflow_trnx_v ON mrv_dw_contract_risk_v.CORRELATION_ID = mrv_dw_actl_cflow_trnx_v.CORRELATION_ID AND mrv_dw_contract_risk_v.IFRS_CFLOW_STATUS_CODE = mrv_dw_actl_cflow_trnx_v.IFRS_CFLOW_STATUS_CODE AND mrv_dw_contract_risk_v.PO_IFRS_OPTION_TYPE_CODE = mrv_dw_actl_cflow_trnx_v.IFRS_OPTION_TYPE_CODE /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_V'') }} mrv_dw_actl_cflow_trnx_v ON /* TODO join key (Joiner) */ 1=1'
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_HIST_V'') }} mrv_dw_actl_cflow_trnx_hist_v ON /* TODO join key (Joiner not resolved) */ 1=1'
       name: source1
       noLinkRefs: []
   name: DW_ACTL_CFLOW_TRNX_AMS

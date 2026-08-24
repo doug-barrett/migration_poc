@@ -82,8 +82,14 @@ are captured as clearly-marked TODOs rather than guessed:
 - **In-place mappings** (read == write, e.g. DQ validations) get a raw
   `<TABLE>_RAW` BRONZE source for the read side; the written node keeps the
   base name. Downstream refs resolve to the written (validated) node.
-- **Joiner join keys** are not in the export → emitted as
-  `LEFT JOIN … ON /* TODO join key (Joiner) */ 1=1`.
+- **Joiner join keys** ARE in the export (`joinConditions` + `joinType` on
+  every Joiner). The converter traces each Joiner's Master/Detail inputs back
+  to their source tables via the link graph and emits real ON clauses
+  (`INNER`/`LEFT` by join type). Joins between *intermediate* streams
+  (post-aggregation / union / view-to-view) that don't reduce to a direct
+  source pair remain `ON /* TODO join key (Joiner not resolved) */ 1=1`.
+  Source-to-target joins (SCD2 look-back on the existing target) are dropped —
+  the node type handles that internally.
 - **Unconnected lookups** called inside expressions (`:LKP.name(...)`) become
   `/*LKP:name(args)*/ NULL` placeholders.
 - **SCD2 mechanics** (surrogate-key sequences, change-hash, effective dating)
