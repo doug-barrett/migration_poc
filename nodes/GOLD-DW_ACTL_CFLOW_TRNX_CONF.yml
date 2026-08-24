@@ -201,12 +201,20 @@ operation:
         transform: CASE WHEN (claim_vrbl_CLAIM_FINALISED_DATE IS NULL)and cms_DECISION_REASON_CODE='ACC' THEN to_Date('3000-12-31','YYYY-MM-DD') ELSE CASE WHEN (cms_DECISION_REASON_CODE!='ACC' OR (cms_DECISION_REASON_CODE IS NULL)) THEN to_Date('1900-01-01','YYYY-MM-DD') ELSE claim_vrbl_CLAIM_FINALISED_DATE END END
     enabledColumnTestIDs: []
     sourceMapping:
-    - aliases: {}
+    - aliases:
+        MRV_DW_ACTL_CFLOW_TRNX_V: 8d676e56-8f04-696a-c215-ff120601a157
+        MRV_DW_CLAIM_BENEFIT_CONTRACT_RISK_ASSOC_V: fdf8e990-18ea-5ff6-c222-3e87590b0e01
       customSQL:
         customSQL: ''
-      dependencies: []
+      dependencies:
+      - locationName: BRONZE
+        nodeName: MRV_DW_ACTL_CFLOW_TRNX_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_CLAIM_BENEFIT_CONTRACT_RISK_ASSOC_V
       join:
-        joinCondition: -- FROM MRV_DW_ACTL_CFLOW_TRNX_V (source node not generated)
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_V'') }} mrv_dw_actl_cflow_trnx_v
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CLAIM_BENEFIT_CONTRACT_RISK_ASSOC_V'') }} mrv_dw_claim_benefit_contract_risk_assoc_v ON /* TODO join key (Joiner) */ 1=1'
       name: source1
       noLinkRefs: []
   name: DW_ACTL_CFLOW_TRNX_CONF

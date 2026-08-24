@@ -955,12 +955,30 @@ operation:
         transform: -- 1. Check if GL_target_code_1 is null. -- 2. If null, use o_TRNX_REF_KEY_6; else use GL_target_code_1. CASE WHEN (GL_target_code_1 IS NULL) THEN o_TRNX_REF_KEY_6 ELSE GL_target_code_1 END
     enabledColumnTestIDs: []
     sourceMapping:
-    - aliases: {}
+    - aliases:
+        AL4_DCASHFLOW: 409388f1-7c6e-af1c-1357-d135ed7444c2
+        MRV_DW_ACTL_CFLOW_TRNX_HIST_V: d38a7c08-4a5b-cf96-80b2-b977170e0eaf
+        MRV_DW_CONTRACT_RISK_V: 347033e8-7cf2-ccb0-4dec-05a632e0de4c
+        MRV_REF360_IFRS_OPTION_TYPE_CURR_V: a598a198-6449-38de-aea2-aa2e82f584d8
       customSQL:
         customSQL: ''
-      dependencies: []
+      dependencies:
+      - locationName: BRONZE
+        nodeName: AL4_DCASHFLOW
+      - locationName: BRONZE
+        nodeName: MRV_REF360_IFRS_OPTION_TYPE_CURR_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_ACTL_CFLOW_TRNX_HIST_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_CONTRACT_RISK_V
       join:
-        joinCondition: -- FROM AL4_DCASHFLOW (source node not generated)
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''AL4_DCASHFLOW'') }} al4_dcashflow
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_REF360_IFRS_OPTION_TYPE_CURR_V'') }} mrv_ref360_ifrs_option_type_curr_v ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_HIST_V'') }} mrv_dw_actl_cflow_trnx_hist_v ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_RISK_V'') }} mrv_dw_contract_risk_v ON /* TODO join key (Joiner) */ 1=1'
       name: source1
       noLinkRefs: []
   name: DW_ACTL_CFLOW_TRNX_HIST_AL4

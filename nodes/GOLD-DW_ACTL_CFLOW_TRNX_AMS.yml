@@ -278,12 +278,35 @@ operation:
         transform: CASE WHEN (cio_CASH_AMT IS NULL) THEN 0 ELSE cio_CASH_AMT END
     enabledColumnTestIDs: []
     sourceMapping:
-    - aliases: {}
+    - aliases:
+        CURR_CONTRACT_INVEST_OPT: 57f55f32-e193-2611-9d33-a19a8559fa0c
+        MRV_DW_ACTL_CFLOW_TRNX_HIST_V: d38a7c08-4a5b-cf96-80b2-b977170e0eaf
+        MRV_DW_ACTL_CFLOW_TRNX_V: 8d676e56-8f04-696a-c215-ff120601a157
+        MRV_DW_CONTRACT_RISK_V: 347033e8-7cf2-ccb0-4dec-05a632e0de4c
+        MRV_REF360_IFRS_OPTION_TYPE_CURR_V: a598a198-6449-38de-aea2-aa2e82f584d8
       customSQL:
         customSQL: ''
-      dependencies: []
+      dependencies:
+      - locationName: BRONZE
+        nodeName: CURR_CONTRACT_INVEST_OPT
+      - locationName: BRONZE
+        nodeName: MRV_DW_ACTL_CFLOW_TRNX_HIST_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_CONTRACT_RISK_V
+      - locationName: BRONZE
+        nodeName: MRV_REF360_IFRS_OPTION_TYPE_CURR_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_ACTL_CFLOW_TRNX_V
       join:
-        joinCondition: -- FROM CURR_CONTRACT_INVEST_OPT (source node not generated)
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''CURR_CONTRACT_INVEST_OPT'') }} curr_contract_invest_opt
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_HIST_V'') }} mrv_dw_actl_cflow_trnx_hist_v ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_RISK_V'') }} mrv_dw_contract_risk_v ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_REF360_IFRS_OPTION_TYPE_CURR_V'') }} mrv_ref360_ifrs_option_type_curr_v ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_V'') }} mrv_dw_actl_cflow_trnx_v ON /* TODO join key (Joiner) */ 1=1'
       name: source1
       noLinkRefs: []
   name: DW_ACTL_CFLOW_TRNX_AMS

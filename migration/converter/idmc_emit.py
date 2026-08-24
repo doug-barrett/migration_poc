@@ -135,18 +135,36 @@ def _lookup_schema_registry(irs) -> dict:
     return reg
 
 
+def _primary_source(ir):
+    """Pick a mapping's primary (driving) source: prefer one matching the
+    mapping's source token, else the first bound source."""
+    tok = source_token(ir.name).lower()
+    for (s, t) in ir.sources:
+        if tok and tok in t.lower():
+            return (s, t)
+    return ir.sources[0] if ir.sources else None
+
+
+def _clean_port(sc: str) -> bool:
+    return bool(re.match(r'^[A-Z_][A-Z0-9_]*$', sc)) and not sc.startswith("V_")
+
+
 def _source_ports_registry(irs) -> dict:
-    """table -> set(reconstructed source columns) from mapping usage.  Only
-    meaningful for a table that is the sole source of a mapping."""
+    """table -> set(reconstructed source columns) from mapping usage.
+
+    A mapping's referenced ports are attributed to its PRIMARY source (the
+    driving table), so multi-source mappings still reconstruct a schema for
+    their raw primary source -- not only sole-source mappings."""
     reg = {}
     for ir in irs:
-        if len(ir.sources) == 1:
-            (_sch, tbl) = ir.sources[0]
-            cols = reg.setdefault(tbl, set())
-            for p in ir.ref_ports:
-                sc = source_col_for_port(p)
-                if re.match(r'^[A-Z_][A-Z0-9_]*$', sc) and not sc.startswith("V_"):
-                    cols.add(sc)
+        prim = _primary_source(ir)
+        if not prim:
+            continue
+        cols = reg.setdefault(prim[1], set())
+        for p in ir.ref_ports:
+            sc = source_col_for_port(p)
+            if _clean_port(sc):
+                cols.add(sc)
     return reg
 
 
@@ -197,11 +215,24 @@ def _plan_specs(irs, produced, external, existing):
     # carry an embedded schema.  Everything else (unconnected-lookup macros,
     # port/sequence names mistaken for tables) is dropped.
     mtt_sources = set()
+    src_schema = {}
     for ir in irs:
-        for _s, t in ir.sources:
+        for s, t in ir.sources:
             mtt_sources.add(t)
+            src_schema.setdefault(t, s)
     lookup_fielded = set(lookup_reg.keys())
-    external = {t: external.get(t, "")
+
+    # In-place tables: read AND written by the same mapping (e.g. DQ
+    # validations that update a staging table in place).  The write side is the
+    # produced (SILVER) node; the read side is a raw BRONZE source, created
+    # under the name "<TABLE>_RAW" so the two nodes never collide.
+    inplace = set()
+    for ir in irs:
+        srct = {t for _s, t in ir.sources}
+        tgtt = {t for _s, t in ir.targets}
+        inplace |= (srct & tgtt)
+
+    external = {t: external.get(t, src_schema.get(t, ""))
                 for t in (mtt_sources | lookup_fielded)
                 if t not in produced}
 
@@ -262,6 +293,29 @@ def _plan_specs(irs, produced, external, existing):
             spec.columns.append((c, dt, "", False))
         specs[tbl] = spec
 
+    # --- raw BRONZE source for in-place (read==write) tables ---
+    raw_of = {}   # table -> raw source node name
+    for tbl in sorted(inplace):
+        if not _valid_table(tbl):
+            continue
+        raw_name = f"{tbl}_RAW"
+        if raw_name in existing or raw_name in specs:
+            raw_of[tbl] = raw_name
+            continue
+        cols = {c: heuristic_type(c) for c in sorted(srcport_reg.get(tbl, set()))}
+        for c, dt in lookup_reg.get(tbl, {}).items():
+            cols.setdefault(c, dt)
+        if not cols:
+            continue
+        spec = NodeSpec(raw_name, "BRONZE", "Source", "table")
+        spec.is_source = True
+        spec.description = (f"Raw pre-validation source for in-place mapping "
+                            f"target {tbl} (IICS DQ/update-in-place pattern).")
+        for c, dt in cols.items():
+            spec.columns.append((c, dt, "", False))
+        specs[raw_name] = spec
+        raw_of[tbl] = raw_name
+
     # --- one node per mapping (per distinct target) ---
     for ir in irs:
         tgts = ir.targets or [("", re.sub(r'^m_', '', ir.name).upper())]
@@ -318,10 +372,17 @@ def _plan_specs(irs, produced, external, existing):
     # authoritative table -> (location, node_name) resolver.  Built from the
     # nodes we actually emit (plus hand-built nodes), so refs never point at a
     # location the node was not written to.
+    # produced (mapping) nodes take precedence over raw sources, so a
+    # downstream ref to an in-place table resolves to the validated node.
     node_of_table = {}
     for name, spec in specs.items():
-        tbl = name if spec.is_source else getattr(spec, "_tbl", name)
-        node_of_table.setdefault(tbl, (spec.location, spec.name))
+        if spec.is_source:
+            continue
+        node_of_table.setdefault(getattr(spec, "_tbl", name),
+                                 (spec.location, spec.name))
+    for name, spec in specs.items():
+        if spec.is_source:
+            node_of_table.setdefault(name, (spec.location, spec.name))
     existing_locs = existing if isinstance(existing, dict) else {}
 
     def resolver(table):
@@ -335,7 +396,7 @@ def _plan_specs(irs, produced, external, existing):
     for name, spec in specs.items():
         if spec.is_source:
             continue
-        _resolve_join(spec, spec._ir, resolver, registry)
+        _resolve_join(spec, spec._ir, resolver, registry, raw_of)
 
     # propagate precise column types downstream: a pass-through column adopts
     # the dataType of the upstream column it references.  Iterate over the DAG
@@ -367,14 +428,19 @@ def _plan_specs(irs, produced, external, existing):
     return specs, registry
 
 
-def _resolve_join(spec, ir, resolver, registry):
+def _resolve_join(spec, ir, resolver, registry, raw_of=None):
     """Fill spec.deps and spec.join_condition using an authoritative
     table->(location, node) resolver.  A node never depends on itself or on a
-    sibling target produced by the same mapping (that would be a false cycle)."""
+    sibling target produced by the same mapping (that would be a false cycle),
+    except an in-place read==write source, which resolves to its raw
+    "<TABLE>_RAW" BRONZE node."""
+    raw_of = raw_of or {}
     sibling_tables = {t for (_s, t) in ir.targets}
 
     def resolve_table(table):
         if table in sibling_tables:
+            if table in raw_of:
+                return ("BRONZE", raw_of[table])
             return None
         return resolver(table)
 

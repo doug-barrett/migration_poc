@@ -35,14 +35,22 @@ tracks its own output in `nodes/.idmc_generated.json` and only rewrites those.
 
 ```bash
 cd migration/converter
+# 1. generate the DAG from the export (rewrites its own nodes; never touches hand-built ones)
 python3 idmc_convert.py \
   --export ~/work/POC/Acenda_Coalesce_IDMC_Jobs \
   --repo   ../.. \
   --write            # omit --write, add --summary for a dry-run report
-coa validate         # from repo root
+# 2. close residual lineage gaps in the hand-built pilot nodes
+#    (MUST run after step 1 — the converter overwrites its own generated nodes)
+python3 complete_pilot_sources.py --repo ../..
+coa validate         # from repo root -> should report: no problems found
 ```
 
 Requires Python 3.10+ and `pyyaml`.
+
+Run order matters: `idmc_convert.py` rewrites every node it owns (tracked in
+`nodes/.idmc_generated.json`), so `complete_pilot_sources.py` — which patches a
+column onto a generated node — must run second.
 
 ## Files
 
@@ -68,7 +76,12 @@ are captured as clearly-marked TODOs rather than guessed:
 
 - **Parameterised source/target schemas** carry no columns in the export;
   source columns are reconstructed from mapping usage + embedded lookup schemas
-  (stated in each node's description).
+  (stated in each node's description). A multi-source mapping's referenced
+  ports are attributed to its *primary* source, so a raw primary can end up
+  with a superset of columns.
+- **In-place mappings** (read == write, e.g. DQ validations) get a raw
+  `<TABLE>_RAW` BRONZE source for the read side; the written node keeps the
+  base name. Downstream refs resolve to the written (validated) node.
 - **Joiner join keys** are not in the export → emitted as
   `LEFT JOIN … ON /* TODO join key (Joiner) */ 1=1`.
 - **Unconnected lookups** called inside expressions (`:LKP.name(...)`) become

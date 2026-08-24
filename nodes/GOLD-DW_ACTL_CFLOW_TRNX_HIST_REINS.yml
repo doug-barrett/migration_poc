@@ -981,12 +981,25 @@ operation:
         transform: CASE WHEN IN(UPPER(o_TREATY_CODE),$p_non_risk_treaty$) THEN contract_vrbl_PRODUCT_KEY ELSE -1 END
     enabledColumnTestIDs: []
     sourceMapping:
-    - aliases: {}
+    - aliases:
+        MRV_DW_ACTL_CFLOW_TRNX_HIST_V: d38a7c08-4a5b-cf96-80b2-b977170e0eaf
+        MRV_DW_CONTRACT_RISK_V: 347033e8-7cf2-ccb0-4dec-05a632e0de4c
+        MRV_DW_REINS_TRANSACTION_V: 080ad2d0-9ea9-c618-f872-0cffb9bba220
       customSQL:
         customSQL: ''
-      dependencies: []
+      dependencies:
+      - locationName: BRONZE
+        nodeName: MRV_DW_REINS_TRANSACTION_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_ACTL_CFLOW_TRNX_HIST_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_CONTRACT_RISK_V
       join:
-        joinCondition: -- FROM MRV_DW_REINS_TRANSACTION_V (source node not generated)
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''MRV_DW_REINS_TRANSACTION_V'') }} mrv_dw_reins_transaction_v
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_HIST_V'') }} mrv_dw_actl_cflow_trnx_hist_v ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_RISK_V'') }} mrv_dw_contract_risk_v ON /* TODO join key (Joiner) */ 1=1'
       name: source1
       noLinkRefs: []
   name: DW_ACTL_CFLOW_TRNX_HIST_REINS

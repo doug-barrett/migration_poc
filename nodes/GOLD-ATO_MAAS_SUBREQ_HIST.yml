@@ -28,8 +28,8 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences:
-        - columnCounter: b560ab6b-3cd7-d084-bc29-fc328698c393
-          stepCounter: 7d25458a-23aa-761e-4c5d-41fe51b05b69
+        - columnCounter: 6548e3ba-b78e-d99c-7ca2-ae716317c3f6
+          stepCounter: 8430c5ca-7d8a-58a1-94d6-5f2910c401c2
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -69,8 +69,8 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences:
-        - columnCounter: ae8f6b39-2055-94c5-9b02-b84a4bae1d98
-          stepCounter: edd52f3e-b3c3-616b-d95c-42fd235707b3
+        - columnCounter: 3166e0b9-bdbf-ff79-288d-b9251b72f35a
+          stepCounter: 8430c5ca-7d8a-58a1-94d6-5f2910c401c2
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -797,8 +797,10 @@ operation:
     sourceMapping:
     - aliases:
         ATO_MAAS_SUBREQ_HIST_DUPS: 05bd1fef-c6f2-8fdc-bf19-50d8e1b80649
+        ATO_MAAS_SUBREQ_HIST_RAW: d8baab81-da94-8919-4e1f-73caa783c5f1
         DOD_DW_PERSON: 4eaeca78-a200-6e10-b816-f91e15b5b678
         DWCTL_PROCESS_CONFIG: 329c8c85-8d26-cc61-a526-1d0e0c8af87f
+        DW_ATO_MAAS_ADHOC_DELTA_V: 8430c5ca-7d8a-58a1-94d6-5f2910c401c2
         DW_CONTRACT_VRBL: 0fbdee98-bf98-9091-898c-61b4d70436e7
         DW_CP_DMAAS_HISTORY: 7d25458a-23aa-761e-4c5d-41fe51b05b69
         DW_CP_DMAAS_HISTORY_ACCOUNT_STATUS_DATE: 45908780-858b-1da9-226c-538f52d03944
@@ -807,6 +809,10 @@ operation:
       customSQL:
         customSQL: ''
       dependencies:
+      - locationName: BRONZE
+        nodeName: DW_ATO_MAAS_ADHOC_DELTA_V
+      - locationName: BRONZE
+        nodeName: ATO_MAAS_SUBREQ_HIST_RAW
       - locationName: BRONZE
         nodeName: DW_PERSON
       - locationName: SILVER
@@ -824,7 +830,9 @@ operation:
       - locationName: BRONZE
         nodeName: ATO_MAAS_SUBREQ_HIST_DUPS
       join:
-        joinCondition: '-- FROM DW_ATO_MAAS_ADHOC_DELTA_V (source node not generated)
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''DW_ATO_MAAS_ADHOC_DELTA_V'') }} dw_ato_maas_adhoc_delta_v
+
+          LEFT JOIN {{ ref(''BRONZE'', ''ATO_MAAS_SUBREQ_HIST_RAW'') }} ato_maas_subreq_hist_raw ON /* TODO join key (Joiner) */ 1=1
 
           LEFT JOIN {{ ref(''BRONZE'', ''DW_PERSON'') }} dw_person ON dw_person.PARTY_KEY = dw_ato_maas_adhoc_delta_v.PARTY_KEY
 
@@ -835,6 +843,8 @@ operation:
           LEFT JOIN {{ ref(''BRONZE'', ''DOD_DW_PERSON'') }} dod_dw_person ON dod_dw_person.PARTY_KEY = dw_ato_maas_adhoc_delta_v.PARTY_KEY
 
           LEFT JOIN {{ ref(''BRONZE'', ''DW_CP_DMAAS_HISTORY'') }} dw_cp_dmaas_history ON dw_cp_dmaas_history.CONTRACT_KEY = dw_ato_maas_adhoc_delta_v.CONTRACT_KEY AND dw_cp_dmaas_history.MDM_PARTY_KEY = dw_ato_maas_adhoc_delta_v.PARTY_KEY
+
+          LEFT JOIN {{ ref(''BRONZE'', ''ATO_MAAS_SUBREQ_HIST_RAW'') }} ato_maas_subreq_hist_raw ON ato_maas_subreq_hist_raw.CONTRACT_KEY = dw_ato_maas_adhoc_delta_v.CONTRACT_KEY AND ato_maas_subreq_hist_raw.PARTY_KEY = dw_ato_maas_adhoc_delta_v.PARTY_KEY AND ato_maas_subreq_hist_raw.CONTRACT_STATUS_CODE = dw_ato_maas_adhoc_delta_v.CONTRACT_STATUS_CODE AND ato_maas_subreq_hist_raw.DATE_OF_BIRTH = dw_ato_maas_adhoc_delta_v.DATE_OF_BIRTH
 
           LEFT JOIN {{ ref(''BRONZE'', ''DW_CP_DMAAS_HISTORY_ACCOUNT_STATUS_DATE'') }} dw_cp_dmaas_history_account_status_date ON dw_cp_dmaas_history_account_status_date.CONTRACT_KEY = dw_ato_maas_adhoc_delta_v.CONTRACT_KEY AND dw_cp_dmaas_history_account_status_date.MDM_PARTY_KEY = dw_ato_maas_adhoc_delta_v.PARTY_KEY
 

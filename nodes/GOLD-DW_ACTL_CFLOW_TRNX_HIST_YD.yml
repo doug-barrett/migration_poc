@@ -1046,12 +1046,30 @@ operation:
         transform: CASE WHEN IN(o_PRODUCT_CODE,'ULMA','ULMAN','ULKP') and o_PRODUCT_SYSTEM_CODE='OR' and not (TARGET_CODE_1 IS NULL) THEN TARGET_CODE_1 ELSE o_PRODUCT_SYSTEM_CODE END
     enabledColumnTestIDs: []
     sourceMapping:
-    - aliases: {}
+    - aliases:
+        MRV_DW_ACTL_CFLOW_TRNX_HIST_V: d38a7c08-4a5b-cf96-80b2-b977170e0eaf
+        MRV_DW_CONTRACT_RISK_V: 347033e8-7cf2-ccb0-4dec-05a632e0de4c
+        MRV_REF360_IFRS_OPTION_TYPE_CURR_V: a598a198-6449-38de-aea2-aa2e82f584d8
+        YD_DCASHFLOW: e4dbcb8f-6e6e-346e-262a-8de6f778d3b1
       customSQL:
         customSQL: ''
-      dependencies: []
+      dependencies:
+      - locationName: BRONZE
+        nodeName: YD_DCASHFLOW
+      - locationName: BRONZE
+        nodeName: MRV_REF360_IFRS_OPTION_TYPE_CURR_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_ACTL_CFLOW_TRNX_HIST_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_CONTRACT_RISK_V
       join:
-        joinCondition: -- FROM YD_DCASHFLOW (source node not generated)
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''YD_DCASHFLOW'') }} yd_dcashflow
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_REF360_IFRS_OPTION_TYPE_CURR_V'') }} mrv_ref360_ifrs_option_type_curr_v ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_HIST_V'') }} mrv_dw_actl_cflow_trnx_hist_v ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_RISK_V'') }} mrv_dw_contract_risk_v ON /* TODO join key (Joiner) */ 1=1'
       name: source1
       noLinkRefs: []
   name: DW_ACTL_CFLOW_TRNX_HIST_YD

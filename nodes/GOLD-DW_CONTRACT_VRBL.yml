@@ -842,14 +842,20 @@ operation:
     sourceMapping:
     - aliases:
         DW_CONTRACT: 49afe4d4-b8de-827c-baa6-dc1914b9ca5f
+        DW_CONTRACT_VRBL_RAW: 3aaee47d-925b-db3e-70ff-9b72ba8a7ed0
         DW_PRODUCT: ed7612a8-85f9-aa54-ac9b-ebf1cd369a79
+        OR_PRODUCT_CONVERT: 7a78f22b-ea98-f803-f1c6-231ee135b0b1
         REF360_CLOSE_TYPE: 957403ac-171c-e341-7098-c1af423c645c
         REF360_CONVERT: bb33d191-cd2d-e630-7e4e-4b3867b179e8
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: BRONZE
+        nodeName: OR_PRODUCT_CONVERT
+      - locationName: BRONZE
         nodeName: DW_CONTRACT
+      - locationName: BRONZE
+        nodeName: DW_CONTRACT_VRBL_RAW
       - locationName: BRONZE
         nodeName: REF360_CLOSE_TYPE
       - locationName: BRONZE
@@ -857,9 +863,11 @@ operation:
       - locationName: BRONZE
         nodeName: DW_PRODUCT
       join:
-        joinCondition: '-- FROM OR_PRODUCT_CONVERT (source node not generated)
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''OR_PRODUCT_CONVERT'') }} or_product_convert
 
           LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON /* TODO join key (Joiner) */ 1=1
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT_VRBL_RAW'') }} dw_contract_vrbl_raw ON /* TODO join key (Joiner) */ 1=1
 
           LEFT JOIN {{ ref(''BRONZE'', ''REF360_CLOSE_TYPE'') }} ref360_close_type ON ref360_close_type.CLOSE_TYPE_CODE = or_product_convert.PCL_VOID_CAUSE
 
