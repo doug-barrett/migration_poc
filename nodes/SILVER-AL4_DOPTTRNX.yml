@@ -27,7 +27,9 @@ operation:
       name: CONTRACT_ID
       nullable: false
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 4a363781-bf6a-b9ce-6796-a88abafd20ef
+          stepCounter: d2a83df9-d729-7d84-a98a-b49b1c18ed34
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -40,37 +42,39 @@ operation:
       name: EVENT_NUM
       nullable: false
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 3348de3b-84df-b42f-053f-900678488f56
+          stepCounter: d2a83df9-d729-7d84-a98a-b49b1c18ed34
         transform: ''
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8c57528b-3fa6-4d57-cb51-b46d2cf7bbda
         stepCounter: 10704fcb-d18f-a883-333a-e21000517f5d
       config: {}
-      dataType: VARCHAR(20)
+      dataType: VARCHAR(50)
       defaultValue: ''
       description: ''
       name: PRODUCT_OPTION_CODE
       nullable: false
       sourceColumnReferences:
       - columnReferences:
-        - columnCounter: 0bfe0627-c7eb-54ff-7410-c5aa5cedf3e8
-          stepCounter: 87e7879f-5111-5575-984e-d2ab05ed5c63
+        - columnCounter: 6d1428fe-a07a-e818-6b06-b6fbfa882361
+          stepCounter: d2a83df9-d729-7d84-a98a-b49b1c18ed34
         transform: ''
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 833d4862-bef9-b415-7469-73c425d81713
         stepCounter: 10704fcb-d18f-a883-333a-e21000517f5d
       config: {}
-      dataType: VARCHAR(20)
+      dataType: VARCHAR(50)
       defaultValue: ''
       description: ''
       name: PRODUCT_SYSTEM_CODE
       nullable: false
       sourceColumnReferences:
       - columnReferences:
-        - columnCounter: 62903518-954c-93e5-b571-b8c0ad37e923
-          stepCounter: 236d3045-3cf7-14ef-7c04-05a0e34cf9ee
+        - columnCounter: 1e62da9e-f206-5c16-1a2b-84b652ab50e1
+          stepCounter: d2a83df9-d729-7d84-a98a-b49b1c18ed34
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -96,7 +100,9 @@ operation:
       name: TRNX_TYPE_CODE
       nullable: false
       sourceColumnReferences:
-      - columnReferences: []
+      - columnReferences:
+        - columnCounter: 9ec2b41b-a359-7ec4-3168-b50ce7eb5ccf
+          stepCounter: d2a83df9-d729-7d84-a98a-b49b1c18ed34
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -322,6 +328,7 @@ operation:
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
+        AL4_DOPTTRNX_RAW: d2a83df9-d729-7d84-a98a-b49b1c18ed34
         EXPOSURE_TYPE: 236d3045-3cf7-14ef-7c04-05a0e34cf9ee
         PRODUCT_OPTION: 87e7879f-5111-5575-984e-d2ab05ed5c63
         SDUTY_STATE: e1cc7742-14a3-97e8-43fc-87aaed8a8501
@@ -332,6 +339,8 @@ operation:
       customSQL:
         customSQL: ''
       dependencies:
+      - locationName: BRONZE
+        nodeName: AL4_DOPTTRNX_RAW
       - locationName: BRONZE
         nodeName: SUBACCOUNT_TYPE
       - locationName: BRONZE
@@ -347,21 +356,21 @@ operation:
       - locationName: BRONZE
         nodeName: TRNX_TYPE
       join:
-        joinCondition: '-- FROM <no source bound>
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''AL4_DOPTTRNX_RAW'') }} al4_dopttrnx_raw
 
-          LEFT JOIN {{ ref(''BRONZE'', ''SUBACCOUNT_TYPE'') }} subaccount_type ON subaccount_type.CODE = src.SUB_ACCOUNT_TYPE_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''SUBACCOUNT_TYPE'') }} subaccount_type ON subaccount_type.CODE = al4_dopttrnx.SUB_ACCOUNT_TYPE_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''SDUTY_STATE'') }} sduty_state ON sduty_state.CODE = src.SDUTY_STATE_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''SDUTY_STATE'') }} sduty_state ON sduty_state.CODE = al4_dopttrnx.SDUTY_STATE_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''UNIT_PRICE_TYPE'') }} unit_price_type ON unit_price_type.CODE = src.UNIT_PRICE_TYPE_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''UNIT_PRICE_TYPE'') }} unit_price_type ON unit_price_type.CODE = al4_dopttrnx.UNIT_PRICE_TYPE_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''UNIT_TYPE'') }} unit_type ON unit_type.CODE = src.UNIT_TYPE
+          LEFT JOIN {{ ref(''BRONZE'', ''UNIT_TYPE'') }} unit_type ON unit_type.CODE = al4_dopttrnx.UNIT_TYPE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''EXPOSURE_TYPE'') }} exposure_type ON exposure_type.CODE = src.EXPOSURE_TYPE_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''EXPOSURE_TYPE'') }} exposure_type ON exposure_type.CODE = al4_dopttrnx.EXPOSURE_TYPE_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''PRODUCT_OPTION'') }} product_option ON product_option.PRODUCT_KEY = src.PRODUCT_KEY AND product_option.PRODUCT_OPTION_CODE = src.PRODUCT_OPTION_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''PRODUCT_OPTION'') }} product_option ON product_option.PRODUCT_KEY = al4_dopttrnx.PRODUCT_KEY AND product_option.PRODUCT_OPTION_CODE = al4_dopttrnx.PRODUCT_OPTION_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''TRNX_TYPE'') }} trnx_type ON trnx_type.SOURCE_SYSTEM_CODE = src.PRODUCT_SYSTEM_CODE AND trnx_type.SOURCE_TRNX_TYPE_CODE = src.TRNX_TYPE_CODE AND trnx_type.SOURCE_TRNX_SUB_TYPE = src.TRNX_SUB_TYPE_CODE AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE1 = src.TRNX_ANALYSIS_CODE1 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE2 = src.TRNX_ANALYSIS_CODE2 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE3 = src.TRNX_ANALYSIS_CODE3 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE4 = src.TRNX_ANALYSIS_CODE4 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE5 = src.TRNX_ANALYSIS_CODE5'
+          LEFT JOIN {{ ref(''BRONZE'', ''TRNX_TYPE'') }} trnx_type ON trnx_type.SOURCE_SYSTEM_CODE = al4_dopttrnx.PRODUCT_SYSTEM_CODE AND trnx_type.SOURCE_TRNX_TYPE_CODE = al4_dopttrnx.TRNX_TYPE_CODE AND trnx_type.SOURCE_TRNX_SUB_TYPE = al4_dopttrnx.TRNX_SUB_TYPE_CODE AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE1 = al4_dopttrnx.TRNX_ANALYSIS_CODE1 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE2 = al4_dopttrnx.TRNX_ANALYSIS_CODE2 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE3 = al4_dopttrnx.TRNX_ANALYSIS_CODE3 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE4 = al4_dopttrnx.TRNX_ANALYSIS_CODE4 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE5 = al4_dopttrnx.TRNX_ANALYSIS_CODE5'
       name: source1
       noLinkRefs: []
   name: AL4_DOPTTRNX

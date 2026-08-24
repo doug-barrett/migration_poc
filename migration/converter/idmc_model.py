@@ -155,6 +155,7 @@ def _mtt_bindings(mtt: dict):
     same physical table under different SCD strategies (insert/update/closure)
     -- these are de-duplicated to one (schema, table)."""
     sources, targets, tgt_cols = [], [], []
+    saw_source_param = False
 
     def add(lst, sch, tbl):
         if tbl and (sch, tbl) not in lst:
@@ -165,6 +166,7 @@ def _mtt_bindings(mtt: dict):
         rpd = p.get("runtimeParameterData") or {}
         default = rpd.get("objectDefaultValue")
         if "SOURCE" in ptype:
+            saw_source_param = True
             eo = p.get("extendedObject") or {}
             objs = eo.get("objects") or ([eo.get("object")] if eo.get("object") else [])
             names = [o.get("name") for o in objs if o and o.get("name")]
@@ -184,6 +186,15 @@ def _mtt_bindings(mtt: dict):
             for c in p.get("targetUpdateColumns") or []:
                 if c and c.upper() not in tgt_cols:
                     tgt_cols.append(c.upper())
+
+    # In-place validation/update mappings often leave the SOURCE param
+    # unbound (only the target object is set).  When a source param exists but
+    # bound no object, fall back to the target table(s) -- the mapping reads
+    # and writes the same table.
+    if saw_source_param and not sources and targets:
+        for sch, tbl in targets:
+            add(sources, sch, tbl)
+
     return sources, targets, tgt_cols
 
 
