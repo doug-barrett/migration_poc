@@ -172,6 +172,8 @@ def platform_type_to_snowflake(sid: str, precision, scale) -> str:
         if tok in ("smallint", "tinyint"):
             return "NUMBER(5,0)"
         if p:
+            p = min(p, 38)              # Snowflake max precision
+            s = min(s, p)
             return f"NUMBER({p},{s})"
         return "NUMBER(38,0)"
     if tok in ("double", "float", "real"):
