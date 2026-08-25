@@ -28,7 +28,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (tgt_CORRELATION_ID IS NULL) THEN 'I' ELSE 'X' END
+        transform: CASE WHEN (mrv_dw_contract_risk_v.tgt_CORRELATION_ID IS NULL) THEN 'I' ELSE 'X' END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 24960695-b411-2aee-9e3b-963280ce719c
@@ -63,11 +63,12 @@ operation:
       dataType: NUMBER(38,0)
       defaultValue: ''
       description: ''
+      isBusinessKey: true
       name: ACTL_CFLOW_TRNX_HIST_KEY
-      nullable: true
+      nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: src_ACTL_CFLOW_TRNX_HIST_KEY
+        transform: mrv_dw_actl_cflow_trnx_v.src_ACTL_CFLOW_TRNX_HIST_KEY
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 013c9be3-7a66-e300-3a55-1e9fd48c5c3c
@@ -119,7 +120,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: src__MRV_MD5_BUSN_KEY
+        transform: mrv_dw_actl_cflow_trnx_v.src__MRV_MD5_BUSN_KEY
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 25a03bb6-7a0c-7b3b-b0c5-be9d7a7e14f6
@@ -132,7 +133,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: src_TRNX_AMT
+        transform: mrv_dw_actl_cflow_trnx_hist_v.src_TRNX_AMT
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0d77babe-1efc-3730-6c41-eeb37a604376
@@ -145,7 +146,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE,(ref_prod_PRODUCT_OFFERING_CODE IN ('GRISKMASTERTRUST', 'GRISKSTANDALONE')) AND CASE WHEN (contract_vrbl_SUPER_CLASS_TYPE_CODE IS NULL) THEN 'NA' ELSE contract_vrbl_SUPER_CLASS_TYPE_CODE END='MBR',dw_cav_CONTRACT_KEY,src_SRC_CONTRACT_KEY)
+        transform: DECODE(TRUE,(mrv_dw_product_option_v.ref_prod_PRODUCT_OFFERING_CODE IN ('GRISKMASTERTRUST', 'GRISKSTANDALONE')) AND CASE WHEN (mrv_dw_actl_cflow_trnx_v.contract_vrbl_SUPER_CLASS_TYPE_CODE IS NULL) THEN 'NA' ELSE mrv_dw_actl_cflow_trnx_v.contract_vrbl_SUPER_CLASS_TYPE_CODE END='MBR',mrv_dw_actl_cflow_trnx_v.dw_cav_CONTRACT_KEY,mrv_dw_actl_cflow_trnx_v.src_SRC_CONTRACT_KEY)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d441db49-7f17-5096-f4ed-ba2fb782116d
@@ -158,7 +159,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN src_IFRS_CFLOW_STATUS_CODE='SETTLED' THEN src_PAID_TO_DTTM ELSE src_MVMT_EFTV_DTTM END
+        transform: CASE WHEN mrv_dw_actl_cflow_trnx_hist_v.src_IFRS_CFLOW_STATUS_CODE='SETTLED' THEN mrv_dw_actl_cflow_trnx_v.src_PAID_TO_DTTM ELSE mrv_dw_actl_cflow_trnx_v.src_MVMT_EFTV_DTTM END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 57c3579a-1f8c-daee-89c7-8da13c9dbd1e
@@ -171,7 +172,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN ifrs_trnx_CODE_TYPE='R_CLAIM' THEN CASE WHEN Get_Date_Part(clm_vrbl_CLAIM_INCURRED_DATE, 'YYYY')< Get_Date_Part(CURRENT_TIMESTAMP, 'YYYY') THEN 'PRIOR' ELSE 'CURRENT' END ELSE '-' END
+        transform: CASE WHEN mrv_dw_actl_cflow_trnx_v.ifrs_trnx_CODE_TYPE='R_CLAIM' THEN CASE WHEN DATE_PART(YEAR, mrv_dw_actl_cflow_trnx_v.clm_vrbl_CLAIM_INCURRED_DATE)< DATE_PART(YEAR, CURRENT_TIMESTAMP) THEN 'PRIOR' ELSE 'CURRENT' END ELSE '-' END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6c22b0cb-d8db-9afb-79a2-635761a6ea83
@@ -184,7 +185,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE,ifrs_trnx_CODE_TYPE='R_PREMIUM' AND src_IFRS_CFLOW_STATUS_CODE='DUE',src_IFRS_CFLOW_STATUS_CODE,src_IFRS_CFLOW_STATUS_CODE)
+        transform: DECODE(TRUE,mrv_dw_actl_cflow_trnx_v.ifrs_trnx_CODE_TYPE='R_PREMIUM' AND mrv_dw_actl_cflow_trnx_hist_v.src_IFRS_CFLOW_STATUS_CODE='DUE',mrv_dw_actl_cflow_trnx_hist_v.src_IFRS_CFLOW_STATUS_CODE,mrv_dw_actl_cflow_trnx_hist_v.src_IFRS_CFLOW_STATUS_CODE)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2f19ab3a-e04c-09cd-b8b8-015de92ed7dd
@@ -197,7 +198,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE,ifrs_trnx_CODE_TYPE='R_CLAIM_BULK','NA-BULK',CASE WHEN (clm_CLAIM_NUM IS NULL) THEN '-' ELSE clm_CLAIM_NUM END)
+        transform: DECODE(TRUE,mrv_dw_actl_cflow_trnx_v.ifrs_trnx_CODE_TYPE='R_CLAIM_BULK','NA-BULK',CASE WHEN (mrv_dw_actl_cflow_trnx_v.clm_CLAIM_NUM IS NULL) THEN '-' ELSE mrv_dw_actl_cflow_trnx_v.clm_CLAIM_NUM END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9ea7a7ee-dabd-ddca-c5a4-af57b013f21e
@@ -210,7 +211,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (src_TREATY_CODE IS NULL) THEN '-' ELSE UPPER(src_TREATY_CODE) END
+        transform: CASE WHEN (mrv_dw_contract_risk_v.src_TREATY_CODE IS NULL) THEN '-' ELSE UPPER(mrv_dw_contract_risk_v.src_TREATY_CODE) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: cb2baaac-82cb-89ba-f3d2-9d430cfb0e62
@@ -223,7 +224,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (UPPER(src_TREATY_CODE) IN (/*PARAM:p_non_risk_treaty*/ NULL)) THEN -1 ELSE src_SRC_CONTRACT_RISK_KEY END
+        transform: CASE WHEN (UPPER(mrv_dw_contract_risk_v.src_TREATY_CODE) IN (/*PARAM:p_non_risk_treaty*/ NULL)) THEN -1 ELSE mrv_dw_actl_cflow_trnx_v.src_SRC_CONTRACT_RISK_KEY END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1f1262df-d441-4608-bbb2-42a70dbc79b2
@@ -236,7 +237,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: src_COVERAGE_NUMBER
+        transform: mrv_dw_actl_cflow_trnx_v.src_COVERAGE_NUMBER
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 46ab1e04-f789-3011-2049-ecd59d784ca2
@@ -249,7 +250,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE,(ref_prod_PRODUCT_OFFERING_CODE IN ('GRISKMASTERTRUST', 'GRISKSTANDALONE')) AND CASE WHEN (contract_vrbl_SUPER_CLASS_TYPE_CODE IS NULL) THEN 'NA' ELSE contract_vrbl_SUPER_CLASS_TYPE_CODE END='MBR',src_SRC_CONTRACT_RISK_KEY,-1)
+        transform: DECODE(TRUE,(mrv_dw_product_option_v.ref_prod_PRODUCT_OFFERING_CODE IN ('GRISKMASTERTRUST', 'GRISKSTANDALONE')) AND CASE WHEN (mrv_dw_actl_cflow_trnx_v.contract_vrbl_SUPER_CLASS_TYPE_CODE IS NULL) THEN 'NA' ELSE mrv_dw_actl_cflow_trnx_v.contract_vrbl_SUPER_CLASS_TYPE_CODE END='MBR',mrv_dw_actl_cflow_trnx_v.src_SRC_CONTRACT_RISK_KEY,-1)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d01ea36d-9840-d114-42fe-a5cd1c01bfe2
@@ -262,7 +263,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (UPPER(src_TREATY_CODE) IN (/*PARAM:p_non_risk_treaty*/ NULL)) THEN ann_po_PRODUCT_OPTION_KEY ELSE dw_cr_PRODUCT_OPTION_KEY END
+        transform: CASE WHEN (UPPER(mrv_dw_contract_risk_v.src_TREATY_CODE) IN (/*PARAM:p_non_risk_treaty*/ NULL)) THEN mrv_dw_actl_cflow_trnx_v.ann_po_PRODUCT_OPTION_KEY ELSE mrv_dw_actl_cflow_trnx_v.dw_cr_PRODUCT_OPTION_KEY END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 76fb5e46-63f7-031d-d879-af6d565fef81
@@ -275,7 +276,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (UPPER(src_TREATY_CODE) IN (/*PARAM:p_non_risk_treaty*/ NULL)) THEN ann_po_IFRS_OPTION_TYPE_CODE ELSE prodopt_IFRS_OPTION_TYPE_CODE END
+        transform: CASE WHEN (UPPER(mrv_dw_contract_risk_v.src_TREATY_CODE) IN (/*PARAM:p_non_risk_treaty*/ NULL)) THEN mrv_dw_actl_cflow_trnx_v.ann_po_IFRS_OPTION_TYPE_CODE ELSE mrv_dw_actl_cflow_trnx_v.prodopt_IFRS_OPTION_TYPE_CODE END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6e856340-6e41-3425-15a8-3a3253fa62c7
@@ -288,7 +289,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (UPPER(src_TREATY_CODE) IN (/*PARAM:p_non_risk_treaty*/ NULL)) THEN '-1' ELSE dw_cr__MRV_MD5_BUSN_KEY END
+        transform: CASE WHEN (UPPER(mrv_dw_contract_risk_v.src_TREATY_CODE) IN (/*PARAM:p_non_risk_treaty*/ NULL)) THEN '-1' ELSE mrv_dw_actl_cflow_trnx_v.dw_cr__MRV_MD5_BUSN_KEY END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 88f072fa-f5f1-3d1e-aab1-08f45dfcb638
@@ -301,7 +302,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: src_TRNX_REF_KEY_1||'-'||src_TRNX_REF_KEY_2||'-'|| ReplaceChr(false, src_TRNX_REF_KEY_3, '-', '')
+        transform: mrv_dw_actl_cflow_trnx_v.src_TRNX_REF_KEY_1||'-'||mrv_dw_actl_cflow_trnx_v.src_TRNX_REF_KEY_2||'-'|| REPLACE(mrv_dw_actl_cflow_trnx_v.src_TRNX_REF_KEY_3, '-', '')
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e69f26db-f3de-55e9-8cef-3ad27138eedb
@@ -314,7 +315,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE, (ref_prod_PRODUCT_OFFERING_CODE IN ('GRISKMASTERTRUST', 'GRISKSTANDALONE')) AND CASE WHEN (contract_vrbl_SUPER_CLASS_TYPE_CODE IS NULL) THEN 'NA' ELSE contract_vrbl_SUPER_CLASS_TYPE_CODE END='MBR',src_SRC_CONTRACT_KEY,1)
+        transform: DECODE(TRUE, (mrv_dw_product_option_v.ref_prod_PRODUCT_OFFERING_CODE IN ('GRISKMASTERTRUST', 'GRISKSTANDALONE')) AND CASE WHEN (mrv_dw_actl_cflow_trnx_v.contract_vrbl_SUPER_CLASS_TYPE_CODE IS NULL) THEN 'NA' ELSE mrv_dw_actl_cflow_trnx_v.contract_vrbl_SUPER_CLASS_TYPE_CODE END='MBR',mrv_dw_actl_cflow_trnx_v.src_SRC_CONTRACT_KEY,1)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 81b8d8ba-55aa-2c63-281a-43fbceed544b
@@ -327,7 +328,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (UPPER(src_TREATY_CODE) IN (/*PARAM:p_non_risk_treaty*/ NULL)) THEN contract_vrbl_PRODUCT_KEY ELSE -1 END
+        transform: CASE WHEN (UPPER(mrv_dw_contract_risk_v.src_TREATY_CODE) IN (/*PARAM:p_non_risk_treaty*/ NULL)) THEN mrv_dw_actl_cflow_trnx_v.contract_vrbl_PRODUCT_KEY ELSE -1 END
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:

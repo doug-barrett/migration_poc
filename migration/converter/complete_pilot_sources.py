@@ -35,6 +35,99 @@ def _refs_in_join(jc):
     return re.findall(r"ref\(\s*'([^']+)'\s*,\s*'([^']+)'\s*\)", jc or "")
 
 
+def _ensure_join_columns(nodes_dir, dry_run=False):
+    """Make every `alias.COLUMN` referenced in a joinCondition exist on the
+    source node that alias points at (join keys the schema reconstruction
+    missed -- covers both generated and hand-built nodes).  Only SOURCE nodes
+    are augmented."""
+    by_name = {}
+    for f in glob.glob(os.path.join(nodes_dir, "*.yml")):
+        d = yaml.safe_load(open(f))
+        by_name[d["name"]] = (f, d)
+
+    def cols_of(d):
+        return {c["name"] for c in
+                d["operation"].get("metadata", {}).get("columns", []) or []}
+
+    patched = {}
+    for f, d in list(by_name.values()):
+        op = d["operation"]
+        for sm in op.get("metadata", {}).get("sourceMapping", []) or []:
+            jc = sm.get("join", {}).get("joinCondition", "") or ""
+            # alias -> [node names], parsed per line (left of ' ON ')
+            alias_nodes = {}
+            for line in jc.splitlines():
+                left = re.split(r'\bON\b', line, 1)[0]
+                refs = re.findall(r"ref\(\s*'[^']+'\s*,\s*'([^']+)'\s*\)", left)
+                toks = re.findall(r'[A-Za-z_][A-Za-z0-9_]*', left)
+                if refs and toks:
+                    alias_nodes.setdefault(toks[-1].lower(), []).extend(refs)
+            # scan the joinCondition AND every column transform for alias.COL
+            scan = [jc]
+            for col in op.get("metadata", {}).get("columns", []) or []:
+                for scr in col.get("sourceColumnReferences", []) or []:
+                    scan.append(scr.get("transform", "") or "")
+            text = "\n".join(scan)
+            # every alias.COLUMN must exist on the aliased source node(s)
+            for al, col in re.findall(r'\b([A-Za-z_][A-Za-z0-9_]*)\.([A-Za-z_][A-Za-z0-9_]*)', text):
+                for nd in alias_nodes.get(al.lower(), []):
+                    if nd not in by_name:
+                        continue
+                    _nf, nde = by_name[nd]
+                    if nde["operation"].get("sqlType") != "Source":
+                        continue
+                    existing_cols = {c["name"].upper(): c
+                                     for c in nde["operation"]["metadata"].get("columns", []) or []}
+                    if col.upper() in existing_cols:
+                        # retype a generic VARCHAR(256) placeholder so date /
+                        # number functions on it compile
+                        ec = existing_cols[col.upper()]
+                        ht = _htype(col)
+                        if ec.get("dataType") == "VARCHAR(256)" and ht != "VARCHAR(256)":
+                            ec["dataType"] = ht
+                            patched.setdefault(nd, 0)
+                            patched[nd] += 1
+                        continue
+                    nde["operation"]["metadata"].setdefault("columns", []).append({
+                        "appliedColumnTests": {},
+                        "columnReference": {
+                            "columnCounter": _stable(nde["id"] + col.upper()),
+                            "stepCounter": nde["id"]},
+                        "config": {}, "dataType": _htype(col),
+                        "defaultValue": "", "description": "",
+                        "name": col.upper(), "nullable": True})
+                    patched.setdefault(nd, 0)
+                    patched[nd] += 1
+    for nd, cnt in patched.items():
+        f, d = by_name[nd]
+        if not dry_run:
+            with open(f, "w") as fh:
+                yaml.safe_dump(d, fh, sort_keys=True, width=1000)
+    print(f"join-column patch: +{sum(patched.values())} cols on {len(patched)} source nodes")
+    return patched
+
+
+def _stable(s):
+    import hashlib
+    h = hashlib.md5(s.encode()).hexdigest()
+    return f"{h[:8]}-{h[8:12]}-{h[12:16]}-{h[16:20]}-{h[20:32]}"
+
+
+def _htype(col):
+    """Heuristic Snowflake type by column-name suffix (so date/number
+    functions on reconstructed columns compile)."""
+    c = (col or "").upper()
+    if c.endswith("_KEY") or c.endswith("_SK"):
+        return "NUMBER(38,0)"
+    if re.search(r'(_DTTM|_DATE|_TSTP|_TS|_DT|_TIME)$', c):
+        return "TIMESTAMP"
+    if re.search(r'(_AMT|_AMOUNT|_QTY|_NUM|_RATE|_PCT|_BAL|_VALUE)$', c):
+        return "NUMBER(18,2)"
+    if c.endswith("_IND") or c.endswith("_FLAG"):
+        return "VARCHAR(1)"
+    return "VARCHAR(256)"
+
+
 def complete(repo_dir, dry_run=False):
     nodes_dir = os.path.join(repo_dir, "nodes")
     nodes = _load(nodes_dir)
@@ -140,6 +233,7 @@ def complete(repo_dir, dry_run=False):
     print(f"patched columns on   : {len(patched)}")
     for p in patched:
         print("   ~", p)
+    _ensure_join_columns(nodes_dir, dry_run=dry_run)
     return created, patched
 
 

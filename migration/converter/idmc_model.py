@@ -373,23 +373,23 @@ def build_ir(dtemplate_path: str, mtt_path: str | None, folder: str) -> MappingI
             # local and must be INLINED into the output expressions (they are
             # not real columns).  Build the substitution as we go so each field
             # only sees earlier-defined variables.
-            var_defs = {}   # lowercase v_name -> already-inlined raw expression
+            # Every field (variable v_* AND output o_*/out_*) can be referenced
+            # by a LATER field; SQL has no such self-reference, so inline them.
+            var_defs = {}   # lowercase field name -> already-inlined expression
 
             def _inline(expr):
                 if not expr or not var_defs:
                     return expr
                 prev = None
                 out = expr
-                for _ in range(60):
+                for _ in range(40):
                     if out == prev:
                         break
                     prev = out
-                    out = re.sub(
-                        r'\bv_[A-Za-z0-9_]+\b',
-                        lambda m: (f"({var_defs[m.group(0).lower()]})"
-                                   if m.group(0).lower() in var_defs
-                                   else m.group(0)),
-                        out)
+                    for nm_l, defn in var_defs.items():
+                        out = re.sub(r'\b' + re.escape(nm_l) + r'\b',
+                                     lambda _m, d=defn: f"({d})", out,
+                                     flags=re.IGNORECASE)
                 return out
 
             for f in tx.get("fields", []) or []:
@@ -397,8 +397,10 @@ def build_ir(dtemplate_path: str, mtt_path: str | None, folder: str) -> MappingI
                 ex = f.get("expression") or ""
                 ir.ref_ports |= _extract_ports(ex)
                 ex = _inline(ex)
-                if idmc_expr.is_variable_field(nm):
+                # register this field so later fields can inline it
+                if nm:
                     var_defs[nm.lower()] = ex
+                if idmc_expr.is_variable_field(nm):
                     continue
                 dt = ""
                 pt = f.get("platformType") or {}

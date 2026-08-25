@@ -38,11 +38,12 @@ operation:
       dataType: NUMBER(38,0)
       defaultValue: ''
       description: ''
+      isBusinessKey: true
       name: MULTIGAAP_CONTRACT_RISK_KEY
-      nullable: true
+      nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN opint_ADMIN_SYS_ID='RIPA' THEN opint_PLN_MMBR_CONTRACT_RISK_KEY ELSE opint_CONTRACT_RISK_KEY END
+        transform: CASE WHEN mrv_dw_actl_cflow_trnx_v.opint_ADMIN_SYS_ID='RIPA' THEN mrv_dw_actl_cflow_trnx_v.opint_PLN_MMBR_CONTRACT_RISK_KEY ELSE mrv_dw_actl_cflow_trnx_v.opint_CONTRACT_RISK_KEY END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 48abd03c-bb4c-ea70-1587-e183111931c0
@@ -55,7 +56,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE,valid_claim_flg='0','CURRENT',Get_Date_Part(claim_vrbl_CLAIM_INCURRED_DATE, 'YYYY') =  Get_Date_Part(CURRENT_TIMESTAMP, 'YYYY'), 'CURRENT', 'PRIOR')
+        transform: DECODE(TRUE,mrv_dw_actl_cflow_trnx_v.valid_claim_flg='0','CURRENT',DATE_PART(YEAR, mrv_dw_claim_benefit_contract_risk_assoc_v.claim_vrbl_CLAIM_INCURRED_DATE) =  DATE_PART(YEAR, CURRENT_TIMESTAMP), 'CURRENT', 'PRIOR')
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5bb66fd8-150c-89c6-516c-b059392c9cba
@@ -94,7 +95,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN o_CLAIM_NUM = '0000000' THEN 'CLAIM-NOT-FOUND' ELSE CASE WHEN ADMIN_SYS_ID = 'CLAS' AND o_CLAIM_NUM != '0000000' THEN o_CLAIM_NUM ELSE CLAIM_NUM END END
+        transform: CASE WHEN mrv_dw_claim_benefit_contract_risk_assoc_v.o_CLAIM_NUM = '0000000' THEN 'CLAIM-NOT-FOUND' ELSE CASE WHEN multigaap_actl_cflow_trnx_trnsltn.ADMIN_SYS_ID = 'CLAS' AND mrv_dw_claim_benefit_contract_risk_assoc_v.o_CLAIM_NUM != '0000000' THEN mrv_dw_claim_benefit_contract_risk_assoc_v.o_CLAIM_NUM ELSE mrv_dw_claim_benefit_contract_risk_assoc_v.CLAIM_NUM END END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d8dbcb2f-96e1-be5b-5ebd-1d9e77390502
@@ -107,7 +108,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE,valid_claim_flg='0',null,claim_vrbl_CLAIM_INCURRED_DATE)
+        transform: DECODE(TRUE,mrv_dw_actl_cflow_trnx_v.valid_claim_flg='0',null,mrv_dw_claim_benefit_contract_risk_assoc_v.claim_vrbl_CLAIM_INCURRED_DATE)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8ff8f6d7-325c-7c4a-3ad4-4586c01b018d
@@ -120,8 +121,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN opint_ADMIN_SYS_ID = 'CLAS' THEN CASE WHEN (CASE WHEN (CLAIM_NUM IS NULL) THEN '0000000' ELSE CASE WHEN SOURCE_SYSTEM_CODE='CMS' and (cms_DECISION_REASON_CODE!='ACC' or (cms_DECISION_REASON_CODE IS NULL)) THEN '0000000' ELSE CLAIM_NUM END END)='0000000' THEN CASE WHEN ((CASE WHEN opint_ADMIN_SYS_ID = 'CLAS' THEN CASE WHEN NOT (opint_CLAIM_ID IS NULL) THEN opint_CLAIM_ID ELSE opint_SRC_SYS_CLAIM_ID END ELSE NULL END) IS NULL) THEN '0000000' ELSE (CASE WHEN opint_ADMIN_SYS_ID = 'CLAS' THEN CASE WHEN NOT (opint_CLAIM_ID IS NULL) THEN opint_CLAIM_ID ELSE opint_SRC_SYS_CLAIM_ID END ELSE NULL END) END ELSE (CASE WHEN (CLAIM_NUM IS NULL) THEN '0000000' ELSE CASE WHEN SOURCE_SYSTEM_CODE='CMS' and (cms_DECISION_REASON_CODE!='ACC' or (cms_DECISION_REASON_CODE IS NULL)) THEN '0000000' ELSE CLAIM_NUM END END) END ELSE (CASE WHEN (CLAIM_NUM IS NULL) THEN '0000000' ELSE CASE WHEN SOURCE_SYSTEM_CODE='CMS' and (cms_DECISION_REASON_CODE!='ACC' or (cms_DECISION_REASON_CODE IS
-          NULL)) THEN '0000000' ELSE CLAIM_NUM END END) END
+        transform: CASE WHEN mrv_dw_actl_cflow_trnx_v.opint_ADMIN_SYS_ID = 'CLAS' THEN CASE WHEN (CASE WHEN (mrv_dw_claim_benefit_contract_risk_assoc_v.CLAIM_NUM IS NULL) THEN '0000000' ELSE CASE WHEN mrv_dw_actl_cflow_trnx_v.SOURCE_SYSTEM_CODE='CMS' and (mrv_dw_actl_cflow_trnx_v.cms_DECISION_REASON_CODE!='ACC' or (mrv_dw_actl_cflow_trnx_v.cms_DECISION_REASON_CODE IS NULL)) THEN '0000000' ELSE mrv_dw_claim_benefit_contract_risk_assoc_v.CLAIM_NUM END END)='0000000' THEN CASE WHEN ((CASE WHEN mrv_dw_actl_cflow_trnx_v.opint_ADMIN_SYS_ID = 'CLAS' THEN CASE WHEN NOT (mrv_dw_actl_cflow_trnx_v.opint_CLAIM_ID IS NULL) THEN mrv_dw_actl_cflow_trnx_v.opint_CLAIM_ID ELSE mrv_dw_actl_cflow_trnx_v.opint_SRC_SYS_CLAIM_ID END ELSE NULL END) IS NULL) THEN '0000000' ELSE (CASE WHEN mrv_dw_actl_cflow_trnx_v.opint_ADMIN_SYS_ID = 'CLAS' THEN CASE WHEN NOT (mrv_dw_actl_cflow_trnx_v.opint_CLAIM_ID IS NULL) THEN mrv_dw_actl_cflow_trnx_v.opint_CLAIM_ID ELSE mrv_dw_actl_cflow_trnx_v.opint_SRC_SYS_CLAIM_ID END ELSE
+          NULL END) END ELSE (CASE WHEN (mrv_dw_claim_benefit_contract_risk_assoc_v.CLAIM_NUM IS NULL) THEN '0000000' ELSE CASE WHEN mrv_dw_actl_cflow_trnx_v.SOURCE_SYSTEM_CODE='CMS' and (mrv_dw_actl_cflow_trnx_v.cms_DECISION_REASON_CODE!='ACC' or (mrv_dw_actl_cflow_trnx_v.cms_DECISION_REASON_CODE IS NULL)) THEN '0000000' ELSE mrv_dw_claim_benefit_contract_risk_assoc_v.CLAIM_NUM END END) END ELSE (CASE WHEN (mrv_dw_claim_benefit_contract_risk_assoc_v.CLAIM_NUM IS NULL) THEN '0000000' ELSE CASE WHEN mrv_dw_actl_cflow_trnx_v.SOURCE_SYSTEM_CODE='CMS' and (mrv_dw_actl_cflow_trnx_v.cms_DECISION_REASON_CODE!='ACC' or (mrv_dw_actl_cflow_trnx_v.cms_DECISION_REASON_CODE IS NULL)) THEN '0000000' ELSE mrv_dw_claim_benefit_contract_risk_assoc_v.CLAIM_NUM END END) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2d212def-c259-dec5-32e5-e4784eccd53a
@@ -134,7 +135,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN NOT ((CASE WHEN SOURCE_SYSTEM_CODE='CMS' and (cms_DECISION_REASON_CODE!='ACC' or (cms_DECISION_REASON_CODE IS NULL)) THEN NULL ELSE claim_vrbl_CLAIM_INCURRED_DATE END) IS NULL) THEN '1' ELSE '0' END
+        transform: CASE WHEN NOT ((CASE WHEN mrv_dw_actl_cflow_trnx_v.SOURCE_SYSTEM_CODE='CMS' and (mrv_dw_actl_cflow_trnx_v.cms_DECISION_REASON_CODE!='ACC' or (mrv_dw_actl_cflow_trnx_v.cms_DECISION_REASON_CODE IS NULL)) THEN NULL ELSE mrv_dw_claim_benefit_contract_risk_assoc_v.claim_vrbl_CLAIM_INCURRED_DATE END) IS NULL) THEN '1' ELSE '0' END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1918a95a-de0b-e32d-8d0d-b3cf5d4cfc8b
@@ -147,7 +148,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN (CLAIM_KEY IS NULL) THEN 0 ELSE CLAIM_KEY END)
+        transform: (CASE WHEN (mrv_dw_claim_benefit_contract_risk_assoc_v.CLAIM_KEY IS NULL) THEN 0 ELSE mrv_dw_claim_benefit_contract_risk_assoc_v.CLAIM_KEY END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e2b7b3f7-a99e-6f93-7784-0610bc432631
@@ -160,7 +161,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN opint_ADMIN_SYS_ID = 'CLAS' THEN CASE WHEN NOT (opint_CLAIM_ID IS NULL) THEN opint_CLAIM_ID ELSE opint_SRC_SYS_CLAIM_ID END ELSE NULL END)
+        transform: (CASE WHEN mrv_dw_actl_cflow_trnx_v.opint_ADMIN_SYS_ID = 'CLAS' THEN CASE WHEN NOT (mrv_dw_actl_cflow_trnx_v.opint_CLAIM_ID IS NULL) THEN mrv_dw_actl_cflow_trnx_v.opint_CLAIM_ID ELSE mrv_dw_actl_cflow_trnx_v.opint_SRC_SYS_CLAIM_ID END ELSE NULL END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 31e900cd-10a5-8005-59aa-67ae19acad46
@@ -173,7 +174,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN (CLAIM_NUM IS NULL) THEN '0000000' ELSE CASE WHEN SOURCE_SYSTEM_CODE='CMS' and (cms_DECISION_REASON_CODE!='ACC' or (cms_DECISION_REASON_CODE IS NULL)) THEN '0000000' ELSE CLAIM_NUM END END)
+        transform: (CASE WHEN (mrv_dw_claim_benefit_contract_risk_assoc_v.CLAIM_NUM IS NULL) THEN '0000000' ELSE CASE WHEN mrv_dw_actl_cflow_trnx_v.SOURCE_SYSTEM_CODE='CMS' and (mrv_dw_actl_cflow_trnx_v.cms_DECISION_REASON_CODE!='ACC' or (mrv_dw_actl_cflow_trnx_v.cms_DECISION_REASON_CODE IS NULL)) THEN '0000000' ELSE mrv_dw_claim_benefit_contract_risk_assoc_v.CLAIM_NUM END END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 767e7b00-8135-5cb0-3146-f85e79907d54
@@ -186,7 +187,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN SOURCE_SYSTEM_CODE='CMS' and (cms_DECISION_REASON_CODE!='ACC' or (cms_DECISION_REASON_CODE IS NULL)) THEN NULL ELSE claim_vrbl_CLAIM_INCURRED_DATE END)
+        transform: (CASE WHEN mrv_dw_actl_cflow_trnx_v.SOURCE_SYSTEM_CODE='CMS' and (mrv_dw_actl_cflow_trnx_v.cms_DECISION_REASON_CODE!='ACC' or (mrv_dw_actl_cflow_trnx_v.cms_DECISION_REASON_CODE IS NULL)) THEN NULL ELSE mrv_dw_claim_benefit_contract_risk_assoc_v.claim_vrbl_CLAIM_INCURRED_DATE END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7f9782df-88c1-5e32-6a59-62863eba0217
@@ -199,7 +200,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (claim_vrbl_CLAIM_FINALISED_DATE IS NULL)and cms_DECISION_REASON_CODE='ACC' THEN to_Date('3000-12-31','YYYY-MM-DD') ELSE CASE WHEN (cms_DECISION_REASON_CODE!='ACC' OR (cms_DECISION_REASON_CODE IS NULL)) THEN to_Date('1900-01-01','YYYY-MM-DD') ELSE claim_vrbl_CLAIM_FINALISED_DATE END END
+        transform: CASE WHEN (mrv_dw_actl_cflow_trnx_v.claim_vrbl_CLAIM_FINALISED_DATE IS NULL)and mrv_dw_actl_cflow_trnx_v.cms_DECISION_REASON_CODE='ACC' THEN to_Date('3000-12-31','YYYY-MM-DD') ELSE CASE WHEN (mrv_dw_actl_cflow_trnx_v.cms_DECISION_REASON_CODE!='ACC' OR (mrv_dw_actl_cflow_trnx_v.cms_DECISION_REASON_CODE IS NULL)) THEN to_Date('1900-01-01','YYYY-MM-DD') ELSE mrv_dw_actl_cflow_trnx_v.claim_vrbl_CLAIM_FINALISED_DATE END END
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:

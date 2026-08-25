@@ -87,8 +87,10 @@ operation:
       name: TRNX_NUM
       nullable: false
       sourceColumnReferences:
-      - columnReferences: []
-        transform: 'NULL /* TODO: source column not reconstructed */'
+      - columnReferences:
+        - columnCounter: 1ef4e2ce-e6fc-2348-17e9-588b74684733
+          stepCounter: d2a83df9-d729-7d84-a98a-b49b1c18ed34
+        transform: ''
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6ec554ae-a474-c3b8-d616-d62eba8bec07
@@ -115,8 +117,10 @@ operation:
       name: _FILE_NAME
       nullable: false
       sourceColumnReferences:
-      - columnReferences: []
-        transform: 'NULL /* TODO: source column not reconstructed */'
+      - columnReferences:
+        - columnCounter: cf1124a1-5516-d454-2683-81b37f8d23c6
+          stepCounter: d2a83df9-d729-7d84-a98a-b49b1c18ed34
+        transform: ''
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f5f73006-c176-d60a-c197-afb6af02943a
@@ -128,8 +132,10 @@ operation:
       name: RRN
       nullable: false
       sourceColumnReferences:
-      - columnReferences: []
-        transform: 'NULL /* TODO: source column not reconstructed */'
+      - columnReferences:
+        - columnCounter: d54d76a7-67e4-8a21-1df4-f5a2de642edd
+          stepCounter: d2a83df9-d729-7d84-a98a-b49b1c18ed34
+        transform: ''
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 258ac296-3f70-b199-e636-d878d4bcb489
@@ -142,7 +148,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (DW_CONTRACT_KEY IS NULL) THEN 'N' ELSE 'Y' END
+        transform: CASE WHEN (al4_dopttrnx_raw.DW_CONTRACT_KEY IS NULL) THEN 'N' ELSE 'Y' END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: dd60f3af-8463-e90a-5407-49cdf4ae7307
@@ -155,7 +161,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (product_option_key IS NULL) THEN 'N' ELSE 'Y' END
+        transform: CASE WHEN (al4_dopttrnx_raw.product_option_key IS NULL) THEN 'N' ELSE 'Y' END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8a85a97e-06d0-8618-8755-cdea79eca94a
@@ -168,7 +174,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (event_CONTRACT_KEY IS NULL) AND (TRANNO IS NULL) THEN 'N' ELSE 'Y' END
+        transform: CASE WHEN (al4_dopttrnx_raw.event_CONTRACT_KEY IS NULL) AND (al4_dopttrnx_raw.TRANNO IS NULL) THEN 'N' ELSE 'Y' END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b7b028d8-489f-f2c2-74cb-e4120e17b3f4
@@ -181,7 +187,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (trnx_type_key IS NULL) THEN 'N' ELSE 'Y' END
+        transform: CASE WHEN (al4_dopttrnx_raw.trnx_type_key IS NULL) THEN 'N' ELSE 'Y' END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7788e3e7-60cb-9bd0-3d5b-7eb3723e96c7
@@ -194,7 +200,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (TRNX_AMT IS NULL) OR TRNX_AMT=0 THEN 'N' ELSE 'Y' END
+        transform: CASE WHEN (al4_dopttrnx_raw.TRNX_AMT IS NULL) OR al4_dopttrnx_raw.TRNX_AMT=0 THEN 'N' ELSE 'Y' END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 10b00282-e646-5754-48b5-d45505a522c5
@@ -207,7 +213,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN business_checks='FAILED' OR trnx_amt_check='N' THEN -1 ELSE CASE WHEN contract_key_check='N' OR trnx_type_key_check='N' OR product_option_key_check='N' OR contract_event_trnx_check='N' THEN 1 ELSE 0 END END)
+        transform: (CASE WHEN al4_dopttrnx_raw.business_checks='FAILED' OR (CASE WHEN (al4_dopttrnx_raw.TRNX_AMT IS NULL) OR al4_dopttrnx_raw.TRNX_AMT=0 THEN 'N' ELSE 'Y' END)='N' THEN -1 ELSE CASE WHEN (CASE WHEN (al4_dopttrnx_raw.DW_CONTRACT_KEY IS NULL) THEN 'N' ELSE 'Y' END)='N' OR (CASE WHEN (al4_dopttrnx_raw.trnx_type_key IS NULL) THEN 'N' ELSE 'Y' END)='N' OR (CASE WHEN (al4_dopttrnx_raw.product_option_key IS NULL) THEN 'N' ELSE 'Y' END)='N' OR (CASE WHEN (al4_dopttrnx_raw.event_CONTRACT_KEY IS NULL) AND (al4_dopttrnx_raw.TRANNO IS NULL) THEN 'N' ELSE 'Y' END)='N' THEN 1 ELSE 0 END END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e9bf7d79-4edc-d1c4-a472-b06049b3827c
@@ -220,8 +226,10 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: '(CASE WHEN (CASE WHEN business_checks=''FAILED'' OR trnx_amt_check=''N'' THEN -1 ELSE CASE WHEN contract_key_check=''N'' OR trnx_type_key_check=''N'' OR product_option_key_check=''N'' OR contract_event_trnx_check=''N'' THEN 1 ELSE 0 END END)=-1 THEN ''BUSINESS_CHECK_FAIL-> '' ||RTRIM(LTRIM((CASE WHEN business_checks=''FAILED'' THEN CASE WHEN TRNX_STATUS_CODE_check=''F'' THEN ''TRNX_STATUS_CODE: ''||TRNX_STATUS_CODE||''|'' ELSE NULL END ELSE NULL END||CASE WHEN trnx_amt_check=''N'' THEN ''TRNX_AMT: ''|| TRNX_AMT || ''|'' ELSE NULL END),''~|''),''~|'') ELSE CASE WHEN (CASE WHEN business_checks=''FAILED'' OR trnx_amt_check=''N'' THEN -1 ELSE CASE WHEN contract_key_check=''N'' OR trnx_type_key_check=''N'' OR product_option_key_check=''N'' OR contract_event_trnx_check=''N'' THEN 1 ELSE 0 END END)=1 THEN ''REF_INT_CHECK_FAIL-> '' ||RTRIM(LTRIM((CASE WHEN contract_key_check=''N'' THEN ''CONTRACT_ID:''||CONTRACT_ID||''|'' ELSE NULL END|| CASE WHEN product_option_key_check=''N''
-          THEN '' dw_PRODUCT_KEY:''||dw_PRODUCT_KEY||'' ~ PRODUCT_OPTION_CODE:''||PRODUCT_OPTION_CODE||''|'' ELSE NULL END || CASE WHEN contract_event_trnx_check=''N'' THEN '' dw_CONTRACT_key:''||DW_CONTRACT_KEY||'' ~ EVENT_NUM:''||EVENT_NUM||'' ~ TRANNO:''||SRC_TRANNO||'' ~ EFTV_DATE:''||EFTV_DATE||''|'' ELSE NULL END),''~|''),''~|'')||RTRIM(LTRIM((CASE WHEN trnx_type_key_check=''N'' THEN ''PRODUCT_SYSTEM_CODE:''||PRODUCT_SYSTEM_CODE||'' ~ TRNX_TYPE_CODE:''||TRNX_TYPE_CODE||'' ~ TRNX_SUB_TYPE_CODE:''||TRNX_SUB_TYPE_CODE||'' ~ TRNX_ANALYSIS_CODE1:''||TRNX_ANALYSIS_CODE1||'' ~ TRNX_ANALYSIS_CODE2:''||TRNX_ANALYSIS_CODE2||'' ~ TRNX_ANALYSIS_CODE3:''||TRNX_ANALYSIS_CODE3||'' ~ TRNX_ANALYSIS_CODE4:''||TRNX_ANALYSIS_CODE4||'' ~ TRNX_ANALYSIS_CODE5:''||TRNX_ANALYSIS_CODE5 ELSE NULL END),''~|''),''~|'') ELSE NULL END END)'
+        transform: '(CASE WHEN (CASE WHEN al4_dopttrnx_raw.business_checks=''FAILED'' OR (CASE WHEN (al4_dopttrnx_raw.TRNX_AMT IS NULL) OR al4_dopttrnx_raw.TRNX_AMT=0 THEN ''N'' ELSE ''Y'' END)=''N'' THEN -1 ELSE CASE WHEN (CASE WHEN (al4_dopttrnx_raw.DW_CONTRACT_KEY IS NULL) THEN ''N'' ELSE ''Y'' END)=''N'' OR (CASE WHEN (al4_dopttrnx_raw.trnx_type_key IS NULL) THEN ''N'' ELSE ''Y'' END)=''N'' OR (CASE WHEN (al4_dopttrnx_raw.product_option_key IS NULL) THEN ''N'' ELSE ''Y'' END)=''N'' OR (CASE WHEN (al4_dopttrnx_raw.event_CONTRACT_KEY IS NULL) AND (al4_dopttrnx_raw.TRANNO IS NULL) THEN ''N'' ELSE ''Y'' END)=''N'' THEN 1 ELSE 0 END END)=-1 THEN ''BUSINESS_CHECK_FAIL-> '' ||RTRIM(LTRIM((CASE WHEN al4_dopttrnx_raw.business_checks=''FAILED'' THEN CASE WHEN al4_dopttrnx_raw.TRNX_STATUS_CODE_check=''F'' THEN ''TRNX_STATUS_CODE: ''||al4_dopttrnx_raw.TRNX_STATUS_CODE||''|'' ELSE NULL END ELSE NULL END||CASE WHEN (CASE WHEN (al4_dopttrnx_raw.TRNX_AMT IS NULL) OR al4_dopttrnx_raw.TRNX_AMT=0 THEN
+          ''N'' ELSE ''Y'' END)=''N'' THEN ''TRNX_AMT: ''|| al4_dopttrnx_raw.TRNX_AMT || ''|'' ELSE NULL END),''~|''),''~|'') ELSE CASE WHEN (CASE WHEN al4_dopttrnx_raw.business_checks=''FAILED'' OR (CASE WHEN (al4_dopttrnx_raw.TRNX_AMT IS NULL) OR al4_dopttrnx_raw.TRNX_AMT=0 THEN ''N'' ELSE ''Y'' END)=''N'' THEN -1 ELSE CASE WHEN (CASE WHEN (al4_dopttrnx_raw.DW_CONTRACT_KEY IS NULL) THEN ''N'' ELSE ''Y'' END)=''N'' OR (CASE WHEN (al4_dopttrnx_raw.trnx_type_key IS NULL) THEN ''N'' ELSE ''Y'' END)=''N'' OR (CASE WHEN (al4_dopttrnx_raw.product_option_key IS NULL) THEN ''N'' ELSE ''Y'' END)=''N'' OR (CASE WHEN (al4_dopttrnx_raw.event_CONTRACT_KEY IS NULL) AND (al4_dopttrnx_raw.TRANNO IS NULL) THEN ''N'' ELSE ''Y'' END)=''N'' THEN 1 ELSE 0 END END)=1 THEN ''REF_INT_CHECK_FAIL-> '' ||RTRIM(LTRIM((CASE WHEN (CASE WHEN (al4_dopttrnx_raw.DW_CONTRACT_KEY IS NULL) THEN ''N'' ELSE ''Y'' END)=''N'' THEN ''CONTRACT_ID:''||al4_dopttrnx_raw.CONTRACT_ID||''|'' ELSE NULL END|| CASE WHEN (CASE WHEN (al4_dopttrnx_raw.product_option_key
+          IS NULL) THEN ''N'' ELSE ''Y'' END)=''N'' THEN '' dw_PRODUCT_KEY:''||al4_dopttrnx_raw.dw_PRODUCT_KEY||'' ~ PRODUCT_OPTION_CODE:''||al4_dopttrnx_raw.PRODUCT_OPTION_CODE||''|'' ELSE NULL END || CASE WHEN (CASE WHEN (al4_dopttrnx_raw.event_CONTRACT_KEY IS NULL) AND (al4_dopttrnx_raw.TRANNO IS NULL) THEN ''N'' ELSE ''Y'' END)=''N'' THEN '' dw_CONTRACT_key:''||al4_dopttrnx_raw.DW_CONTRACT_KEY||'' ~ EVENT_NUM:''||al4_dopttrnx_raw.EVENT_NUM||'' ~ TRANNO:''||al4_dopttrnx_raw.SRC_TRANNO||'' ~ EFTV_DATE:''||al4_dopttrnx_raw.EFTV_DATE||''|'' ELSE NULL END),''~|''),''~|'')||RTRIM(LTRIM((CASE WHEN (CASE WHEN (al4_dopttrnx_raw.trnx_type_key IS NULL) THEN ''N'' ELSE ''Y'' END)=''N'' THEN ''PRODUCT_SYSTEM_CODE:''||al4_dopttrnx_raw.PRODUCT_SYSTEM_CODE||'' ~ TRNX_TYPE_CODE:''||al4_dopttrnx_raw.TRNX_TYPE_CODE||'' ~ TRNX_SUB_TYPE_CODE:''||al4_dopttrnx_raw.TRNX_SUB_TYPE_CODE||'' ~ TRNX_ANALYSIS_CODE1:''||al4_dopttrnx_raw.TRNX_ANALYSIS_CODE1||'' ~ TRNX_ANALYSIS_CODE2:''||al4_dopttrnx_raw.TRNX_ANALYSIS_CODE2||''
+          ~ TRNX_ANALYSIS_CODE3:''||al4_dopttrnx_raw.TRNX_ANALYSIS_CODE3||'' ~ TRNX_ANALYSIS_CODE4:''||al4_dopttrnx_raw.TRNX_ANALYSIS_CODE4||'' ~ TRNX_ANALYSIS_CODE5:''||al4_dopttrnx_raw.TRNX_ANALYSIS_CODE5 ELSE NULL END),''~|''),''~|'') ELSE NULL END END)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 65baa146-cf23-7fd5-956c-a5963c20ec94
@@ -299,7 +307,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:lkp_product_option(dw_product_key, product_option_code)*/ NULL
+        transform: /*LKP:lkp_product_option*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d34a3fc3-968c-b51a-af90-c760a6697363
@@ -312,7 +320,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: Decode(TRNX_STATUS_CODE,'P','PENDING','S','SETTLED','R','REVERSED',TRNX_STATUS_CODE)
+        transform: Decode(al4_dopttrnx_raw.TRNX_STATUS_CODE,'P','PENDING','S','SETTLED','R','REVERSED',al4_dopttrnx_raw.TRNX_STATUS_CODE)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 30bc05dc-8668-dac3-c76c-1639ede4b77c
@@ -325,7 +333,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: :LKP.lkp_trnx_type(product_system_code, (CASE WHEN (trnx_type_code IS NULL) THEN 'oONVLOo' ELSE trnx_type_code END), (CASE WHEN (trnx_sub_type_code IS NULL) THEN 'oONVLOo' ELSE trnx_sub_type_code END), (CASE WHEN (trnx_analysis_code1 IS NULL) THEN 'oONVLOo' ELSE trnx_analysis_code1 END), (CASE WHEN (trnx_analysis_code2 IS NULL) THEN 'oONVLOo' ELSE trnx_analysis_code2 END), (CASE WHEN (trnx_analysis_code3 IS NULL) THEN 'oONVLOo' ELSE trnx_analysis_code3 END), (CASE WHEN (trnx_analysis_code4 IS NULL) THEN 'oONVLOo' ELSE trnx_analysis_code4 END), (CASE WHEN (trnx_analysis_code5 IS NULL) THEN 'oONVLOo' ELSE trnx_analysis_code5 END))
+        transform: /*LKP:lkp_trnx_type*/ NULL
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
@@ -359,19 +367,19 @@ operation:
       join:
         joinCondition: 'FROM {{ ref(''BRONZE'', ''AL4_DOPTTRNX_RAW'') }} al4_dopttrnx_raw
 
-          LEFT JOIN {{ ref(''BRONZE'', ''SUBACCOUNT_TYPE'') }} subaccount_type ON subaccount_type.CODE = al4_dopttrnx.SUB_ACCOUNT_TYPE_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''SUBACCOUNT_TYPE'') }} subaccount_type ON subaccount_type.CODE = al4_dopttrnx_raw.SUB_ACCOUNT_TYPE_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''SDUTY_STATE'') }} sduty_state ON sduty_state.CODE = al4_dopttrnx.SDUTY_STATE_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''SDUTY_STATE'') }} sduty_state ON sduty_state.CODE = al4_dopttrnx_raw.SDUTY_STATE_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''UNIT_PRICE_TYPE'') }} unit_price_type ON unit_price_type.CODE = al4_dopttrnx.UNIT_PRICE_TYPE_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''UNIT_PRICE_TYPE'') }} unit_price_type ON unit_price_type.CODE = al4_dopttrnx_raw.UNIT_PRICE_TYPE_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''UNIT_TYPE'') }} unit_type ON unit_type.CODE = al4_dopttrnx.UNIT_TYPE
+          LEFT JOIN {{ ref(''BRONZE'', ''UNIT_TYPE'') }} unit_type ON unit_type.CODE = al4_dopttrnx_raw.UNIT_TYPE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''EXPOSURE_TYPE'') }} exposure_type ON exposure_type.CODE = al4_dopttrnx.EXPOSURE_TYPE_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''EXPOSURE_TYPE'') }} exposure_type ON exposure_type.CODE = al4_dopttrnx_raw.EXPOSURE_TYPE_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''PRODUCT_OPTION'') }} product_option ON product_option.PRODUCT_KEY = al4_dopttrnx.PRODUCT_KEY AND product_option.PRODUCT_OPTION_CODE = al4_dopttrnx.PRODUCT_OPTION_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''PRODUCT_OPTION'') }} product_option ON product_option.PRODUCT_KEY = al4_dopttrnx_raw.PRODUCT_KEY AND product_option.PRODUCT_OPTION_CODE = al4_dopttrnx_raw.PRODUCT_OPTION_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''TRNX_TYPE'') }} trnx_type ON trnx_type.SOURCE_SYSTEM_CODE = al4_dopttrnx.PRODUCT_SYSTEM_CODE AND trnx_type.SOURCE_TRNX_TYPE_CODE = al4_dopttrnx.TRNX_TYPE_CODE AND trnx_type.SOURCE_TRNX_SUB_TYPE = al4_dopttrnx.TRNX_SUB_TYPE_CODE AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE1 = al4_dopttrnx.TRNX_ANALYSIS_CODE1 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE2 = al4_dopttrnx.TRNX_ANALYSIS_CODE2 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE3 = al4_dopttrnx.TRNX_ANALYSIS_CODE3 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE4 = al4_dopttrnx.TRNX_ANALYSIS_CODE4 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE5 = al4_dopttrnx.TRNX_ANALYSIS_CODE5'
+          LEFT JOIN {{ ref(''BRONZE'', ''TRNX_TYPE'') }} trnx_type ON trnx_type.SOURCE_SYSTEM_CODE = al4_dopttrnx_raw.PRODUCT_SYSTEM_CODE AND trnx_type.SOURCE_TRNX_TYPE_CODE = al4_dopttrnx_raw.TRNX_TYPE_CODE AND trnx_type.SOURCE_TRNX_SUB_TYPE = al4_dopttrnx_raw.TRNX_SUB_TYPE_CODE AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE1 = al4_dopttrnx_raw.TRNX_ANALYSIS_CODE1 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE2 = al4_dopttrnx_raw.TRNX_ANALYSIS_CODE2 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE3 = al4_dopttrnx_raw.TRNX_ANALYSIS_CODE3 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE4 = al4_dopttrnx_raw.TRNX_ANALYSIS_CODE4 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE5 = al4_dopttrnx_raw.TRNX_ANALYSIS_CODE5'
       name: source1
       noLinkRefs: []
   name: AL4_DOPTTRNX

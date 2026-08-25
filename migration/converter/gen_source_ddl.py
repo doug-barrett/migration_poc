@@ -85,10 +85,14 @@ def generate(repo_dir, out_path):
             op = d["operation"]
             cols = op.get("metadata", {}).get("columns", []) or []
             lines.append(f"CREATE OR REPLACE TABLE {db}.{sch}.\"{d['name']}\" (")
-            coldefs = []
+            coldefs, seen = [], set()
             for c in cols:
+                nm = c["name"]
+                if nm.upper() in seen:            # tables can't have dup columns
+                    continue
+                seen.add(nm.upper())
                 dt = c.get("dataType") or "VARCHAR(256)"
-                coldefs.append(f"    \"{c['name']}\" {dt}")
+                coldefs.append(f"    \"{nm}\" {dt}")
             if not coldefs:
                 coldefs.append("    \"_PLACEHOLDER\" VARCHAR(256)")
             lines.append(",\n".join(coldefs))

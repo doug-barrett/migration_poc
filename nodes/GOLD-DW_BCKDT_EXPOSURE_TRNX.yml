@@ -24,11 +24,12 @@ operation:
       dataType: NUMBER(38,0)
       defaultValue: ''
       description: ''
+      isBusinessKey: true
       name: SD_PRODUCT_OPTION_KEY
-      nullable: true
+      nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN CSH_PROD_CATEGORY='CI' THEN (CASE WHEN CSH_PROD_CATEGORY='CI' THEN :LKP.ulkp_dw_product_option(product_key,  CASE WHEN (csh_sd_ben_type IS NULL) or csh_sd_ben_type='SPR' THEN 'NA' ELSE csh_sd_ben_type END) ELSE :LKP.ulkp_dw_product_option(product_key, (CASE WHEN csh_prod_category='CI' THEN 'dummy' ELSE :LKP.ulkp_dwsa_or_opt_convert((DECODE(csh_branch_code,'3', 'NZL','AUS')), csh_stat_fund, csh_unit_class) END)) END) ELSE :LKP.ulkp_dw_product_option(product_key,CASE WHEN (csh_sd_ben_type IS NULL) or csh_sd_ben_type='SPR' THEN 'NA' ELSE csh_sd_ben_type END) END
+        transform: CASE WHEN dw_contract.CSH_PROD_CATEGORY='CI' THEN (CASE WHEN dw_contract.CSH_PROD_CATEGORY='CI' THEN /*LKP:ulkp_dw_product_option*/ NULL ELSE /*LKP:ulkp_dw_product_option*/ NULL END) ELSE /*LKP:ulkp_dw_product_option*/ NULL END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 33cdf675-7535-94d3-b59a-0b64fa0297bc
@@ -41,7 +42,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN CSH_PROD_CATEGORY='CI' THEN :LKP.ulkp_dw_product_option(product_key,  CASE WHEN (csh_sd_ben_type IS NULL) or csh_sd_ben_type='SPR' THEN 'NA' ELSE csh_sd_ben_type END) ELSE :LKP.ulkp_dw_product_option(product_key, (CASE WHEN csh_prod_category='CI' THEN 'dummy' ELSE :LKP.ulkp_dwsa_or_opt_convert((DECODE(csh_branch_code,'3', 'NZL','AUS')), csh_stat_fund, csh_unit_class) END)) END)
+        transform: (CASE WHEN dw_contract.CSH_PROD_CATEGORY='CI' THEN /*LKP:ulkp_dw_product_option*/ NULL ELSE /*LKP:ulkp_dw_product_option*/ NULL END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 510d83f5-c241-0d9f-2abc-c26a85cfdc71
@@ -54,7 +55,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:ulkp_dw_trnx_type(csh_sd_basis_method ||csh_sd_standalone_ind||csh_sd_type||csh_sd_amp_pay_ind, csh_prod_category)*/ NULL
+        transform: /*LKP:ulkp_dw_trnx_type*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ee052d1c-d09e-afe4-556a-4119820e00f7
@@ -67,7 +68,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:ulkp_ref360_state(csh_sd_state_code)*/ NULL
+        transform: /*LKP:ulkp_ref360_state*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c00526cd-71ee-7cd9-9ebb-8db0ef463b3b
@@ -80,7 +81,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN CSH_PROD_CATEGORY='CI' THEN 1 ELSE /*LKP:ulkp_dw_trnx_type('MGR', csh_prod_category)*/ NULL END
+        transform: CASE WHEN dw_contract.CSH_PROD_CATEGORY='CI' THEN 1 ELSE /*LKP:ulkp_dw_trnx_type*/ NULL END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4ae51ef6-5319-b49a-be47-ace0cb06732c
@@ -93,7 +94,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN CSH_PROD_CATEGORY='CI' THEN 1 ELSE /*LKP:ulkp_dw_trnx_type('BRK', csh_prod_category)*/ NULL END
+        transform: CASE WHEN dw_contract.CSH_PROD_CATEGORY='CI' THEN 1 ELSE /*LKP:ulkp_dw_trnx_type*/ NULL END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 97d1f333-b383-03c9-721a-8bf8326250b6
@@ -106,7 +107,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: TO_CHAR(TO_CHAR(csh_proc_date, 'YYYYMMDD') || csh_cash_seq_no || csh_cash_array_seq_no || TO_CHAR(csh_il_cash_eff_date,'YYYYMMDD') || csh_register_code || csh_chis_cash_seq_numb_cmplmt || csh_week_recd || TO_CHAR(csh_cash_complement_date,'YYYYMMDD') || csh_cash_hist_ind)
+        transform: TO_CHAR(TO_CHAR(or_dcash.csh_proc_date, 'YYYYMMDD') || or_dcash.csh_cash_seq_no || or_dcash.csh_cash_array_seq_no || TO_CHAR(or_dcash.csh_il_cash_eff_date,'YYYYMMDD') || or_dcash.csh_register_code || or_dcash.csh_chis_cash_seq_numb_cmplmt || or_dcash.csh_week_recd || TO_CHAR(or_dcash.csh_cash_complement_date,'YYYYMMDD') || or_dcash.csh_cash_hist_ind)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 93f5d7e3-140e-10b8-7d20-90c6522fe903
@@ -119,7 +120,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN csh_prod_category='CI' THEN /*LKP:ulkp_dw_trnx_type(csh_cash_cause||csh_report_ind, csh_prod_category)*/ NULL ELSE /*LKP:ulkp_dw_trnx_type(csh_cash_cause||csh_trans_ind, csh_prod_category)*/ NULL END
+        transform: CASE WHEN dw_contract.csh_prod_category='CI' THEN /*LKP:ulkp_dw_trnx_type*/ NULL ELSE /*LKP:ulkp_dw_trnx_type*/ NULL END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 12001152-fc34-8a57-50e0-ef3b7e456c85
@@ -132,7 +133,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN (contract_key IS NULL) OR (csh_cash_cause!= 'LS' AND ( (o_product_option_key IS NULL) OR (o_trnx_type_key IS NULL))) OR ((csh_sd_basis_amt != 0 OR csh_sd_calc_amt != 0 OR csh_sd_type = 'E' ) AND ( (o_sd_product_option_key IS NULL) OR (o_sd_trnx_type_key IS NULL) OR (o_sd_state_code IS NULL) ) ) THEN 1 ELSE 0 END)
+        transform: (CASE WHEN (dw_contract.contract_key IS NULL) OR (dw_contract.csh_cash_cause!= 'LS' AND ( (dw_contract.o_product_option_key IS NULL) OR (or_dcash.o_trnx_type_key IS NULL))) OR ((or_dcash.csh_sd_basis_amt != 0 OR or_dcash.csh_sd_calc_amt != 0 OR or_dcash.csh_sd_type = 'E' ) AND ( (or_dcash.o_sd_product_option_key IS NULL) OR (or_dcash.o_sd_trnx_type_key IS NULL) OR (or_dcash.o_sd_state_code IS NULL) ) ) THEN 1 ELSE 0 END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9c2596f1-e0b6-6763-bbc1-186944648a9a
@@ -145,7 +146,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN (csh_il_init_units IS NULL) AND (csh_il_init_cash_amt IS NULL) AND (csh_il_inv_units IS NULL) AND (csh_il_inv_cash_amt IS NULL) AND (csh_il_init_back_unit IS NULL) AND (csh_il_init_back_cash_amt IS NULL) AND (csh_il_inv_back_unit IS NULL) AND (csh_il_inv_back_cash_amt IS NULL) AND (csh_il_init_back_adj_units IS NULL) AND (csh_il_init_back_adj_amt IS NULL) AND (csh_il_inv_back_adj_units IS NULL) AND (csh_il_inv_back_adj_amt IS NULL) AND (csh_il_init_unit_maja_amt IS NULL) AND (csh_il_brokerage_cash_amt IS NULL) AND (csh_il_cash_amt IS NULL) AND (csh_sd_basis_amt IS NULL) THEN 1 ELSE 0 END)
+        transform: (CASE WHEN (or_dcash.csh_il_init_units IS NULL) AND (or_dcash.csh_il_init_cash_amt IS NULL) AND (or_dcash.csh_il_inv_units IS NULL) AND (or_dcash.csh_il_inv_cash_amt IS NULL) AND (or_dcash.csh_il_init_back_unit IS NULL) AND (or_dcash.csh_il_init_back_cash_amt IS NULL) AND (or_dcash.csh_il_inv_back_unit IS NULL) AND (or_dcash.csh_il_inv_back_cash_amt IS NULL) AND (or_dcash.csh_il_init_back_adj_units IS NULL) AND (or_dcash.csh_il_init_back_adj_amt IS NULL) AND (or_dcash.csh_il_inv_back_adj_units IS NULL) AND (or_dcash.csh_il_inv_back_adj_amt IS NULL) AND (or_dcash.csh_il_init_unit_maja_amt IS NULL) AND (or_dcash.csh_il_brokerage_cash_amt IS NULL) AND (or_dcash.csh_il_cash_amt IS NULL) AND (or_dcash.csh_sd_basis_amt IS NULL) THEN 1 ELSE 0 END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1f4f7b1e-aa9c-6bb3-8ddf-cc8445e196bb
@@ -158,7 +159,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CSH_POL_NUM IS NULL) THEN '#' ELSE CSH_POL_NUM END
+        transform: CASE WHEN (or_dcash.CSH_POL_NUM IS NULL) THEN '#' ELSE or_dcash.CSH_POL_NUM END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 76365921-6d18-f123-ba84-da822a8af3d9
@@ -171,7 +172,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CSH_PROC_DATE IS NULL) THEN TO_DATE('12/31/3000 00:00:00','mm/dd/yyyy hh24:mi:ss') ELSE CSH_PROC_DATE END
+        transform: CASE WHEN (or_dcash.CSH_PROC_DATE IS NULL) THEN TO_DATE('12/31/3000 00:00:00','mm/dd/yyyy hh24:mi:ss') ELSE or_dcash.CSH_PROC_DATE END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 80fe70ef-3cfb-6f7c-831a-b5d758ac3c4c
@@ -184,7 +185,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CSH_CASH_SEQ_NO IS NULL) THEN 9999 ELSE CSH_CASH_SEQ_NO END
+        transform: CASE WHEN (or_dcash.CSH_CASH_SEQ_NO IS NULL) THEN 9999 ELSE or_dcash.CSH_CASH_SEQ_NO END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3e8e83a1-464b-3813-d638-f867b4d7fa4b
@@ -197,7 +198,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CSH_CASH_ARRAY_SEQ_NO IS NULL) THEN 9999 ELSE CSH_CASH_ARRAY_SEQ_NO END
+        transform: CASE WHEN (or_dcash.CSH_CASH_ARRAY_SEQ_NO IS NULL) THEN 9999 ELSE or_dcash.CSH_CASH_ARRAY_SEQ_NO END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0cf8dce9-2113-9055-606d-cbfb8bee2b8a
@@ -210,7 +211,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CSH_IL_CASH_EFF_DATE IS NULL) THEN TO_DATE('12/31/3000 00:00:00','mm/dd/yyyy hh24:mi:ss') ELSE CSH_IL_CASH_EFF_DATE END
+        transform: CASE WHEN (or_dcash.CSH_IL_CASH_EFF_DATE IS NULL) THEN TO_DATE('12/31/3000 00:00:00','mm/dd/yyyy hh24:mi:ss') ELSE or_dcash.CSH_IL_CASH_EFF_DATE END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 37c7d3ad-c555-a4bb-b919-037b449bf54f
@@ -223,7 +224,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CSH_REGISTER_CODE IS NULL) THEN 'A' ELSE CSH_REGISTER_CODE END
+        transform: CASE WHEN (or_dcash.CSH_REGISTER_CODE IS NULL) THEN 'A' ELSE or_dcash.CSH_REGISTER_CODE END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0ec4f1b5-d7c0-97a4-9771-ac9741c5fc14
@@ -236,7 +237,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CSH_CHIS_CASH_SEQ_NUMB_CMPLMT IS NULL) THEN 9999 ELSE CSH_CHIS_CASH_SEQ_NUMB_CMPLMT END
+        transform: CASE WHEN (or_dcash.CSH_CHIS_CASH_SEQ_NUMB_CMPLMT IS NULL) THEN 9999 ELSE or_dcash.CSH_CHIS_CASH_SEQ_NUMB_CMPLMT END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 438ef314-102b-dee4-b031-d73e2234bccb
@@ -249,7 +250,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CSH_WEEK_RECD IS NULL) THEN 9999 ELSE CSH_WEEK_RECD END
+        transform: CASE WHEN (or_dcash.CSH_WEEK_RECD IS NULL) THEN 9999 ELSE or_dcash.CSH_WEEK_RECD END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 59b389d4-663c-dd5f-ef77-f3720850f3b9
@@ -262,7 +263,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CSH_CASH_COMPLEMENT_DATE IS NULL) THEN TO_DATE('12/31/3000 00:00:00','mm/dd/yyyy hh24:mi:ss') ELSE CSH_CASH_COMPLEMENT_DATE END
+        transform: CASE WHEN (or_dcash.CSH_CASH_COMPLEMENT_DATE IS NULL) THEN TO_DATE('12/31/3000 00:00:00','mm/dd/yyyy hh24:mi:ss') ELSE or_dcash.CSH_CASH_COMPLEMENT_DATE END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 850dc995-c8ad-b7d9-bbf2-a2910d6874e3
@@ -275,7 +276,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CSH_CASH_HIST_IND IS NULL) THEN 'Z' ELSE CSH_CASH_HIST_IND END
+        transform: CASE WHEN (or_dcash.CSH_CASH_HIST_IND IS NULL) THEN 'Z' ELSE or_dcash.CSH_CASH_HIST_IND END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: dc27fc5f-0879-68fe-2ea1-85c08c3a566d
@@ -288,7 +289,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CSH_POL_NUM
+        transform: or_dcash.CSH_POL_NUM
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e3c630e1-f557-235f-84f4-79aa699976a9
@@ -301,7 +302,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN o_unit_type_code='SI' THEN 'Y' ELSE 'N' END
+        transform: CASE WHEN or_dcash.o_unit_type_code='SI' THEN 'Y' ELSE 'N' END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e1ea4683-84b9-b03a-2b54-a3b176232641
@@ -340,7 +341,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: NEXTVAL
+        transform: or_dcash.NEXTVAL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 58b8ad98-0f25-4ff1-07df-4e4c7e7eb70d
@@ -353,7 +354,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN src_csh_cash_cause != 'LS' THEN TO_CHAR(src_csh_cash_array_seq_no || src_csh_cash_seq_no || src_RANKINDEX) ELSE TO_CHAR(src_csh_cash_array_seq_no || src_csh_cash_seq_no || src_csh_sd_activity_code) END
+        transform: CASE WHEN or_dcash.src_csh_cash_cause != 'LS' THEN TO_CHAR(or_dcash.src_csh_cash_array_seq_no || or_dcash.src_csh_cash_seq_no || or_dcash.src_RANKINDEX) ELSE TO_CHAR(or_dcash.src_csh_cash_array_seq_no || or_dcash.src_csh_cash_seq_no || or_dcash.src_csh_sd_activity_code) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7c2d7fe9-656c-7108-8bbd-d347279c5e7e
@@ -405,7 +406,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (src_CSH_IL_INIT_CASH_AMT) >= 0 THEN 'CR' ELSE 'DR' END
+        transform: CASE WHEN (or_dcash.src_CSH_IL_INIT_CASH_AMT) >= 0 THEN 'CR' ELSE 'DR' END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5a51b9e2-d173-a623-5f22-ee96c93389bc
@@ -444,7 +445,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (src_CSH_IL_INIT_CASH_AMT)
+        transform: (or_dcash.src_CSH_IL_INIT_CASH_AMT)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5abbc114-68b8-96a8-e8f9-eb33af72c633
@@ -457,7 +458,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (src_CSH_IL_INIT_UNITS)
+        transform: (or_dcash.src_CSH_IL_INIT_UNITS)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0881e4b8-9bb9-e0ad-b0f7-1250a94dd1f9
@@ -522,7 +523,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN SRC_csh_revrsl_ind ='Y' THEN 'REVERSED' ELSE SRC_csh_trans_status END
+        transform: CASE WHEN or_dcash.SRC_csh_revrsl_ind ='Y' THEN 'REVERSED' ELSE or_dcash.SRC_csh_trans_status END
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:

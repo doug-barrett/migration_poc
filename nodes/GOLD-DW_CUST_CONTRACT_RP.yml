@@ -53,7 +53,7 @@ operation:
         columnCounter: 6abd1258-9585-b11c-6374-34a663071d88
         stepCounter: dd834658-3929-6253-a61f-b15612538437
       config: {}
-      dataType: VARCHAR(10)
+      dataType: VARCHAR(256)
       defaultValue: ''
       description: ''
       isBusinessKey: true
@@ -61,8 +61,8 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences:
-        - columnCounter: f93cf274-3808-1dce-670f-71c3a9d05c33
-          stepCounter: 6bb8e3a6-72da-adc4-7f62-eb193ec8f2d4
+        - columnCounter: a1c8a516-825d-2791-7e8e-9309c144b7c0
+          stepCounter: 49afe4d4-b8de-827c-baa6-dc1914b9ca5f
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -76,8 +76,10 @@ operation:
       name: REC_EFTV_DTTM
       nullable: false
       sourceColumnReferences:
-      - columnReferences: []
-        transform: 'NULL /* TODO: source column not reconstructed */'
+      - columnReferences:
+        - columnCounter: cb13084d-d33b-9c44-94c9-68deeb2322b7
+          stepCounter: 49afe4d4-b8de-827c-baa6-dc1914b9ca5f
+        transform: ''
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 636e1fd0-0abd-7aa6-fce3-9e0dd12f4b1d
@@ -90,7 +92,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN MD5_BUSN_KEY=(/*VAR:v_current_md5_busn_key*/ NULL) THEN CASE WHEN MD5_REC!=(/*VAR:v_current_md5_rec*/ NULL) THEN 'N' ELSE 'Y' END ELSE 'N' END)
+        transform: (CASE WHEN dw_contract.MD5_BUSN_KEY=(/*VAR:v_current_md5_busn_key*/ NULL) THEN CASE WHEN dw_contract.MD5_REC!=(/*VAR:v_current_md5_rec*/ NULL) THEN 'N' ELSE 'Y' END ELSE 'N' END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6b42c366-621f-e6f5-07e9-9a438134740d
@@ -103,7 +105,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: --CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 AND RELATIONSHIP_STATUS_CODE='A' THEN 1 ELSE 0 END CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 AND (RELATIONSHIP_STATUS_CODE='A' OR RELATIONSHIP_STATUS_CODE='C') THEN 1 ELSE 0 END
+        transform: CASE WHEN (CASE WHEN dw_contract.MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 AND (dw_contract.RELATIONSHIP_STATUS_CODE='A' OR dw_contract.RELATIONSHIP_STATUS_CODE='C') THEN 1 ELSE 0 END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f2e0945b-67a4-d55e-c42f-6d2f9da1fc2c
@@ -116,7 +118,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE Add_To_Date((/*VAR:v_last_process_record_date*/ NULL), 'SS', -1) END
+        transform: CASE WHEN (CASE WHEN dw_contract.MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE DATEADD(SECOND, -1, (/*VAR:v_last_process_record_date*/ NULL)) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ea81f584-c8d7-c028-e049-9efa0a2e56bf
@@ -129,7 +131,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE Add_To_Date((/*VAR:v_last_effv_record_date*/ NULL), 'SS', -1) END
+        transform: CASE WHEN (CASE WHEN dw_contract.MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE DATEADD(SECOND, -1, (/*VAR:v_last_effv_record_date*/ NULL)) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 01434a7d-01bf-1c7b-d791-01bad7daadbb
@@ -155,7 +157,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN NULL ELSE CURRENT_TIMESTAMP END
+        transform: CASE WHEN (CASE WHEN dw_contract.MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN NULL ELSE CURRENT_TIMESTAMP END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8f50f6fe-ded8-59cc-c971-c46a728bf2fd
@@ -207,7 +209,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: PRODUCT_SYSTEM_CODE
+        transform: dw_contract.PRODUCT_SYSTEM_CODE
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 22562133-a80f-be55-2097-1cfd6bc5b987
@@ -220,7 +222,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (_TGT_CUST_CONTRACT_RLSHP_TYPE_CODE IS NULL) THEN _TGT_CUST_CONTRACT_RLSHP_TYPE_CODE ELSE CUST_CONTRACT_RLSHP_TYPE_CODE END
+        transform: CASE WHEN (dw_contract._TGT_CUST_CONTRACT_RLSHP_TYPE_CODE IS NULL) THEN dw_contract._TGT_CUST_CONTRACT_RLSHP_TYPE_CODE ELSE dw_contract.CUST_CONTRACT_RLSHP_TYPE_CODE END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: dbdbfe82-6053-0a2b-bff2-539be7f7339d
@@ -233,7 +235,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (_TGT_SOURCE_OF_FUNDS_CODE IS NULL) THEN _TGT_SOURCE_OF_FUNDS_CODE ELSE SOURCE_OF_FUNDS_CODE END
+        transform: CASE WHEN (dw_contract._TGT_SOURCE_OF_FUNDS_CODE IS NULL) THEN dw_contract._TGT_SOURCE_OF_FUNDS_CODE ELSE ('NA') END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 20b7b673-973b-976b-cbe4-e300fdc3a0e1
@@ -246,7 +248,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (_TGT_NATURE_BUSN_RLSHP_CODE IS NULL) THEN _TGT_NATURE_BUSN_RLSHP_CODE ELSE NATURE_BUSN_RLSHP_CODE END
+        transform: CASE WHEN (dw_contract._TGT_NATURE_BUSN_RLSHP_CODE IS NULL) THEN dw_contract._TGT_NATURE_BUSN_RLSHP_CODE ELSE ('NA') END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a5b67ad4-d1bd-eb5e-117c-78ddf6507b62
@@ -259,7 +261,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (END_DATE IS NULL) THEN DECODE(RELATIONSHIP_STATUS_CODE,'C',PROCESS_DATE,'A',TO_DATE('31/12/3000','DD/MM/YYYY')) ELSE END_DATE END
+        transform: CASE WHEN (dw_contract.END_DATE IS NULL) THEN DECODE(dw_contract.RELATIONSHIP_STATUS_CODE,'C',dw_contract.PROCESS_DATE,'A',TO_DATE('31/12/3000','DD/MM/YYYY')) ELSE dw_contract.END_DATE END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ec898b9e-6399-7653-e8bc-eeb58ac893ac
@@ -272,7 +274,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MD5(TO_CHAR(CASE WHEN (o_PRODUCT_SYSTEM_CODE IS NULL) THEN 'NA' ELSE o_PRODUCT_SYSTEM_CODE END)|| TO_CHAR(CASE WHEN (O_SOURCE_OF_FUNDS_CODE IS NULL) THEN 'NA' ELSE O_SOURCE_OF_FUNDS_CODE END)||TO_CHAR(CASE WHEN (O_NATURE_BUSN_RLSHP_CODE IS NULL) THEN 'NA' ELSE O_NATURE_BUSN_RLSHP_CODE END))
+        transform: MD5(TO_CHAR(CASE WHEN (dw_contract.o_PRODUCT_SYSTEM_CODE IS NULL) THEN 'NA' ELSE dw_contract.o_PRODUCT_SYSTEM_CODE END)|| TO_CHAR(CASE WHEN (dw_contract.O_SOURCE_OF_FUNDS_CODE IS NULL) THEN 'NA' ELSE dw_contract.O_SOURCE_OF_FUNDS_CODE END)||TO_CHAR(CASE WHEN (dw_contract.O_NATURE_BUSN_RLSHP_CODE IS NULL) THEN 'NA' ELSE dw_contract.O_NATURE_BUSN_RLSHP_CODE END))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f1c8a8d9-62bc-f089-18bd-ce633b2e9e6f
@@ -285,7 +287,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (EFTV_DATE IS NULL) THEN PROCESS_DATE ELSE EFTV_DATE END
+        transform: CASE WHEN (dw_contract.EFTV_DATE IS NULL) THEN dw_contract.PROCESS_DATE ELSE dw_contract.EFTV_DATE END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a3e4ef78-5378-f2b0-14d9-fa5f50d9c46a
@@ -298,7 +300,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MD5(TO_CHAR(pty_PARTY_KEY)||TO_CHAR(con_CONTRACT_KEY)||o_cust_contract_rlshp_type_code)
+        transform: MD5(TO_CHAR(dw_contract.pty_PARTY_KEY)||TO_CHAR(dw_contract.con_CONTRACT_KEY)||dw_contract.o_cust_contract_rlshp_type_code)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8fbdf3d3-9fee-e085-6859-ca138a4c516b
@@ -311,7 +313,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: Add_To_Date(PROCESS_DATE, 'SS', -1)
+        transform: DATEADD(SECOND, -1, dw_contract.PROCESS_DATE)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3a72d52b-22b1-1d0e-c18d-5474eed1db6e
@@ -324,7 +326,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: Add_To_Date(PROCESS_DATE, 'SS', -1)
+        transform: DATEADD(SECOND, -1, dw_contract.PROCESS_DATE)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: afd66c03-c014-efb7-431f-2467093bc008
@@ -363,7 +365,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (/*LKP:Ulkp_eftv_dttm('RP_DCUSTCTRCT')*/ NULL)
+        transform: (/*LKP:Ulkp_eftv_dttm*/ NULL)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e2d679d0-0e64-8374-141b-b8d98b908afc
@@ -441,7 +443,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MD5(TO_CHAR(CASE WHEN (/*VAR:V_EFTV_DATE*/ NULL IS NULL) THEN '31-DEC-3000' ELSE TO_CHAR(/*VAR:V_EFTV_DATE*/ NULL) END)|| TO_CHAR(CASE WHEN (TGT_PRODUCT_SYSTEM_CODE IS NULL) THEN 'NA' ELSE TGT_PRODUCT_SYSTEM_CODE END)|| TO_CHAR(CASE WHEN (TGT_SOURCE_OF_FUNDS_CODE IS NULL) THEN 'NA' ELSE TGT_SOURCE_OF_FUNDS_CODE END)||TO_CHAR(CASE WHEN (TGT_NATURE_BUSN_RLSHP_CODE IS NULL) THEN 'NA' ELSE TGT_NATURE_BUSN_RLSHP_CODE END))
+        transform: MD5(TO_CHAR(CASE WHEN ((/*LKP:Ulkp_eftv_dttm*/ NULL) IS NULL) THEN '31-DEC-3000' ELSE TO_CHAR((/*LKP:Ulkp_eftv_dttm*/ NULL)) END)|| TO_CHAR(CASE WHEN (dw_contract.TGT_PRODUCT_SYSTEM_CODE IS NULL) THEN 'NA' ELSE dw_contract.TGT_PRODUCT_SYSTEM_CODE END)|| TO_CHAR(CASE WHEN (dw_contract.TGT_SOURCE_OF_FUNDS_CODE IS NULL) THEN 'NA' ELSE dw_contract.TGT_SOURCE_OF_FUNDS_CODE END)||TO_CHAR(CASE WHEN (dw_contract.TGT_NATURE_BUSN_RLSHP_CODE IS NULL) THEN 'NA' ELSE dw_contract.TGT_NATURE_BUSN_RLSHP_CODE END))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8e3bf6de-3ee5-4104-bdcd-b8c75f06c425
@@ -454,7 +456,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (/*LKP:Ulkp_eftv_dttm('RP_DCUSTCTRCT')*/ NULL)
+        transform: (/*LKP:Ulkp_eftv_dttm*/ NULL)
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:

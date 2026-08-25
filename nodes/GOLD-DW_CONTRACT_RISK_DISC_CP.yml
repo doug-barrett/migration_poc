@@ -29,23 +29,25 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences:
-        - columnCounter: 560d221b-3756-9dad-e78d-ace69cd58c78
-          stepCounter: e86cf127-2d40-34b0-8711-0531a2105463
+        - columnCounter: c3c6b500-3cb8-b47d-aeab-d0a210df27a5
+          stepCounter: 49afe4d4-b8de-827c-baa6-dc1914b9ca5f
         transform: ''
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f6663803-083d-61e9-4132-d81f18f23f74
         stepCounter: 4cbe317e-6a32-5c5a-da3b-aca2ebf4a2dc
       config: {}
-      dataType: VARCHAR(50)
+      dataType: VARCHAR(256)
       defaultValue: ''
       description: ''
       isBusinessKey: true
       name: DISC_TYPE_CODE
       nullable: false
       sourceColumnReferences:
-      - columnReferences: []
-        transform: 'NULL /* TODO: source column not reconstructed */'
+      - columnReferences:
+        - columnCounter: 276c65a4-03f2-e9a3-db69-f4886d7dce1c
+          stepCounter: 49afe4d4-b8de-827c-baa6-dc1914b9ca5f
+        transform: ''
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2e372fad-634a-9d9f-a561-2e5289cc3f0f
@@ -59,8 +61,8 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences:
-        - columnCounter: c281d4e8-b57c-8d7a-e589-a442f855b30f
-          stepCounter: 71ad385d-1121-730c-6423-df947ed700d7
+        - columnCounter: cb13084d-d33b-9c44-94c9-68deeb2322b7
+          stepCounter: 49afe4d4-b8de-827c-baa6-dc1914b9ca5f
         transform: ''
     - appliedColumnTests: {}
       columnReference:
@@ -90,7 +92,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: '''0'' || RPAD (BC1_CLIENT_ID,15,''0'')'
+        transform: '''0'' || RPAD (cp_dbcp1.BC1_CLIENT_ID,15,''0'')'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2be783bf-938b-cd2d-7362-57a2037a5877
@@ -103,7 +105,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: :LKP.lkp_dw_product_option(RTRIM(LTRIM(PRODUCT_KEY)), RTRIM(LTRIM(BC1_PLAN_CODE)))
+        transform: /*LKP:lkp_dw_product_option*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6c6f380b-e567-ee5d-93d5-b3c6de912e62
@@ -116,7 +118,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: to_char(BC1_COVERAGE_NUMBER)
+        transform: to_char(cp_dbcp1.BC1_COVERAGE_NUMBER)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3a8b79ea-0453-b3d7-fca2-79e3e4977bfd
@@ -142,7 +144,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MD5(to_char(CASE WHEN (o_contract_risk_key IS NULL) THEN 1 ELSE o_contract_risk_key END)||to_char(o_DISC_TYPE_CODE))
+        transform: MD5(to_char(CASE WHEN (cp_dbcp1.o_contract_risk_key IS NULL) THEN 1 ELSE cp_dbcp1.o_contract_risk_key END)||to_char(cp_dbcp1.o_DISC_TYPE_CODE))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2e0107aa-509f-124d-5ca8-4b3b46fa92cf
@@ -155,7 +157,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MD5(TO_CHAR(CASE WHEN (o_DISC_PCNT IS NULL) THEN '-1.0000' ELSE TO_CHAR(o_DISC_PCNT) END))
+        transform: MD5(TO_CHAR(CASE WHEN (cp_dbcp1.o_DISC_PCNT IS NULL) THEN '-1.0000' ELSE TO_CHAR(cp_dbcp1.o_DISC_PCNT) END))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4791a338-42ff-3473-e6bc-d6b40df17a67
@@ -168,7 +170,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: TO_DATE(SUBSTR(_file_produced_date,1,19),'mm/dd/yyyy hh24:mi:ss')
+        transform: TO_DATE(SUBSTR(cp_dbcp1._file_produced_date,1,19),'mm/dd/yyyy hh24:mi:ss')
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 78506ec6-e3cd-adde-6b2e-d7d03cb4218b
@@ -181,7 +183,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MD5(TO_CHAR(CASE WHEN (DISC_PCNT IS NULL) THEN '-1.0000' ELSE TO_CHAR(DISC_PCNT) END))
+        transform: MD5(TO_CHAR(CASE WHEN (cp_dbcp1.DISC_PCNT IS NULL) THEN '-1.0000' ELSE TO_CHAR(cp_dbcp1.DISC_PCNT) END))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ab791c62-203e-c559-2762-a482044eb465
@@ -194,7 +196,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN o_DISC_TYPE_CODE='TEMP' and CASE WHEN (o_DISC_PCNT IS NULL) THEN 0.0000 ELSE o_DISC_PCNT END <> 0.0000 THEN to_date(substr(o_DISC_EXPIRY_DATE,1,10), 'MM/DD/YYYY') ELSE NULL END
+        transform: CASE WHEN cp_dbcp1.o_DISC_TYPE_CODE='TEMP' and CASE WHEN (cp_dbcp1.o_DISC_PCNT IS NULL) THEN 0.0000 ELSE cp_dbcp1.o_DISC_PCNT END <> 0.0000 THEN to_date(substr(cp_dbcp1.o_DISC_EXPIRY_DATE,1,10), 'MM/DD/YYYY') ELSE NULL END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4e5ded35-bb5e-2eae-cc53-ca1dd64b2292
@@ -272,7 +274,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: Add_To_Date(o_PROCESS_DATE, 'SS', -1)
+        transform: DATEADD(SECOND, -1, cp_dbcp1.o_PROCESS_DATE)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 45d8c5cb-05a2-2705-c3b5-6717929ea217
@@ -285,7 +287,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: Add_To_Date(o_PROCESS_DATE, 'SS', -1)
+        transform: DATEADD(SECOND, -1, cp_dbcp1.o_PROCESS_DATE)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a75517d5-5865-946f-cfbc-3a8f442e714b
@@ -363,7 +365,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: TEMP_DISC_EXPRY_DATE_risk1
+        transform: cp_dbcp1.TEMP_DISC_EXPRY_DATE_risk1
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3340eee9-8ccb-e828-f077-8e49997f9bdc
@@ -376,7 +378,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN NOT (POLICY_SIZE_DISC_PCNT_risk1 IS NULL) THEN 'CONTSIZE' ELSE NULL END
+        transform: CASE WHEN NOT (cp_dbcp1.POLICY_SIZE_DISC_PCNT_risk1 IS NULL) THEN 'CONTSIZE' ELSE NULL END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6729e3df-e58c-824c-4bf2-40625f6b7672
@@ -389,7 +391,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN NOT (PERM_DISC_PCNT_risk1 IS NULL) THEN 'PERM' ELSE NULL END
+        transform: CASE WHEN NOT (cp_dbcp1.PERM_DISC_PCNT_risk1 IS NULL) THEN 'PERM' ELSE NULL END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1664697f-ac2f-c666-e21f-ac5853f6b9bc
@@ -402,7 +404,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN NOT (TEMP_DISC_PCNT_risk1 IS NULL) THEN 'TEMP' ELSE NULL END
+        transform: CASE WHEN NOT (cp_dbcp1.TEMP_DISC_PCNT_risk1 IS NULL) THEN 'TEMP' ELSE NULL END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5ad54193-6059-0115-93d4-5d8969682f87
@@ -415,7 +417,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN NOT (POLICY_SIZE_DISC_PCNT_risk1 IS NULL) THEN POLICY_SIZE_DISC_PCNT_risk1 ELSE NULL END
+        transform: CASE WHEN NOT (cp_dbcp1.POLICY_SIZE_DISC_PCNT_risk1 IS NULL) THEN cp_dbcp1.POLICY_SIZE_DISC_PCNT_risk1 ELSE NULL END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 56b0201a-50e6-e7dd-4819-3df180c6af91
@@ -428,7 +430,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN NOT (PERM_DISC_PCNT_risk1 IS NULL) THEN PERM_DISC_PCNT_risk1 ELSE NULL END
+        transform: CASE WHEN NOT (cp_dbcp1.PERM_DISC_PCNT_risk1 IS NULL) THEN cp_dbcp1.PERM_DISC_PCNT_risk1 ELSE NULL END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9182ef1b-5e17-c9f9-4ff2-f600ec0254e8
@@ -441,7 +443,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN NOT (TEMP_DISC_PCNT_risk1 IS NULL) THEN TEMP_DISC_PCNT_risk1 ELSE NULL END
+        transform: CASE WHEN NOT (cp_dbcp1.TEMP_DISC_PCNT_risk1 IS NULL) THEN cp_dbcp1.TEMP_DISC_PCNT_risk1 ELSE NULL END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 393e6d34-c965-54d4-4745-5a97cdaba9c2

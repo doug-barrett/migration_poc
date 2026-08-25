@@ -42,7 +42,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (COVERAGE_STATUS_CODE IS NULL) THEN 'A' ELSE COVERAGE_STATUS_CODE END
+        transform: CASE WHEN (yd_drlsp.COVERAGE_STATUS_CODE IS NULL) THEN 'A' ELSE yd_drlsp.COVERAGE_STATUS_CODE END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 871f0d56-c463-6cb6-fb54-a6f8afc00a96
@@ -55,7 +55,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN ((--:LKP.lkp_product_system_conversion(LTrim( RTrim(PRODUCT_SYSTEM_CODE) ), 'Product System') CASE WHEN PRODUCT_SYSTEM_CODE='ULT' THEN 'CP' ELSE CASE WHEN PRODUCT_SYSTEM_CODE='DIS' THEN 'DS' ELSE CASE WHEN PRODUCT_SYSTEM_CODE='INC' THEN 'OR' ELSE NULL END END END) IS NULL) THEN '#' ELSE (--:LKP.lkp_product_system_conversion(LTrim( RTrim(PRODUCT_SYSTEM_CODE) ), 'Product System') CASE WHEN PRODUCT_SYSTEM_CODE='ULT' THEN 'CP' ELSE CASE WHEN PRODUCT_SYSTEM_CODE='DIS' THEN 'DS' ELSE CASE WHEN PRODUCT_SYSTEM_CODE='INC' THEN 'OR' ELSE NULL END END END) END
+        transform: CASE WHEN ((  CASE WHEN yd_drlsp.PRODUCT_SYSTEM_CODE='ULT' THEN 'CP' ELSE CASE WHEN yd_drlsp.PRODUCT_SYSTEM_CODE='DIS' THEN 'DS' ELSE CASE WHEN yd_drlsp.PRODUCT_SYSTEM_CODE='INC' THEN 'OR' ELSE NULL END END END) IS NULL) THEN '#' ELSE (  CASE WHEN yd_drlsp.PRODUCT_SYSTEM_CODE='ULT' THEN 'CP' ELSE CASE WHEN yd_drlsp.PRODUCT_SYSTEM_CODE='DIS' THEN 'DS' ELSE CASE WHEN yd_drlsp.PRODUCT_SYSTEM_CODE='INC' THEN 'OR' ELSE NULL END END END) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1ee4c3de-05d4-5693-35d7-574a6f5500f1
@@ -68,7 +68,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: LTrim( RTrim(CUSTOMER_CONT_REL_TYPE_CD) )
+        transform: LTrim( RTrim(yd_drlsp.CUSTOMER_CONT_REL_TYPE_CD) )
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3d2ac296-81b0-099d-af8a-e9e3d5048613
@@ -81,7 +81,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN o_coverage_status_code='C' THEN 0 ELSE 1 END
+        transform: CASE WHEN yd_drlsp.o_coverage_status_code='C' THEN 0 ELSE 1 END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 466b141c-6f5d-203f-06e8-dd2d50d21ef5
@@ -133,7 +133,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MD5(o_coverage_status_code)
+        transform: MD5(yd_drlsp.o_coverage_status_code)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f70ed21b-745b-91a1-c3e6-f369f325e5b4
@@ -142,11 +142,12 @@ operation:
       dataType: VARCHAR(32)
       defaultValue: ''
       description: ''
+      isBusinessKey: true
       name: MD5_BUSN_KEY
-      nullable: true
+      nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: MD5(con_CONTRACT_KEY||pty_PARTY_KEY||CUSTOMER_CONT_REL_TYPE_CD)
+        transform: MD5(yd_drlsp.con_CONTRACT_KEY||yd_drlsp.pty_PARTY_KEY||yd_drlsp.CUSTOMER_CONT_REL_TYPE_CD)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2802d63d-6a19-9d51-31c3-44ad52a82374
@@ -159,7 +160,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN o_coverage_status_code='C' THEN _file_produced_date ELSE TO_DATE('31/12/3000','DD/MM/YYYY') END
+        transform: CASE WHEN yd_drlsp.o_coverage_status_code='C' THEN yd_drlsp._file_produced_date ELSE TO_DATE('31/12/3000','DD/MM/YYYY') END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f0805798-0923-3c0b-f11f-94a2afecf78c
@@ -172,7 +173,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN (MD5(con_CONTRACT_KEY||pty_PARTY_KEY||CUSTOMER_CONT_REL_TYPE_CD))=((MD5(con_CONTRACT_KEY||pty_PARTY_KEY||CUSTOMER_CONT_REL_TYPE_CD))) THEN 'DUP' ELSE 'UNQ' END)
+        transform: (CASE WHEN (MD5(yd_drlsp.con_CONTRACT_KEY||yd_drlsp.pty_PARTY_KEY||yd_drlsp.CUSTOMER_CONT_REL_TYPE_CD))=((MD5(yd_drlsp.con_CONTRACT_KEY||yd_drlsp.pty_PARTY_KEY||yd_drlsp.CUSTOMER_CONT_REL_TYPE_CD))) THEN 'DUP' ELSE 'UNQ' END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f0cc2576-4539-5846-20f2-7a948118d995
@@ -276,7 +277,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: Add_To_Date(_file_produced_date, 'SS', -1)
+        transform: DATEADD(SECOND, -1, yd_drlsp._file_produced_date)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 470eab98-342b-8b25-b23d-18718168e6b4
@@ -315,7 +316,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN COVERAGE_STATUS_CODE='C' THEN _file_produced_date ELSE tgt_END_DTTM END
+        transform: CASE WHEN yd_drlsp.COVERAGE_STATUS_CODE='C' THEN yd_drlsp._file_produced_date ELSE yd_drlsp.tgt_END_DTTM END
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:

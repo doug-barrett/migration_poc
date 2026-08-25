@@ -50,8 +50,9 @@ operation:
       dataType: NUMBER(38,0)
       defaultValue: ''
       description: ''
+      isBusinessKey: true
       name: ACTL_CFLOW_TRNX_GROUP_KEY
-      nullable: true
+      nullable: false
       sourceColumnReferences:
       - columnReferences: []
         transform: '-1'
@@ -67,7 +68,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (c_CONTRACT_KEY IS NULL) THEN -1 ELSE c_CONTRACT_KEY END
+        transform: CASE WHEN (curr_contract_invest_opt.c_CONTRACT_KEY IS NULL) THEN -1 ELSE curr_contract_invest_opt.c_CONTRACT_KEY END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 01587068-cb8f-5826-dae9-354b0d18d3e4
@@ -132,7 +133,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUBSTR(src_FAMIS_CODE,1,8)||'-'||src_COST_CENTRE_CODE
+        transform: SUBSTR(curr_contract_invest_opt.src_FAMIS_CODE,1,8)||'-'||curr_contract_invest_opt.src_COST_CENTRE_CODE
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f64f7c9b-15e8-883d-664d-f9c86e020559
@@ -145,7 +146,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: src_PAY_IND||src_ACCOUNT_CODE
+        transform: curr_contract_invest_opt.src_PAY_IND||curr_contract_invest_opt.src_ACCOUNT_CODE
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a5fb5335-d5d1-141d-439b-c40d506d70e4
@@ -158,7 +159,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: dw_po_IFRS_OPTION_TYPE_CODE
+        transform: mrv_dw_contract_risk_v.dw_po_IFRS_OPTION_TYPE_CODE
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e9971a96-0e56-cf73-307b-dd095471deaa
@@ -184,7 +185,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (tgt_CORRELATION_ID IS NULL) THEN 'I' ELSE 'X' END
+        transform: CASE WHEN (mrv_dw_contract_risk_v.tgt_CORRELATION_ID IS NULL) THEN 'I' ELSE 'X' END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e1bac311-817e-a10e-aacd-507a0720fc97
@@ -197,7 +198,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: UPPER(MD5(src_CORRELATION_ID||dw_po_IFRS_OPTION_TYPE_CODE||src_IFRS_CFLOW_STATUS_CODE))
+        transform: UPPER(MD5(curr_contract_invest_opt.src_CORRELATION_ID||mrv_dw_contract_risk_v.dw_po_IFRS_OPTION_TYPE_CODE||curr_contract_invest_opt.src_IFRS_CFLOW_STATUS_CODE))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 333a91c2-2af3-1713-a537-219a678163d8
@@ -223,7 +224,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN agg_corr_o_total_cash_amt=0 or (agg_corr_o_total_cash_amt IS NULL) THEN (src_TRNX_AMT/agg_cnt_o_count_ifrs_option_type) ELSE ((agg_ifrs_o_total_cash_amt_ifrs_option/agg_corr_o_total_cash_amt)*src_TRNX_AMT) END
+        transform: CASE WHEN curr_contract_invest_opt.agg_corr_o_total_cash_amt=0 or (curr_contract_invest_opt.agg_corr_o_total_cash_amt IS NULL) THEN (curr_contract_invest_opt.src_TRNX_AMT/curr_contract_invest_opt.agg_cnt_o_count_ifrs_option_type) ELSE ((curr_contract_invest_opt.agg_ifrs_o_total_cash_amt_ifrs_option/curr_contract_invest_opt.agg_corr_o_total_cash_amt)*curr_contract_invest_opt.src_TRNX_AMT) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 24a7c9a4-d2e4-79a8-0601-de608b9d6f4a
@@ -236,7 +237,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN src_IFRS_CFLOW_STATUS_CODE='SETTLED' THEN (Add_To_Date(To_Date(SUBSTR(src__FILE_NAME,19,8),'YYYYMMDD'),'DD',-1)) ELSE src_TRNX_PROC_DTTM END
+        transform: CASE WHEN curr_contract_invest_opt.src_IFRS_CFLOW_STATUS_CODE='SETTLED' THEN (DATEADD(DAY, -1, To_Date(SUBSTR(curr_contract_invest_opt.src__FILE_NAME,19,8),'YYYYMMDD'))) ELSE curr_contract_invest_opt.src_TRNX_PROC_DTTM END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 54c1df1b-864f-a22e-ae7a-e028b70ef90d
@@ -249,7 +250,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CONTRACT_ID
+        transform: mrv_dw_contract_risk_v.CONTRACT_ID
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 08662b5e-2a78-e836-2e46-16678d076a40
@@ -262,7 +263,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (dw_risk_CONTRACT_KEY IS NULL) THEN 'I' ELSE 'R' END
+        transform: CASE WHEN (curr_contract_invest_opt.dw_risk_CONTRACT_KEY IS NULL) THEN 'I' ELSE 'R' END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 27705733-9bd9-f4bb-f9f4-def1b5880aa8
@@ -275,7 +276,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (cio_CASH_AMT IS NULL) THEN 0 ELSE cio_CASH_AMT END
+        transform: CASE WHEN (curr_contract_invest_opt.cio_CASH_AMT IS NULL) THEN 0 ELSE curr_contract_invest_opt.cio_CASH_AMT END
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:

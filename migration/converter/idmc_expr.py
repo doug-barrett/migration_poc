@@ -71,7 +71,7 @@ def _find_call(expr: str, fname: str):
 
 
 def _translate_iif(expr: str, depth=0) -> str:
-    if depth > 60:
+    if depth > 800:
         return expr
     found = _find_call(expr, "IIF")
     if not found:
@@ -109,15 +109,33 @@ def _translate_isnull(expr: str) -> str:
 # ":LKP." form to a comment-tagged placeholder that keeps the SQL parseable
 # and records the intent for the human finisher.
 def _translate_unconnected_lookups(expr: str) -> str:
-    # :LKP.some_lookup(a, b)  ->  /*LOOKUP some_lookup(a, b)*/ NULL
-    def repl(m):
-        return f"/*LKP:{m.group(1)}({m.group(2)})*/ NULL"
-    pat = re.compile(r':LKP\.([A-Za-z0-9_]+)\s*\(([^()]*)\)', re.IGNORECASE)
-    prev = None
-    while prev != expr:
-        prev = expr
-        expr = pat.sub(repl, expr)
-    return expr
+    # :LKP.some_lookup(<balanced args>) -> /*LKP:some_lookup*/ NULL
+    pat = re.compile(r':LKP\.([A-Za-z0-9_]+)\s*\(', re.IGNORECASE)
+    while True:
+        m = pat.search(expr)
+        if not m:
+            return expr
+        name = m.group(1)
+        i = m.end() - 1                 # at '('
+        depth, q, close = 0, None, None
+        for j in range(i, len(expr)):
+            ch = expr[j]
+            if q:
+                if ch == q:
+                    q = None
+                continue
+            if ch in ("'", '"'):
+                q = ch
+            elif ch == '(':
+                depth += 1
+            elif ch == ')':
+                depth -= 1
+                if depth == 0:
+                    close = j
+                    break
+        if close is None:
+            return expr                 # unbalanced -> leave as-is
+        expr = expr[:m.start()] + f"/*LKP:{name}*/ NULL" + expr[close + 1:]
 
 
 # ---- simple function / operator swaps -------------------------------------
@@ -138,7 +156,7 @@ def _translate_in(expr: str, depth=0) -> str:
     # Informatica IN(value, v1, v2, ... [,caseFlag]) -> (value IN (v1, v2, ...))
     # Snowflake IN is an operator, not a function.  Recursive so the operator
     # form we emit is never re-scanned, and nested IN(...) still converts.
-    if depth > 60:
+    if depth > 800:
         return expr
     found = _find_call(expr, "IN")
     if not found:
@@ -152,6 +170,102 @@ def _translate_in(expr: str, depth=0) -> str:
     else:
         rewritten = f"({_translate_in(inner, depth + 1)})"
     return expr[:start] + rewritten + _translate_in(expr[end:], depth + 1)
+
+
+_DATE_UNIT = {
+    "D": "DAY", "DD": "DAY", "DDD": "DAY", "DY": "DAY", "J": "DAY",
+    "MM": "MONTH", "MON": "MONTH", "MONTH": "MONTH", "RM": "MONTH",
+    "Y": "YEAR", "YY": "YEAR", "YYY": "YEAR", "YYYY": "YEAR", "RR": "YEAR",
+    "HH": "HOUR", "HH12": "HOUR", "HH24": "HOUR",
+    "MI": "MINUTE", "SS": "SECOND", "MS": "MILLISECOND", "US": "MICROSECOND",
+    "Q": "QUARTER", "W": "WEEK", "WW": "WEEK",
+}
+
+
+def _date_unit(fmt: str) -> str:
+    f = (fmt or "").strip().strip("'\"").upper()
+    return _DATE_UNIT.get(f, "DAY")
+
+
+def _translate_add_to_date(expr: str) -> str:
+    # Informatica ADD_TO_DATE(date, format, amount) -> DATEADD(unit, amount, date)
+    while True:
+        found = _find_call(expr, "ADD_TO_DATE")
+        if not found:
+            return expr
+        start, end, inner = found
+        args = _split_args(inner)
+        if len(args) >= 3:
+            unit = _date_unit(args[1])
+            rewritten = f"DATEADD({unit}, {args[2]}, {args[0]})"
+        else:
+            rewritten = f"({inner})"
+        expr = expr[:start] + rewritten + expr[end:]
+
+
+def _translate_get_date_part(expr: str) -> str:
+    # Informatica GET_DATE_PART(date, format) -> DATE_PART(unit, date)
+    while True:
+        found = _find_call(expr, "GET_DATE_PART")
+        if not found:
+            return expr
+        start, end, inner = found
+        args = _split_args(inner)
+        if len(args) >= 2:
+            rewritten = f"DATE_PART({_date_unit(args[1])}, {args[0]})"
+        else:
+            rewritten = f"({inner})"
+        expr = expr[:start] + rewritten + expr[end:]
+
+
+def _translate_make_date_time(expr: str) -> str:
+    # Informatica MAKE_DATE_TIME(y,mon,d,h,mi,s) -> TIMESTAMP_FROM_PARTS(...)
+    while True:
+        found = _find_call(expr, "MAKE_DATE_TIME")
+        if not found:
+            return expr
+        start, end, inner = found
+        args = _split_args(inner)
+        while len(args) < 6:
+            args.append("0")
+        rewritten = f"TIMESTAMP_FROM_PARTS({', '.join(args[:6])})"
+        expr = expr[:start] + rewritten + expr[end:]
+
+
+def _translate_replace(expr: str) -> str:
+    # REPLACESTR(caseFlag, subject, old, new) / REPLACECHR(...) -> REPLACE(subject, old, new)
+    for fn in ("REPLACESTR", "REPLACECHR"):
+        while True:
+            found = _find_call(expr, fn)
+            if not found:
+                break
+            start, end, inner = found
+            args = _split_args(inner)
+            if len(args) >= 4:
+                rewritten = f"REPLACE({args[1]}, {args[2]}, {args[-1]})"
+            elif len(args) == 3:
+                rewritten = f"REPLACE({args[0]}, {args[1]}, {args[2]})"
+            else:
+                rewritten = f"({inner})"
+            expr = expr[:start] + rewritten + expr[end:]
+    return expr
+
+
+def _translate_instr(expr: str) -> str:
+    # Informatica INSTR(string, search[, start[, occurrence]])
+    # -> Snowflake CHARINDEX(search, string[, start])  (args flip; occ dropped)
+    while True:
+        found = _find_call(expr, "INSTR")
+        if not found:
+            return expr
+        start, end, inner = found
+        args = _split_args(inner)
+        if len(args) >= 2:
+            new = [args[1], args[0]] + args[2:3]      # search, string, [start]
+            rewritten = f"CHARINDEX({', '.join(new)})"
+        else:
+            rewritten = f"CHARINDEX({inner})"
+        expr = expr[:start] + rewritten + expr[end:]
 
 
 def _translate_reg_match(expr: str) -> str:
@@ -182,11 +296,26 @@ def translate(expr: str) -> str:
     if not expr or not expr.strip():
         return ""
     s = expr
+    # strip Informatica '--' line comments: the transform is rendered on ONE
+    # line, so a '--' would comment out the rest of the expression (incl. AS).
+    s = re.sub(r'--[^\n]*', ' ', s)
     s = _translate_unconnected_lookups(s)
-    s = _translate_iif(s)
-    s = _translate_isnull(s)
+    # loop the idempotent translators to a fixpoint (translating one call can
+    # expose another).  _translate_in is NON-idempotent (it emits the operator
+    # form "x IN (...)" which would be re-matched), so run it exactly once after.
+    for _ in range(12):
+        before = s
+        s = _translate_iif(s)
+        s = _translate_isnull(s)
+        s = _translate_instr(s)
+        s = _translate_add_to_date(s)
+        s = _translate_get_date_part(s)
+        s = _translate_make_date_time(s)
+        s = _translate_replace(s)
+        s = _translate_reg_match(s)
+        if s == before:
+            break
     s = _translate_in(s)
-    s = _translate_reg_match(s)
     for pat, rep in _SIMPLE:
         s = re.sub(pat, rep, s, flags=re.IGNORECASE)
     s = _translate_params(s)

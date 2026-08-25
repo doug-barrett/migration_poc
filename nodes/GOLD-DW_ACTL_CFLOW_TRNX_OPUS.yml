@@ -42,7 +42,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (tgt_CORRELATION_ID IS NULL) AND (tgt_IFRS_CFLOW_STATUS_CODE IS NULL) THEN 'I' ELSE 'X' END
+        transform: CASE WHEN (mrv_dw_actl_cflow_trnx_hist_v.tgt_CORRELATION_ID IS NULL) AND (mrv_dw_actl_cflow_trnx_hist_v.tgt_IFRS_CFLOW_STATUS_CODE IS NULL) THEN 'I' ELSE 'X' END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: fea9497b-a629-6a96-b7cd-14afedf98826
@@ -77,8 +77,9 @@ operation:
       dataType: NUMBER(38,0)
       defaultValue: ''
       description: ''
+      isBusinessKey: true
       name: ACTL_CFLOW_TRNX_GROUP_KEY
-      nullable: true
+      nullable: false
       sourceColumnReferences:
       - columnReferences: []
         transform: '-1'
@@ -120,7 +121,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: UPPER(MD5(src_CORRELATION_ID||'~'|| PRODUCT_OPTION_CODE||'~'|| IFRS_CASHFLOW_STATUS_CODE))
+        transform: UPPER(MD5(mrv_dw_actl_cflow_trnx_hist_v.src_CORRELATION_ID||'~'|| mrv_dw_contract_vrbl_v.PRODUCT_OPTION_CODE||'~'|| mrv_dw_actl_cflow_trnx_hist_v.IFRS_CASHFLOW_STATUS_CODE))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 168538c7-ac31-0819-a538-35395289cde1
@@ -133,7 +134,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: ((CASE WHEN dw_cr_SUM_INSURED_AMT=0 THEN 0.1 ELSE dw_cr_SUM_INSURED_AMT END)/tl_o_TOTAL_SUM_INSURED_AMT)*(src_TRNX_AMT)
+        transform: ((CASE WHEN mrv_dw_actl_cflow_trnx_v.dw_cr_SUM_INSURED_AMT=0 THEN 0.1 ELSE mrv_dw_actl_cflow_trnx_v.dw_cr_SUM_INSURED_AMT END)/mrv_dw_actl_cflow_trnx_v.tl_o_TOTAL_SUM_INSURED_AMT)*(mrv_dw_actl_cflow_trnx_hist_v.src_TRNX_AMT)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 057faa92-5896-31c7-7e57-a77b29592994
@@ -146,7 +147,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (hist_prm_ACTL_CFLOW_TRNX_HIST_KEY IS NULL) THEN src_TRNX_REF_KEY_4 ELSE hist_prm_TRNX_REF_KEY_2 END
+        transform: CASE WHEN (mrv_dw_actl_cflow_trnx_hist_v.hist_prm_ACTL_CFLOW_TRNX_HIST_KEY IS NULL) THEN mrv_dw_actl_cflow_trnx_v.src_TRNX_REF_KEY_4 ELSE mrv_dw_actl_cflow_trnx_hist_v.hist_prm_TRNX_REF_KEY_2 END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f8468026-019c-875c-abf3-3cf99bdd474a
@@ -159,7 +160,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: hist_sec_TRNX_REF_KEY_1||'_'||hist_sec_TRNX_REF_KEY_2||'_'||hist_sec_TRNX_REF_KEY_3
+        transform: mrv_dw_actl_cflow_trnx_v.hist_sec_TRNX_REF_KEY_1||'_'||mrv_dw_actl_cflow_trnx_v.hist_sec_TRNX_REF_KEY_2||'_'||mrv_dw_actl_cflow_trnx_v.hist_sec_TRNX_REF_KEY_3
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9c01ac10-196e-ca5b-df3f-007e3ef1f7ed
@@ -172,7 +173,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN Instr(ref_sec_PURPOSE, 'NONCASHFLOW') THEN 1 ELSE 0 END
+        transform: CASE WHEN CHARINDEX('NONCASHFLOW', mrv_dw_actl_cflow_trnx_hist_v.ref_sec_PURPOSE) THEN 1 ELSE 0 END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 666a371a-e9cc-7535-32f9-61aa76af8617
@@ -185,7 +186,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: abs(hist_prm_TRNX_AMT)
+        transform: abs(mrv_dw_actl_cflow_trnx_hist_v.hist_prm_TRNX_AMT)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 549cdafe-0082-b576-37ad-6e8b46e6dc6d
@@ -198,7 +199,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: abs(hist_sec_TRNX_AMT)
+        transform: abs(mrv_dw_actl_cflow_trnx_hist_v.hist_sec_TRNX_AMT)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 129be2cf-944a-b019-9be8-b2bf889a884c
@@ -276,7 +277,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (DECODE(TRUE, (CASE WHEN src_TRNX_AMT=0 THEN 0 ELSE 1 END)=0, 0, (dw_c_CONTRACT_KEY IS NULL) OR  NOT (ref360p_PRODUCT_OFFERING_CODE IN ('RETAILRISK', 'CONVL', 'INVEST')) OR  ((DECODE(TRUE, ref360p_PRODUCT_OFFERING_CODE='INVEST' , IFRS_OPTION_TYPE_CODE, NULL)) IS NULL) OR (ref360p_PRODUCT_OFFERING_CODE IS NULL) OR (dw_cr_CONTRACT_RISK_KEY IS NULL), 1, 0))
+        transform: (DECODE(TRUE, (CASE WHEN mrv_dw_actl_cflow_trnx_hist_v.src_TRNX_AMT=0 THEN 0 ELSE 1 END)=0, 0, (mrv_dw_actl_cflow_trnx_v.dw_c_CONTRACT_KEY IS NULL) OR  NOT (mrv_dw_actl_cflow_trnx_hist_v.ref360p_PRODUCT_OFFERING_CODE IN ('RETAILRISK', 'CONVL', 'INVEST')) OR  ((DECODE(TRUE, mrv_dw_actl_cflow_trnx_hist_v.ref360p_PRODUCT_OFFERING_CODE='INVEST' , mrv_dw_actl_cflow_trnx_hist_v.IFRS_OPTION_TYPE_CODE, NULL)) IS NULL) OR (mrv_dw_actl_cflow_trnx_hist_v.ref360p_PRODUCT_OFFERING_CODE IS NULL) OR (mrv_dw_contract_risk_v.dw_cr_CONTRACT_RISK_KEY IS NULL), 1, 0))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c58d2bef-a574-5c0b-7b4d-b2b3124c120c
@@ -289,7 +290,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN src_TRNX_AMT=0 THEN 0 ELSE 1 END)
+        transform: (CASE WHEN mrv_dw_actl_cflow_trnx_hist_v.src_TRNX_AMT=0 THEN 0 ELSE 1 END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 53c15eb4-b7fa-0127-aa93-3e4ab9e4716c
@@ -315,7 +316,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN o_noncashflow_pair_ind=1 THEN hist_prm_ACTL_CFLOW_TRNX_HIST_KEY ELSE hist_sec_ACTL_CFLOW_TRNX_HIST_KEY END
+        transform: CASE WHEN mrv_dw_actl_cflow_trnx_v.o_noncashflow_pair_ind=1 THEN mrv_dw_actl_cflow_trnx_hist_v.hist_prm_ACTL_CFLOW_TRNX_HIST_KEY ELSE mrv_dw_actl_cflow_trnx_v.hist_sec_ACTL_CFLOW_TRNX_HIST_KEY END
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:

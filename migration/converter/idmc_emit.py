@@ -222,6 +222,7 @@ class NodeSpec:
         self.is_source = False
         self.primary_source = None   # table name of the FROM source
         self.surrogate_cols = set()  # columns to flag isSurrogateKey
+        self.alias_nodes = []        # [(alias, [nodeName,...])] in join order
 
     def col_uuid(self, colname):
         return stable_uuid(f"{self.location}.{self.name}.{colname}")
@@ -232,6 +233,68 @@ IDENT = re.compile(r'^[A-Z_][A-Z0-9_]*$')
 
 _RESERVED = {"DATE", "TIME", "TIMESTAMP", "NUMBER", "TABLE", "VALUES",
              "COL_NAME", "SET_PROCESS", "ALTER_TYPE"}
+
+
+_SQL_KW = {
+    "CASE", "WHEN", "THEN", "ELSE", "END", "AND", "OR", "NOT", "IN", "IS",
+    "NULL", "TRUE", "FALSE", "LIKE", "RLIKE", "AS", "CAST", "DISTINCT",
+    "BETWEEN", "OVER", "PARTITION", "BY", "ORDER", "ASC", "DESC", "INTERVAL",
+    "CURRENT_TIMESTAMP", "CURRENT_DATE", "DATE", "TIMESTAMP", "NUMBER",
+    "VARCHAR", "FLOAT", "BOOLEAN", "DECIMAL", "INTEGER",
+    # date-part units used by DATEADD / DATE_PART (not columns)
+    "YEAR", "QUARTER", "MONTH", "WEEK", "DAY", "HOUR", "MINUTE", "SECOND",
+    "MILLISECOND", "MICROSECOND", "NANOSECOND", "DAYOFWEEK", "DAYOFYEAR",
+    "WEEKISO", "YEAROFWEEK",
+}
+
+
+def _qualify(expr, alias_cols, on_missing=None):
+    """Prefix bare column identifiers with the alias of the first join source
+    that carries them (skips string literals, /*comments*/, function names,
+    already-qualified refs, and SQL keywords).  Unknown identifiers are passed
+    to on_missing(tok) which may add the column to the primary source and
+    return its alias."""
+    if not expr:
+        return expr
+    out, i, n = [], 0, len(expr)
+    while i < n:
+        c = expr[i]
+        if c == "'":                                   # string literal
+            j = i + 1
+            while j < n:
+                if expr[j] == "'":
+                    if j + 1 < n and expr[j + 1] == "'":
+                        j += 2
+                        continue
+                    break
+                j += 1
+            out.append(expr[i:j + 1]); i = j + 1; continue
+        if expr[i:i + 2] == "/*":                       # comment
+            j = expr.find("*/", i + 2)
+            j = n if j < 0 else j + 2
+            out.append(expr[i:j]); i = j; continue
+        m = re.match(r'[A-Za-z_][A-Za-z0-9_]*', expr[i:])
+        if m:
+            tok = m.group(0); end = i + len(tok)
+            k = end
+            while k < n and expr[k] == ' ':
+                k += 1
+            is_func = k < n and expr[k] == '('
+            is_qual = i > 0 and expr[i - 1] in ('.', ':')
+            if not is_func and not is_qual and tok.upper() not in _SQL_KW:
+                alias = None
+                for a, cols in alias_cols:
+                    if tok.upper() in cols:
+                        alias = a
+                        break
+                if alias is None and on_missing is not None:
+                    alias = on_missing(tok.upper())
+                out.append(f"{alias}.{tok}" if alias else tok)
+            else:
+                out.append(tok)
+            i = end; continue
+        out.append(c); i += 1
+    return "".join(out)
 
 
 def _is_surrogate(col: str, ir) -> bool:
@@ -501,6 +564,79 @@ def _plan_specs(irs, produced, external, existing, existing_cols=None):
                 spec.columns[i] = (
                     c, dt, "NULL /* TODO: source column not reconstructed */", key)
 
+    # every Dimension/Fact needs at least one business key or the generated
+    # MERGE has an empty ON clause.  If none was flagged (target had no update
+    # columns), promote a natural-key column.
+    for name, spec in specs.items():
+        if spec.is_source or spec.sqltype not in ("Dimension", "Fact"):
+            continue
+        # a surrogate key that is also a target-update col does NOT count as a
+        # business key (it renders as isSurrogateKey) -> ignore surrogates here
+        if any(key and c not in spec.surrogate_cols
+               for (c, _d, _t, key) in spec.columns):
+            continue
+        cand = None
+        for pref in (r'_KEY$', r'_ID$', r'_CODE$', r'_NUM$'):
+            for i, (c, dt, tr, key) in enumerate(spec.columns):
+                if c in spec.surrogate_cols or c.startswith("SYSTEM_"):
+                    continue
+                if re.search(pref, c):
+                    cand = i
+                    break
+            if cand is not None:
+                break
+        if cand is None:                      # fall back to first eligible column
+            for i, (c, dt, tr, key) in enumerate(spec.columns):
+                if c not in spec.surrogate_cols and not c.startswith("SYSTEM_"):
+                    cand = i
+                    break
+        if cand is not None:
+            c, dt, tr, _ = spec.columns[cand]
+            spec.columns[cand] = (c, dt, tr, True)
+
+    # qualify bare column identifiers in transforms to their source alias, so
+    # multi-join SELECTs are not ambiguous; add any referenced-but-missing
+    # column to the primary source so it resolves.  source_names = every node
+    # that is a Source (generated spec OR an existing/pilot BRONZE node);
+    # add_source_cols records columns to append to on-disk source nodes.
+    source_names = {n for n, sp in specs.items() if sp.is_source}
+    source_names |= {n for n, loc in (existing or {}).items() if loc == "BRONZE"}
+    add_source_cols = {}
+    for name, spec in specs.items():
+        if spec.is_source or not spec.alias_nodes:
+            continue
+        alias_cols = []
+        for alias, nodes in spec.alias_nodes:
+            cols = set()
+            for nd in nodes:
+                cols |= set(registry.get(nd, {}).keys())
+            alias_cols.append((alias, cols))
+        primary_alias = alias_cols[0][0]
+        psrc = spec.primary_source
+        primary_is_source = (psrc in source_names)
+
+        def on_missing(tok, _ac=alias_cols, _pa=primary_alias,
+                       _src=psrc, _ok=primary_is_source):
+            # qualify to the primary alias and make sure the column exists on
+            # the primary SOURCE (recorded for on-disk sources not in specs).
+            if not _ok:
+                return None
+            if tok not in _ac[0][1]:
+                _ac[0][1].add(tok)
+                add_source_cols.setdefault(_src, set()).add(tok)
+                sp = specs.get(_src)
+                if sp is not None and sp.is_source and \
+                        tok not in {cc for (cc, *_r) in sp.columns}:
+                    ht = heuristic_type(tok)
+                    sp.columns.append((tok, ht, "", False))
+                    registry.setdefault(sp.name, {})[tok] = (
+                        sp.uuid, sp.col_uuid(tok), ht)
+            return _pa
+
+        for i, (c, dt, tr, key) in enumerate(spec.columns):
+            if tr:
+                spec.columns[i] = (c, dt, _qualify(tr, alias_cols, on_missing), key)
+
     # propagate precise column types downstream: a pass-through column adopts
     # the dataType of the upstream column it references.  Iterate over the DAG
     # (depth is small: BRONZE->SILVER->GOLD->View) until types stabilise, so
@@ -596,27 +732,30 @@ def _resolve_join(spec, ir, resolver, registry, raw_of=None):
         return resolver(table)
 
     def ref_sql(table):
-        """(sql_expr, alias, key_table) for `table`, registering deps.  A union
-        member expands to a UNION ALL subquery aliased by its representative."""
+        """(sql_expr, alias, key_table, node_names) for `table`, registering
+        deps.  alias is the actual FROM/JOIN alias; node_names are the nodes
+        that alias exposes (so column qualification uses the right schema).  A
+        union member expands to a UNION ALL subquery aliased by its rep."""
         rep = norm(table)
         grp = group_of.get(rep)
         if grp:
-            branches = []
+            branches, nodes = [], []
             for pt in grp:
                 pr = resolve_table(pt)
                 if pr:
                     deps.append(pr)
+                    nodes.append(pr[1])
                     branches.append(f"SELECT * FROM {{{{ ref('{pr[0]}', '{pr[1]}') }}}}")
             if branches:
                 return (f"( {' UNION ALL '.join(branches)} ) {rep.lower()}",
-                        rep.lower(), rep)
+                        rep.lower(), rep, nodes)
             return None
         r = resolve_table(table)
         if not r:
             return None
         deps.append(r)
         return (f"{{{{ ref('{r[0]}', '{r[1]}') }}}} {r[1].lower()}",
-                r[1].lower(), table)
+                r[1].lower(), table, [r[1]])
 
     deps = []
 
@@ -645,14 +784,19 @@ def _resolve_join(spec, ir, resolver, registry, raw_of=None):
         primary = sources[0]
 
     joined, covered = set(), set()
+    primary_alias = None
+    used_aliases = set()
     if primary:
         res = ref_sql(primary[1])
         if res:
-            expr, _alias, keytbl = res
+            expr, alias, keytbl, nodes = res
+            primary_alias = alias
+            used_aliases.add(alias)
             from_line = f"FROM {expr}"
             joined.add(keytbl)
             covered |= set(group_of.get(keytbl, [keytbl]))
-            spec.primary_source = keytbl
+            spec.primary_source = nodes[0] if nodes else keytbl
+            spec.alias_nodes.append((alias, nodes))
         else:
             from_line = f"-- FROM {primary[1]} (source node not generated)"
     else:
@@ -669,33 +813,38 @@ def _resolve_join(spec, ir, resolver, registry, raw_of=None):
         res = ref_sql(t)
         if not res:
             continue
-        expr, _alias, keytbl = res
+        expr, alias, keytbl, nodes = res
         if keytbl in covered:
             continue
         covered |= set(group_of.get(keytbl, [keytbl]))
         covered.add(keytbl)
-        units.append((keytbl, expr))
+        units.append((keytbl, expr, alias, nodes))
 
     # place a unit once its Joiner counterpart is in the FROM (fixpoint, so
     # chains resolve regardless of ordering).
-    def _emit(keytbl, expr):
+    def _emit(keytbl, expr, alias, nodes):
+        if alias in used_aliases:        # table already joined -> skip duplicate
+            joined.add(keytbl)
+            return
+        used_aliases.add(alias)
         kw, on = _joiner_on(ir, keytbl, joined, norm)
         join_lines.append(f"{kw} {expr} ON {on}")
         joined.add(keytbl)
+        spec.alias_nodes.append((alias, nodes))
 
     progress = True
     while progress and units:
         progress = False
         still = []
-        for (keytbl, expr) in units:
-            if _has_joiner_edge(ir, keytbl, joined, norm):
-                _emit(keytbl, expr)
+        for u in units:
+            if _has_joiner_edge(ir, u[0], joined, norm):
+                _emit(*u)
                 progress = True
             else:
-                still.append((keytbl, expr))
+                still.append(u)
         units = still
-    for (keytbl, expr) in units:     # no Joiner edge (independent / look-back)
-        _emit(keytbl, expr)
+    for u in units:                  # no Joiner edge (independent / look-back)
+        _emit(*u)
 
     # lookups -> LEFT JOIN with ON from lookup conditions
     for lk in ir.lookups:
@@ -703,16 +852,20 @@ def _resolve_join(spec, ir, resolver, registry, raw_of=None):
         if not r:
             continue
         loc, nm = r
+        if nm.lower() in used_aliases:   # already joined -> skip duplicate alias
+            continue
+        used_aliases.add(nm.lower())
         if (loc, nm) not in deps:
             deps.append((loc, nm))
         ons = []
         for (lcol, op, port) in lk.conditions:
             scol = source_col_for_port(port)
-            base = norm(primary[1]).lower() if primary else "src"
+            base = primary_alias or "src"
             ons.append(f"{nm.lower()}.{lcol} {op} {base}.{scol}")
         on = " AND ".join(ons) if ons else "1=1 /* TODO lookup key */"
         join_lines.append(
             f"LEFT JOIN {{{{ ref('{loc}', '{nm}') }}}} {nm.lower()} ON {on}")
+        spec.alias_nodes.append((nm.lower(), [nm]))
 
     if ir.filters:
         join_lines.append("WHERE " + " AND ".join(f"({f})" for f in ir.filters))
@@ -843,7 +996,8 @@ def emit_all(irs, produced, external, repo_dir, dry_run=False):
     existing = _existing_node_locs(nodes_dir)   # now only hand-built remain
     existing_cols = _existing_node_cols(nodes_dir)
 
-    specs, registry = _plan_specs(irs, produced, external, existing, existing_cols)
+    specs, registry = _plan_specs(
+        irs, produced, external, existing, existing_cols)
 
     written, skipped = [], []
     for name, spec in sorted(specs.items()):
