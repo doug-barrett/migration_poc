@@ -81,7 +81,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: $in_task_id$
+        transform: /*PARAM:in_task_id*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 39d2e7c1-4a18-e3f9-91f3-55d595b66a0b
@@ -120,7 +120,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN opint_ADMIN_SYS_ID = 'CLAS' THEN CASE WHEN v_clm='0000000' THEN CASE WHEN (v_CLAS_CLAIM_NUM IS NULL) THEN '0000000' ELSE v_CLAS_CLAIM_NUM END ELSE v_clm END ELSE v_clm END
+        transform: CASE WHEN opint_ADMIN_SYS_ID = 'CLAS' THEN CASE WHEN (CASE WHEN (CLAIM_NUM IS NULL) THEN '0000000' ELSE CASE WHEN SOURCE_SYSTEM_CODE='CMS' and (cms_DECISION_REASON_CODE!='ACC' or (cms_DECISION_REASON_CODE IS NULL)) THEN '0000000' ELSE CLAIM_NUM END END)='0000000' THEN CASE WHEN ((CASE WHEN opint_ADMIN_SYS_ID = 'CLAS' THEN CASE WHEN NOT (opint_CLAIM_ID IS NULL) THEN opint_CLAIM_ID ELSE opint_SRC_SYS_CLAIM_ID END ELSE NULL END) IS NULL) THEN '0000000' ELSE (CASE WHEN opint_ADMIN_SYS_ID = 'CLAS' THEN CASE WHEN NOT (opint_CLAIM_ID IS NULL) THEN opint_CLAIM_ID ELSE opint_SRC_SYS_CLAIM_ID END ELSE NULL END) END ELSE (CASE WHEN (CLAIM_NUM IS NULL) THEN '0000000' ELSE CASE WHEN SOURCE_SYSTEM_CODE='CMS' and (cms_DECISION_REASON_CODE!='ACC' or (cms_DECISION_REASON_CODE IS NULL)) THEN '0000000' ELSE CLAIM_NUM END END) END ELSE (CASE WHEN (CLAIM_NUM IS NULL) THEN '0000000' ELSE CASE WHEN SOURCE_SYSTEM_CODE='CMS' and (cms_DECISION_REASON_CODE!='ACC' or (cms_DECISION_REASON_CODE IS
+          NULL)) THEN '0000000' ELSE CLAIM_NUM END END) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2d212def-c259-dec5-32e5-e4784eccd53a
@@ -133,7 +134,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN NOT (v_clm_vrbl_incurred_date IS NULL) THEN '1' ELSE '0' END
+        transform: CASE WHEN NOT ((CASE WHEN SOURCE_SYSTEM_CODE='CMS' and (cms_DECISION_REASON_CODE!='ACC' or (cms_DECISION_REASON_CODE IS NULL)) THEN NULL ELSE claim_vrbl_CLAIM_INCURRED_DATE END) IS NULL) THEN '1' ELSE '0' END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1918a95a-de0b-e32d-8d0d-b3cf5d4cfc8b
@@ -146,7 +147,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_Clm_Key
+        transform: (CASE WHEN (CLAIM_KEY IS NULL) THEN 0 ELSE CLAIM_KEY END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e2b7b3f7-a99e-6f93-7784-0610bc432631
@@ -159,7 +160,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_CLAS_CLAIM_NUM
+        transform: (CASE WHEN opint_ADMIN_SYS_ID = 'CLAS' THEN CASE WHEN NOT (opint_CLAIM_ID IS NULL) THEN opint_CLAIM_ID ELSE opint_SRC_SYS_CLAIM_ID END ELSE NULL END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 31e900cd-10a5-8005-59aa-67ae19acad46
@@ -172,7 +173,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_clm
+        transform: (CASE WHEN (CLAIM_NUM IS NULL) THEN '0000000' ELSE CASE WHEN SOURCE_SYSTEM_CODE='CMS' and (cms_DECISION_REASON_CODE!='ACC' or (cms_DECISION_REASON_CODE IS NULL)) THEN '0000000' ELSE CLAIM_NUM END END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 767e7b00-8135-5cb0-3146-f85e79907d54
@@ -185,7 +186,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_clm_vrbl_incurred_date
+        transform: (CASE WHEN SOURCE_SYSTEM_CODE='CMS' and (cms_DECISION_REASON_CODE!='ACC' or (cms_DECISION_REASON_CODE IS NULL)) THEN NULL ELSE claim_vrbl_CLAIM_INCURRED_DATE END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7f9782df-88c1-5e32-6a59-62863eba0217

@@ -134,6 +134,26 @@ _SIMPLE = [
 ]
 
 
+def _translate_in(expr: str, depth=0) -> str:
+    # Informatica IN(value, v1, v2, ... [,caseFlag]) -> (value IN (v1, v2, ...))
+    # Snowflake IN is an operator, not a function.  Recursive so the operator
+    # form we emit is never re-scanned, and nested IN(...) still converts.
+    if depth > 60:
+        return expr
+    found = _find_call(expr, "IN")
+    if not found:
+        return expr
+    start, end, inner = found
+    args = _split_args(inner)
+    if len(args) >= 2:
+        value = _translate_in(args[0], depth + 1)
+        lst = [_translate_in(a, depth + 1) for a in args[1:]]
+        rewritten = f"({value} IN ({', '.join(lst)}))"
+    else:
+        rewritten = f"({_translate_in(inner, depth + 1)})"
+    return expr[:start] + rewritten + _translate_in(expr[end:], depth + 1)
+
+
 def _translate_reg_match(expr: str) -> str:
     # REG_MATCH(subject, pattern) -> RLIKE(subject, pattern)
     while True:
@@ -149,6 +169,14 @@ def _translate_reg_match(expr: str) -> str:
         expr = expr[:start] + rewritten + expr[end:]
 
 
+def _translate_params(expr: str) -> str:
+    # Informatica mapping/session parameters ($name$, $$name) are runtime values
+    # not in the export -> emit a tagged NULL for a human to wire up.
+    def repl(m):
+        return f"/*PARAM:{m.group(0).strip('$')}*/ NULL"
+    return re.sub(r'\$\$?[A-Za-z_][A-Za-z0-9_]*\$?', repl, expr)
+
+
 def translate(expr: str) -> str:
     """Best-effort Informatica-expression -> Snowflake-SQL translation."""
     if not expr or not expr.strip():
@@ -157,9 +185,15 @@ def translate(expr: str) -> str:
     s = _translate_unconnected_lookups(s)
     s = _translate_iif(s)
     s = _translate_isnull(s)
+    s = _translate_in(s)
     s = _translate_reg_match(s)
     for pat, rep in _SIMPLE:
         s = re.sub(pat, rep, s, flags=re.IGNORECASE)
+    s = _translate_params(s)
+    # any expression variable still present could not be inlined (stateful:
+    # SCD2 current-record compare, running counters, prev-row) -> tag as NULL
+    s = re.sub(r'\bv_[A-Za-z0-9_]+\b',
+               lambda m: f"/*VAR:{m.group(0)}*/ NULL", s, flags=re.IGNORECASE)
     # normalise whitespace/newlines to keep YAML tidy
     s = re.sub(r'[ \t]+', ' ', s)
     s = re.sub(r'\n\s*', ' ', s).strip()

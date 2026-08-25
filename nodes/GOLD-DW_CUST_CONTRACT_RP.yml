@@ -90,7 +90,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_Reject_Flag
+        transform: (CASE WHEN MD5_BUSN_KEY=(/*VAR:v_current_md5_busn_key*/ NULL) THEN CASE WHEN MD5_REC!=(/*VAR:v_current_md5_rec*/ NULL) THEN 'N' ELSE 'Y' END ELSE 'N' END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6b42c366-621f-e6f5-07e9-9a438134740d
@@ -103,7 +103,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: --CASE WHEN v_current_row_num=1 AND RELATIONSHIP_STATUS_CODE='A' THEN 1 ELSE 0 END CASE WHEN v_current_row_num=1 AND (RELATIONSHIP_STATUS_CODE='A' OR RELATIONSHIP_STATUS_CODE='C') THEN 1 ELSE 0 END
+        transform: --CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 AND RELATIONSHIP_STATUS_CODE='A' THEN 1 ELSE 0 END CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 AND (RELATIONSHIP_STATUS_CODE='A' OR RELATIONSHIP_STATUS_CODE='C') THEN 1 ELSE 0 END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f2e0945b-67a4-d55e-c42f-6d2f9da1fc2c
@@ -116,7 +116,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_current_row_num=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE Add_To_Date(v_date_prev_rcd, 'SS', -1) END
+        transform: CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE Add_To_Date((/*VAR:v_last_process_record_date*/ NULL), 'SS', -1) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ea81f584-c8d7-c028-e049-9efa0a2e56bf
@@ -129,7 +129,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_current_row_num=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE Add_To_Date(v_date_efftv_prev_rcd, 'SS', -1) END
+        transform: CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE Add_To_Date((/*VAR:v_last_effv_record_date*/ NULL), 'SS', -1) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 01434a7d-01bf-1c7b-d791-01bad7daadbb
@@ -155,7 +155,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_current_row_num=1 THEN NULL ELSE CURRENT_TIMESTAMP END
+        transform: CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN NULL ELSE CURRENT_TIMESTAMP END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8f50f6fe-ded8-59cc-c971-c46a728bf2fd
@@ -168,7 +168,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: TO_NUMBER($in_task_id$)
+        transform: TO_NUMBER(/*PARAM:in_task_id*/ NULL)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 13e8a7cf-4dc9-0902-466a-7684379e1587
@@ -350,7 +350,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: $in_task_id$
+        transform: /*PARAM:in_task_id*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1f9ee78b-512e-444f-6dfa-bd32fa435ba6
@@ -363,7 +363,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_process_date
+        transform: (/*LKP:Ulkp_eftv_dttm('RP_DCUSTCTRCT')*/ NULL)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e2d679d0-0e64-8374-141b-b8d98b908afc
@@ -389,7 +389,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: $in_task_id$
+        transform: /*PARAM:in_task_id*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d70cd91b-7a79-2ed3-f1d2-54bb00e15571
@@ -402,7 +402,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: TO_NUMBER ($in_task_id$)*-1
+        transform: TO_NUMBER (/*PARAM:in_task_id*/ NULL)*-1
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b8d55e9e-7feb-6a27-4ce3-91db95f92235
@@ -441,7 +441,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MD5(TO_CHAR(CASE WHEN (V_EFTV_DATE IS NULL) THEN '31-DEC-3000' ELSE TO_CHAR(V_EFTV_DATE) END)|| TO_CHAR(CASE WHEN (TGT_PRODUCT_SYSTEM_CODE IS NULL) THEN 'NA' ELSE TGT_PRODUCT_SYSTEM_CODE END)|| TO_CHAR(CASE WHEN (TGT_SOURCE_OF_FUNDS_CODE IS NULL) THEN 'NA' ELSE TGT_SOURCE_OF_FUNDS_CODE END)||TO_CHAR(CASE WHEN (TGT_NATURE_BUSN_RLSHP_CODE IS NULL) THEN 'NA' ELSE TGT_NATURE_BUSN_RLSHP_CODE END))
+        transform: MD5(TO_CHAR(CASE WHEN (/*VAR:V_EFTV_DATE*/ NULL IS NULL) THEN '31-DEC-3000' ELSE TO_CHAR(/*VAR:V_EFTV_DATE*/ NULL) END)|| TO_CHAR(CASE WHEN (TGT_PRODUCT_SYSTEM_CODE IS NULL) THEN 'NA' ELSE TGT_PRODUCT_SYSTEM_CODE END)|| TO_CHAR(CASE WHEN (TGT_SOURCE_OF_FUNDS_CODE IS NULL) THEN 'NA' ELSE TGT_SOURCE_OF_FUNDS_CODE END)||TO_CHAR(CASE WHEN (TGT_NATURE_BUSN_RLSHP_CODE IS NULL) THEN 'NA' ELSE TGT_NATURE_BUSN_RLSHP_CODE END))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8e3bf6de-3ee5-4104-bdcd-b8c75f06c425
@@ -454,7 +454,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_eftv_date
+        transform: (/*LKP:Ulkp_eftv_dttm('RP_DCUSTCTRCT')*/ NULL)
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:

@@ -55,7 +55,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (v_edw_product_system_code IS NULL) THEN '#' ELSE v_edw_product_system_code END
+        transform: CASE WHEN ((--:LKP.lkp_product_system_conversion(LTrim( RTrim(PRODUCT_SYSTEM_CODE) ), 'Product System') CASE WHEN PRODUCT_SYSTEM_CODE='ULT' THEN 'CP' ELSE CASE WHEN PRODUCT_SYSTEM_CODE='DIS' THEN 'DS' ELSE CASE WHEN PRODUCT_SYSTEM_CODE='INC' THEN 'OR' ELSE NULL END END END) IS NULL) THEN '#' ELSE (--:LKP.lkp_product_system_conversion(LTrim( RTrim(PRODUCT_SYSTEM_CODE) ), 'Product System') CASE WHEN PRODUCT_SYSTEM_CODE='ULT' THEN 'CP' ELSE CASE WHEN PRODUCT_SYSTEM_CODE='DIS' THEN 'DS' ELSE CASE WHEN PRODUCT_SYSTEM_CODE='INC' THEN 'OR' ELSE NULL END END END) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1ee4c3de-05d4-5693-35d7-574a6f5500f1
@@ -120,7 +120,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: TO_NUMBER($in_task_id$)
+        transform: TO_NUMBER(/*PARAM:in_task_id*/ NULL)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c050c16d-ab9f-2a09-704e-e5ae4fa278af
@@ -172,7 +172,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_Validate_Source_Dup
+        transform: (CASE WHEN (MD5(con_CONTRACT_KEY||pty_PARTY_KEY||CUSTOMER_CONT_REL_TYPE_CD))=((MD5(con_CONTRACT_KEY||pty_PARTY_KEY||CUSTOMER_CONT_REL_TYPE_CD))) THEN 'DUP' ELSE 'UNQ' END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f0cc2576-4539-5846-20f2-7a948118d995
@@ -185,7 +185,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_process_date
+        transform: (CURRENT_TIMESTAMP)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 95cb6118-e389-6275-5f2d-f7a79d57e956
@@ -211,7 +211,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: $in_task_id$
+        transform: /*PARAM:in_task_id*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d9c92404-9fa0-2214-5b7c-640086a98fd7
@@ -224,7 +224,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: TO_NUMBER ($in_task_id$)*-1
+        transform: TO_NUMBER (/*PARAM:in_task_id*/ NULL)*-1
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 557ca989-4073-ddd5-df76-bb8a81322758
@@ -263,7 +263,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_eftv_date
+        transform: (CURRENT_TIMESTAMP)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0f8c63df-bc0f-4602-675c-2c615102776b
@@ -302,7 +302,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: TO_NUMBER($in_task_id$)
+        transform: TO_NUMBER(/*PARAM:in_task_id*/ NULL)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 536a5510-04dc-6502-f5b6-725f745f8bae

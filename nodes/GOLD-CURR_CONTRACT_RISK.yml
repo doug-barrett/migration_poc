@@ -28,7 +28,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_STEP_LVL_PREM_DESC
+        transform: (DECODE(product_system_code, 'DS', DECODE(STEP_LVL_PREM_CODE, 'L', 'Level', 'S', 'Stepped', NULL), 'CP', DECODE(STEP_LVL_PREM_CODE, 'L', 'Level', 'S', 'Stepped', NULL), 'FDZ', DECODE(STEP_LVL_PREM_CODE, 'L', 'Level','S', 'Stepped', 'B', 'Blended', 'S2', 'Stepped',NULL), 'FDA', DECODE(STEP_LVL_PREM_CODE, 'L', 'Level','S', 'Stepped', 'T', '10 Year Stepped', 'L2', 'Level', 'S2', 'Stepped',NULL), 'LS', DECODE(STEP_LVL_PREM_CODE, 'L', 'Level', 'S', 'Stepped', NULL), NULL ))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e2bc1390-6204-cd61-9a26-f975cf95f8cb
@@ -41,7 +41,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_INDEX_MIN_RATE_NUM
+        transform: (INDEX_MIN_RATE_AMT*100)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4ec29abd-1f59-2b64-4ff9-17e9bdda2244
@@ -54,7 +54,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_benefit_period_desc
+        transform: (CASE WHEN (BENEFIT_PERIOD IS NULL) or BENEFIT_PERIOD='NA' THEN NULL ELSE (/*LKP:lkp_benefit_period_desc(BENEFIT_PERIOD)*/ NULL) END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: db53fa4e-1486-041f-4b8d-27e04b29adb8
@@ -67,7 +67,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_REINSTATED_COVER_IND
+        transform: (decode(product_system_code, 'CP',reinstated_cover_ind, null))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 70134630-684a-6f8c-0242-52cfb143ac44
@@ -80,7 +80,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_DAY_1_ACCIDENT_IND
+        transform: (decode(product_system_code, 'DS',day_1_accident_ind, null))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c4c012c9-d4e8-7ce4-604a-2d77b8d07169
@@ -93,7 +93,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_LINKED_BENEFIT_DESC
+        transform: (DECODE(product_system_code,'CP', DECODE(linked_benefit_code, 'L', 'Linked', 'S', 'Stand Alone', NULL),NULL))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8b59484f-7dea-5da5-f322-f6813323a7cb
@@ -106,7 +106,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_FULL_DAY_CVRG_CODE
+        transform: (/*LKP:lkp_code_desc(FULL_DAY_CVRG_CODE)*/ NULL)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4fa6881d-a63b-2fb8-6ed6-b2a7ed1856cc
@@ -119,7 +119,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_INCOME_PROTECTION_FREQ
+        transform: (:LKP.lkp_freq((/*LKP:lkp_riskopt(po_PRODUCT_SYSTEM_CODE, po_PRODUCT_OPTION_CODE)*/ NULL)))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c0a61e31-d052-3153-8940-fbcb8db9664a
@@ -132,7 +132,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_freq_desc
+        transform: (/*LKP:lkp_freq_desc(FREQ_CODE)*/ NULL)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 83777447-c5d8-70ac-dbb4-e6f6f113c97a
@@ -145,7 +145,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_risk_cmsn_type_desc
+        transform: (CASE WHEN (/*LKP:lkp_risk_cmsn_type(RISK_CMSN_TYPE_CODE)*/ NULL IS NULL) THEN 'Not Applicable' ELSE /*LKP:lkp_risk_cmsn_type(RISK_CMSN_TYPE_CODE)*/ NULL END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e98b43ae-a450-2ec5-760a-c44baaae81e4
@@ -158,7 +158,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_risk_wait_period_desc
+        transform: (/*LKP:lkp_risk_wait_period(RISK_WAIT_PERIOD,product_system_code)*/ NULL)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ef39e0e9-b754-42ef-53e9-a0ea6712e1de
@@ -171,7 +171,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_illness_pay_period_desc
+        transform: (/*LKP:lkp_illness_pay_period(ILLNESS_PAY_PERIOD_CODE)*/ NULL)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 84951158-107b-b260-7f53-8aa323063198
@@ -197,7 +197,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: $in_task_id$
+        transform: /*PARAM:in_task_id*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: eb4a194a-4979-5080-3198-633c2be073cb
@@ -236,7 +236,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_ocuptn_class_desc
+        transform: (/*LKP:lkp_mrv_ref360_occupation_class_v(OCUPTN_CLASS_CODE)*/ NULL)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 17e3f90f-23a4-fbb1-38ed-027dbdaf9929
@@ -249,7 +249,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_assess_code_desc
+        transform: (/*LKP:lkp_mrv_ref360_assess_v(ASSESS_CODE)*/ NULL)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 90436982-1efb-faec-d68a-ba569cb6c81d
@@ -262,7 +262,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_exists
+        transform: (CASE WHEN (CONTRACT_RISK_KEY)=/*VAR:v_prev_contract_risk_key*/ NULL THEN 'Y' ELSE 'N' END)
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:

@@ -88,7 +88,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_reject_flag
+        transform: (CASE WHEN MD5_BUSN_KEY=(/*VAR:v_curr_busn_MD5*/ NULL) THEN CASE WHEN MD5_REC!=(/*VAR:v_current_rec_MD5*/ NULL) THEN 'N' ELSE 'Y' END ELSE 'N' END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 085e3bbb-90b6-1114-1a36-ef184731672a
@@ -101,7 +101,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_current_row_num=1 THEN 1 ELSE 0 END
+        transform: CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_curr_md5_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN 1 ELSE 0 END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e3ab7730-2937-197f-e9ab-4967f72f8aa8
@@ -114,7 +114,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_current_row_num=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE Add_To_Date(v_process_date_prev_rcd, 'SS', -1) END
+        transform: CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_curr_md5_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE Add_To_Date((/*VAR:v_last_process_record_date*/ NULL), 'SS', -1) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c169e1d0-5535-39bf-7ee1-a3a0e8ecb93d
@@ -127,7 +127,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_current_row_num=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE Add_To_Date(v_date_efftv_prev_rcd, 'SS', -1) END
+        transform: CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_curr_md5_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE Add_To_Date((/*VAR:v_last_effv_record_date*/ NULL), 'SS', -1) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 37f4d883-7d7c-2ed6-6c8d-00bf06a618ae
@@ -153,7 +153,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_current_row_num=1 THEN NULL ELSE CURRENT_TIMESTAMP END
+        transform: CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_curr_md5_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN NULL ELSE CURRENT_TIMESTAMP END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b23e0a2b-930c-9634-ad1c-7292cd05aa8e
@@ -166,7 +166,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: $in_task_id$
+        transform: /*PARAM:in_task_id*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: cfa41ba2-e33e-51b0-37c5-4d3ebfb69728
@@ -231,7 +231,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: $in_task_id$
+        transform: /*PARAM:in_task_id*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: dcb468dc-0d90-191a-6643-48c5b0a5ae58
@@ -244,7 +244,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_process_date
+        transform: (/*LKP:Ulkp_eftv_dttm('OPS_DCONTRISKDISC')*/ NULL)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2f66e95b-a5a0-dbec-c157-1d6eb27add47
@@ -270,7 +270,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: $in_task_id$
+        transform: /*PARAM:in_task_id*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0d34d542-3c72-ac80-4eec-03e963f2ec14
@@ -283,7 +283,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: TO_NUMBER ($in_task_id$)*-1
+        transform: TO_NUMBER (/*PARAM:in_task_id*/ NULL)*-1
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c35ab7d1-ec32-f766-f203-92b7427f7347
@@ -335,7 +335,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_eftv_date
+        transform: (/*LKP:Ulkp_eftv_dttm('OPS_DCONTRISKDISC')*/ NULL)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: cbe725ad-6f2f-262f-a371-c1b4cc5309ec
@@ -348,7 +348,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_risk_disc_status_code
+        transform: ('A')
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2b35d71d-c910-c7d6-f457-78a0acd591a5
@@ -374,7 +374,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MD5(TO_CHAR(CASE WHEN (PRODUCT_SYSTEM_CODE IS NULL) THEN 'NA' ELSE PRODUCT_SYSTEM_CODE END)|| TO_CHAR(CASE WHEN (PROCESS_DATE IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(PROCESS_DATE,'mm/dd/yyyy hh24:mi:ss') END)|| TO_CHAR(CASE WHEN (v_RISK_DISC_STATUS_CODE IS NULL) THEN 'A' ELSE v_RISK_DISC_STATUS_CODE END)|| TO_CHAR(CASE WHEN (DISC_MODE_CODE IS NULL) THEN '-1' ELSE DISC_MODE_CODE END)|| TO_CHAR(CASE WHEN (DISC_AMT IS NULL) THEN '-1.000' ELSE TO_CHAR(DISC_AMT) END)|| TO_CHAR(CASE WHEN (DISC_PCNT IS NULL) THEN '-1.0000' ELSE TO_CHAR(DISC_PCNT) END)|| TO_CHAR(CASE WHEN (DISC_EXPIRY_DATE IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(DISC_EXPIRY_DATE,'mm/dd/yyyy hh24:mi:ss') END))
+        transform: MD5(TO_CHAR(CASE WHEN (PRODUCT_SYSTEM_CODE IS NULL) THEN 'NA' ELSE PRODUCT_SYSTEM_CODE END)|| TO_CHAR(CASE WHEN (PROCESS_DATE IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(PROCESS_DATE,'mm/dd/yyyy hh24:mi:ss') END)|| TO_CHAR(CASE WHEN (('A') IS NULL) THEN 'A' ELSE ('A') END)|| TO_CHAR(CASE WHEN (DISC_MODE_CODE IS NULL) THEN '-1' ELSE DISC_MODE_CODE END)|| TO_CHAR(CASE WHEN (DISC_AMT IS NULL) THEN '-1.000' ELSE TO_CHAR(DISC_AMT) END)|| TO_CHAR(CASE WHEN (DISC_PCNT IS NULL) THEN '-1.0000' ELSE TO_CHAR(DISC_PCNT) END)|| TO_CHAR(CASE WHEN (DISC_EXPIRY_DATE IS NULL) THEN '12/31/3000 00:00:00' ELSE TO_CHAR(DISC_EXPIRY_DATE,'mm/dd/yyyy hh24:mi:ss') END))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 75f6128d-1d78-1e07-34fd-b47181353eca

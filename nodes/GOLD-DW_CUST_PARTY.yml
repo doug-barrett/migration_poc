@@ -197,7 +197,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_process_date
+        transform: (CURRENT_TIMESTAMP)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f06c7e8d-3c06-e905-b787-6ac6b142fb3a
@@ -210,7 +210,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: Add_To_Date(v_process_date, 'SS', -1)
+        transform: Add_To_Date((CURRENT_TIMESTAMP), 'SS', -1)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 90d9c331-5986-91a3-f271-2994fb0f2156
@@ -249,7 +249,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: $TASK_ID$
+        transform: /*PARAM:TASK_ID*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: fca6cb12-33a4-be7e-8742-0a9fb54c76fe
@@ -262,7 +262,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: TO_NUMBER ($TASK_ID$)*-1
+        transform: TO_NUMBER (/*PARAM:TASK_ID*/ NULL)*-1
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7a4217cc-f29c-799c-3fec-7478821614c8
@@ -301,7 +301,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MD5(TO_CHAR(CASE WHEN (v_eftv_date IS NULL) THEN '31-DEC-3000' ELSE TO_CHAR(v_eftv_date) END)||TO_CHAR(CASE WHEN (tgt_PRODUCT_SYSTEM_CODE IS NULL) THEN 'NA' ELSE tgt_PRODUCT_SYSTEM_CODE END)|| TO_CHAR(CASE WHEN (tgt_END_DTTM IS NULL) THEN '12-31-3000' ELSE TO_CHAR(tgt_END_DTTM) END)||TO_CHAR(CASE WHEN (v_assoc_status_code IS NULL) THEN '-1' ELSE v_assoc_status_code END))
+        transform: MD5(TO_CHAR(CASE WHEN ((CURRENT_TIMESTAMP) IS NULL) THEN '31-DEC-3000' ELSE TO_CHAR((CURRENT_TIMESTAMP)) END)||TO_CHAR(CASE WHEN (tgt_PRODUCT_SYSTEM_CODE IS NULL) THEN 'NA' ELSE tgt_PRODUCT_SYSTEM_CODE END)|| TO_CHAR(CASE WHEN (tgt_END_DTTM IS NULL) THEN '12-31-3000' ELSE TO_CHAR(tgt_END_DTTM) END)||TO_CHAR(CASE WHEN (('C') IS NULL) THEN '-1' ELSE ('C') END))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6e171be0-e718-d75d-cad8-672a434f388b
@@ -314,7 +314,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_eftv_date
+        transform: (CURRENT_TIMESTAMP)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 97d723fb-9991-d130-fcb2-70b30dfd8a66
@@ -327,7 +327,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_assoc_status_code
+        transform: ('C')
     - appliedColumnTests: {}
       columnReference:
         columnCounter: cac6b9a3-67e8-eecd-ba87-bf479b751e54
@@ -366,7 +366,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: $TASK_ID$
+        transform: /*PARAM:TASK_ID*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f3ed62bb-8920-a146-b5ee-74f7335a8fd0
@@ -379,7 +379,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_Reject_Flag
+        transform: (CASE WHEN MD5_BUSN_KEY=(/*VAR:v_curr_MD5_BUSN_KEY*/ NULL) THEN CASE WHEN MD5_REC!=(/*VAR:v_current_md5_REC*/ NULL) THEN 'N' ELSE 'Y' END ELSE 'N' END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a1281bbe-bcdd-5e2e-f40d-de4a74cad950
@@ -392,7 +392,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_current_row_num=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE Add_To_Date(v_prev_rec_effv_date, 'SS', -1) END
+        transform: CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_curr_MD5_BUSN_KEY*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE Add_To_Date((/*VAR:v_curr_rec_effv_date*/ NULL), 'SS', -1) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: be254baa-a050-fd14-9e26-92ce73526ea8
@@ -405,7 +405,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: $TASK_ID$
+        transform: /*PARAM:TASK_ID*/ NULL
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:

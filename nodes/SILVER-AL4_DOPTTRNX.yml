@@ -207,7 +207,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_error_ind
+        transform: (CASE WHEN business_checks='FAILED' OR trnx_amt_check='N' THEN -1 ELSE CASE WHEN contract_key_check='N' OR trnx_type_key_check='N' OR product_option_key_check='N' OR contract_event_trnx_check='N' THEN 1 ELSE 0 END END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e9bf7d79-4edc-d1c4-a472-b06049b3827c
@@ -220,7 +220,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_error_desc
+        transform: '(CASE WHEN (CASE WHEN business_checks=''FAILED'' OR trnx_amt_check=''N'' THEN -1 ELSE CASE WHEN contract_key_check=''N'' OR trnx_type_key_check=''N'' OR product_option_key_check=''N'' OR contract_event_trnx_check=''N'' THEN 1 ELSE 0 END END)=-1 THEN ''BUSINESS_CHECK_FAIL-> '' ||RTRIM(LTRIM((CASE WHEN business_checks=''FAILED'' THEN CASE WHEN TRNX_STATUS_CODE_check=''F'' THEN ''TRNX_STATUS_CODE: ''||TRNX_STATUS_CODE||''|'' ELSE NULL END ELSE NULL END||CASE WHEN trnx_amt_check=''N'' THEN ''TRNX_AMT: ''|| TRNX_AMT || ''|'' ELSE NULL END),''~|''),''~|'') ELSE CASE WHEN (CASE WHEN business_checks=''FAILED'' OR trnx_amt_check=''N'' THEN -1 ELSE CASE WHEN contract_key_check=''N'' OR trnx_type_key_check=''N'' OR product_option_key_check=''N'' OR contract_event_trnx_check=''N'' THEN 1 ELSE 0 END END)=1 THEN ''REF_INT_CHECK_FAIL-> '' ||RTRIM(LTRIM((CASE WHEN contract_key_check=''N'' THEN ''CONTRACT_ID:''||CONTRACT_ID||''|'' ELSE NULL END|| CASE WHEN product_option_key_check=''N''
+          THEN '' dw_PRODUCT_KEY:''||dw_PRODUCT_KEY||'' ~ PRODUCT_OPTION_CODE:''||PRODUCT_OPTION_CODE||''|'' ELSE NULL END || CASE WHEN contract_event_trnx_check=''N'' THEN '' dw_CONTRACT_key:''||DW_CONTRACT_KEY||'' ~ EVENT_NUM:''||EVENT_NUM||'' ~ TRANNO:''||SRC_TRANNO||'' ~ EFTV_DATE:''||EFTV_DATE||''|'' ELSE NULL END),''~|''),''~|'')||RTRIM(LTRIM((CASE WHEN trnx_type_key_check=''N'' THEN ''PRODUCT_SYSTEM_CODE:''||PRODUCT_SYSTEM_CODE||'' ~ TRNX_TYPE_CODE:''||TRNX_TYPE_CODE||'' ~ TRNX_SUB_TYPE_CODE:''||TRNX_SUB_TYPE_CODE||'' ~ TRNX_ANALYSIS_CODE1:''||TRNX_ANALYSIS_CODE1||'' ~ TRNX_ANALYSIS_CODE2:''||TRNX_ANALYSIS_CODE2||'' ~ TRNX_ANALYSIS_CODE3:''||TRNX_ANALYSIS_CODE3||'' ~ TRNX_ANALYSIS_CODE4:''||TRNX_ANALYSIS_CODE4||'' ~ TRNX_ANALYSIS_CODE5:''||TRNX_ANALYSIS_CODE5 ELSE NULL END),''~|''),''~|'') ELSE NULL END END)'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 65baa146-cf23-7fd5-956c-a5963c20ec94
@@ -324,7 +325,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:lkp_trnx_type(product_system_code, v_trnx_type_code, v_trnx_sub_type_code, v_trnx_analysis_code1, v_trnx_analysis_code2, v_trnx_analysis_code3, v_trnx_analysis_code4, v_trnx_analysis_code5)*/ NULL
+        transform: :LKP.lkp_trnx_type(product_system_code, (CASE WHEN (trnx_type_code IS NULL) THEN 'oONVLOo' ELSE trnx_type_code END), (CASE WHEN (trnx_sub_type_code IS NULL) THEN 'oONVLOo' ELSE trnx_sub_type_code END), (CASE WHEN (trnx_analysis_code1 IS NULL) THEN 'oONVLOo' ELSE trnx_analysis_code1 END), (CASE WHEN (trnx_analysis_code2 IS NULL) THEN 'oONVLOo' ELSE trnx_analysis_code2 END), (CASE WHEN (trnx_analysis_code3 IS NULL) THEN 'oONVLOo' ELSE trnx_analysis_code3 END), (CASE WHEN (trnx_analysis_code4 IS NULL) THEN 'oONVLOo' ELSE trnx_analysis_code4 END), (CASE WHEN (trnx_analysis_code5 IS NULL) THEN 'oONVLOo' ELSE trnx_analysis_code5 END))
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:

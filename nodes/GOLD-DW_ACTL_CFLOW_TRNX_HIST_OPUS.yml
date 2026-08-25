@@ -68,7 +68,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_tf_process_id='0' THEN '$CurrentRunId' ELSE v_tf_process_id END
+        transform: CASE WHEN (/*PARAM:taskflow_process_id*/ NULL)='0' THEN '/*PARAM:CurrentRunId*/ NULL' ELSE (/*PARAM:taskflow_process_id*/ NULL) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b668def4-93e3-86d8-0526-f704df8714e4
@@ -133,7 +133,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (v_sum_insured_amt/tl_o_TOTAL_SUM_INSURED_AMT)*v_TRNX_AMT
+        transform: ((CASE WHEN dw_cr_SUM_INSURED_AMT=0 THEN 0.1 ELSE dw_cr_SUM_INSURED_AMT END)/tl_o_TOTAL_SUM_INSURED_AMT)*(src_TRNX_AMT)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 679d25bc-7596-0049-77a4-9bd4cd596d5a
@@ -263,7 +263,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_tf_process_id='0' THEN '$CurrentRunId' ELSE v_tf_process_id END
+        transform: CASE WHEN (/*PARAM:taskflow_process_id*/ NULL)='0' THEN '/*PARAM:CurrentRunId*/ NULL' ELSE (/*PARAM:taskflow_process_id*/ NULL) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e196314f-c5e9-d55a-e038-acc1fbd21b28
@@ -276,7 +276,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_REPROCESS_IND_SET
+        transform: (DECODE(TRUE, (CASE WHEN src_TRNX_AMT=0 THEN 0 ELSE 1 END)=0, 0, (dw_c_CONTRACT_KEY IS NULL) OR  NOT (ref360p_PRODUCT_OFFERING_CODE IN ('RETAILRISK', 'CONVL', 'INVEST')) OR  ((DECODE(TRUE, ref360p_PRODUCT_OFFERING_CODE='INVEST' , IFRS_OPTION_TYPE_CODE, NULL)) IS NULL) OR (ref360p_PRODUCT_OFFERING_CODE IS NULL) OR (dw_cr_CONTRACT_RISK_KEY IS NULL), 1, 0))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 807485ed-c2b1-e025-4073-aa5a91b0e988
@@ -289,7 +289,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_CASHFLOW_PROCESS_IND
+        transform: (CASE WHEN src_TRNX_AMT=0 THEN 0 ELSE 1 END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3836837d-da2a-06bc-4ad3-0cd87617fe85

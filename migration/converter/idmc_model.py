@@ -369,11 +369,36 @@ def build_ir(dtemplate_path: str, mtt_path: str | None, folder: str) -> MappingI
             ir.has_union = True
 
         if role == "Expression":
+            # Informatica evaluates fields top-down; variable (v_*) fields are
+            # local and must be INLINED into the output expressions (they are
+            # not real columns).  Build the substitution as we go so each field
+            # only sees earlier-defined variables.
+            var_defs = {}   # lowercase v_name -> already-inlined raw expression
+
+            def _inline(expr):
+                if not expr or not var_defs:
+                    return expr
+                prev = None
+                out = expr
+                for _ in range(60):
+                    if out == prev:
+                        break
+                    prev = out
+                    out = re.sub(
+                        r'\bv_[A-Za-z0-9_]+\b',
+                        lambda m: (f"({var_defs[m.group(0).lower()]})"
+                                   if m.group(0).lower() in var_defs
+                                   else m.group(0)),
+                        out)
+                return out
+
             for f in tx.get("fields", []) or []:
                 nm = f.get("name", "")
                 ex = f.get("expression") or ""
                 ir.ref_ports |= _extract_ports(ex)
+                ex = _inline(ex)
                 if idmc_expr.is_variable_field(nm):
+                    var_defs[nm.lower()] = ex
                     continue
                 dt = ""
                 pt = f.get("platformType") or {}

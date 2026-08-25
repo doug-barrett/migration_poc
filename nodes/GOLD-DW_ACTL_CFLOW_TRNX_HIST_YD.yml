@@ -42,7 +42,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_ADMIN_SYS_FILE_ID
+        transform: (-1)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c433f14d-2d3b-b6f7-610d-5d5ce76d9ebb
@@ -835,7 +835,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: UPPER(MD5(FILE_RECORD_NUMBER||v_ADMIN_SYS_FILE_ID||_FILE_NAME))
+        transform: UPPER(MD5(FILE_RECORD_NUMBER||(-1)||_FILE_NAME))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5ec56821-abaf-b96d-dab4-bc81ea376913
@@ -861,7 +861,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: UPPER(MD5(FILE_RECORD_NUMBER||v_ADMIN_SYS_FILE_ID||_FILE_NAME))
+        transform: UPPER(MD5(FILE_RECORD_NUMBER||(-1)||_FILE_NAME))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c99f7bc3-396d-4026-50a8-b4e00e81a08f
@@ -913,7 +913,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN ((tgt_FILE_REC_NUM IS NULL) AND (tgt__FILE_NAME IS NULL)) THEN 'I' ELSE CASE WHEN tgt_ACTL_CFLOW_TRNX_HIST_KEY = o_ACTL_CFLOW_TRNX_HIST_KEY AND o_SRC_REPROCESS_IND=1 AND v_REPROCESS_IND_SET =0 THEN 'U' ELSE 'X' END END
+        transform: CASE WHEN ((tgt_FILE_REC_NUM IS NULL) AND (tgt__FILE_NAME IS NULL)) THEN 'I' ELSE CASE WHEN tgt_ACTL_CFLOW_TRNX_HIST_KEY = o_ACTL_CFLOW_TRNX_HIST_KEY AND o_SRC_REPROCESS_IND=1 AND (DECODE(TRUE, o_PRODUCT_SYS_CODE='DS' AND ((CODE IS NULL) OR (c_CONTRACT_KEY IS NULL) OR (crk_CONTRACT_RISK_KEY IS NULL) ),1, (o_PRODUCT_SYS_CODE IN ('CP', 'OR')) AND LTRIM(RTRIM(IFRS_OPTION_TYPE_CLASS_CODE))='RISK' AND ((CODE IS NULL) OR (c_CONTRACT_KEY IS NULL) OR (crk_CONTRACT_RISK_KEY IS NULL)),1, (o_PRODUCT_SYS_CODE IN ('CP', 'OR')) AND ((CODE IS NULL) OR (c_CONTRACT_KEY IS NULL)),1, 0 )) =0 THEN 'U' ELSE 'X' END END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: bc463f9f-51c4-6304-39a0-c28426ab8818
@@ -939,7 +939,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_tf_process_id='0' THEN '$CurrentRunId' ELSE v_tf_process_id END
+        transform: CASE WHEN (/*PARAM:taskflow_process_id*/ NULL)='0' THEN '/*PARAM:CurrentRunId*/ NULL' ELSE (/*PARAM:taskflow_process_id*/ NULL) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c3380936-5579-ca6e-b5c9-600466b1946c
@@ -952,7 +952,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_CFLOW_PROC_IND=0 THEN 0 ELSE v_REPROCESS_IND_SET END
+        transform: CASE WHEN (CASE WHEN o_IFRS_CFLOW_STATUS_CODE='INCURRED' OR ref_CASHFLOW_TYPE_CODE='NONCASHFLOW' THEN 0 ELSE 1 END)=0 THEN 0 ELSE (DECODE(TRUE, o_PRODUCT_SYS_CODE='DS' AND ((CODE IS NULL) OR (c_CONTRACT_KEY IS NULL) OR (crk_CONTRACT_RISK_KEY IS NULL) ),1, (o_PRODUCT_SYS_CODE IN ('CP', 'OR')) AND LTRIM(RTRIM(IFRS_OPTION_TYPE_CLASS_CODE))='RISK' AND ((CODE IS NULL) OR (c_CONTRACT_KEY IS NULL) OR (crk_CONTRACT_RISK_KEY IS NULL)),1, (o_PRODUCT_SYS_CODE IN ('CP', 'OR')) AND ((CODE IS NULL) OR (c_CONTRACT_KEY IS NULL)),1, 0 )) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1dde0348-a0f6-d0d7-40db-e5593f214e9f
@@ -965,7 +965,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_CFLOW_PROC_IND
+        transform: (CASE WHEN o_IFRS_CFLOW_STATUS_CODE='INCURRED' OR ref_CASHFLOW_TYPE_CODE='NONCASHFLOW' THEN 0 ELSE 1 END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 02578c40-a941-3cf3-1958-4df50f91501f
@@ -1004,7 +1004,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN NOT (IFRS_TRNX_SRC_TGT_XREF_KEY IS NULL) THEN v_DISPLAY_CONTRACT_ID ELSE v_CLIENT_REF_ID_1 END
+        transform: CASE WHEN NOT (IFRS_TRNX_SRC_TGT_XREF_KEY IS NULL) THEN (CASE WHEN (c_DISPLAY_CONTRACT_ID IS NULL) THEN '-' ELSE c_DISPLAY_CONTRACT_ID END) ELSE (CASE WHEN (o_CLIENT_REF_ID_1 IS NULL) THEN '-' ELSE o_CLIENT_REF_ID_1 END) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c2a279ab-e4d1-8e63-0e74-caf7f7c4a0c8
@@ -1043,7 +1043,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN IN(o_PRODUCT_CODE,'ULMA','ULMAN','ULKP') and o_PRODUCT_SYSTEM_CODE='OR' and not (TARGET_CODE_1 IS NULL) THEN TARGET_CODE_1 ELSE o_PRODUCT_SYSTEM_CODE END
+        transform: CASE WHEN (o_PRODUCT_CODE IN ('ULMA', 'ULMAN', 'ULKP')) and o_PRODUCT_SYSTEM_CODE='OR' and not (TARGET_CODE_1 IS NULL) THEN TARGET_CODE_1 ELSE o_PRODUCT_SYSTEM_CODE END
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:

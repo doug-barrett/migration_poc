@@ -69,7 +69,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (BULK_ADJUSTMENT_FILE_NAME IS NULL) THEN MD5(_FILE_NAME||_SRC_TRNX_ID||CFLOW_STATUS_CODE||v_REPROCESS_IND) ELSE MD5(_FILE_NAME||BULK_ADJUSTMENT_FILE_NAME||_SRC_TRNX_ID||CFLOW_STATUS_CODE||v_REPROCESS_IND) END
+        transform: CASE WHEN (BULK_ADJUSTMENT_FILE_NAME IS NULL) THEN MD5(_FILE_NAME||_SRC_TRNX_ID||CFLOW_STATUS_CODE||(CASE WHEN (REPROCESS_IND IS NULL) THEN 0 ELSE REPROCESS_IND END)) ELSE MD5(_FILE_NAME||BULK_ADJUSTMENT_FILE_NAME||_SRC_TRNX_ID||CFLOW_STATUS_CODE||(CASE WHEN (REPROCESS_IND IS NULL) THEN 0 ELSE REPROCESS_IND END)) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9a10acee-a4cd-9356-6388-444c90d1402d
@@ -82,7 +82,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_REPROCESS_IND
+        transform: (CASE WHEN (REPROCESS_IND IS NULL) THEN 0 ELSE REPROCESS_IND END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e3ecaf54-00ff-1235-ee28-9dfc11010731
@@ -95,7 +95,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_RLA_COHORT_ID
+        transform: (o_PORTFOLIO_CODE)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7027cd0f-8c93-2d95-0f9f-4226bd04698e
@@ -134,7 +134,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_tf_process_id='0' THEN '$CurrentRunId' ELSE v_tf_process_id END
+        transform: CASE WHEN (/*PARAM:taskflow_process_id*/ NULL)='0' THEN '/*PARAM:CurrentRunId*/ NULL' ELSE (/*PARAM:taskflow_process_id*/ NULL) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f5da0839-899d-5738-34bb-13d5dd991c4f
@@ -147,7 +147,10 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE, o_REPROCESS_IND=1 AND v_final_REPROCESS_IND=0, 'U', o_REPROCESS_IND=1 AND v_final_REPROCESS_IND=1, 'X', 'S' )
+        transform: DECODE(TRUE, o_REPROCESS_IND=1 AND (DECODE(TRUE, --NOT (REINS_CTRT_CODE IS NULL), 1, --Reinsurance to be updated in reinsurance update job ((NOT (REINS_CTRT_CODE IS NULL)) AND ((DECODE(TRUE,treaty_IFRS_OPTION_TYPE_GROUP_CODE='NA',treaty_TREATY_CODE,non_na_treaty_TREATY_CODE)) IS NULL) OR (COVERAGE_ID IS NULL) OR ((o_PORTFOLIO_CODE) IS NULL)  OR (iotcv_IFRS_OPTION_TYPE_CLASS_CODE ='RISK' AND NOT(ccv_PRODUCT_SYSTEM_CODE = 'RP') AND NOT(ccv_PRODUCT_SYSTEM_CODE = 'U2') AND (o_FINAL_CLAIM_CONTRACT_RISK_KEY IS NULL))  OR (NOT (o_Contract_Key IS NULL) AND (ccv_CONTRACT_KEY IS NULL))  OR (cc_COVERAGE_ID IS NULL)  OR (piotmcv_CODE IS NULL)  OR (tt_TRANSACTION_TYPE_CODE IS NULL)  OR (ps_DATA_SOURCE_CODE IS NULL)  OR (NOT (SDUTY_STATE_CODE IS NULL) AND (st_CODE IS NULL))  OR (curr_CODE IS NULL)  OR (NOT (SDUTY_CONTRACT_TYPE_CODE IS NULL) AND (DECODE(TRUE, NOT (SDUTY_CONTRACT_TYPE_CODE IS NULL) and  (SDUTY_CONTRACT_TYPE_CODE ='L' OR SDUTY_CONTRACT_TYPE_CODE ='G' OR SDUTY_CONTRACT_TYPE_CODE
+          = ' ' OR SDUTY_CONTRACT_TYPE_CODE ='-'),SDUTY_CONTRACT_TYPE_CODE, 'INVALID')) = 'INVALID')  OR ((DECODE(TRUE,  (((NOT (BULK_ADJUSTMENT_FILE_NAME IS NULL)) AND (DATA_SOURCE_CD='RP') AND (ccv_PRODUCT_SYSTEM_CODE='RP') AND ((PTCPTN_CODE IS NULL) OR NOT(PTCPTN_CODE ='PAR' OR PTCPTN_CODE ='NON-PAR'))) OR ((ccv_PRODUCT_SYSTEM_CODE<>'RP') AND NOT (PTCPTN_CODE IS NULL) AND NOT (BULK_ADJUSTMENT_FILE_NAME IS NULL))),'INVALID', PTCPTN_CODE)) = 'INVALID') OR ((CASE WHEN ( iotcv_IFRS_OPTION_TYPE_CLASS_CODE ='RISK'  AND  (trn_type_CLASSIFICATION_CODE IN ('NA', 'RISK')) ) OR ( iotcv_IFRS_OPTION_TYPE_CLASS_CODE ='NONRISK'  AND  (trn_type_CLASSIFICATION_CODE IN ('NONRISK', 'NA')) ) THEN 0 ELSE 1 END)=1) ), 1,0 --Reinsurance,Ripa claim is defaulted to claim not found ))=0, 'U', o_REPROCESS_IND=1 AND (DECODE(TRUE, --NOT (REINS_CTRT_CODE IS NULL), 1, --Reinsurance to be updated in reinsurance update job ((NOT (REINS_CTRT_CODE IS NULL)) AND ((DECODE(TRUE,treaty_IFRS_OPTION_TYPE_GROUP_CODE='NA',treaty_TREATY_CODE,non_na_treaty_TREATY_CODE))
+          IS NULL) OR (COVERAGE_ID IS NULL) OR ((o_PORTFOLIO_CODE) IS NULL)  OR (iotcv_IFRS_OPTION_TYPE_CLASS_CODE ='RISK' AND NOT(ccv_PRODUCT_SYSTEM_CODE = 'RP') AND NOT(ccv_PRODUCT_SYSTEM_CODE = 'U2') AND (o_FINAL_CLAIM_CONTRACT_RISK_KEY IS NULL))  OR (NOT (o_Contract_Key IS NULL) AND (ccv_CONTRACT_KEY IS NULL))  OR (cc_COVERAGE_ID IS NULL)  OR (piotmcv_CODE IS NULL)  OR (tt_TRANSACTION_TYPE_CODE IS NULL)  OR (ps_DATA_SOURCE_CODE IS NULL)  OR (NOT (SDUTY_STATE_CODE IS NULL) AND (st_CODE IS NULL))  OR (curr_CODE IS NULL)  OR (NOT (SDUTY_CONTRACT_TYPE_CODE IS NULL) AND (DECODE(TRUE, NOT (SDUTY_CONTRACT_TYPE_CODE IS NULL) and  (SDUTY_CONTRACT_TYPE_CODE ='L' OR SDUTY_CONTRACT_TYPE_CODE ='G' OR SDUTY_CONTRACT_TYPE_CODE = ' ' OR SDUTY_CONTRACT_TYPE_CODE ='-'),SDUTY_CONTRACT_TYPE_CODE, 'INVALID')) = 'INVALID')  OR ((DECODE(TRUE,  (((NOT (BULK_ADJUSTMENT_FILE_NAME IS NULL)) AND (DATA_SOURCE_CD='RP') AND (ccv_PRODUCT_SYSTEM_CODE='RP') AND ((PTCPTN_CODE IS NULL) OR NOT(PTCPTN_CODE ='PAR' OR PTCPTN_CODE
+          ='NON-PAR'))) OR ((ccv_PRODUCT_SYSTEM_CODE<>'RP') AND NOT (PTCPTN_CODE IS NULL) AND NOT (BULK_ADJUSTMENT_FILE_NAME IS NULL))),'INVALID', PTCPTN_CODE)) = 'INVALID') OR ((CASE WHEN ( iotcv_IFRS_OPTION_TYPE_CLASS_CODE ='RISK'  AND  (trn_type_CLASSIFICATION_CODE IN ('NA', 'RISK')) ) OR ( iotcv_IFRS_OPTION_TYPE_CLASS_CODE ='NONRISK'  AND  (trn_type_CLASSIFICATION_CODE IN ('NONRISK', 'NA')) ) THEN 0 ELSE 1 END)=1) ), 1,0 --Reinsurance,Ripa claim is defaulted to claim not found ))=1, 'X', 'S' )
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 15db735a-d64d-46a2-c7b4-87a2a234613d
@@ -160,7 +163,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_final_REPROCESS_IND
+        transform: (DECODE(TRUE, --NOT (REINS_CTRT_CODE IS NULL), 1, --Reinsurance to be updated in reinsurance update job ((NOT (REINS_CTRT_CODE IS NULL)) AND ((DECODE(TRUE,treaty_IFRS_OPTION_TYPE_GROUP_CODE='NA',treaty_TREATY_CODE,non_na_treaty_TREATY_CODE)) IS NULL) OR (COVERAGE_ID IS NULL) OR ((o_PORTFOLIO_CODE) IS NULL)  OR (iotcv_IFRS_OPTION_TYPE_CLASS_CODE ='RISK' AND NOT(ccv_PRODUCT_SYSTEM_CODE = 'RP') AND NOT(ccv_PRODUCT_SYSTEM_CODE = 'U2') AND (o_FINAL_CLAIM_CONTRACT_RISK_KEY IS NULL))  OR (NOT (o_Contract_Key IS NULL) AND (ccv_CONTRACT_KEY IS NULL))  OR (cc_COVERAGE_ID IS NULL)  OR (piotmcv_CODE IS NULL)  OR (tt_TRANSACTION_TYPE_CODE IS NULL)  OR (ps_DATA_SOURCE_CODE IS NULL)  OR (NOT (SDUTY_STATE_CODE IS NULL) AND (st_CODE IS NULL))  OR (curr_CODE IS NULL)  OR (NOT (SDUTY_CONTRACT_TYPE_CODE IS NULL) AND (DECODE(TRUE, NOT (SDUTY_CONTRACT_TYPE_CODE IS NULL) and  (SDUTY_CONTRACT_TYPE_CODE ='L' OR SDUTY_CONTRACT_TYPE_CODE ='G' OR SDUTY_CONTRACT_TYPE_CODE = ' ' OR SDUTY_CONTRACT_TYPE_CODE
+          ='-'),SDUTY_CONTRACT_TYPE_CODE, 'INVALID')) = 'INVALID')  OR ((DECODE(TRUE,  (((NOT (BULK_ADJUSTMENT_FILE_NAME IS NULL)) AND (DATA_SOURCE_CD='RP') AND (ccv_PRODUCT_SYSTEM_CODE='RP') AND ((PTCPTN_CODE IS NULL) OR NOT(PTCPTN_CODE ='PAR' OR PTCPTN_CODE ='NON-PAR'))) OR ((ccv_PRODUCT_SYSTEM_CODE<>'RP') AND NOT (PTCPTN_CODE IS NULL) AND NOT (BULK_ADJUSTMENT_FILE_NAME IS NULL))),'INVALID', PTCPTN_CODE)) = 'INVALID') OR ((CASE WHEN ( iotcv_IFRS_OPTION_TYPE_CLASS_CODE ='RISK'  AND  (trn_type_CLASSIFICATION_CODE IN ('NA', 'RISK')) ) OR ( iotcv_IFRS_OPTION_TYPE_CLASS_CODE ='NONRISK'  AND  (trn_type_CLASSIFICATION_CODE IN ('NONRISK', 'NA')) ) THEN 0 ELSE 1 END)=1) ), 1,0 --Reinsurance,Ripa claim is defaulted to claim not found ))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3efdd893-b149-5ef9-8c82-21d0306bd007
@@ -173,7 +177,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_count_CFLOW_STATUS_CODE
+        transform: (Length((REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_'))) - Length(ReplaceStr(1, (REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_')), '_', '')))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 549885fd-d81a-7a27-1a5c-e52cffd76258
@@ -186,7 +190,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE, v_count_CFLOW_STATUS_CODE = 0, v_CFLOW_STATUS_CODE, SUBSTR(v_CFLOW_STATUS_CODE, 1, INSTR(v_CFLOW_STATUS_CODE, '_', 1, 1)-1 ))
+        transform: DECODE(TRUE, (Length((REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_'))) - Length(ReplaceStr(1, (REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_')), '_', ''))) = 0, (REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_')), SUBSTR((REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_')), 1, INSTR((REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_')), '_', 1, 1)-1 ))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 138e2b8e-8fc7-b3f2-8f57-3f0ab03b50cd
@@ -199,7 +203,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE, v_count_CFLOW_STATUS_CODE = 1, SUBSTR(v_CFLOW_STATUS_CODE, INSTR(v_CFLOW_STATUS_CODE, '_', 1,1)+1 ), v_count_CFLOW_STATUS_CODE = 2, SUBSTR(v_CFLOW_STATUS_CODE, INSTR(v_CFLOW_STATUS_CODE, '_', 1,1)+1, INSTR(v_CFLOW_STATUS_CODE, '_', 1,2) - 1-INSTR(v_CFLOW_STATUS_CODE, '_', 1,1 )), NULL )
+        transform: DECODE(TRUE, (Length((REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_'))) - Length(ReplaceStr(1, (REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_')), '_', ''))) = 1, SUBSTR((REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_')), INSTR((REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_')), '_', 1,1)+1 ), (Length((REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_'))) - Length(ReplaceStr(1, (REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_')), '_', ''))) = 2, SUBSTR((REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_')), INSTR((REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_')), '_', 1,1)+1, INSTR((REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_')), '_', 1,2) - 1-INSTR((REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_')), '_', 1,1 )), NULL )
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6b4f2141-af14-a1d2-ce54-6b5c82179a5a
@@ -212,7 +216,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE, v_count_CFLOW_STATUS_CODE = 2, SUBSTR(v_CFLOW_STATUS_CODE, INSTR(v_CFLOW_STATUS_CODE, '_', 1,2)+1 ), NULL )
+        transform: DECODE(TRUE, (Length((REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_'))) - Length(ReplaceStr(1, (REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_')), '_', ''))) = 2, SUBSTR((REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_')), INSTR((REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_')), '_', 1,2)+1 ), NULL )
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8c9f19b5-68ce-5ddf-610b-768c37a9dcab
@@ -225,7 +229,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_CFLOW_STATUS_CODE
+        transform: (REGEXP_REPLACE(CFLOW_STATUS_CODE,'[^a-z0-9A-Z]','_'))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 441cb42b-ddbc-5255-82be-33822f245876
@@ -238,7 +242,11 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: SUBSTR(v_Error_Desc, 1, LENGTH(v_Error_Desc) - 1)
+        transform: SUBSTR(((DECODE(TRUE, ((o_PORTFOLIO_CODE) IS NULL),'Cohort Id Not Found|'))||(DECODE(TRUE, (NOT (REINS_CTRT_CODE IS NULL)) AND ((DECODE(TRUE,treaty_IFRS_OPTION_TYPE_GROUP_CODE='NA',treaty_TREATY_CODE,non_na_treaty_TREATY_CODE)) IS NULL),'Treaty Code Not Found|'))||(DECODE(TRUE, (o_Contract_Key=-1) AND (ccv_CONTRACT_KEY IS NULL),'Contract Key Not Found|'))||(DECODE(TRUE,(iotcv_IFRS_OPTION_TYPE_CLASS_CODE ='RISK' AND NOT(ccv_PRODUCT_SYSTEM_CODE = 'RP') AND NOT(ccv_PRODUCT_SYSTEM_CODE = 'U2') AND (o_FINAL_CLAIM_CONTRACT_RISK_KEY IS NULL)),'Contract Risk Key Not Found|'))||(DECODE(TRUE, (cc_COVERAGE_ID IS NULL),'Coverage Id Not Found|'))||(DECODE(TRUE, (tt_TRANSACTION_TYPE_CODE IS NULL),'Transaction Type Not Found|'))||(DECODE(TRUE, (ps_DATA_SOURCE_CODE IS NULL),'Data Source Code Not Found|'))||(DECODE(TRUE, ((NOT (SDUTY_STATE_CODE IS NULL)) AND (st_CODE IS NULL)),'Stamp Duty State Code Not Found|'))||(DECODE(TRUE, (curr_CODE IS NULL),'Currency Code Not Found|'))||(DECODE(TRUE,
+          ((NOT (SDUTY_CONTRACT_TYPE_CODE IS NULL)) AND (DECODE(TRUE, NOT (SDUTY_CONTRACT_TYPE_CODE IS NULL) and  (SDUTY_CONTRACT_TYPE_CODE ='L' OR SDUTY_CONTRACT_TYPE_CODE ='G' OR SDUTY_CONTRACT_TYPE_CODE = ' ' OR SDUTY_CONTRACT_TYPE_CODE ='-'),SDUTY_CONTRACT_TYPE_CODE, 'INVALID')) = 'INVALID'),'Stamp Duty Contract Type Code Not Found|'))||(DECODE(TRUE, ((DECODE(TRUE,  (((NOT (BULK_ADJUSTMENT_FILE_NAME IS NULL)) AND (DATA_SOURCE_CD='RP') AND (ccv_PRODUCT_SYSTEM_CODE='RP') AND ((PTCPTN_CODE IS NULL) OR NOT(PTCPTN_CODE ='PAR' OR PTCPTN_CODE ='NON-PAR'))) OR ((ccv_PRODUCT_SYSTEM_CODE<>'RP') AND NOT (PTCPTN_CODE IS NULL) AND NOT (BULK_ADJUSTMENT_FILE_NAME IS NULL))),'INVALID', PTCPTN_CODE)) = 'INVALID'),'Invalid PTCPTN Code|'))||(DECODE(TRUE, (piotmcv_CODE IS NULL),'IFRS Option Type doesnot exist for the selected product|'))||(DECODE(TRUE,  (CASE WHEN ( iotcv_IFRS_OPTION_TYPE_CLASS_CODE ='RISK'  AND  (trn_type_CLASSIFICATION_CODE IN ('NA', 'RISK')) ) OR ( iotcv_IFRS_OPTION_TYPE_CLASS_CODE ='NONRISK'  AND  (trn_type_CLASSIFICATION_CODE
+          IN ('NONRISK', 'NA')) ) THEN 0 ELSE 1 END)=1,'Investment products cannot have Risk Transaction Type|'))), 1, LENGTH(((DECODE(TRUE, ((o_PORTFOLIO_CODE) IS NULL),'Cohort Id Not Found|'))||(DECODE(TRUE, (NOT (REINS_CTRT_CODE IS NULL)) AND ((DECODE(TRUE,treaty_IFRS_OPTION_TYPE_GROUP_CODE='NA',treaty_TREATY_CODE,non_na_treaty_TREATY_CODE)) IS NULL),'Treaty Code Not Found|'))||(DECODE(TRUE, (o_Contract_Key=-1) AND (ccv_CONTRACT_KEY IS NULL),'Contract Key Not Found|'))||(DECODE(TRUE,(iotcv_IFRS_OPTION_TYPE_CLASS_CODE ='RISK' AND NOT(ccv_PRODUCT_SYSTEM_CODE = 'RP') AND NOT(ccv_PRODUCT_SYSTEM_CODE = 'U2') AND (o_FINAL_CLAIM_CONTRACT_RISK_KEY IS NULL)),'Contract Risk Key Not Found|'))||(DECODE(TRUE, (cc_COVERAGE_ID IS NULL),'Coverage Id Not Found|'))||(DECODE(TRUE, (tt_TRANSACTION_TYPE_CODE IS NULL),'Transaction Type Not Found|'))||(DECODE(TRUE, (ps_DATA_SOURCE_CODE IS NULL),'Data Source Code Not Found|'))||(DECODE(TRUE, ((NOT (SDUTY_STATE_CODE IS NULL)) AND (st_CODE IS NULL)),'Stamp Duty
+          State Code Not Found|'))||(DECODE(TRUE, (curr_CODE IS NULL),'Currency Code Not Found|'))||(DECODE(TRUE, ((NOT (SDUTY_CONTRACT_TYPE_CODE IS NULL)) AND (DECODE(TRUE, NOT (SDUTY_CONTRACT_TYPE_CODE IS NULL) and  (SDUTY_CONTRACT_TYPE_CODE ='L' OR SDUTY_CONTRACT_TYPE_CODE ='G' OR SDUTY_CONTRACT_TYPE_CODE = ' ' OR SDUTY_CONTRACT_TYPE_CODE ='-'),SDUTY_CONTRACT_TYPE_CODE, 'INVALID')) = 'INVALID'),'Stamp Duty Contract Type Code Not Found|'))||(DECODE(TRUE, ((DECODE(TRUE,  (((NOT (BULK_ADJUSTMENT_FILE_NAME IS NULL)) AND (DATA_SOURCE_CD='RP') AND (ccv_PRODUCT_SYSTEM_CODE='RP') AND ((PTCPTN_CODE IS NULL) OR NOT(PTCPTN_CODE ='PAR' OR PTCPTN_CODE ='NON-PAR'))) OR ((ccv_PRODUCT_SYSTEM_CODE<>'RP') AND NOT (PTCPTN_CODE IS NULL) AND NOT (BULK_ADJUSTMENT_FILE_NAME IS NULL))),'INVALID', PTCPTN_CODE)) = 'INVALID'),'Invalid PTCPTN Code|'))||(DECODE(TRUE, (piotmcv_CODE IS NULL),'IFRS Option Type doesnot exist for the selected product|'))||(DECODE(TRUE,  (CASE WHEN ( iotcv_IFRS_OPTION_TYPE_CLASS_CODE ='RISK'  AND  (trn_type_CLASSIFICATION_CODE
+          IN ('NA', 'RISK')) ) OR ( iotcv_IFRS_OPTION_TYPE_CLASS_CODE ='NONRISK'  AND  (trn_type_CLASSIFICATION_CODE IN ('NONRISK', 'NA')) ) THEN 0 ELSE 1 END)=1,'Investment products cannot have Risk Transaction Type|')))) - 1)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0dd66281-2703-e231-dc56-4c22516b2b15
@@ -329,7 +337,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (((NOT (CONTRACT_KEY IS NULL)) AND ((ccv_CONTRACT_KEY IS NULL))) OR (CONTRACT_KEY IS NULL)) THEN v_Contract_Key ELSE CONTRACT_KEY END
+        transform: CASE WHEN (((NOT (CONTRACT_KEY IS NULL)) AND ((ccv_CONTRACT_KEY IS NULL))) OR (CONTRACT_KEY IS NULL)) THEN (CASE WHEN (ccv_CONTRACT_KEY IS NULL) THEN -1 ELSE ccv_CONTRACT_KEY END) ELSE CONTRACT_KEY END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 50c752d5-285b-bdf3-7824-8919db10b4f2
@@ -355,7 +363,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_Contract_Risk_Key
+        transform: (DECODE(TRUE, (cr_manl_CONTRACT_RISK_KEY IS NULL), cr_CONTRACT_RISK_KEY,cr_manl_CONTRACT_RISK_KEY))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e8f00cea-6803-48a7-278c-4bc988a1f797
@@ -368,7 +376,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (BULK_ADJUSTMENT_FILE_NAME IS NULL) THEN _FILE_NAME||_SRC_TRNX_ID||v_CONTRACT_COVERAGE_KEY||CFLOW_STATUS_CODE||REPROCESS_IND ELSE _FILE_NAME||BULK_ADJUSTMENT_FILE_NAME||_SRC_TRNX_ID||v_CONTRACT_COVERAGE_KEY||CFLOW_STATUS_CODE||REPROCESS_IND END
+        transform: CASE WHEN (BULK_ADJUSTMENT_FILE_NAME IS NULL) THEN _FILE_NAME||_SRC_TRNX_ID||(CASE WHEN (cc_CONTRACT_COVERAGE_KEY IS NULL) THEN -1 ELSE cc_CONTRACT_COVERAGE_KEY END)||CFLOW_STATUS_CODE||REPROCESS_IND ELSE _FILE_NAME||BULK_ADJUSTMENT_FILE_NAME||_SRC_TRNX_ID||(CASE WHEN (cc_CONTRACT_COVERAGE_KEY IS NULL) THEN -1 ELSE cc_CONTRACT_COVERAGE_KEY END)||CFLOW_STATUS_CODE||REPROCESS_IND END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a6d12acc-d153-7512-c31f-2f2d3b17ce89
@@ -381,7 +389,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (v_Contract_Risk_Key IS NULL) THEN -1 ELSE v_Contract_Risk_Key END
+        transform: CASE WHEN ((DECODE(TRUE, (cr_manl_CONTRACT_RISK_KEY IS NULL), cr_CONTRACT_RISK_KEY,cr_manl_CONTRACT_RISK_KEY)) IS NULL) THEN -1 ELSE (DECODE(TRUE, (cr_manl_CONTRACT_RISK_KEY IS NULL), cr_CONTRACT_RISK_KEY,cr_manl_CONTRACT_RISK_KEY)) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 10f209ca-9203-ebd3-bf68-03aa21ffdec1
@@ -420,7 +428,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_CLAIM_ID
+        transform: (DECODE(TRUE,  NOT (TRANSACTION_TYPE_CODE IS NULL) and (REINS_CTRT_CODE IS NULL) and  o_FINAL_CLAIM_NUM <>'0000000',o_FINAL_CLAIM_NUM,NOT (TRANSACTION_TYPE_CODE IS NULL) and NOT (REINS_CTRT_CODE IS NULL) AND SUBSTR(TRANSACTION_TYPE_CODE,1,6)='RI_CLM','NA-BULK',NOT (TRANSACTION_TYPE_CODE IS NULL) and (REINS_CTRT_CODE IS NULL) and o_FINAL_CLAIM_NUM ='0000000','CLAIM-NOT-FOUND',NULL))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 599f3053-a86f-0f19-470d-226d89bfae85
@@ -433,7 +441,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE, ((v_CLAIM_ID IS NULL) OR v_CLAIM_ID ='CLAIM-NOT-FOUND' OR v_CLAIM_ID ='NA-BULK'), NULL,claim_vrbl_CLAIM_INCURRED_DATE)
+        transform: DECODE(TRUE, (((DECODE(TRUE,  NOT (TRANSACTION_TYPE_CODE IS NULL) and (REINS_CTRT_CODE IS NULL) and  o_FINAL_CLAIM_NUM <>'0000000',o_FINAL_CLAIM_NUM,NOT (TRANSACTION_TYPE_CODE IS NULL) and NOT (REINS_CTRT_CODE IS NULL) AND SUBSTR(TRANSACTION_TYPE_CODE,1,6)='RI_CLM','NA-BULK',NOT (TRANSACTION_TYPE_CODE IS NULL) and (REINS_CTRT_CODE IS NULL) and o_FINAL_CLAIM_NUM ='0000000','CLAIM-NOT-FOUND',NULL)) IS NULL) OR (DECODE(TRUE,  NOT (TRANSACTION_TYPE_CODE IS NULL) and (REINS_CTRT_CODE IS NULL) and  o_FINAL_CLAIM_NUM <>'0000000',o_FINAL_CLAIM_NUM,NOT (TRANSACTION_TYPE_CODE IS NULL) and NOT (REINS_CTRT_CODE IS NULL) AND SUBSTR(TRANSACTION_TYPE_CODE,1,6)='RI_CLM','NA-BULK',NOT (TRANSACTION_TYPE_CODE IS NULL) and (REINS_CTRT_CODE IS NULL) and o_FINAL_CLAIM_NUM ='0000000','CLAIM-NOT-FOUND',NULL)) ='CLAIM-NOT-FOUND' OR (DECODE(TRUE,  NOT (TRANSACTION_TYPE_CODE IS NULL) and (REINS_CTRT_CODE IS NULL) and  o_FINAL_CLAIM_NUM <>'0000000',o_FINAL_CLAIM_NUM,NOT (TRANSACTION_TYPE_CODE IS
+          NULL) and NOT (REINS_CTRT_CODE IS NULL) AND SUBSTR(TRANSACTION_TYPE_CODE,1,6)='RI_CLM','NA-BULK',NOT (TRANSACTION_TYPE_CODE IS NULL) and (REINS_CTRT_CODE IS NULL) and o_FINAL_CLAIM_NUM ='0000000','CLAIM-NOT-FOUND',NULL)) ='NA-BULK'), NULL,claim_vrbl_CLAIM_INCURRED_DATE)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1ee6a6a3-aef0-1bbc-ada0-86c4fbd023dc
@@ -485,7 +494,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_Claim_Num
+        transform: (DECODE(TRUE, (CLAIM_ID ='-' OR CLAIM_ID ='0000' OR CLAIM_ID ='CLAIM-NOT-FOUND' OR CLAIM_ID ='NA-BULK'), NULL,CLAIM_ID))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3b610058-f330-2f76-174c-1397f8f3bb67
@@ -563,7 +572,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_Claim_Num
+        transform: (DECODE(TRUE, (CLAIM_ID ='-' OR CLAIM_ID ='0000' OR CLAIM_ID ='CLAIM-NOT-FOUND' OR CLAIM_ID ='NA-BULK'), NULL,CLAIM_ID))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 757305e8-6379-8108-bdac-8c2e0062dfef
@@ -589,7 +598,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_Valid_Claim
+        transform: (DECODE(TRUE,(CLAIM_ID IS NULL),'N',CASE WHEN o_Contract_Key=(DECODE(TRUE, (SUBSTR(ccv_PRODUCT_OFFERING_CODE,1,5) = 'GRISK'),CONTRACT_ASSOC_CONTRACT_KEY,(ClaimId_risk_CONTRACT_KEY IS NULL),-1,ClaimId_risk_CONTRACT_KEY)) THEN 'Y' ELSE 'N' END))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1d70002d-0da3-97f7-cf1d-dfe2ec7ff466
@@ -602,7 +611,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE, (v_Claim_Key IS NULL),-1,v_Claim_Key)
+        transform: DECODE(TRUE, ((DECODE(TRUE, (DECODE(TRUE,(CLAIM_ID IS NULL),'N',CASE WHEN o_Contract_Key=(DECODE(TRUE, (SUBSTR(ccv_PRODUCT_OFFERING_CODE,1,5) = 'GRISK'),CONTRACT_ASSOC_CONTRACT_KEY,(ClaimId_risk_CONTRACT_KEY IS NULL),-1,ClaimId_risk_CONTRACT_KEY)) THEN 'Y' ELSE 'N' END)) = 'Y',claimid_CLAIM_KEY,o_Derived_Claim_Key)) IS NULL),-1,(DECODE(TRUE, (DECODE(TRUE,(CLAIM_ID IS NULL),'N',CASE WHEN o_Contract_Key=(DECODE(TRUE, (SUBSTR(ccv_PRODUCT_OFFERING_CODE,1,5) = 'GRISK'),CONTRACT_ASSOC_CONTRACT_KEY,(ClaimId_risk_CONTRACT_KEY IS NULL),-1,ClaimId_risk_CONTRACT_KEY)) THEN 'Y' ELSE 'N' END)) = 'Y',claimid_CLAIM_KEY,o_Derived_Claim_Key)))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 44a7c9b4-864b-a1c9-a6b9-a9ae8c178ef2
@@ -615,7 +624,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE, v_Valid_Claim = 'Y',o_CLAIM_CONTRACT_RISK_KEY,o_Contract_Risk_Key)
+        transform: DECODE(TRUE, (DECODE(TRUE,(CLAIM_ID IS NULL),'N',CASE WHEN o_Contract_Key=(DECODE(TRUE, (SUBSTR(ccv_PRODUCT_OFFERING_CODE,1,5) = 'GRISK'),CONTRACT_ASSOC_CONTRACT_KEY,(ClaimId_risk_CONTRACT_KEY IS NULL),-1,ClaimId_risk_CONTRACT_KEY)) THEN 'Y' ELSE 'N' END)) = 'Y',o_CLAIM_CONTRACT_RISK_KEY,o_Contract_Risk_Key)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d3423e2f-f41d-49ce-de01-caf546204a8b
@@ -628,7 +637,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE, (v_Claim_Num IS NULL),'0000000',v_Claim_Num)
+        transform: DECODE(TRUE, ((DECODE(TRUE, (DECODE(TRUE,(CLAIM_ID IS NULL),'N',CASE WHEN o_Contract_Key=(DECODE(TRUE, (SUBSTR(ccv_PRODUCT_OFFERING_CODE,1,5) = 'GRISK'),CONTRACT_ASSOC_CONTRACT_KEY,(ClaimId_risk_CONTRACT_KEY IS NULL),-1,ClaimId_risk_CONTRACT_KEY)) THEN 'Y' ELSE 'N' END)) = 'Y',claimid_CLAIM_NUM,o_CLAIM_NUM)) IS NULL),'0000000',(DECODE(TRUE, (DECODE(TRUE,(CLAIM_ID IS NULL),'N',CASE WHEN o_Contract_Key=(DECODE(TRUE, (SUBSTR(ccv_PRODUCT_OFFERING_CODE,1,5) = 'GRISK'),CONTRACT_ASSOC_CONTRACT_KEY,(ClaimId_risk_CONTRACT_KEY IS NULL),-1,ClaimId_risk_CONTRACT_KEY)) THEN 'Y' ELSE 'N' END)) = 'Y',claimid_CLAIM_NUM,o_CLAIM_NUM)))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ce82aa98-a496-5121-d8cc-91a92b1ab95e
@@ -641,7 +650,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE, ((v_Valid_Claim = 'Y') AND (SUBSTR(ccv_PRODUCT_OFFERING_CODE,1,5) = 'GRISK')),CONTRACT_ASSOC_ASSOC_CONTRACT_KEY)
+        transform: DECODE(TRUE, (((DECODE(TRUE,(CLAIM_ID IS NULL),'N',CASE WHEN o_Contract_Key=(DECODE(TRUE, (SUBSTR(ccv_PRODUCT_OFFERING_CODE,1,5) = 'GRISK'),CONTRACT_ASSOC_CONTRACT_KEY,(ClaimId_risk_CONTRACT_KEY IS NULL),-1,ClaimId_risk_CONTRACT_KEY)) THEN 'Y' ELSE 'N' END)) = 'Y') AND (SUBSTR(ccv_PRODUCT_OFFERING_CODE,1,5) = 'GRISK')),CONTRACT_ASSOC_ASSOC_CONTRACT_KEY)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ea8e0fe7-fa0e-be2c-4cce-ff6e8e5e366a
@@ -654,7 +663,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE, ((v_Valid_Claim = 'Y') AND (SUBSTR(ccv_PRODUCT_OFFERING_CODE,1,5) = 'GRISK')),CONTRACT_ASSOC_CONTRACT_KEY,v_Valid_Claim = 'Y',ClaimId_risk_CONTRACT_KEY,o_Contract_Key)
+        transform: DECODE(TRUE, (((DECODE(TRUE,(CLAIM_ID IS NULL),'N',CASE WHEN o_Contract_Key=(DECODE(TRUE, (SUBSTR(ccv_PRODUCT_OFFERING_CODE,1,5) = 'GRISK'),CONTRACT_ASSOC_CONTRACT_KEY,(ClaimId_risk_CONTRACT_KEY IS NULL),-1,ClaimId_risk_CONTRACT_KEY)) THEN 'Y' ELSE 'N' END)) = 'Y') AND (SUBSTR(ccv_PRODUCT_OFFERING_CODE,1,5) = 'GRISK')),CONTRACT_ASSOC_CONTRACT_KEY,(DECODE(TRUE,(CLAIM_ID IS NULL),'N',CASE WHEN o_Contract_Key=(DECODE(TRUE, (SUBSTR(ccv_PRODUCT_OFFERING_CODE,1,5) = 'GRISK'),CONTRACT_ASSOC_CONTRACT_KEY,(ClaimId_risk_CONTRACT_KEY IS NULL),-1,ClaimId_risk_CONTRACT_KEY)) THEN 'Y' ELSE 'N' END)) = 'Y',ClaimId_risk_CONTRACT_KEY,o_Contract_Key)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: fea00021-8b2a-f2dd-986e-4fa3c1b41ca0
@@ -667,7 +676,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE, ((v_Valid_Claim = 'Y') AND (SUBSTR(ccv_PRODUCT_OFFERING_CODE,1,5) = 'GRISK')),ClaimId_risk_CONTRACT_RISK_KEY)
+        transform: DECODE(TRUE, (((DECODE(TRUE,(CLAIM_ID IS NULL),'N',CASE WHEN o_Contract_Key=(DECODE(TRUE, (SUBSTR(ccv_PRODUCT_OFFERING_CODE,1,5) = 'GRISK'),CONTRACT_ASSOC_CONTRACT_KEY,(ClaimId_risk_CONTRACT_KEY IS NULL),-1,ClaimId_risk_CONTRACT_KEY)) THEN 'Y' ELSE 'N' END)) = 'Y') AND (SUBSTR(ccv_PRODUCT_OFFERING_CODE,1,5) = 'GRISK')),ClaimId_risk_CONTRACT_RISK_KEY)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6dfd9acd-c874-5762-eb9b-cdb9fe6ff7bb
@@ -680,7 +689,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: DECODE(TRUE, NOT (REINS_CTRT_CODE IS NULL), ref_grp_dim_reins_REINS_GROUP_CODE, (NOT (o_Claim_Incurred_Date IS NULL)) AND o_Claim_Incurred_Date < TO_DATE('2020-07-01','YYYY-MM-DD') AND IN(cc_IFRS_OPTION_TYPE_CODE,'IP','BE') AND IN (v_Product_Origin,'AML','AMP','RLA') AND cc_VALN_STEP_LVL_PREM_CODE='S', DECODE(TRUE,ccv_COUNTRY_SHORT_CODE='AU','$au_ocr_portfolio$',ccv_COUNTRY_SHORT_CODE='NZ','$nz_ocr_portfolio$','$au_ocr_portfolio$'), (REINS_CTRT_CODE IS NULL), ref_grp_dim_dir_GROUP_CODE)
+        transform: DECODE(TRUE, NOT (REINS_CTRT_CODE IS NULL), ref_grp_dim_reins_REINS_GROUP_CODE, (NOT (o_Claim_Incurred_Date IS NULL)) AND o_Claim_Incurred_Date < TO_DATE('2020-07-01','YYYY-MM-DD') AND (cc_IFRS_OPTION_TYPE_CODE IN ('IP', 'BE')) AND ((DECODE(TRUE, (manlprod_PRODUCT_ORIGIN IS NULL), prod_PRODUCT_ORIGIN,manlprod_PRODUCT_ORIGIN)) IN ('AML', 'AMP', 'RLA')) AND cc_VALN_STEP_LVL_PREM_CODE='S', DECODE(TRUE,ccv_COUNTRY_SHORT_CODE='AU','/*PARAM:au_ocr_portfolio*/ NULL',ccv_COUNTRY_SHORT_CODE='NZ','/*PARAM:nz_ocr_portfolio*/ NULL','/*PARAM:au_ocr_portfolio*/ NULL'), (REINS_CTRT_CODE IS NULL), ref_grp_dim_dir_GROUP_CODE)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 86166b5f-bb5b-0580-c2f7-943d5e1dd8d3
@@ -693,7 +702,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (REINS_CTRT_CODE IS NULL) AND v_COVRG_VRBL_DIRECT_DT_COMP='yes' THEN ccvrbl_dir_GROUP_CODE ELSE NULL END
+        transform: CASE WHEN (REINS_CTRT_CODE IS NULL) AND (CASE WHEN (TRNX_DTTM>=ccvrbl_dir_REC_EFTV_DTTM AND TRNX_DTTM<=ccvrbl_dir_REC_EXPR_DTTM) THEN 'yes' ELSE 'no' END)='yes' THEN ccvrbl_dir_GROUP_CODE ELSE NULL END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 876d4fb4-f664-90ed-9b6f-9c6f1742bb72
@@ -706,7 +715,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN NOT (REINS_CTRT_CODE IS NULL) AND v_COVRG_VRBL_REINS_DT_COMP='yes' THEN ccvrblreins_GROUP_CODE ELSE NULL END
+        transform: CASE WHEN NOT (REINS_CTRT_CODE IS NULL) AND (CASE WHEN (TRNX_DTTM>=ccvrblreins_REC_EFTV_DTTM AND TRNX_DTTM<=ccvrblreins_REC_EXPR_DTTM) THEN 'yes' ELSE 'no' END)='yes' THEN ccvrblreins_GROUP_CODE ELSE NULL END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 23e03ed3-1bf7-745c-fb89-cc86356947a8
@@ -719,7 +728,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (REINS_CTRT_CODE IS NULL) THEN -1 ELSE v_Contract_Coverage_Vrbl_Reins_Key END
+        transform: CASE WHEN (REINS_CTRT_CODE IS NULL) THEN -1 ELSE (CASE WHEN (ccvrblreins_CONTRACT_COVERAGE_VRBL_KEY IS NULL) THEN -1 ELSE ccvrblreins_CONTRACT_COVERAGE_VRBL_KEY END) END
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:

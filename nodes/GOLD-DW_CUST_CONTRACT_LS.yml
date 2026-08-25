@@ -42,7 +42,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_Reject_Flag
+        transform: (CASE WHEN MD5_BUSN_KEY=(/*VAR:v_current_md5_busn_key*/ NULL) THEN CASE WHEN MD5_REC!=(/*VAR:v_current_md5_rec*/ NULL) THEN 'N' ELSE 'Y' END ELSE 'N' END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8c204bbf-9b6d-e6c2-7316-caa43364b707
@@ -55,7 +55,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_current_row_num=1 THEN 1 ELSE 0 END
+        transform: CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN 1 ELSE 0 END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 05a3b254-e9cf-6cbc-c0c2-f6394cd71096
@@ -120,7 +120,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: TO_NUMBER($in_task_id$)
+        transform: TO_NUMBER(/*PARAM:in_task_id*/ NULL)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d91370a9-4aa4-0573-f51f-aebb5009e541
@@ -172,7 +172,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_source_of_funds_code
+        transform: ('NA')
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6928f58e-2f01-35a1-e624-7f7adea3a244
@@ -185,7 +185,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_NATURE_BUSN_RLSHP_CODE
+        transform: ('NA')
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1cff9a0a-89ce-38a0-9f1e-d8e0127abc87
@@ -211,7 +211,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (_TGT_SOURCE_OF_FUNDS_CODE IS NULL) THEN _TGT_SOURCE_OF_FUNDS_CODE ELSE v_source_of_funds_code END
+        transform: CASE WHEN (_TGT_SOURCE_OF_FUNDS_CODE IS NULL) THEN _TGT_SOURCE_OF_FUNDS_CODE ELSE ('NA') END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8404053e-49d9-f19d-58f5-6e96fb51ba8f
@@ -224,7 +224,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (_TGT_NATURE_BUSN_RLSHP_CODE IS NULL) THEN _TGT_NATURE_BUSN_RLSHP_CODE ELSE v_NATURE_BUSN_RLSHP_CODE END
+        transform: CASE WHEN (_TGT_NATURE_BUSN_RLSHP_CODE IS NULL) THEN _TGT_NATURE_BUSN_RLSHP_CODE ELSE ('NA') END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: dc52f7fe-595a-0096-fd8d-a56de703a538
@@ -328,7 +328,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: $in_task_id$
+        transform: /*PARAM:in_task_id*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 324548b6-baea-53b1-a24d-f1de9dbcdbe6
@@ -341,7 +341,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_process_date
+        transform: (o_SET_PROCESS_DATE)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f30ac0eb-80fc-cd3f-fbae-36d2a41822ca
@@ -354,7 +354,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: Add_To_Date(v_process_date, 'SS', -1)
+        transform: Add_To_Date((o_SET_PROCESS_DATE), 'SS', -1)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 286c8287-a94b-45d3-4125-190a758187a8
@@ -393,7 +393,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: $in_task_id$
+        transform: /*PARAM:in_task_id*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: f08836dd-0301-ad1e-ebcb-acf7347d2385
@@ -406,7 +406,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: TO_NUMBER ($in_task_id$)*-1
+        transform: TO_NUMBER (/*PARAM:in_task_id*/ NULL)*-1
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d3e83b50-f9e4-f5dd-5613-0740124ee5d0
@@ -445,7 +445,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: MD5(TO_CHAR(CASE WHEN (TGT_PRODUCT_SYSTEM_CODE IS NULL) THEN 'NA' ELSE TGT_PRODUCT_SYSTEM_CODE END)||TO_CHAR(CASE WHEN (V_EFTV_DATE IS NULL) THEN '31/12/3000 00:00:00' ELSE TO_CHAR(V_EFTV_DATE,'dd/mm/yyyy hh24:mi:ss') END)|| TO_CHAR(CASE WHEN (TGT_SOURCE_OF_FUNDS_CODE IS NULL) THEN 'NA' ELSE TGT_SOURCE_OF_FUNDS_CODE END)||TO_CHAR(CASE WHEN (TGT_NATURE_BUSN_RLSHP_CODE IS NULL) THEN 'NA' ELSE TGT_NATURE_BUSN_RLSHP_CODE END))
+        transform: MD5(TO_CHAR(CASE WHEN (TGT_PRODUCT_SYSTEM_CODE IS NULL) THEN 'NA' ELSE TGT_PRODUCT_SYSTEM_CODE END)||TO_CHAR(CASE WHEN (/*VAR:V_EFTV_DATE*/ NULL IS NULL) THEN '31/12/3000 00:00:00' ELSE TO_CHAR(/*VAR:V_EFTV_DATE*/ NULL,'dd/mm/yyyy hh24:mi:ss') END)|| TO_CHAR(CASE WHEN (TGT_SOURCE_OF_FUNDS_CODE IS NULL) THEN 'NA' ELSE TGT_SOURCE_OF_FUNDS_CODE END)||TO_CHAR(CASE WHEN (TGT_NATURE_BUSN_RLSHP_CODE IS NULL) THEN 'NA' ELSE TGT_NATURE_BUSN_RLSHP_CODE END))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d8be05e6-c09a-177b-3afc-ad1a00420ca9
@@ -458,7 +458,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_eftv_date
+        transform: (o_SET_PROCESS_DATE)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0c687f74-c3cc-5cda-1cf4-5e3af7f992a9

@@ -701,7 +701,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_RISK_END_DTTM
+        transform: (CASE WHEN (RISK_END_DATE IS NULL) THEN DECODE(RISK_STATUS_CODE,'C',RISK_END_DATE,'A',TO_DATE('31/12/3000','DD/MM/YYYY'),'P',TO_DATE('31/12/3000','DD/MM/YYYY')) ELSE RISK_END_DATE END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2ffd52b5-ec51-e333-a61e-a85387807376
@@ -779,7 +779,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: $TASK_ID$
+        transform: /*PARAM:TASK_ID*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8790a406-2739-9c4f-32fb-f67151c4b181
@@ -792,7 +792,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_current_row_num=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE Add_To_Date(v_date_prev_rcd, 'SS', -1) END
+        transform: CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE Add_To_Date((/*VAR:v_last_process_record_date*/ NULL), 'SS', -1) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 48c86d63-8e71-8f39-f0fc-26b647d0f204
@@ -805,7 +805,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_current_row_num=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE Add_To_Date(v_date_efftv_prev_rcd, 'SS', -1) END
+        transform: CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE Add_To_Date((/*VAR:v_last_effv_record_date*/ NULL), 'SS', -1) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4f2b117e-253a-da33-1e05-79b979d564d9
@@ -831,7 +831,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_current_row_num=1 THEN NULL ELSE CURRENT_TIMESTAMP END
+        transform: CASE WHEN (CASE WHEN MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN NULL ELSE CURRENT_TIMESTAMP END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: aeedda56-05bf-248e-ca63-72bcc7f437f3
@@ -844,7 +844,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: TO_NUMBER($TASK_ID$)
+        transform: TO_NUMBER(/*PARAM:TASK_ID*/ NULL)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5fed3c1e-8f9c-dbd2-2cd4-83b8651f0b99
@@ -870,7 +870,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_Reject_Flag
+        transform: (CASE WHEN MD5_BUSN_KEY=(MD5_BUSN_KEY) THEN CASE WHEN MD5_REC!=(MD5_REC) THEN 'Y' ELSE 'N' END ELSE 'Y' END)
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:

@@ -42,7 +42,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_ADMIN_SYS_FILE_ID
+        transform: (-1)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7ffeb0fc-f885-f747-e09b-24b011766ac2
@@ -692,7 +692,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: UPPER(MD5(stg_FILE_RECORD_NUMBER||v_ADMIN_SYS_FILE_ID||stg__FILE_NAME))
+        transform: UPPER(MD5(stg_FILE_RECORD_NUMBER||(-1)||stg__FILE_NAME))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 785b4f2a-3caa-0d4f-69f6-0d789a3e96e8
@@ -731,7 +731,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: UPPER(MD5(stg_FILE_RECORD_NUMBER||v_ADMIN_SYS_FILE_ID||stg__FILE_NAME))
+        transform: UPPER(MD5(stg_FILE_RECORD_NUMBER||(-1)||stg__FILE_NAME))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: bd8127bb-5df4-9715-f68f-cd48c753dc38
@@ -809,7 +809,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN ((tgt_FILE_REC_NUM IS NULL) AND (tgt__FILE_NAME IS NULL)) THEN 'I' ELSE CASE WHEN tgt_ACTL_CFLOW_TRNX_HIST_KEY = o_ACTL_CFLOW_TRNX_HIST_KEY AND o_SRC_REPROCESS_IND=1 AND v_REPROCESS_IND_SET =0 THEN 'U' ELSE 'X' END END
+        transform: CASE WHEN ((tgt_FILE_REC_NUM IS NULL) AND (tgt__FILE_NAME IS NULL)) THEN 'I' ELSE CASE WHEN tgt_ACTL_CFLOW_TRNX_HIST_KEY = o_ACTL_CFLOW_TRNX_HIST_KEY AND o_SRC_REPROCESS_IND=1 AND (DECODE(TRUE, (CASE WHEN o_TRNX_AMT=0 OR  NOT (ref_trnx_CODE IS NULL) OR NOT (ref_option_type_CODE IS NULL) THEN 0 ELSE 1 END)=1 AND (con_CONTRACT_KEY IS NULL),1,  (CASE WHEN o_TRNX_AMT=0 OR  NOT (ref_trnx_CODE IS NULL) OR NOT (ref_option_type_CODE IS NULL) THEN 0 ELSE 1 END)=1 AND (po_IFRS_OPTION_TYPE_CODE='NA' and (sett_TARGET_CODE_1 IN ('DUE', 'SETTLED'))),0, (CASE WHEN o_TRNX_AMT=0 OR  NOT (ref_trnx_CODE IS NULL) OR NOT (ref_option_type_CODE IS NULL) THEN 0 ELSE 1 END)=1 AND (po_PRODUCT_OPTION_KEY IS NULL),1,  (CASE WHEN o_TRNX_AMT=0 OR  NOT (ref_trnx_CODE IS NULL) OR NOT (ref_option_type_CODE IS NULL) THEN 0 ELSE 1 END)=1 AND IFRS_OPTION_TYPE_CLASS_CODE<>'NONRISK' AND (CONTRACT_RISK_KEY IS NULL),1 , (CASE WHEN o_TRNX_AMT=0 OR  NOT (ref_trnx_CODE IS NULL) OR NOT (ref_option_type_CODE IS NULL)
+          THEN 0 ELSE 1 END)=1 AND (po_IFRS_OPTION_TYPE_CODE IS NULL),1, (CASE WHEN o_TRNX_AMT=0 OR  NOT (ref_trnx_CODE IS NULL) OR NOT (ref_option_type_CODE IS NULL) THEN 0 ELSE 1 END)=1 AND (CODE IS NULL),1, (CASE WHEN o_TRNX_AMT=0 OR  NOT (ref_trnx_CODE IS NULL) OR NOT (ref_option_type_CODE IS NULL) THEN 0 ELSE 1 END)=1 AND ((trnsltn_TRNX_REF_KEY_1 IS NULL) OR (trnsltn_TRNX_REF_KEY_2 IS NULL) OR (trnsltn_TRNX_REF_KEY_3 IS NULL)),1, (CASE WHEN o_TRNX_AMT=0 OR  NOT (ref_trnx_CODE IS NULL) OR NOT (ref_option_type_CODE IS NULL) THEN 0 ELSE 1 END)=0 AND NOT (aca_TARGET_CODE_1 IS NULL),1, 0)) =0 THEN 'U' ELSE 'X' END END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 804f09cf-1682-f45f-00fc-5c423d8f1fc9
@@ -835,7 +836,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_tf_process_id='0' THEN '$CurrentRunId' ELSE v_tf_process_id END
+        transform: CASE WHEN (/*PARAM:taskflow_process_id*/ NULL)='0' THEN '/*PARAM:CurrentRunId*/ NULL' ELSE (/*PARAM:taskflow_process_id*/ NULL) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e93d242f-7915-8ff2-4d49-e5cc84a54835
@@ -848,7 +849,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_REPROCESS_IND_SET
+        transform: (DECODE(TRUE, (CASE WHEN o_TRNX_AMT=0 OR  NOT (ref_trnx_CODE IS NULL) OR NOT (ref_option_type_CODE IS NULL) THEN 0 ELSE 1 END)=1 AND (con_CONTRACT_KEY IS NULL),1,  (CASE WHEN o_TRNX_AMT=0 OR  NOT (ref_trnx_CODE IS NULL) OR NOT (ref_option_type_CODE IS NULL) THEN 0 ELSE 1 END)=1 AND (po_IFRS_OPTION_TYPE_CODE='NA' and (sett_TARGET_CODE_1 IN ('DUE', 'SETTLED'))),0, (CASE WHEN o_TRNX_AMT=0 OR  NOT (ref_trnx_CODE IS NULL) OR NOT (ref_option_type_CODE IS NULL) THEN 0 ELSE 1 END)=1 AND (po_PRODUCT_OPTION_KEY IS NULL),1,  (CASE WHEN o_TRNX_AMT=0 OR  NOT (ref_trnx_CODE IS NULL) OR NOT (ref_option_type_CODE IS NULL) THEN 0 ELSE 1 END)=1 AND IFRS_OPTION_TYPE_CLASS_CODE<>'NONRISK' AND (CONTRACT_RISK_KEY IS NULL),1 , (CASE WHEN o_TRNX_AMT=0 OR  NOT (ref_trnx_CODE IS NULL) OR NOT (ref_option_type_CODE IS NULL) THEN 0 ELSE 1 END)=1 AND (po_IFRS_OPTION_TYPE_CODE IS NULL),1, (CASE WHEN o_TRNX_AMT=0 OR  NOT (ref_trnx_CODE IS NULL) OR NOT (ref_option_type_CODE IS NULL) THEN 0 ELSE 1 END)=1
+          AND (CODE IS NULL),1, (CASE WHEN o_TRNX_AMT=0 OR  NOT (ref_trnx_CODE IS NULL) OR NOT (ref_option_type_CODE IS NULL) THEN 0 ELSE 1 END)=1 AND ((trnsltn_TRNX_REF_KEY_1 IS NULL) OR (trnsltn_TRNX_REF_KEY_2 IS NULL) OR (trnsltn_TRNX_REF_KEY_3 IS NULL)),1, (CASE WHEN o_TRNX_AMT=0 OR  NOT (ref_trnx_CODE IS NULL) OR NOT (ref_option_type_CODE IS NULL) THEN 0 ELSE 1 END)=0 AND NOT (aca_TARGET_CODE_1 IS NULL),1, 0))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 024dd012-a880-9601-4d3f-d97d60d3d86c
@@ -874,7 +876,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_CFLOW_PROC_IND
+        transform: (CASE WHEN o_TRNX_AMT=0 OR  NOT (ref_trnx_CODE IS NULL) OR NOT (ref_option_type_CODE IS NULL) THEN 0 ELSE 1 END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5094065b-3313-307e-a0aa-12caa02c38bc

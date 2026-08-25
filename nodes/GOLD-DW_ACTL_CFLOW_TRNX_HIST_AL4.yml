@@ -42,7 +42,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_ADMIN_SYS_FILE_ID
+        transform: (-1)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 275099db-adc3-1343-44eb-450c57ba213e
@@ -692,7 +692,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: UPPER(MD5(stg_FILE_RECORD_NUMBER||v_ADMIN_SYS_FILE_ID||stg__FILE_NAME))
+        transform: UPPER(MD5(stg_FILE_RECORD_NUMBER||(-1)||stg__FILE_NAME))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e9acabf6-baa0-94b3-a5d3-91a91ae7fd22
@@ -731,7 +731,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: UPPER(MD5(stg_FILE_RECORD_NUMBER||v_ADMIN_SYS_FILE_ID||stg__FILE_NAME))
+        transform: UPPER(MD5(stg_FILE_RECORD_NUMBER||(-1)||stg__FILE_NAME))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ffe6b3e6-a822-46b9-1ad7-eb7c20f013aa
@@ -835,7 +835,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN ((tgt_FILE_REC_NUM IS NULL) AND (tgt__FILE_NAME IS NULL)) THEN 'I' ELSE CASE WHEN tgt_ACTL_CFLOW_TRNX_HIST_KEY = o_ACTL_CFLOW_TRNX_HIST_KEY AND o_SRC_REPROCESS_IND=1 AND v_REPROCESS_IND_SET =0 THEN 'U' ELSE 'X' END END
+        transform: CASE WHEN ((tgt_FILE_REC_NUM IS NULL) AND (tgt__FILE_NAME IS NULL)) THEN 'I' ELSE CASE WHEN tgt_ACTL_CFLOW_TRNX_HIST_KEY = o_ACTL_CFLOW_TRNX_HIST_KEY AND o_SRC_REPROCESS_IND=1 AND (DECODE(TRUE, (CASE WHEN o_TRNX_AMT=0 OR  trnsltn_CASHFLOW_TYPE='NONCASHFLOW' THEN 0 ELSE 1 END)=1 AND (con_CONTRACT_KEY IS NULL),1,  (CASE WHEN o_TRNX_AMT=0 OR  trnsltn_CASHFLOW_TYPE='NONCASHFLOW' THEN 0 ELSE 1 END)=1 AND (po_PRODUCT_OPTION_KEY IS NULL),1,  (CASE WHEN o_TRNX_AMT=0 OR  trnsltn_CASHFLOW_TYPE='NONCASHFLOW' THEN 0 ELSE 1 END)=1 AND IFRS_OPTION_TYPE_CLASS_CODE<>'NONRISK' AND (CONTRACT_RISK_KEY IS NULL),1 , (CASE WHEN o_TRNX_AMT=0 OR  trnsltn_CASHFLOW_TYPE='NONCASHFLOW' THEN 0 ELSE 1 END)=1 AND (po_IFRS_OPTION_TYPE_CODE IS NULL),1, (CASE WHEN o_TRNX_AMT=0 OR  trnsltn_CASHFLOW_TYPE='NONCASHFLOW' THEN 0 ELSE 1 END)=1 AND (CODE IS NULL),1, (CASE WHEN o_TRNX_AMT=0 OR  trnsltn_CASHFLOW_TYPE='NONCASHFLOW' THEN 0 ELSE 1 END)=1 AND ((trnsltn_TRNX_REF_KEY_1 IS NULL) OR (trnsltn_TRNX_REF_KEY_2
+          IS NULL) OR (trnsltn_TRNX_REF_KEY_3 IS NULL) OR (trnsltn_IFRS_OPTION_TYPE_CODE IS NULL)),1, 0)) =0 THEN 'U' ELSE 'X' END END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 811245e4-20b6-fd7f-4b22-5fa1444da898
@@ -861,7 +862,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_tf_process_id='0' THEN '$CurrentRunId' ELSE v_tf_process_id END
+        transform: CASE WHEN (/*PARAM:taskflow_process_id*/ NULL)='0' THEN '/*PARAM:CurrentRunId*/ NULL' ELSE (/*PARAM:taskflow_process_id*/ NULL) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: df21e92d-0bbf-3c7b-f94e-c0529c06bb0e
@@ -874,7 +875,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_REPROCESS_IND_SET
+        transform: (DECODE(TRUE, (CASE WHEN o_TRNX_AMT=0 OR  trnsltn_CASHFLOW_TYPE='NONCASHFLOW' THEN 0 ELSE 1 END)=1 AND (con_CONTRACT_KEY IS NULL),1,  (CASE WHEN o_TRNX_AMT=0 OR  trnsltn_CASHFLOW_TYPE='NONCASHFLOW' THEN 0 ELSE 1 END)=1 AND (po_PRODUCT_OPTION_KEY IS NULL),1,  (CASE WHEN o_TRNX_AMT=0 OR  trnsltn_CASHFLOW_TYPE='NONCASHFLOW' THEN 0 ELSE 1 END)=1 AND IFRS_OPTION_TYPE_CLASS_CODE<>'NONRISK' AND (CONTRACT_RISK_KEY IS NULL),1 , (CASE WHEN o_TRNX_AMT=0 OR  trnsltn_CASHFLOW_TYPE='NONCASHFLOW' THEN 0 ELSE 1 END)=1 AND (po_IFRS_OPTION_TYPE_CODE IS NULL),1, (CASE WHEN o_TRNX_AMT=0 OR  trnsltn_CASHFLOW_TYPE='NONCASHFLOW' THEN 0 ELSE 1 END)=1 AND (CODE IS NULL),1, (CASE WHEN o_TRNX_AMT=0 OR  trnsltn_CASHFLOW_TYPE='NONCASHFLOW' THEN 0 ELSE 1 END)=1 AND ((trnsltn_TRNX_REF_KEY_1 IS NULL) OR (trnsltn_TRNX_REF_KEY_2 IS NULL) OR (trnsltn_TRNX_REF_KEY_3 IS NULL) OR (trnsltn_IFRS_OPTION_TYPE_CODE IS NULL)),1, 0))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 354f27e1-0648-7136-0623-8ffdd5a4f903
@@ -900,7 +901,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_CFLOW_PROC_IND
+        transform: (CASE WHEN o_TRNX_AMT=0 OR  trnsltn_CASHFLOW_TYPE='NONCASHFLOW' THEN 0 ELSE 1 END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 934f5d03-8a92-47ac-3e2d-41707f58b528

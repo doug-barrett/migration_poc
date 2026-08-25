@@ -70,7 +70,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_tf_process_id='0' THEN '$CurrentRunId' ELSE v_tf_process_id END
+        transform: CASE WHEN (/*PARAM:taskflow_process_id*/ NULL)='0' THEN '/*PARAM:CurrentRunId*/ NULL' ELSE (/*PARAM:taskflow_process_id*/ NULL) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5ade613a-af1b-3682-91c5-2c0167d97564
@@ -174,7 +174,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN src_IFRS_CFLOW_STATUS_CODE=v_IFRS_CFLOW_STATUS_CODE THEN 'N' ELSE 'Y' END
+        transform: CASE WHEN src_IFRS_CFLOW_STATUS_CODE=(CASE WHEN o_dth_clm_ind=1 THEN dth_clm_TARGET_CODE_1 ELSE cflow_stat_IFRS_CASHFLOW_STATUS_CODE END) THEN 'N' ELSE 'Y' END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d37c2098-dfa2-f665-78ce-3fb4452229b3
@@ -187,7 +187,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: UPPER(MD5(src__MRV_MD5_BUSN_KEY ||'~'|| CASE WHEN (v_IFRS_CFLOW_STATUS_CODE IS NULL) THEN '1' ELSE v_IFRS_CFLOW_STATUS_CODE END))
+        transform: UPPER(MD5(src__MRV_MD5_BUSN_KEY ||'~'|| CASE WHEN ((CASE WHEN o_dth_clm_ind=1 THEN dth_clm_TARGET_CODE_1 ELSE cflow_stat_IFRS_CASHFLOW_STATUS_CODE END) IS NULL) THEN '1' ELSE (CASE WHEN o_dth_clm_ind=1 THEN dth_clm_TARGET_CODE_1 ELSE cflow_stat_IFRS_CASHFLOW_STATUS_CODE END) END))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 00499ab7-5fe1-a1cd-d1d2-4b18827d1aac
@@ -226,7 +226,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_IFRS_CFLOW_STATUS_CODE
+        transform: (CASE WHEN o_dth_clm_ind=1 THEN dth_clm_TARGET_CODE_1 ELSE cflow_stat_IFRS_CASHFLOW_STATUS_CODE END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ca838ca6-26aa-8840-8d00-9b5c3c43826d
@@ -239,7 +239,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN po_IFRS_OPTION_TYPE_CODE='NA' and IN(sett_TARGET_CODE_1,'DUE','SETTLED') THEN sett_TARGET_CODE_2 ELSE po_IFRS_OPTION_TYPE_CODE END
+        transform: CASE WHEN po_IFRS_OPTION_TYPE_CODE='NA' and (sett_TARGET_CODE_1 IN ('DUE', 'SETTLED')) THEN sett_TARGET_CODE_2 ELSE po_IFRS_OPTION_TYPE_CODE END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8e21b877-5aba-f87a-46a2-d697c4a339bc
@@ -252,7 +252,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_dth_claim_ind
+        transform: (CASE WHEN NOT (dth_clm_CONTRACT_ID IS NULL) and NOT (dth_clm_TARGET_CODE_1 IS NULL) THEN 1 ELSE 0 END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8c7d6f1b-f5c8-467a-d5cd-6995e9462ef9
@@ -265,7 +265,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_dth_claim_ind=1 THEN '-' ELSE trnsltn_CASHFLOW_TYPE END
+        transform: CASE WHEN (CASE WHEN NOT (dth_clm_CONTRACT_ID IS NULL) and NOT (dth_clm_TARGET_CODE_1 IS NULL) THEN 1 ELSE 0 END)=1 THEN '-' ELSE trnsltn_CASHFLOW_TYPE END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3360edeb-87fe-c1b9-7574-7dbac0e1f569

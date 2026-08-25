@@ -28,7 +28,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN CSH_PROD_CATEGORY='CI' THEN v_product_option_key ELSE :LKP.ulkp_dw_product_option(product_key,CASE WHEN (csh_sd_ben_type IS NULL) or csh_sd_ben_type='SPR' THEN 'NA' ELSE csh_sd_ben_type END) END
+        transform: CASE WHEN CSH_PROD_CATEGORY='CI' THEN (CASE WHEN CSH_PROD_CATEGORY='CI' THEN :LKP.ulkp_dw_product_option(product_key,  CASE WHEN (csh_sd_ben_type IS NULL) or csh_sd_ben_type='SPR' THEN 'NA' ELSE csh_sd_ben_type END) ELSE :LKP.ulkp_dw_product_option(product_key, (CASE WHEN csh_prod_category='CI' THEN 'dummy' ELSE :LKP.ulkp_dwsa_or_opt_convert((DECODE(csh_branch_code,'3', 'NZL','AUS')), csh_stat_fund, csh_unit_class) END)) END) ELSE :LKP.ulkp_dw_product_option(product_key,CASE WHEN (csh_sd_ben_type IS NULL) or csh_sd_ben_type='SPR' THEN 'NA' ELSE csh_sd_ben_type END) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 57d3a524-fd62-a9f6-785f-6a8947df4717
@@ -41,7 +41,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_product_option_key
+        transform: (CASE WHEN CSH_PROD_CATEGORY='CI' THEN :LKP.ulkp_dw_product_option(product_key,  CASE WHEN (csh_sd_ben_type IS NULL) or csh_sd_ben_type='SPR' THEN 'NA' ELSE csh_sd_ben_type END) ELSE :LKP.ulkp_dw_product_option(product_key, (CASE WHEN csh_prod_category='CI' THEN 'dummy' ELSE :LKP.ulkp_dwsa_or_opt_convert((DECODE(csh_branch_code,'3', 'NZL','AUS')), csh_stat_fund, csh_unit_class) END)) END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e99648fe-2244-018e-30a0-814defd0c133
@@ -132,7 +132,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_error_ind
+        transform: (CASE WHEN (contract_key IS NULL) OR (csh_cash_cause!= 'LS' AND ( (o_product_option_key IS NULL) OR (o_trnx_type_key IS NULL))) OR ((csh_sd_basis_amt != 0 OR csh_sd_calc_amt != 0 OR csh_sd_type = 'E' ) AND ( (o_sd_product_option_key IS NULL) OR (o_sd_trnx_type_key IS NULL) OR (o_sd_state_code IS NULL) ) ) THEN 1 ELSE 0 END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: afb1d226-8109-8e3e-c960-8d6cccfe3460
@@ -145,7 +145,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_reject_ind
+        transform: (CASE WHEN (csh_il_init_units IS NULL) AND (csh_il_init_cash_amt IS NULL) AND (csh_il_inv_units IS NULL) AND (csh_il_inv_cash_amt IS NULL) AND (csh_il_init_back_unit IS NULL) AND (csh_il_init_back_cash_amt IS NULL) AND (csh_il_inv_back_unit IS NULL) AND (csh_il_inv_back_cash_amt IS NULL) AND (csh_il_init_back_adj_units IS NULL) AND (csh_il_init_back_adj_amt IS NULL) AND (csh_il_inv_back_adj_units IS NULL) AND (csh_il_inv_back_adj_amt IS NULL) AND (csh_il_init_unit_maja_amt IS NULL) AND (csh_il_brokerage_cash_amt IS NULL) AND (csh_il_cash_amt IS NULL) AND (csh_sd_basis_amt IS NULL) THEN 1 ELSE 0 END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6532f512-fef3-7a6a-58e2-5b30635a9009
@@ -314,7 +314,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: $in_task_id$
+        transform: /*PARAM:in_task_id*/ NULL
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 753ddf0f-0ddd-3d0b-8448-3536ffc3cf9a
@@ -405,7 +405,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_trnx_amt >= 0 THEN 'CR' ELSE 'DR' END
+        transform: CASE WHEN (src_CSH_IL_INIT_CASH_AMT) >= 0 THEN 'CR' ELSE 'DR' END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 00e37981-1677-84a9-274a-745f115b2f56
@@ -418,7 +418,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_unit_alloc_price!=0 THEN v_unit_alloc_price ELSE v_unit_release_price END
+        transform: CASE WHEN (0)!=0 THEN (0) ELSE (0) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0be88556-7b6e-5a7e-7e76-544052653b2e
@@ -431,7 +431,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_unit_alloc_price!=0 THEN v_unit_price_type_code ELSE v_unit_release_price_type_code END
+        transform: CASE WHEN (0)!=0 THEN ('NA') ELSE ('NA') END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0c678152-5ce7-cb24-2740-464341823d6e
@@ -444,7 +444,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_trnx_amt
+        transform: (src_CSH_IL_INIT_CASH_AMT)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0b4b6c47-c0b7-0f19-35a1-b026dbf60d95
@@ -457,7 +457,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_unit_qty
+        transform: (src_CSH_IL_INIT_UNITS)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0008e515-8392-eae8-85c3-723ee9721e49

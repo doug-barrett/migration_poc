@@ -105,7 +105,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (/*LKP:lkp_dw_party(v_bi_id)*/ NULL IS NULL) THEN tgt_PARTY_KEY ELSE /*LKP:lkp_dw_party(v_bi_id)*/ NULL END
+        transform: CASE WHEN (:LKP.lkp_dw_party((/*LKP:lkp_yd_deiref(padded_client_id,'DIS')*/ NULL)) IS NULL) THEN tgt_PARTY_KEY ELSE :LKP.lkp_dw_party((/*LKP:lkp_yd_deiref(padded_client_id,'DIS')*/ NULL)) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 478d3d81-5aa5-897d-75bb-e87b2ba29a5d
@@ -443,7 +443,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CASE WHEN IN(drisk_dcont_COMM_SUB_TYPE,'IPAP','IPBP','IPCP','BECP') THEN 'SUP' ELSE NULL END IS NULL) THEN tgt_insur_class_code ELSE CASE WHEN IN(drisk_dcont_COMM_SUB_TYPE,'IPAP','IPBP','IPCP','BECP') THEN 'SUP' ELSE NULL END END
+        transform: CASE WHEN (CASE WHEN (drisk_dcont_COMM_SUB_TYPE IN ('IPAP', 'IPBP', 'IPCP', 'BECP')) THEN 'SUP' ELSE NULL END IS NULL) THEN tgt_insur_class_code ELSE CASE WHEN (drisk_dcont_COMM_SUB_TYPE IN ('IPAP', 'IPBP', 'IPCP', 'BECP')) THEN 'SUP' ELSE NULL END END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: addb9ba9-c66d-db06-1372-65c38bc1ef93
@@ -560,7 +560,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (not (drisk_dcont_PREM_TYPE IS NULL) AND IN(drisk_dcont_PREM_TYPE,'S','L')) THEN drisk_dcont_PREM_TYPE ELSE CASE WHEN ((drisk_dcont_PREM_TYPE IS NULL) AND not (tgt_VALN_STEP_LVL_PREM_CODE IS NULL)AND IN(tgt_VALN_STEP_LVL_PREM_CODE,'S','L')) THEN tgt_VALN_STEP_LVL_PREM_CODE ELSE 'S' END END
+        transform: CASE WHEN (not (drisk_dcont_PREM_TYPE IS NULL) AND (drisk_dcont_PREM_TYPE IN ('S', 'L'))) THEN drisk_dcont_PREM_TYPE ELSE CASE WHEN ((drisk_dcont_PREM_TYPE IS NULL) AND not (tgt_VALN_STEP_LVL_PREM_CODE IS NULL)AND (tgt_VALN_STEP_LVL_PREM_CODE IN ('S', 'L'))) THEN tgt_VALN_STEP_LVL_PREM_CODE ELSE 'S' END END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9053fbd7-857c-510a-cbc6-83663cfdc1ae
@@ -651,7 +651,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: TO_NUMBER($in_task_id$)
+        transform: TO_NUMBER(/*PARAM:in_task_id*/ NULL)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 94dc0bae-5d2e-de1c-dad6-ca6a06f128b8
@@ -690,7 +690,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: TO_NUMBER($in_task_id$)
+        transform: TO_NUMBER(/*PARAM:in_task_id*/ NULL)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6da304de-386c-528c-4c67-3609307c1fbf
@@ -716,7 +716,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_step_lvl_prem_period
+        transform: (CASE WHEN (PREM_TYPE IS NULL) THEN 'NA' ELSE PREM_TYPE END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a149d45a-6590-0d75-51a6-efb782d30988
@@ -729,7 +729,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (indxn_status IS NULL) THEN 'NA' ELSE to_char(indxn_status) END|| CASE WHEN (v_risk_status_code IS NULL) THEN '0' ELSE to_char(v_risk_status_code) END|| CASE WHEN (prem_type IS NULL) THEN 'NA' ELSE to_char(prem_type) END|| CASE WHEN (regime_level_code IS NULL) THEN 'NA' ELSE to_char(regime_level_code) END|| CASE WHEN (v_insur_class_code IS NULL) THEN '0' ELSE to_char(v_insur_class_code) END
+        transform: CASE WHEN (indxn_status IS NULL) THEN 'NA' ELSE to_char(indxn_status) END|| CASE WHEN ((CASE WHEN (POL_STATUS IS NULL) THEN 'A' ELSE 'C' END) IS NULL) THEN '0' ELSE to_char((CASE WHEN (POL_STATUS IS NULL) THEN 'A' ELSE 'C' END)) END|| CASE WHEN (prem_type IS NULL) THEN 'NA' ELSE to_char(prem_type) END|| CASE WHEN (regime_level_code IS NULL) THEN 'NA' ELSE to_char(regime_level_code) END|| CASE WHEN ((CASE WHEN (COMM_SUB_TYPE IN ('IPAP', 'IPBP', 'IPCP', 'BECP')) THEN 'SUP' ELSE NULL END) IS NULL) THEN '0' ELSE to_char((CASE WHEN (COMM_SUB_TYPE IN ('IPAP', 'IPBP', 'IPCP', 'BECP')) THEN 'SUP' ELSE NULL END)) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c73077aa-4467-d84f-a50a-367ac5cbd6fa
@@ -755,7 +755,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (indxn_status IS NULL) THEN 'NA' ELSE to_char(indxn_status) END|| CASE WHEN (v_risk_status_code IS NULL) THEN '0' ELSE to_char(v_risk_status_code) END|| CASE WHEN (prem_type IS NULL) THEN 'NA' ELSE to_char(prem_type) END|| CASE WHEN (regime_level_code IS NULL) THEN 'NA' ELSE to_char(regime_level_code) END|| CASE WHEN (v_insur_class_code IS NULL) THEN '0' ELSE to_char(v_insur_class_code) END
+        transform: CASE WHEN (indxn_status IS NULL) THEN 'NA' ELSE to_char(indxn_status) END|| CASE WHEN ((CASE WHEN (POL_STATUS IS NULL) THEN 'A' ELSE 'C' END) IS NULL) THEN '0' ELSE to_char((CASE WHEN (POL_STATUS IS NULL) THEN 'A' ELSE 'C' END)) END|| CASE WHEN (prem_type IS NULL) THEN 'NA' ELSE to_char(prem_type) END|| CASE WHEN (regime_level_code IS NULL) THEN 'NA' ELSE to_char(regime_level_code) END|| CASE WHEN ((CASE WHEN (COMM_SUB_TYPE IN ('IPAP', 'IPBP', 'IPCP', 'BECP')) THEN 'SUP' ELSE NULL END) IS NULL) THEN '0' ELSE to_char((CASE WHEN (COMM_SUB_TYPE IN ('IPAP', 'IPBP', 'IPCP', 'BECP')) THEN 'SUP' ELSE NULL END)) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 2ef7c443-ff94-9d0f-3e0c-de47abb0fdd2
@@ -781,9 +781,9 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (expy_age IS NULL) THEN '0' ELSE to_char(expy_age) END|| CASE WHEN (medical_ind IS NULL) THEN 'NA' ELSE medical_ind END|| CASE WHEN (/*LKP:lkp_dw_ocuptn_class('DS-'||occup_group )*/ NULL IS NULL) THEN 'NA' ELSE /*LKP:lkp_dw_ocuptn_class('DS-'||occup_group )*/ NULL END|| CASE WHEN (reins_ind IS NULL) THEN 'N' ELSE reins_ind END|| CASE WHEN (v_smoker_ind IS NULL) THEN '0' ELSE v_smoker_ind END|| CASE WHEN (v_tot_mthly_ben IS NULL) THEN '0' ELSE to_char(v_tot_mthly_ben) END|| CASE WHEN (v_wait_perd IS NULL) THEN '0' ELSE v_wait_perd END|| CASE WHEN (chr_optn_ind IS NULL) THEN 'NA' ELSE chr_optn_ind END|| CASE WHEN (chr_optn_rc_date IS NULL) THEN '12/31/3000 00:00:00' ELSE to_char(chr_optn_rc_date,'mm/dd/yyyy hh24:mi:ss') END|| CASE WHEN (ind_optn_ind IS NULL) THEN 'NA' ELSE ind_optn_ind END|| CASE WHEN (ind_optn_rc_date IS NULL) THEN '12/31/3000 00:00:00' ELSE to_char(ind_optn_rc_date,'mm/dd/yyyy hh24:mi:ss') END|| CASE WHEN (sup_optn_ind IS NULL) THEN 'NA' ELSE
-          sup_optn_ind END|| CASE WHEN (sup_optn_rc_date IS NULL) THEN '12/31/3000 00:00:00' ELSE to_char(sup_optn_rc_date,'mm/dd/yyyy hh24:mi:ss') END|| CASE WHEN (on_hold_ind IS NULL) THEN 'NA' ELSE on_hold_ind END|| CASE WHEN (day_1_accident_ind IS NULL) THEN 'N' ELSE day_1_accident_ind END|| CASE WHEN (li_client_key IS NULL) THEN 'N' ELSE li_client_key END|| CASE WHEN (ocuptn_load_pcnt IS NULL) THEN '0' ELSE to_char(ocuptn_load_pcnt) END|| CASE WHEN (policy_size_disc_pcnt IS NULL) THEN '0' ELSE to_char(policy_size_disc_pcnt) END|| CASE WHEN (perm_disc_pcnt IS NULL) THEN '0' ELSE to_char(perm_disc_pcnt) END|| CASE WHEN (temp_disc_pcnt IS NULL) THEN '0' ELSE to_char(temp_disc_pcnt) END|| CASE WHEN (temp_disc_expry_date IS NULL) THEN '12/31/3000 00:00:00' ELSE to_char(temp_disc_expry_date,'mm/dd/yyyy hh24:mi:ss') END|| CASE WHEN (cmsn_dd_pcnt IS NULL) THEN '0' ELSE to_char(cmsn_dd_pcnt) END|| CASE WHEN (ASSESS_LOADING_PCNT IS NULL) THEN '0' ELSE to_char(ASSESS_LOADING_PCNT) END|| CASE WHEN
-          (chronic_illness_loading_pcnt IS NULL) THEN '0' ELSE to_char(chronic_illness_loading_pcnt) END|| CASE WHEN (on_hold_disc_pcnt IS NULL) THEN '0' ELSE to_char(on_hold_disc_pcnt) END|| CASE WHEN (indmnty_disc_pcnt IS NULL) THEN '0' ELSE to_char(indmnty_disc_pcnt) END|| CASE WHEN (day_1_accident_rate IS NULL) THEN '0' ELSE to_char(day_1_accident_rate) END|| CASE WHEN (aids_excl_disc_pcnt IS NULL) THEN '0' ELSE to_char(aids_excl_disc_pcnt) END || CASE WHEN (v_ILLNS_PAYT_PERD IS NULL) THEN '0' ELSE to_char(v_ILLNS_PAYT_PERD) END || CASE WHEN (v_INJ_PAYT_PERD IS NULL) THEN '0' ELSE to_char(v_INJ_PAYT_PERD) END
+        transform: CASE WHEN (expy_age IS NULL) THEN '0' ELSE to_char(expy_age) END|| CASE WHEN (medical_ind IS NULL) THEN 'NA' ELSE medical_ind END|| CASE WHEN (/*LKP:lkp_dw_ocuptn_class('DS-'||occup_group )*/ NULL IS NULL) THEN 'NA' ELSE /*LKP:lkp_dw_ocuptn_class('DS-'||occup_group )*/ NULL END|| CASE WHEN (reins_ind IS NULL) THEN 'N' ELSE reins_ind END|| CASE WHEN ((/*LKP:lkp_smoker_status_convert(smoker_ind)*/ NULL) IS NULL) THEN '0' ELSE (/*LKP:lkp_smoker_status_convert(smoker_ind)*/ NULL) END|| CASE WHEN ((tot_mthly_ben) IS NULL) THEN '0' ELSE to_char((tot_mthly_ben)) END|| CASE WHEN ((/*LKP:lkp_risk_waiting_period(wait_perd)*/ NULL) IS NULL) THEN '0' ELSE (/*LKP:lkp_risk_waiting_period(wait_perd)*/ NULL) END|| CASE WHEN (chr_optn_ind IS NULL) THEN 'NA' ELSE chr_optn_ind END|| CASE WHEN (chr_optn_rc_date IS NULL) THEN '12/31/3000 00:00:00' ELSE to_char(chr_optn_rc_date,'mm/dd/yyyy hh24:mi:ss') END|| CASE WHEN (ind_optn_ind IS NULL) THEN 'NA' ELSE ind_optn_ind END|| CASE WHEN (ind_optn_rc_date
+          IS NULL) THEN '12/31/3000 00:00:00' ELSE to_char(ind_optn_rc_date,'mm/dd/yyyy hh24:mi:ss') END|| CASE WHEN (sup_optn_ind IS NULL) THEN 'NA' ELSE sup_optn_ind END|| CASE WHEN (sup_optn_rc_date IS NULL) THEN '12/31/3000 00:00:00' ELSE to_char(sup_optn_rc_date,'mm/dd/yyyy hh24:mi:ss') END|| CASE WHEN (on_hold_ind IS NULL) THEN 'NA' ELSE on_hold_ind END|| CASE WHEN (day_1_accident_ind IS NULL) THEN 'N' ELSE day_1_accident_ind END|| CASE WHEN (li_client_key IS NULL) THEN 'N' ELSE li_client_key END|| CASE WHEN (ocuptn_load_pcnt IS NULL) THEN '0' ELSE to_char(ocuptn_load_pcnt) END|| CASE WHEN (policy_size_disc_pcnt IS NULL) THEN '0' ELSE to_char(policy_size_disc_pcnt) END|| CASE WHEN (perm_disc_pcnt IS NULL) THEN '0' ELSE to_char(perm_disc_pcnt) END|| CASE WHEN (temp_disc_pcnt IS NULL) THEN '0' ELSE to_char(temp_disc_pcnt) END|| CASE WHEN (temp_disc_expry_date IS NULL) THEN '12/31/3000 00:00:00' ELSE to_char(temp_disc_expry_date,'mm/dd/yyyy hh24:mi:ss') END|| CASE WHEN (cmsn_dd_pcnt IS
+          NULL) THEN '0' ELSE to_char(cmsn_dd_pcnt) END|| CASE WHEN (ASSESS_LOADING_PCNT IS NULL) THEN '0' ELSE to_char(ASSESS_LOADING_PCNT) END|| CASE WHEN (chronic_illness_loading_pcnt IS NULL) THEN '0' ELSE to_char(chronic_illness_loading_pcnt) END|| CASE WHEN (on_hold_disc_pcnt IS NULL) THEN '0' ELSE to_char(on_hold_disc_pcnt) END|| CASE WHEN (indmnty_disc_pcnt IS NULL) THEN '0' ELSE to_char(indmnty_disc_pcnt) END|| CASE WHEN (day_1_accident_rate IS NULL) THEN '0' ELSE to_char(day_1_accident_rate) END|| CASE WHEN (aids_excl_disc_pcnt IS NULL) THEN '0' ELSE to_char(aids_excl_disc_pcnt) END || CASE WHEN ((to_char(ILLNS_PAYT_PERD)) IS NULL) THEN '0' ELSE to_char((to_char(ILLNS_PAYT_PERD))) END || CASE WHEN ((to_char(INJ_PAYT_PERD)) IS NULL) THEN '0' ELSE to_char((to_char(INJ_PAYT_PERD))) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6f101041-0943-796f-b93a-e777746f64b5
@@ -798,8 +798,8 @@ operation:
       - columnReferences: []
         transform: CASE WHEN (tgt_assess_code IS NULL) THEN 'NA' ELSE tgt_assess_code END|| CASE WHEN (tgt_risk_expr_dttm IS NULL) THEN '12/31/3000 00:00:00' ELSE to_char(tgt_risk_expr_dttm,'mm/dd/yyyy hh24:mi:ss') END|| CASE WHEN (tgt_risk_start_dttm IS NULL) THEN '12/31/3000 00:00:00' ELSE to_char(tgt_risk_start_dttm,'mm/dd/yyyy hh24:mi:ss') END|| CASE WHEN (tgt_expry_age IS NULL) THEN '0' ELSE to_char(tgt_expry_age) END|| CASE WHEN (tgt_medical_code IS NULL) THEN 'NA' ELSE tgt_medical_code END|| CASE WHEN (tgt_ocuptn_class_code IS NULL) THEN '0' ELSE tgt_ocuptn_class_code END|| CASE WHEN (tgt_reinsure_ind IS NULL) THEN 'N' ELSE tgt_reinsure_ind END|| CASE WHEN (tgt_smoker_status_code IS NULL) THEN '0' ELSE tgt_smoker_status_code END|| CASE WHEN (tgt_sum_insured_amt IS NULL) THEN '0' ELSE to_char(tgt_sum_insured_amt) END|| CASE WHEN (tgt_risk_wait_period IS NULL) THEN '0' ELSE tgt_risk_wait_period END|| CASE WHEN (tgt_chronic_option_code IS NULL) THEN 'NA' ELSE tgt_chronic_option_code
           END|| CASE WHEN (tgt_chronic_option_start_dttm IS NULL) THEN '12/31/3000 00:00:00' ELSE to_char(tgt_chronic_option_start_dttm,'mm/dd/yyyy hh24:mi:ss') END|| CASE WHEN (tgt_indmnty_option_code IS NULL) THEN 'NA' ELSE tgt_indmnty_option_code END|| CASE WHEN (tgt_indmnty_option_start_dttm IS NULL) THEN '12/31/3000 00:00:00' ELSE to_char(tgt_indmnty_option_start_dttm,'mm/dd/yyyy hh24:mi:ss') END|| CASE WHEN (tgt_super_contrb_opt_code IS NULL) THEN 'NA' ELSE tgt_super_contrb_opt_code END|| CASE WHEN (tgt_super_contrb_opt_start_dttm IS NULL) THEN '12/31/3000 00:00:00' ELSE to_char(tgt_super_contrb_opt_start_dttm,'mm/dd/yyyy hh24:mi:ss') END|| CASE WHEN (tgt_on_hold_status_code IS NULL) THEN 'NA' ELSE tgt_on_hold_status_code END|| CASE WHEN (tgt_day_1_accident_ind IS NULL) THEN 'N' ELSE tgt_day_1_accident_ind END|| CASE WHEN (tgt_pas_client_id IS NULL) THEN 'N' ELSE tgt_pas_client_id END|| CASE WHEN (tgt_ocuptn_load_pcnt IS NULL) THEN '0' ELSE to_char(tgt_ocuptn_load_pcnt) END|| CASE
-          WHEN (v_policy_size_disc_pcnt IS NULL) THEN '0' ELSE to_char(v_policy_size_disc_pcnt) END|| CASE WHEN (v_perm_disc_pcnt IS NULL) THEN '0' ELSE to_char(v_perm_disc_pcnt) END|| CASE WHEN (v_temp_disc_pcnt IS NULL) THEN '0' ELSE to_char(v_temp_disc_pcnt) END|| CASE WHEN (v_temp_disc_expry_date IS NULL) THEN '12/31/3000 00:00:00' ELSE to_char(v_temp_disc_expry_date,'mm/dd/yyyy hh24:mi:ss') END|| CASE WHEN (tgt_trail_cmsn_dd_pcnt IS NULL) THEN '0' ELSE to_char(tgt_trail_cmsn_dd_pcnt) END|| CASE WHEN (tgt_ASSESS_LOADING_PCNT IS NULL) THEN '0' ELSE to_char(tgt_ASSESS_LOADING_PCNT) END|| CASE WHEN (tgt_chronic_illness_loading_pcnt IS NULL) THEN '0' ELSE to_char(tgt_chronic_illness_loading_pcnt) END|| CASE WHEN (v_on_hold_disc_pcnt IS NULL) THEN '0' ELSE to_char(v_on_hold_disc_pcnt) END|| CASE WHEN (v_indmnty_disc_pcnt IS NULL) THEN '0' ELSE to_char(indmnty_disc_pcnt) END|| CASE WHEN (tgt_day_1_accident_rate IS NULL) THEN '0' ELSE to_char(tgt_day_1_accident_rate) END|| CASE WHEN (v_aids_excl_disc_pcnt
-          IS NULL) THEN '0' ELSE to_char(v_aids_excl_disc_pcnt) END|| CASE WHEN (tgt_SICKNESS_BENEFIT_PERIOD IS NULL) THEN '0' ELSE to_char(tgt_SICKNESS_BENEFIT_PERIOD) END|| CASE WHEN (tgt_INJURY_BENEFIT_PERIOD IS NULL) THEN '0' ELSE to_char(tgt_INJURY_BENEFIT_PERIOD) END
+          WHEN ((/*LKP:lkp_risk_disc(tgt_contract_risk_key, 'CONTSIZE')*/ NULL) IS NULL) THEN '0' ELSE to_char((/*LKP:lkp_risk_disc(tgt_contract_risk_key, 'CONTSIZE')*/ NULL)) END|| CASE WHEN ((/*LKP:lkp_risk_disc(tgt_contract_risk_key, 'PERM')*/ NULL) IS NULL) THEN '0' ELSE to_char((/*LKP:lkp_risk_disc(tgt_contract_risk_key, 'PERM')*/ NULL)) END|| CASE WHEN ((/*LKP:lkp_risk_disc(tgt_contract_risk_key, 'TEMP')*/ NULL) IS NULL) THEN '0' ELSE to_char((/*LKP:lkp_risk_disc(tgt_contract_risk_key, 'TEMP')*/ NULL)) END|| CASE WHEN ((/*LKP:lkp_risk_disc_expiry_date(tgt_contract_risk_key)*/ NULL) IS NULL) THEN '12/31/3000 00:00:00' ELSE to_char((/*LKP:lkp_risk_disc_expiry_date(tgt_contract_risk_key)*/ NULL),'mm/dd/yyyy hh24:mi:ss') END|| CASE WHEN (tgt_trail_cmsn_dd_pcnt IS NULL) THEN '0' ELSE to_char(tgt_trail_cmsn_dd_pcnt) END|| CASE WHEN (tgt_ASSESS_LOADING_PCNT IS NULL) THEN '0' ELSE to_char(tgt_ASSESS_LOADING_PCNT) END|| CASE WHEN (tgt_chronic_illness_loading_pcnt IS NULL) THEN '0' ELSE to_char(tgt_chronic_illness_loading_pcnt)
+          END|| CASE WHEN ((/*LKP:lkp_risk_disc(tgt_contract_risk_key, 'ONHLD')*/ NULL) IS NULL) THEN '0' ELSE to_char((/*LKP:lkp_risk_disc(tgt_contract_risk_key, 'ONHLD')*/ NULL)) END|| CASE WHEN ((/*LKP:lkp_risk_disc(tgt_contract_risk_key, 'INDMNTY')*/ NULL) IS NULL) THEN '0' ELSE to_char(indmnty_disc_pcnt) END|| CASE WHEN (tgt_day_1_accident_rate IS NULL) THEN '0' ELSE to_char(tgt_day_1_accident_rate) END|| CASE WHEN ((/*LKP:lkp_risk_disc(tgt_contract_risk_key, 'AIDSEXCL')*/ NULL) IS NULL) THEN '0' ELSE to_char((/*LKP:lkp_risk_disc(tgt_contract_risk_key, 'AIDSEXCL')*/ NULL)) END|| CASE WHEN (tgt_SICKNESS_BENEFIT_PERIOD IS NULL) THEN '0' ELSE to_char(tgt_SICKNESS_BENEFIT_PERIOD) END|| CASE WHEN (tgt_INJURY_BENEFIT_PERIOD IS NULL) THEN '0' ELSE to_char(tgt_INJURY_BENEFIT_PERIOD) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ff807d01-6554-f0bb-a98b-095306fa65bd

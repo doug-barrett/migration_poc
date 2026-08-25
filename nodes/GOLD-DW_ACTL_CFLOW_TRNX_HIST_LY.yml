@@ -42,7 +42,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_ADMIN_SYS_FILE_ID
+        transform: (-1)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9768fc27-d8ce-4b84-0542-b1bfc0e8ee18
@@ -783,7 +783,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_DEBIT_CREDIT_CODE
+        transform: (CASE WHEN TRANS_AMOUNT < 0 THEN 'DR' ELSE 'CR' END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c231b884-566f-ab30-57df-d1fb5cb02e83
@@ -796,7 +796,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_SRC_MD5_BUSN_KEY
+        transform: (UPPER(MD5(RECORD_SEQUENCE_NUMBER||(-1)||_FILE_NAME)))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9cca17e0-12a0-d036-9b9b-f44afb43a5e4
@@ -822,7 +822,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_SRC_MD5_BUSN_KEY
+        transform: (UPPER(MD5(RECORD_SEQUENCE_NUMBER||(-1)||_FILE_NAME)))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1b4b42f0-a64e-0666-f192-f8120f2c6760
@@ -848,7 +848,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN ((tgt_FILE_REC_NUM IS NULL) AND (tgt__FILE_NAME IS NULL)) THEN 'I' ELSE CASE WHEN tgt_ACTL_CFLOW_TRNX_HIST_KEY = o_ACTL_CFLOW_TRNX_HIST_KEY AND o_SRC_REPROCESS_IND=1 AND v_REPROCESS_IND_SET =0 THEN 'U' ELSE 'X' END END
+        transform: CASE WHEN ((tgt_FILE_REC_NUM IS NULL) AND (tgt__FILE_NAME IS NULL)) THEN 'I' ELSE CASE WHEN tgt_ACTL_CFLOW_TRNX_HIST_KEY = o_ACTL_CFLOW_TRNX_HIST_KEY AND o_SRC_REPROCESS_IND=1 AND (DECODE(TRUE, (CASE WHEN (o_PAY_IND IN ('I', 'F')) OR (o_CONTRACT_ID IS NULL) OR o_TRNX_AMT =0 THEN 0 ELSE 1 END) =0, 0, (CONTRACT_KEY IS NULL),1,  (NOT (dw_risk_CONTRACT_RISK_KEY IS NULL) AND (dw_po_IFRS_OPTION_TYPE_CODE IS NULL)),1,  ((dw_risk_CONTRACT_RISK_KEY IS NULL) AND (invest_CONTRACT_KEY IS NULL) AND (iot_CODE IS NULL)), 1, --((dw_risk_CONTRACT_RISK_KEY IS NULL) AND (invest_CONTRACT_KEY IS NULL)), 1, ((dw_risk_CONTRACT_RISK_KEY IS NULL) AND (NOT (invest_CONTRACT_KEY IS NULL)) AND (dw_po2_IFRS_OPTION_TYPE_CODE IS NULL)),1, ((dw_risk_CONTRACT_RISK_KEY IS NULL) AND (NOT (invest_CONTRACT_KEY IS NULL)) AND (ifrs_opt_IFRS_OPTION_TYPE_CLASS_CODE IS NULL)),1, 0)) =0 THEN 'U' ELSE 'X' END END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 095e593d-7c6f-aca0-59ea-978db3cfd415
@@ -874,7 +874,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN v_tf_process_id='0' THEN '$CurrentRunId' ELSE v_tf_process_id END
+        transform: CASE WHEN (/*PARAM:taskflow_process_id*/ NULL)='0' THEN '/*PARAM:CurrentRunId*/ NULL' ELSE (/*PARAM:taskflow_process_id*/ NULL) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e35e1361-0c49-2389-8267-59f1182e9194
@@ -887,7 +887,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_REPROCESS_IND_SET
+        transform: (DECODE(TRUE, (CASE WHEN (o_PAY_IND IN ('I', 'F')) OR (o_CONTRACT_ID IS NULL) OR o_TRNX_AMT =0 THEN 0 ELSE 1 END) =0, 0, (CONTRACT_KEY IS NULL),1,  (NOT (dw_risk_CONTRACT_RISK_KEY IS NULL) AND (dw_po_IFRS_OPTION_TYPE_CODE IS NULL)),1,  ((dw_risk_CONTRACT_RISK_KEY IS NULL) AND (invest_CONTRACT_KEY IS NULL) AND (iot_CODE IS NULL)), 1, --((dw_risk_CONTRACT_RISK_KEY IS NULL) AND (invest_CONTRACT_KEY IS NULL)), 1, ((dw_risk_CONTRACT_RISK_KEY IS NULL) AND (NOT (invest_CONTRACT_KEY IS NULL)) AND (dw_po2_IFRS_OPTION_TYPE_CODE IS NULL)),1, ((dw_risk_CONTRACT_RISK_KEY IS NULL) AND (NOT (invest_CONTRACT_KEY IS NULL)) AND (ifrs_opt_IFRS_OPTION_TYPE_CLASS_CODE IS NULL)),1, 0))
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 679e8bf2-4684-af7e-e724-ef7a5fe9b439
@@ -900,7 +900,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: v_CASHFLOW_PROCESS_IND
+        transform: (CASE WHEN (o_PAY_IND IN ('I', 'F')) OR (o_CONTRACT_ID IS NULL) OR o_TRNX_AMT =0 THEN 0 ELSE 1 END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 46ebfd97-bd12-d50b-c96f-26367be49ada
@@ -913,7 +913,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (v_IFRS_OPTION_TYPE_CODE IS NULL) THEN 0 ELSE 1 END
+        transform: CASE WHEN ((DECODE(TRUE, (dw_risk_CONTRACT_RISK_KEY IS NULL),  dw_po2_IFRS_OPTION_TYPE_CODE,  NOT (dw_risk_CONTRACT_RISK_KEY IS NULL), dw_po_IFRS_OPTION_TYPE_CODE)) IS NULL) THEN 0 ELSE 1 END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5196f6f5-93e1-48f1-837c-ca8611d985cf
