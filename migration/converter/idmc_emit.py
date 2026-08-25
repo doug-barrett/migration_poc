@@ -122,6 +122,30 @@ def _existing_node_locs(nodes_dir: str) -> dict:
     return locs
 
 
+def _existing_node_cols(nodes_dir: str) -> dict:
+    """name -> {col: (node_id, col_id, dtype)} for nodes already on disk, so
+    refs to hand-built / pilot nodes resolve in the column registry."""
+    out = {}
+    if not os.path.isdir(nodes_dir):
+        return out
+    for f in os.listdir(nodes_dir):
+        if not (f.endswith(".yml") and "-" in f):
+            continue
+        try:
+            d = yaml.safe_load(open(os.path.join(nodes_dir, f)))
+        except Exception:
+            continue
+        nid = d.get("id")
+        reg = {}
+        for c in d.get("operation", {}).get("metadata", {}).get("columns", []) or []:
+            cr = c.get("columnReference", {}) or {}
+            cc = cr.get("columnCounter")
+            if cc:
+                reg[c["name"]] = (nid, cc, c.get("dataType", ""))
+        out[d.get("name")] = reg
+    return out
+
+
 def _lookup_schema_registry(irs) -> dict:
     """table -> {COL: dtype}  from embedded lookup field schemas."""
     reg = {}
@@ -196,6 +220,8 @@ class NodeSpec:
         self.deps = []             # [(location, nodename, alias, kind)]
         self.join_condition = ""
         self.is_source = False
+        self.primary_source = None   # table name of the FROM source
+        self.surrogate_cols = set()  # columns to flag isSurrogateKey
 
     def col_uuid(self, colname):
         return stable_uuid(f"{self.location}.{self.name}.{colname}")
@@ -206,6 +232,18 @@ IDENT = re.compile(r'^[A-Z_][A-Z0-9_]*$')
 
 _RESERVED = {"DATE", "TIME", "TIMESTAMP", "NUMBER", "TABLE", "VALUES",
              "COL_NAME", "SET_PROCESS", "ALTER_TYPE"}
+
+
+def _is_surrogate(col: str, ir) -> bool:
+    """A generated surrogate/sequence key: ends _KEY/_SK, or ends _NUM/_RRN /
+    is RRN when the mapping has a Sequence generator."""
+    c = (col or "").upper()
+    if c.endswith("_KEY") or c.endswith("_SK") or c.endswith("_SRGT_KEY"):
+        return True
+    if getattr(ir, "has_sequence", False) and (
+            c.endswith("_NUM") or c == "RRN" or c.endswith("_RRN")):
+        return True
+    return False
 
 
 def _valid_table(t: str) -> bool:
@@ -222,7 +260,7 @@ def _valid_table(t: str) -> bool:
     return True
 
 
-def _plan_specs(irs, produced, external, existing):
+def _plan_specs(irs, produced, external, existing, existing_cols=None):
     lookup_reg = _lookup_schema_registry(irs)
     srcport_reg = _source_ports_registry(irs)
     joinkey_reg = _joinkey_registry(irs)
@@ -401,7 +439,9 @@ def _plan_specs(irs, produced, external, existing):
             specs[name] = spec
 
     # column registry (name -> {col: (node_uuid, col_uuid, dtype)}) used for
-    # cross-node lineage and upstream type inheritance
+    # cross-node lineage and upstream type inheritance.  Seed it with hand-built
+    # / pilot nodes read from disk so refs to them resolve too.
+    registry.update(existing_cols or {})
     for name, spec in specs.items():
         reg = {}
         for (c, dt, tr, key) in spec.columns:
@@ -436,6 +476,30 @@ def _plan_specs(irs, produced, external, existing):
         if spec.is_source:
             continue
         _resolve_join(spec, spec._ir, resolver, registry, raw_of)
+
+    # ensure every non-source column has a source OR a transform.  A column
+    # with neither is either a surrogate key (flag it) or a pass-through whose
+    # source column the reconstruction missed (add it to the primary source so
+    # the reference resolves).
+    for name, spec in specs.items():
+        if spec.is_source:
+            continue
+        dep_names = [nm for (_l, nm) in spec.deps]
+        for i, (c, dt, tr, key) in enumerate(spec.columns):
+            if tr or any(c in registry.get(dn, {}) for dn in dep_names):
+                continue                       # already has transform or source
+            if _is_surrogate(c, spec._ir):
+                spec.surrogate_cols.add(c)
+                continue
+            ps = specs.get(spec.primary_source)
+            if ps is not None and ps.is_source:
+                if c not in {cc for (cc, *_r) in ps.columns}:
+                    ps.columns.append((c, dt, "", False))
+                    registry.setdefault(ps.name, {})[c] = (
+                        ps.uuid, ps.col_uuid(c), dt)
+            else:
+                spec.columns[i] = (
+                    c, dt, "NULL /* TODO: source column not reconstructed */", key)
 
     # propagate precise column types downstream: a pass-through column adopts
     # the dataType of the upstream column it references.  Iterate over the DAG
@@ -588,6 +652,7 @@ def _resolve_join(spec, ir, resolver, registry, raw_of=None):
             from_line = f"FROM {expr}"
             joined.add(keytbl)
             covered |= set(group_of.get(keytbl, [keytbl]))
+            spec.primary_source = keytbl
         else:
             from_line = f"-- FROM {primary[1]} (source node not generated)"
     else:
@@ -679,6 +744,13 @@ def _column_yaml(spec, colname, dtype, transform, is_key, registry, dep_names):
         "nullable": not is_key,
     }
     if not spec.is_source:
+        if colname in spec.surrogate_cols:
+            # generated surrogate key: no source, no transform (node type fills)
+            entry["isSurrogateKey"] = True
+            entry["nullable"] = False
+            entry["sourceColumnReferences"] = [{"columnReferences": [],
+                                                "transform": ""}]
+            return entry
         # resolve a single upstream column reference by name across deps
         if transform:
             srcrefs = [{"columnReferences": [], "transform": transform}]
@@ -769,8 +841,9 @@ def emit_all(irs, produced, external, repo_dir, dry_run=False):
                 os.remove(p)
 
     existing = _existing_node_locs(nodes_dir)   # now only hand-built remain
+    existing_cols = _existing_node_cols(nodes_dir)
 
-    specs, registry = _plan_specs(irs, produced, external, existing)
+    specs, registry = _plan_specs(irs, produced, external, existing, existing_cols)
 
     written, skipped = [], []
     for name, spec in sorted(specs.items()):
