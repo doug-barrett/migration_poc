@@ -68,7 +68,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (/*LKP:lkp_ref360*/ NULL IS NULL) THEN 'UNK' ELSE (Concat(cp_dccp2.concat_fund_code, (/*LKP:lkp_col_name*/ NULL) )) END
+        transform: 'CASE WHEN (lkp_ref360.CODE IS NULL) THEN ''UNK'' ELSE (Concat(cp_dccp2.concat_fund_code, (NULL /* MANUAL REVIEW: lookup lkp_col_name unresolved */) )) END'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a15b4ea1-e314-c1fc-1574-e5e1d5036817
@@ -81,7 +81,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (/*LKP:lkp_ref360*/ NULL IS NULL) THEN (Concat(cp_dccp2.concat_fund_code, (/*LKP:lkp_col_name*/ NULL) )) ELSE NULL END
+        transform: 'CASE WHEN (lkp_ref360.CODE IS NULL) THEN (Concat(cp_dccp2.concat_fund_code, (NULL /* MANUAL REVIEW: lookup lkp_col_name unresolved */) )) ELSE NULL END'
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 49b29994-cd46-15c8-bb5c-a58f3399a56e
@@ -176,7 +176,7 @@ operation:
 
           LEFT JOIN ( SELECT * FROM {{ ref(''BRONZE'', ''CP_DCCP2'') }} UNION ALL SELECT * FROM {{ ref(''BRONZE'', ''CP_DCCP1'') }} UNION ALL SELECT * FROM {{ ref(''BRONZE'', ''CP_DCCP3'') }} ) cp_dccp2 ON cp_dccp2.CC1_POLICY_NUMBER = cp_dpcp2.PC1_POLICY_NUMBER /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360'') }} ref360 ON ref360.BALANCE_TYPE_GROUP_CODE = dw_contract_vrbl.CODE_VAL'
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360'') }} lkp_ref360 ON lkp_ref360.BALANCE_TYPE_GROUP_CODE = (Concat(cp_dccp2.concat_fund_code, (NULL /* MANUAL REVIEW: lookup lkp_col_name unresolved */) ))'
       name: source1
       noLinkRefs: []
   name: DW_CONTRACT_BALANCE

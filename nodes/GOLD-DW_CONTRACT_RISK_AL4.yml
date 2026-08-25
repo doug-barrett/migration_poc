@@ -76,7 +76,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:lkp_dw_party*/ NULL
+        transform: lkp_dw_party.PARTY_KEY
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 8d6e3666-2f69-a014-a7d4-84893ca48b85
@@ -89,7 +89,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:lkp_dw_product_option*/ NULL
+        transform: lkp_dw_product_option.PRODUCT_OPTION_KEY
     - appliedColumnTests: {}
       columnReference:
         columnCounter: dd601869-8eb0-68d2-d742-c47779a4cf1d
@@ -622,7 +622,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:lkp_dw_party*/ NULL
+        transform: lkp_dw_party_2.PARTY_KEY
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 1372012c-0b8c-567a-2ad4-6db2e0116da6
@@ -900,9 +900,11 @@ operation:
 
           INNER JOIN {{ ref(''SILVER'', ''AL4_DCONTRISK'') }} al4_dcontrisk ON al4_dcontrisk.CONTRACT_ID = dw_contract.CONTRACT_ID AND al4_dcontrisk.PRODUCT_SYSTEM_CODE = dw_contract.PRODUCT_SYSTEM_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_PARTY'') }} dw_party ON dw_party.PARTY_ID = dw_contract.PARTY_ID AND dw_party.PRODUCT_SYSTEM_CODE = dw_contract.PRODUCT_SYSTEM_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_PARTY'') }} lkp_dw_party ON lkp_dw_party.PARTY_ID = dw_contract.PARTY_ID AND lkp_dw_party.PRODUCT_SYSTEM_CODE = dw_contract.PRODUCT_SYSTEM_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_OPTION'') }} dw_product_option ON dw_product_option.PRODUCT_KEY = dw_contract.PRODUCT_KEY AND dw_product_option.PRODUCT_OPTION_CODE = dw_contract.PRODUCT_OPTION_CODE'
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_OPTION'') }} lkp_dw_product_option ON lkp_dw_product_option.PRODUCT_KEY = dw_contract.dw_PRODUCT_KEY AND lkp_dw_product_option.PRODUCT_OPTION_CODE = dw_contract.RISK_OPTION_CODE
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_PARTY'') }} lkp_dw_party_2 ON lkp_dw_party_2.PARTY_ID = dw_contract.JOINT_LIFE_PARTY_ID AND lkp_dw_party_2.PRODUCT_SYSTEM_CODE = dw_contract.PRODUCT_SYSTEM_CODE'
       name: source1
       noLinkRefs: []
   name: DW_CONTRACT_RISK_AL4

@@ -307,7 +307,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:lkp_product_option*/ NULL
+        transform: lkp_product_option.PRODUCT_OPTION_KEY
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d34a3fc3-968c-b51a-af90-c760a6697363
@@ -333,33 +333,18 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:lkp_trnx_type*/ NULL
+        transform: lkp_trnx_type.TRNX_TYPE_KEY
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
         AL4_DOPTTRNX_RAW: d2a83df9-d729-7d84-a98a-b49b1c18ed34
-        EXPOSURE_TYPE: 236d3045-3cf7-14ef-7c04-05a0e34cf9ee
         PRODUCT_OPTION: 87e7879f-5111-5575-984e-d2ab05ed5c63
-        SDUTY_STATE: e1cc7742-14a3-97e8-43fc-87aaed8a8501
-        SUBACCOUNT_TYPE: 1e02a2b4-c09a-a9df-a458-bc7521a6bf02
         TRNX_TYPE: ca8865aa-6164-e23a-5320-dd230555ed8b
-        UNIT_PRICE_TYPE: ac293fbd-8184-e3b6-adda-7340e911857d
-        UNIT_TYPE: 99c0a1da-030d-e00e-faea-d1c9ba519ced
       customSQL:
         customSQL: ''
       dependencies:
       - locationName: BRONZE
         nodeName: AL4_DOPTTRNX_RAW
-      - locationName: BRONZE
-        nodeName: SUBACCOUNT_TYPE
-      - locationName: BRONZE
-        nodeName: SDUTY_STATE
-      - locationName: BRONZE
-        nodeName: UNIT_PRICE_TYPE
-      - locationName: BRONZE
-        nodeName: UNIT_TYPE
-      - locationName: BRONZE
-        nodeName: EXPOSURE_TYPE
       - locationName: BRONZE
         nodeName: PRODUCT_OPTION
       - locationName: BRONZE
@@ -367,19 +352,10 @@ operation:
       join:
         joinCondition: 'FROM {{ ref(''BRONZE'', ''AL4_DOPTTRNX_RAW'') }} al4_dopttrnx_raw
 
-          LEFT JOIN {{ ref(''BRONZE'', ''SUBACCOUNT_TYPE'') }} subaccount_type ON subaccount_type.CODE = al4_dopttrnx_raw.SUB_ACCOUNT_TYPE_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''PRODUCT_OPTION'') }} lkp_product_option ON lkp_product_option.PRODUCT_KEY = al4_dopttrnx_raw.dw_product_key AND lkp_product_option.PRODUCT_OPTION_CODE = al4_dopttrnx_raw.product_option_code
 
-          LEFT JOIN {{ ref(''BRONZE'', ''SDUTY_STATE'') }} sduty_state ON sduty_state.CODE = al4_dopttrnx_raw.SDUTY_STATE_CODE
-
-          LEFT JOIN {{ ref(''BRONZE'', ''UNIT_PRICE_TYPE'') }} unit_price_type ON unit_price_type.CODE = al4_dopttrnx_raw.UNIT_PRICE_TYPE_CODE
-
-          LEFT JOIN {{ ref(''BRONZE'', ''UNIT_TYPE'') }} unit_type ON unit_type.CODE = al4_dopttrnx_raw.UNIT_TYPE
-
-          LEFT JOIN {{ ref(''BRONZE'', ''EXPOSURE_TYPE'') }} exposure_type ON exposure_type.CODE = al4_dopttrnx_raw.EXPOSURE_TYPE_CODE
-
-          LEFT JOIN {{ ref(''BRONZE'', ''PRODUCT_OPTION'') }} product_option ON product_option.PRODUCT_KEY = al4_dopttrnx_raw.PRODUCT_KEY AND product_option.PRODUCT_OPTION_CODE = al4_dopttrnx_raw.PRODUCT_OPTION_CODE
-
-          LEFT JOIN {{ ref(''BRONZE'', ''TRNX_TYPE'') }} trnx_type ON trnx_type.SOURCE_SYSTEM_CODE = al4_dopttrnx_raw.PRODUCT_SYSTEM_CODE AND trnx_type.SOURCE_TRNX_TYPE_CODE = al4_dopttrnx_raw.TRNX_TYPE_CODE AND trnx_type.SOURCE_TRNX_SUB_TYPE = al4_dopttrnx_raw.TRNX_SUB_TYPE_CODE AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE1 = al4_dopttrnx_raw.TRNX_ANALYSIS_CODE1 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE2 = al4_dopttrnx_raw.TRNX_ANALYSIS_CODE2 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE3 = al4_dopttrnx_raw.TRNX_ANALYSIS_CODE3 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE4 = al4_dopttrnx_raw.TRNX_ANALYSIS_CODE4 AND trnx_type.SOURCE_TRNX_ANALYSIS_CODE5 = al4_dopttrnx_raw.TRNX_ANALYSIS_CODE5'
+          LEFT JOIN {{ ref(''BRONZE'', ''TRNX_TYPE'') }} lkp_trnx_type ON lkp_trnx_type.SOURCE_SYSTEM_CODE = al4_dopttrnx_raw.product_system_code AND lkp_trnx_type.SOURCE_TRNX_TYPE_CODE = (CASE WHEN (al4_dopttrnx_raw.trnx_type_code IS NULL) THEN ''oONVLOo'' ELSE al4_dopttrnx_raw.trnx_type_code END) AND lkp_trnx_type.SOURCE_TRNX_SUB_TYPE = (CASE WHEN (al4_dopttrnx_raw.trnx_sub_type_code IS NULL) THEN ''oONVLOo'' ELSE al4_dopttrnx_raw.trnx_sub_type_code END) AND lkp_trnx_type.SOURCE_TRNX_ANALYSIS_CODE1 = (CASE WHEN (al4_dopttrnx_raw.trnx_analysis_code1 IS NULL) THEN ''oONVLOo'' ELSE al4_dopttrnx_raw.trnx_analysis_code1 END) AND lkp_trnx_type.SOURCE_TRNX_ANALYSIS_CODE2 = (CASE WHEN (al4_dopttrnx_raw.trnx_analysis_code2 IS NULL) THEN ''oONVLOo'' ELSE al4_dopttrnx_raw.trnx_analysis_code2 END) AND lkp_trnx_type.SOURCE_TRNX_ANALYSIS_CODE3 = (CASE WHEN (al4_dopttrnx_raw.trnx_analysis_code3 IS NULL) THEN ''oONVLOo'' ELSE al4_dopttrnx_raw.trnx_analysis_code3 END) AND lkp_trnx_type.SOURCE_TRNX_ANALYSIS_CODE4
+          = (CASE WHEN (al4_dopttrnx_raw.trnx_analysis_code4 IS NULL) THEN ''oONVLOo'' ELSE al4_dopttrnx_raw.trnx_analysis_code4 END) AND lkp_trnx_type.SOURCE_TRNX_ANALYSIS_CODE5 = (CASE WHEN (al4_dopttrnx_raw.trnx_analysis_code5 IS NULL) THEN ''oONVLOo'' ELSE al4_dopttrnx_raw.trnx_analysis_code5 END)'
       name: source1
       noLinkRefs: []
   name: AL4_DOPTTRNX

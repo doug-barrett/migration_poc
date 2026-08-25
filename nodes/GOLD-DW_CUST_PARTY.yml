@@ -184,7 +184,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN NOT (/*LKP:lkp_CMDM_DParty*/ NULL IS NULL) THEN 'M' ELSE NULL END
+        transform: CASE WHEN NOT (lkp_cmdm_dparty.PARTY_KEY IS NULL) THEN 'M' ELSE NULL END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 070eea9c-bfcb-fb40-67ee-773af2efaaec
@@ -412,7 +412,6 @@ operation:
         CMDM_DCUSTPARTY: 35a0869f-ae06-bc46-feaa-0c0fd7eaa792
         CMDM_DPARTY: 461b14a5-3c63-0040-1274-9b7399d77623
         DW_PARTY: bb382647-fad0-4afe-380c-3a7be4aeae9f
-        PARTY: 96f14a23-4061-ff60-b728-7b3726eb9bf4
       customSQL:
         customSQL: ''
       dependencies:
@@ -421,17 +420,13 @@ operation:
       - locationName: BRONZE
         nodeName: CMDM_DCUSTPARTY
       - locationName: BRONZE
-        nodeName: PARTY
-      - locationName: BRONZE
         nodeName: CMDM_DPARTY
       join:
         joinCondition: 'FROM {{ ref(''BRONZE'', ''DW_PARTY'') }} dw_party
 
           INNER JOIN {{ ref(''BRONZE'', ''CMDM_DCUSTPARTY'') }} cmdm_dcustparty ON cmdm_dcustparty.PARTY_ID = dw_party.PARTY_ID AND cmdm_dcustparty.PRODUCT_SYSTEM_CODE = dw_party.PRODUCT_SYSTEM_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''PARTY'') }} party ON party.PARTY_ID = dw_party.ASSOC_PARTY_ID AND party.PRODUCT_SYSTEM_CODE = dw_party.ASSOC_PRODUCT_SYSTEM_CODE
-
-          LEFT JOIN {{ ref(''BRONZE'', ''CMDM_DPARTY'') }} cmdm_dparty ON cmdm_dparty.PARTY_KEY = dw_party.DW_PARTY_KEY'
+          LEFT JOIN {{ ref(''BRONZE'', ''CMDM_DPARTY'') }} lkp_cmdm_dparty ON lkp_cmdm_dparty.PARTY_KEY = cmdm_dcustparty.tgt_PARTY_KEY'
       name: source1
       noLinkRefs: []
   name: DW_CUST_PARTY

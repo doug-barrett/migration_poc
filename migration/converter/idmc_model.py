@@ -73,6 +73,9 @@ class Lookup:
     conditions: list                   # [(lkp_col, op, in_port), ...]
     fields: list = field(default_factory=list)   # [Col, ...] embedded schema
     unconnected: bool = True
+    name: str = ""                     # transformation name (lkp_dw_assess)
+    return_port: str = ""              # column the lookup RETURNS
+    input_ports: list = field(default_factory=list)  # ordered input port names
 
 
 @dataclass
@@ -431,10 +434,16 @@ def build_ir(dtemplate_path: str, mtt_path: str | None, folder: str) -> MappingI
                                                     f.get("precision"),
                                                     f.get("scale"))
                 lfields.append(Col(name=nm.upper(), dtype=dt))
+            ips = tx.get("inputPortNames") or []
+            if isinstance(ips, str):
+                ips = [p.strip() for p in ips.split(",") if p.strip()]
             ir.lookups.append(Lookup(
                 table=_lookup_table_name(tx.get("name", "")),
                 conditions=conds, fields=lfields,
-                unconnected=str(tx.get("unconnected", "")).lower() == "true"))
+                unconnected=str(tx.get("unconnected", "")).lower() == "true",
+                name=tx.get("name", ""),
+                return_port=(tx.get("returnPortName") or "").upper(),
+                input_ports=[str(p).upper() for p in ips]))
 
         elif role == "Filter":
             for a in tx.get("advancedProperties", []) or []:

@@ -73,7 +73,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:lkp_dw_assess*/ NULL
+        transform: lkp_dw_assess.CODE
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 059bc189-ede2-0c3d-11cb-cbb044168d6b
@@ -86,7 +86,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:lkp_dw_ocuptn_class*/ NULL
+        transform: lkp_dw_ocuptn_class.CODE
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 95690bd7-5d1a-b0bf-6a02-0d0dbd02f307
@@ -99,7 +99,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:lkp_dw_impairment_temp*/ NULL
+        transform: lkp_dw_impairment_temp.CODE
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3e61d61f-6d93-7339-c24e-243c22ae5139
@@ -113,7 +113,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:lkp_dw_product_option*/ NULL
+        transform: lkp_dw_product_option.PRODUCT_OPTION_KEY
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 45c2a980-2428-ec98-e3b1-60c7fc621137
@@ -126,7 +126,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:lkp_dw_reinsurance_type*/ NULL
+        transform: lkp_dw_reinsurance_type.REINSURANCE_TYPE_CODE
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3de821c7-2f45-b05f-ca0c-ad8dcff3c65c
@@ -438,7 +438,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN ((/*LKP:lkp_smoker_status_convert*/ NULL) IS NULL) THEN 'NA' ELSE (/*LKP:lkp_assess_convert*/ NULL) END
+        transform: CASE WHEN ((lkp_smoker_status_convert.TARGET_SYSTEM_CODE) IS NULL) THEN 'NA' ELSE (lkp_assess_convert.TARGET_SYSTEM_CODE) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 05f243e8-9982-efd0-4c9e-e83c0f0e93a5
@@ -451,7 +451,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN ((/*LKP:lkp_dw_impairment*/ NULL) IS NULL) THEN '-1' ELSE (/*LKP:lkp_dw_impairment*/ NULL) END
+        transform: CASE WHEN ((lkp_dw_impairment.CODE) IS NULL) THEN '-1' ELSE (lkp_dw_impairment.CODE) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: fb7e31b5-27f2-033b-672e-20b42847574e
@@ -464,7 +464,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:lkp_dw_assess_temp*/ NULL
+        transform: lkp_dw_assess_temp.CODE
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a5ad8ee0-db97-3843-9272-814fb054f578
@@ -575,8 +575,6 @@ operation:
       - locationName: BRONZE
         nodeName: OR_DBETR
       - locationName: BRONZE
-        nodeName: DW_PRODUCT_OPTION
-      - locationName: BRONZE
         nodeName: ASSESS_CONVERT
       - locationName: BRONZE
         nodeName: DW_ASSESS
@@ -585,11 +583,13 @@ operation:
       - locationName: BRONZE
         nodeName: DW_IMPAIRMENT_TEMP
       - locationName: BRONZE
-        nodeName: DW_IMPAIRMENT
+        nodeName: DW_PRODUCT_OPTION
       - locationName: BRONZE
         nodeName: DW_REINSURANCE_TYPE
       - locationName: BRONZE
         nodeName: SMOKER_STATUS_CONVERT
+      - locationName: BRONZE
+        nodeName: DW_IMPAIRMENT
       - locationName: BRONZE
         nodeName: ASSESS_CONVERT_TEMP
       - locationName: BRONZE
@@ -601,25 +601,25 @@ operation:
 
           INNER JOIN {{ ref(''BRONZE'', ''OR_DBETR'') }} or_dbetr ON or_dbetr.TC1_BEN_POL_NUM = dw_contract.CONTRACT_ID
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_OPTION'') }} dw_product_option ON dw_product_option.PRODUCT_KEY = dw_contract.PRODUCT_KEY AND dw_product_option.PRODUCT_OPTION_CODE = dw_contract.TC1_BEN_TYPE
+          LEFT JOIN {{ ref(''BRONZE'', ''ASSESS_CONVERT'') }} lkp_assess_convert ON lkp_assess_convert.SOURCE_SYSTEM_CODE = (CASE WHEN (dw_contract.TC1_PERM_ASSESS_CODE IS NULL) THEN ''S'' ELSE dw_contract.TC1_PERM_ASSESS_CODE END)
 
-          LEFT JOIN {{ ref(''BRONZE'', ''ASSESS_CONVERT'') }} assess_convert ON assess_convert.SOURCE_SYSTEM_CODE = dw_contract.TC1_PERM_ASSESS_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_ASSESS'') }} lkp_dw_assess ON lkp_dw_assess.CODE = (lkp_assess_convert.TARGET_SYSTEM_CODE)
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_ASSESS'') }} dw_assess ON dw_assess.CODE = dw_contract.DWSA_ASSESS_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_OCUPTN_CLASS'') }} lkp_dw_ocuptn_class ON lkp_dw_ocuptn_class.CODE = (CASE WHEN (dw_contract.TC1_XTR_BEN_OCCUP_IND IS NULL) THEN ''NA'' ELSE dw_contract.TC1_XTR_BEN_OCCUP_IND END)
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_OCUPTN_CLASS'') }} dw_ocuptn_class ON dw_ocuptn_class.CODE = dw_contract.TC1_XTR_BEN_OCCUP_IND
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_IMPAIRMENT_TEMP'') }} lkp_dw_impairment_temp ON lkp_dw_impairment_temp.CODE = (CASE WHEN (dw_contract.TC1_TEMP_SS_IMP_CODE IS NULL) THEN ''NA'' ELSE dw_contract.TC1_TEMP_SS_IMP_CODE END)
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_IMPAIRMENT_TEMP'') }} dw_impairment_temp ON dw_impairment_temp.CODE = dw_contract.TC1_TEMP_SS_IMP_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_OPTION'') }} lkp_dw_product_option ON lkp_dw_product_option.PRODUCT_KEY = or_dbetr.con_PRODUCT_KEY AND lkp_dw_product_option.PRODUCT_OPTION_CODE = dw_contract.TC1_BEN_TYPE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_IMPAIRMENT'') }} dw_impairment ON dw_impairment.CODE = dw_contract.TC1_PERM_SS_IMP_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_REINSURANCE_TYPE'') }} lkp_dw_reinsurance_type ON lkp_dw_reinsurance_type.CODE = (CASE WHEN (dw_contract.TC1_REINS_OUT_TYPE IS NULL) THEN ''NA'' ELSE dw_contract.TC1_REINS_OUT_TYPE END)
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_REINSURANCE_TYPE'') }} dw_reinsurance_type ON dw_reinsurance_type.CODE = dw_contract.TC1_REINS_OUT_TYPE
+          LEFT JOIN {{ ref(''BRONZE'', ''SMOKER_STATUS_CONVERT'') }} lkp_smoker_status_convert ON lkp_smoker_status_convert.SOURCE_SYSTEM_CODE = dw_contract.tc1_smoker_asses_code
 
-          LEFT JOIN {{ ref(''BRONZE'', ''SMOKER_STATUS_CONVERT'') }} smoker_status_convert ON smoker_status_convert.SOURCE_SYSTEM_CODE = dw_contract.TC1_SMOKER_ASSES_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_IMPAIRMENT'') }} lkp_dw_impairment ON lkp_dw_impairment.CODE = (CASE WHEN (dw_contract.TC1_PERM_SS_IMP_CODE IS NULL) THEN ''NA'' ELSE dw_contract.TC1_PERM_SS_IMP_CODE END)
 
-          LEFT JOIN {{ ref(''BRONZE'', ''ASSESS_CONVERT_TEMP'') }} assess_convert_temp ON assess_convert_temp.SOURCE_SYSTEM_CODE = dw_contract.TC1_TEMP_ASSESS_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''ASSESS_CONVERT_TEMP'') }} lkp_assess_convert_temp ON lkp_assess_convert_temp.SOURCE_SYSTEM_CODE = (CASE WHEN (dw_contract.TC1_TEMP_ASSESS_CODE IS NULL) THEN ''S'' ELSE dw_contract.TC1_TEMP_ASSESS_CODE END)
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_ASSESS_TEMP'') }} dw_assess_temp ON dw_assess_temp.CODE = dw_contract.DWSA_ASSESS_CODE'
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_ASSESS_TEMP'') }} lkp_dw_assess_temp ON lkp_dw_assess_temp.CODE = (lkp_assess_convert_temp.TARGET_SYSTEM_CODE)'
       name: source1
       noLinkRefs: []
   name: DW_CONTRACT_RISK_TRANCHE

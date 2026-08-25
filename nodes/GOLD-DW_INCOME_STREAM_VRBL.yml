@@ -196,7 +196,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:ULKP_ETP_INDICATOR*/ NULL
+        transform: ulkp_etp_indicator.PC1_ETP_INDICATOR
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 3a870f27-3d6a-fdb9-8a53-b942896e64a8
@@ -430,7 +430,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN ((CASE WHEN (cp_decp1.inc1_QC1_CL_PAYTS_PER_YEAR IS NULL) THEN 0 ELSE cp_decp1.inc1_QC1_CL_PAYTS_PER_YEAR END)>0) THEN /*LKP:lkp_ref360_dw_freq*/ NULL ELSE 'PUP' END
+        transform: CASE WHEN ((CASE WHEN (cp_decp1.inc1_QC1_CL_PAYTS_PER_YEAR IS NULL) THEN 0 ELSE cp_decp1.inc1_QC1_CL_PAYTS_PER_YEAR END)>0) THEN lkp_ref360_dw_freq.CODE ELSE 'PUP' END
     enabledColumnTestIDs: []
     sourceMapping:
     - aliases:
@@ -461,9 +461,9 @@ operation:
       - locationName: BRONZE
         nodeName: DW_CONTRACT
       - locationName: BRONZE
-        nodeName: REF360_DW_FREQ
-      - locationName: BRONZE
         nodeName: ETP_INDICATOR
+      - locationName: BRONZE
+        nodeName: REF360_DW_FREQ
       join:
         joinCondition: 'FROM ( SELECT * FROM {{ ref(''BRONZE'', ''CP_DECP1'') }} UNION ALL SELECT * FROM {{ ref(''BRONZE'', ''CP_DECP2'') }} UNION ALL SELECT * FROM {{ ref(''BRONZE'', ''CP_DECP3'') }} ) cp_decp1
 
@@ -471,9 +471,9 @@ operation:
 
           INNER JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON cp_decp1.EC1_POLICY_NUMBER = dw_contract.CONTRACT_ID
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_DW_FREQ'') }} ref360_dw_freq ON ref360_dw_freq.ANNUAL_MULTI_NUM = cp_decp1.ANNUAL_MULTI_NUM
+          LEFT JOIN {{ ref(''BRONZE'', ''ETP_INDICATOR'') }} ulkp_etp_indicator ON ulkp_etp_indicator.PC1_POLICY_NUMBER = cp_decp1.inc1_QC1_POLICY_NUMBER
 
-          LEFT JOIN {{ ref(''BRONZE'', ''ETP_INDICATOR'') }} etp_indicator ON etp_indicator.PC1_POLICY_NUMBER = cp_decp1.POLICY_NUMBER'
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_DW_FREQ'') }} lkp_ref360_dw_freq ON lkp_ref360_dw_freq.ANNUAL_MULTI_NUM = cp_decp1.inc1_QC1_CL_PAYTS_PER_YEAR'
       name: source1
       noLinkRefs: []
   name: DW_INCOME_STREAM_VRBL

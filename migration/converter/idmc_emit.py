@@ -438,6 +438,13 @@ def _plan_specs(irs, produced, external, existing, existing_cols=None):
     for tbl in sorted(inplace):
         if not _valid_table(tbl):
             continue
+        # In Informatica this is ONE physical table read+written by the same
+        # mapping.  If a BRONZE source node for it already exists (e.g. created
+        # for the pilot), reuse it rather than adding a second <T>_RAW node for
+        # the same table.
+        if (existing or {}).get(tbl) == "BRONZE":
+            raw_of[tbl] = tbl
+            continue
         raw_name = f"{tbl}_RAW"
         if raw_name in existing or raw_name in specs:
             raw_of[tbl] = raw_name
@@ -637,6 +644,13 @@ def _plan_specs(irs, produced, external, existing, existing_cols=None):
             if tr:
                 spec.columns[i] = (c, dt, _qualify(tr, alias_cols, on_missing), key)
 
+    # unconnected-lookup calls -> real LEFT JOINs (after qualification, so the
+    # call arguments are already alias-qualified)
+    for name, spec in specs.items():
+        if spec.is_source:
+            continue
+        _resolve_lookup_calls(spec, spec._ir, resolver)
+
     # propagate precise column types downstream: a pass-through column adopts
     # the dataType of the upstream column it references.  Iterate over the DAG
     # (depth is small: BRONZE->SILVER->GOLD->View) until types stabilise, so
@@ -663,6 +677,14 @@ def _plan_specs(irs, produced, external, existing, existing_cols=None):
                     break
         if not changed:
             break
+
+    # drop any <T>_RAW read-side node nothing ended up depending on (the same
+    # physical table is already represented by another BRONZE node)
+    referenced = {nm for sp in specs.values() for (_l, nm) in sp.deps}
+    for nm in [n for n, sp in specs.items()
+               if sp.is_source and n.endswith("_RAW") and n not in referenced]:
+        del specs[nm]
+        registry.pop(nm, None)
 
     return specs, registry
 
@@ -703,6 +725,112 @@ def _joiner_on(ir, table, joined, norm):
         return kw, on
     return "LEFT JOIN", ("/* MANUAL REVIEW: no Joiner key in export for this "
                          "source (wired via expression lookup, or unused) */ 1=1")
+
+
+def _resolve_lookup_calls(spec, ir, resolver):
+    """Turn unconnected-lookup calls into real LEFT JOINs.
+
+    idmc_expr leaves each ":LKP.name(args)" as "LKPCALL_name(args)".  The
+    export gives us, per lookup: the table, its lookupConditions
+    (lookup_column = input_port), the ordered inputPortNames, and the
+    returnPortName.  So a call maps positionally onto the lookup's inputs and
+    the expression becomes "<alias>.<returnPort>", with
+
+        LEFT JOIN <lookup table> <alias> ON <alias>.<key> = <arg>
+
+    One alias per distinct (lookup, argument-list): the same unconnected
+    lookup called with different inputs is a different join in SQL."""
+    lk_by_name = {}
+    for lk in ir.lookups:
+        if lk.name:
+            lk_by_name[lk.name.lower()] = lk
+
+    used = {a for (a, _n) in spec.alias_nodes}
+    call_alias = {}                       # (lkp, args_key) -> (alias, ret)
+    new_joins = []
+
+    def resolve_call(lkp_name, args):
+        lk = lk_by_name.get(lkp_name.lower())
+        if lk is None:
+            return None
+        r = resolver(lk.table)
+        if not r:
+            return None
+        loc, nodenm = r
+        key = (lkp_name.lower(), "|".join(a.strip() for a in args))
+        if key in call_alias:
+            return call_alias[key]
+        base = lkp_name.lower()
+        if not base.startswith(("lkp_", "ulkp_")):
+            base = f"lkp_{base}"
+        alias, n = base, 1
+        while alias in used:
+            n += 1
+            alias = f"{base}_{n}"
+        used.add(alias)
+        # map each call argument to the lookup column it is compared against
+        preds = []
+        for i, arg in enumerate(args):
+            col = None
+            if i < len(lk.input_ports):
+                port = lk.input_ports[i]
+                for (lcol, _op, rport) in lk.conditions:
+                    if rport.upper() == port.upper():
+                        col = lcol
+                        break
+            if col is None and i < len(lk.conditions):
+                col = lk.conditions[i][0]          # positional fallback
+            if col:
+                preds.append(f"{alias}.{col} = {arg.strip()}")
+        on = " AND ".join(preds) if preds else \
+            "1=1 /* MANUAL REVIEW: lookup key not resolvable */"
+        new_joins.append(
+            f"LEFT JOIN {{{{ ref('{loc}', '{nodenm}') }}}} {alias} ON {on}")
+        if (loc, nodenm) not in spec.deps:
+            spec.deps.append((loc, nodenm))
+        spec.alias_nodes.append((alias, [nodenm]))
+        ret = lk.return_port or (lk.conditions[0][0] if lk.conditions else None)
+        call_alias[key] = (alias, ret)
+        return call_alias[key]
+
+    pfx = idmc_expr.LKP_CALL_PREFIX
+
+    def resolve_text(text, depth=0):
+        """Replace every LKPCALL marker in `text`.  Arguments are resolved
+        first (a lookup call can be nested inside another call's argument)."""
+        if not text or pfx not in text or depth > 20:
+            return text
+        out, guard = text, 0
+        while pfx in out and guard < 200:
+            guard += 1
+            found = idmc_expr.find_lkp_call(out)
+            if not found:
+                break
+            start, end, lkp_name, argstr = found
+            args = [resolve_text(a, depth + 1)
+                    for a in (idmc_expr.split_args(argstr)
+                              if argstr.strip() else [])]
+            res = resolve_call(lkp_name, args)
+            if res and res[1]:
+                repl = f"{res[0]}.{res[1]}"
+            else:
+                repl = f"NULL /* MANUAL REVIEW: lookup {lkp_name} unresolved */"
+            out = out[:start] + repl + out[end:]
+        return out
+
+    for i, (c, dt, tr, key) in enumerate(spec.columns):
+        if tr and pfx in tr:
+            spec.columns[i] = (c, dt, resolve_text(tr), key)
+
+    if new_joins:
+        lines = spec.join_condition.split("\n")
+        where_at = next((j for j, l in enumerate(lines)
+                         if l.strip().upper().startswith("WHERE")), len(lines))
+        spec.join_condition = "\n".join(
+            lines[:where_at] + new_joins + lines[where_at:])
+    # a join ON built from an argument may itself hold a nested call
+    if pfx in spec.join_condition:
+        spec.join_condition = resolve_text(spec.join_condition)
 
 
 def _resolve_join(spec, ir, resolver, registry, raw_of=None):
@@ -846,8 +974,12 @@ def _resolve_join(spec, ir, resolver, registry, raw_of=None):
     for u in units:                  # no Joiner edge (independent / look-back)
         _emit(*u)
 
-    # lookups -> LEFT JOIN with ON from lookup conditions
+    # CONNECTED lookups -> LEFT JOIN against the primary source.  Unconnected
+    # ones are resolved from their actual call sites (_resolve_lookup_calls),
+    # which knows the real arguments, so they are skipped here.
     for lk in ir.lookups:
+        if lk.unconnected:
+            continue
         r = resolve_table(lk.table)
         if not r:
             continue

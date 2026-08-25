@@ -54,7 +54,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN (mrv_iics_mt_conformed_mrvcons_current_contract_risk.BENEFIT_PERIOD IS NULL) or mrv_iics_mt_conformed_mrvcons_current_contract_risk.BENEFIT_PERIOD='NA' THEN NULL ELSE (/*LKP:lkp_benefit_period_desc*/ NULL) END)
+        transform: (CASE WHEN (mrv_iics_mt_conformed_mrvcons_current_contract_risk.BENEFIT_PERIOD IS NULL) or mrv_iics_mt_conformed_mrvcons_current_contract_risk.BENEFIT_PERIOD='NA' THEN NULL ELSE (lkp_benefit_period_desc.CODESC_DESC) END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: db53fa4e-1486-041f-4b8d-27e04b29adb8
@@ -106,7 +106,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (/*LKP:lkp_code_desc*/ NULL)
+        transform: (lkp_code_desc.CODESC_DESC)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4fa6881d-a63b-2fb8-6ed6-b2a7ed1856cc
@@ -119,7 +119,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (/*LKP:lkp_freq*/ NULL)
+        transform: (lkp_freq.DESCRIPTION)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c0a61e31-d052-3153-8940-fbcb8db9664a
@@ -132,7 +132,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (/*LKP:lkp_freq_desc*/ NULL)
+        transform: (lkp_freq_desc.DESCRIPTION)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 83777447-c5d8-70ac-dbb4-e6f6f113c97a
@@ -145,7 +145,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN (/*LKP:lkp_risk_cmsn_type*/ NULL IS NULL) THEN 'Not Applicable' ELSE /*LKP:lkp_risk_cmsn_type*/ NULL END)
+        transform: (CASE WHEN (lkp_risk_cmsn_type.DESCRIPTION IS NULL) THEN 'Not Applicable' ELSE lkp_risk_cmsn_type.DESCRIPTION END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e98b43ae-a450-2ec5-760a-c44baaae81e4
@@ -158,7 +158,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (/*LKP:lkp_risk_wait_period*/ NULL)
+        transform: (lkp_risk_wait_period.DESCRIPTION)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ef39e0e9-b754-42ef-53e9-a0ea6712e1de
@@ -171,7 +171,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (/*LKP:lkp_illness_pay_period*/ NULL)
+        transform: (lkp_illness_pay_period.DESCRIPTION)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 84951158-107b-b260-7f53-8aa323063198
@@ -236,7 +236,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (/*LKP:lkp_mrv_ref360_occupation_class_v*/ NULL)
+        transform: (lkp_mrv_ref360_occupation_class_v.DESCRIPTION)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 17e3f90f-23a4-fbb1-38ed-027dbdaf9929
@@ -249,7 +249,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (/*LKP:lkp_mrv_ref360_assess_v*/ NULL)
+        transform: (lkp_mrv_ref360_assess_v.DESCRIPTION)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 90436982-1efb-faec-d68a-ba569cb6c81d
@@ -287,11 +287,17 @@ operation:
       - locationName: BRONZE
         nodeName: MRV_IICS_MT_CONFORMED_MRVCONS_CURRENT_CONTRACT_RISK
       - locationName: BRONZE
+        nodeName: RISK_DISABLE
+      - locationName: BRONZE
+        nodeName: BENEFIT_PERIOD_DESC
+      - locationName: BRONZE
         nodeName: CODE_DESC
       - locationName: BRONZE
         nodeName: RISKOPT
       - locationName: BRONZE
-        nodeName: BENEFIT_PERIOD_DESC
+        nodeName: FREQ
+      - locationName: BRONZE
+        nodeName: FREQ_DESC
       - locationName: BRONZE
         nodeName: RISK_CMSN_TYPE
       - locationName: BRONZE
@@ -299,41 +305,35 @@ operation:
       - locationName: BRONZE
         nodeName: ILLNESS_PAY_PERIOD
       - locationName: BRONZE
-        nodeName: FREQ
-      - locationName: BRONZE
-        nodeName: FREQ_DESC
-      - locationName: BRONZE
-        nodeName: MRV_REF360_ASSESS_V
-      - locationName: BRONZE
         nodeName: MRV_REF360_OCCUPATION_CLASS_V
       - locationName: BRONZE
-        nodeName: RISK_DISABLE
+        nodeName: MRV_REF360_ASSESS_V
       join:
         joinCondition: 'FROM {{ ref(''BRONZE'', ''CURR_PRODUCT_OPTION'') }} curr_product_option
 
           LEFT JOIN {{ ref(''BRONZE'', ''MRV_IICS_MT_CONFORMED_MRVCONS_CURRENT_CONTRACT_RISK'') }} mrv_iics_mt_conformed_mrvcons_current_contract_risk ON curr_product_option.PRODUCT_OPTION_KEY = mrv_iics_mt_conformed_mrvcons_current_contract_risk.PRODUCT_OPTION_KEY /* Master Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''CODE_DESC'') }} code_desc ON code_desc.CODESC_CODE = curr_product_option.FULL_DAY_CVRG_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''RISK_DISABLE'') }} risk_disable ON risk_disable.CONTRACT_RISK_KEY = curr_product_option.RISK_CONTRACT_RISK_KEY
 
-          LEFT JOIN {{ ref(''BRONZE'', ''RISKOPT'') }} riskopt ON riskopt.CODE = curr_product_option.PRODUCT_OPTION_CODE AND riskopt.CODE = curr_product_option.LKP_PRODUCT_SYSTEM_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''BENEFIT_PERIOD_DESC'') }} lkp_benefit_period_desc ON lkp_benefit_period_desc.CODESC_CODE = mrv_iics_mt_conformed_mrvcons_current_contract_risk.BENEFIT_PERIOD
 
-          LEFT JOIN {{ ref(''BRONZE'', ''BENEFIT_PERIOD_DESC'') }} benefit_period_desc ON benefit_period_desc.CODESC_CODE = curr_product_option.BENEFIT_PERIOD
+          LEFT JOIN {{ ref(''BRONZE'', ''CODE_DESC'') }} lkp_code_desc ON lkp_code_desc.CODESC_CODE = mrv_iics_mt_conformed_mrvcons_current_contract_risk.FULL_DAY_CVRG_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''RISK_CMSN_TYPE'') }} risk_cmsn_type ON risk_cmsn_type.CODE = curr_product_option.RISK_CMSN_TYPE_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''RISKOPT'') }} lkp_riskopt ON lkp_riskopt.CODE = mrv_iics_mt_conformed_mrvcons_current_contract_risk.po_PRODUCT_SYSTEM_CODE AND lkp_riskopt.CODE = mrv_iics_mt_conformed_mrvcons_current_contract_risk.po_PRODUCT_OPTION_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''RISK_WAIT_PERIOD'') }} risk_wait_period ON risk_wait_period.CODE = curr_product_option.RISK_WAIT_PERIOD AND risk_wait_period.CODE = curr_product_option.LKP_PRODUCT_SYSTEM_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''FREQ'') }} lkp_freq ON lkp_freq.CODE = (lkp_riskopt.CODE)
 
-          LEFT JOIN {{ ref(''BRONZE'', ''ILLNESS_PAY_PERIOD'') }} illness_pay_period ON illness_pay_period.CODE = curr_product_option.ILLNESS_PAY_PERIOD_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''FREQ_DESC'') }} lkp_freq_desc ON lkp_freq_desc.CODE = mrv_iics_mt_conformed_mrvcons_current_contract_risk.FREQ_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''FREQ'') }} freq ON freq.CODE = curr_product_option.SUM_INSRD_FREQ_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''RISK_CMSN_TYPE'') }} lkp_risk_cmsn_type ON lkp_risk_cmsn_type.CODE = mrv_iics_mt_conformed_mrvcons_current_contract_risk.RISK_CMSN_TYPE_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''FREQ_DESC'') }} freq_desc ON freq_desc.CODE = curr_product_option.FREQ_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''RISK_WAIT_PERIOD'') }} lkp_risk_wait_period ON lkp_risk_wait_period.CODE = mrv_iics_mt_conformed_mrvcons_current_contract_risk.RISK_WAIT_PERIOD AND lkp_risk_wait_period.CODE = mrv_iics_mt_conformed_mrvcons_current_contract_risk.product_system_code
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_REF360_ASSESS_V'') }} mrv_ref360_assess_v ON mrv_ref360_assess_v.CODE = curr_product_option.ASSESS_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''ILLNESS_PAY_PERIOD'') }} lkp_illness_pay_period ON lkp_illness_pay_period.CODE = mrv_iics_mt_conformed_mrvcons_current_contract_risk.ILLNESS_PAY_PERIOD_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_REF360_OCCUPATION_CLASS_V'') }} mrv_ref360_occupation_class_v ON mrv_ref360_occupation_class_v.CODE = curr_product_option.OCUTPN_CLASS_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_REF360_OCCUPATION_CLASS_V'') }} lkp_mrv_ref360_occupation_class_v ON lkp_mrv_ref360_occupation_class_v.CODE = mrv_iics_mt_conformed_mrvcons_current_contract_risk.OCUPTN_CLASS_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''RISK_DISABLE'') }} risk_disable ON risk_disable.CONTRACT_RISK_KEY = curr_product_option.RISK_CONTRACT_RISK_KEY'
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_REF360_ASSESS_V'') }} lkp_mrv_ref360_assess_v ON lkp_mrv_ref360_assess_v.CODE = mrv_iics_mt_conformed_mrvcons_current_contract_risk.ASSESS_CODE'
       name: source1
       noLinkRefs: []
   name: CURR_CONTRACT_RISK

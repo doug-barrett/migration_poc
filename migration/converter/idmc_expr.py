@@ -108,8 +108,14 @@ def _translate_isnull(expr: str) -> str:
 # Some mappings also use bare macro tokens (ULKP_*, LKP_*).  We rewrite the
 # ":LKP." form to a comment-tagged placeholder that keeps the SQL parseable
 # and records the intent for the human finisher.
+# Marker emitted for an unconnected-lookup call.  It is shaped like a normal
+# function call so the column qualifier still qualifies the ARGUMENTS, and the
+# emitter later resolves it to "<join_alias>.<returnPort>" plus a LEFT JOIN.
+LKP_CALL_PREFIX = "LKPCALL_"
+
+
 def _translate_unconnected_lookups(expr: str) -> str:
-    # :LKP.some_lookup(<balanced args>) -> /*LKP:some_lookup*/ NULL
+    # :LKP.some_lookup(<balanced args>) -> LKPCALL_some_lookup(<args>)
     pat = re.compile(r':LKP\.([A-Za-z0-9_]+)\s*\(', re.IGNORECASE)
     while True:
         m = pat.search(expr)
@@ -135,7 +141,9 @@ def _translate_unconnected_lookups(expr: str) -> str:
                     break
         if close is None:
             return expr                 # unbalanced -> leave as-is
-        expr = expr[:m.start()] + f"/*LKP:{name}*/ NULL" + expr[close + 1:]
+        args = expr[i + 1:close]
+        expr = (expr[:m.start()] + f"{LKP_CALL_PREFIX}{name}({args})"
+                + expr[close + 1:])
 
 
 # ---- simple function / operator swaps -------------------------------------
@@ -281,6 +289,36 @@ def _translate_reg_match(expr: str) -> str:
         else:
             rewritten = f"RLIKE({inner})"
         expr = expr[:start] + rewritten + expr[end:]
+
+
+def find_lkp_call(expr: str):
+    """Locate the first LKPCALL_<name>(<balanced args>) in expr.
+    Returns (start, end, lookup_name, args_string) or None."""
+    m = re.search(re.escape(LKP_CALL_PREFIX) + r'([A-Za-z0-9_]+)\s*\(', expr)
+    if not m:
+        return None
+    i = m.end() - 1
+    depth, q = 0, None
+    for j in range(i, len(expr)):
+        ch = expr[j]
+        if q:
+            if ch == q:
+                q = None
+            continue
+        if ch in ("'", '"'):
+            q = ch
+        elif ch == '(':
+            depth += 1
+        elif ch == ')':
+            depth -= 1
+            if depth == 0:
+                return (m.start(), j + 1, m.group(1), expr[i + 1:j])
+    return None
+
+
+def split_args(s: str) -> list:
+    """Public wrapper: split a call's argument list on top-level commas."""
+    return _split_args(s)
 
 
 def _translate_params(expr: str) -> str:

@@ -43,7 +43,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN (/*LKP:lkp_ref360_close_type*/ NULL IS NULL) THEN 'NA' ELSE /*LKP:lkp_ref360_close_type*/ NULL END)
+        transform: (CASE WHEN (lkp_ref360_close_type.CODE IS NULL) THEN 'NA' ELSE lkp_ref360_close_type.CODE END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5d71b954-2d3c-d534-a7dc-dad73ba7e4ec
@@ -69,7 +69,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN (or_product_convert.PC1_VOID_DATE IS NULL) AND (/*LKP:lkp_ref360_convert*/ NULL) = 'C' THEN or_product_convert._file_produced_date ELSE CASE WHEN (or_product_convert.PC1_VOID_DATE IS NULL) THEN To_Date( '31-DEC-3000','DD-MON-YYYY') ELSE or_product_convert.PC1_VOID_DATE END END)
+        transform: (CASE WHEN (or_product_convert.PC1_VOID_DATE IS NULL) AND (lkp_ref360_convert.TARGET_SYSTEM_CODE) = 'C' THEN or_product_convert._file_produced_date ELSE CASE WHEN (or_product_convert.PC1_VOID_DATE IS NULL) THEN To_Date( '31-DEC-3000','DD-MON-YYYY') ELSE or_product_convert.PC1_VOID_DATE END END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4baeff5b-e52d-0be8-1f32-f2260470cb80
@@ -550,7 +550,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN (/*LKP:lkp_ref360_close_type*/ NULL IS NULL) THEN 'NA' ELSE /*LKP:lkp_ref360_close_type*/ NULL END)
+        transform: (CASE WHEN (lkp_ref360_close_type.CODE IS NULL) THEN 'NA' ELSE lkp_ref360_close_type.CODE END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: fcadc828-c8f9-cde6-a198-8337c9ddddc0
@@ -775,7 +775,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (/*LKP:lkp_dw_product*/ NULL)
+        transform: (lkp_dw_product.PRODUCT_KEY)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 588ccd06-7b64-e3fc-090b-57007ba843b9
@@ -872,11 +872,11 @@ operation:
 
           LEFT JOIN {{ ref(''BRONZE'', ''OR_DPOLY'') }} or_dpoly ON dw_contract.CONTRACT_ID = or_dpoly.PC1_POL_NUM /* Master Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_CLOSE_TYPE'') }} ref360_close_type ON ref360_close_type.CLOSE_TYPE_CODE = dw_contract.PCL_VOID_CAUSE
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_CLOSE_TYPE'') }} lkp_ref360_close_type ON lkp_ref360_close_type.CLOSE_TYPE_CODE = ''OR-''||or_product_convert.PC1_VOID_CAUSE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_CONVERT'') }} ref360_convert ON ref360_convert.SOURCE_SYSTEM_CODE = dw_contract.PC1_POL_STATUS_ACCT
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_CONVERT'') }} lkp_ref360_convert ON lkp_ref360_convert.SOURCE_SYSTEM_CODE = dw_contract.PC1_POL_STATUS_ACCT
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT'') }} dw_product ON dw_product.PRODUCT_CODE = dw_contract.PRODUCT_CODE AND dw_product.CLASS_OF_BUSN_CODE = dw_contract.CLASS_OF_BUSN_CODE AND dw_product.PREMIUM_TYPE_CODE = dw_contract.PREMIUM_TYPE_CODE'
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT'') }} lkp_dw_product ON lkp_dw_product.PRODUCT_CODE = dw_contract.PRODUCT_CODE AND lkp_dw_product.CLASS_OF_BUSN_CODE = dw_contract.CLASS_OF_BUSN_CODE AND lkp_dw_product.PREMIUM_TYPE_CODE = or_product_convert.PREM_TYPE_CODE'
       name: source1
       noLinkRefs: []
   name: DW_CONTRACT_VRBL

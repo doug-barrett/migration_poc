@@ -29,7 +29,7 @@ operation:
       nullable: false
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN dw_contract.CSH_PROD_CATEGORY='CI' THEN (CASE WHEN dw_contract.CSH_PROD_CATEGORY='CI' THEN /*LKP:ulkp_dw_product_option*/ NULL ELSE /*LKP:ulkp_dw_product_option*/ NULL END) ELSE /*LKP:ulkp_dw_product_option*/ NULL END
+        transform: CASE WHEN dw_contract.CSH_PROD_CATEGORY='CI' THEN (CASE WHEN dw_contract.CSH_PROD_CATEGORY='CI' THEN ulkp_dw_product_option.PRODUCT_OPTION_KEY ELSE ulkp_dw_product_option_2.PRODUCT_OPTION_KEY END) ELSE ulkp_dw_product_option.PRODUCT_OPTION_KEY END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 57d3a524-fd62-a9f6-785f-6a8947df4717
@@ -42,7 +42,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN dw_contract.CSH_PROD_CATEGORY='CI' THEN /*LKP:ulkp_dw_product_option*/ NULL ELSE /*LKP:ulkp_dw_product_option*/ NULL END)
+        transform: (CASE WHEN dw_contract.CSH_PROD_CATEGORY='CI' THEN ulkp_dw_product_option.PRODUCT_OPTION_KEY ELSE ulkp_dw_product_option_2.PRODUCT_OPTION_KEY END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e99648fe-2244-018e-30a0-814defd0c133
@@ -55,7 +55,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:ulkp_dw_trnx_type*/ NULL
+        transform: ulkp_dw_trnx_type.TRNX_TYPE_KEY
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0de987f3-0317-e858-1c15-e94fc6dccce7
@@ -68,7 +68,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:ulkp_ref360_state*/ NULL
+        transform: ulkp_ref360_state.CODE
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 0ced0023-eb1b-7bf5-a905-2cbb19a03a7f
@@ -81,7 +81,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN dw_contract.CSH_PROD_CATEGORY='CI' THEN 1 ELSE /*LKP:ulkp_dw_trnx_type*/ NULL END
+        transform: CASE WHEN dw_contract.CSH_PROD_CATEGORY='CI' THEN 1 ELSE ulkp_dw_trnx_type_2.TRNX_TYPE_KEY END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 788e1455-9e00-6ed8-0301-5f4acafb97cf
@@ -94,7 +94,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN dw_contract.CSH_PROD_CATEGORY='CI' THEN 1 ELSE /*LKP:ulkp_dw_trnx_type*/ NULL END
+        transform: CASE WHEN dw_contract.CSH_PROD_CATEGORY='CI' THEN 1 ELSE ulkp_dw_trnx_type_3.TRNX_TYPE_KEY END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 4140cadb-0647-bf3f-e824-7ecfc66a85bc
@@ -120,7 +120,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN dw_contract.csh_prod_category='CI' THEN /*LKP:ulkp_dw_trnx_type*/ NULL ELSE /*LKP:ulkp_dw_trnx_type*/ NULL END
+        transform: CASE WHEN dw_contract.csh_prod_category='CI' THEN ulkp_dw_trnx_type_4.TRNX_TYPE_KEY ELSE ulkp_dw_trnx_type_5.TRNX_TYPE_KEY END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 6d46cb28-f973-086d-e3e7-9cdc2b367d65
@@ -529,7 +529,6 @@ operation:
     - aliases:
         DWSA_OR_OPT_CONVERT: 970fa567-d70b-93e5-bbf4-5726da3d9b98
         DW_CONTRACT: 49afe4d4-b8de-827c-baa6-dc1914b9ca5f
-        DW_EVENT_TYPE: d674cea3-5b68-6e48-3de6-16d96a7dde4b
         DW_PRODUCT_OPTION: e07b3200-215a-b568-11cb-bb646f733e66
         DW_TRNX_TYPE: c4bae737-7f2e-b20f-5b3e-1904dfd70eaa
         OR_DCASH: 2cf4b43f-797a-c8b4-e35f-37900dd24caf
@@ -542,29 +541,35 @@ operation:
       - locationName: BRONZE
         nodeName: OR_DCASH
       - locationName: BRONZE
-        nodeName: DW_TRNX_TYPE
+        nodeName: DW_PRODUCT_OPTION
       - locationName: BRONZE
         nodeName: DWSA_OR_OPT_CONVERT
       - locationName: BRONZE
-        nodeName: DW_PRODUCT_OPTION
+        nodeName: DW_TRNX_TYPE
       - locationName: BRONZE
         nodeName: REF360_STATE
-      - locationName: BRONZE
-        nodeName: DW_EVENT_TYPE
       join:
         joinCondition: 'FROM {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract
 
           LEFT JOIN {{ ref(''BRONZE'', ''OR_DCASH'') }} or_dcash ON or_dcash.CSH_POL_NUM = dw_contract.CONTRACT_ID /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_TRNX_TYPE'') }} dw_trnx_type ON dw_trnx_type.SOURCE_TRNX_TYPE_CODE = dw_contract.CSH_CASH_CAUSE AND dw_trnx_type.BUSN_LINE = dw_contract.CSH_PROD_CATEGORY
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_OPTION'') }} ulkp_dw_product_option ON ulkp_dw_product_option.PRODUCT_KEY = dw_contract.product_key AND ulkp_dw_product_option.PRODUCT_OPTION_CODE = CASE WHEN (or_dcash.csh_sd_ben_type IS NULL) or or_dcash.csh_sd_ben_type=''SPR'' THEN ''NA'' ELSE or_dcash.csh_sd_ben_type END
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DWSA_OR_OPT_CONVERT'') }} dwsa_or_opt_convert ON dwsa_or_opt_convert.COUNTRY_CODE = dw_contract.V_BRANCH_CODE AND dwsa_or_opt_convert.STAT_FUND_CODE = dw_contract.CSH_STAT_FUND AND dwsa_or_opt_convert.UNIT_CLASS = dw_contract.CSH_UNIT_CLASS
+          LEFT JOIN {{ ref(''BRONZE'', ''DWSA_OR_OPT_CONVERT'') }} ulkp_dwsa_or_opt_convert ON ulkp_dwsa_or_opt_convert.COUNTRY_CODE = (DECODE(or_dcash.csh_branch_code,''3'', ''NZL'',''AUS'')) AND ulkp_dwsa_or_opt_convert.STAT_FUND_CODE = dw_contract.csh_stat_fund AND ulkp_dwsa_or_opt_convert.UNIT_CLASS = dw_contract.csh_unit_class
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_OPTION'') }} dw_product_option ON dw_product_option.PRODUCT_KEY = dw_contract.PRODUCT_KEY AND dw_product_option.PRODUCT_OPTION_CODE = dw_contract.INVEST_OPT_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_OPTION'') }} ulkp_dw_product_option_2 ON ulkp_dw_product_option_2.PRODUCT_KEY = dw_contract.product_key AND ulkp_dw_product_option_2.PRODUCT_OPTION_CODE = (CASE WHEN dw_contract.csh_prod_category=''CI'' THEN ''dummy'' ELSE ulkp_dwsa_or_opt_convert.INVEST_OPT_CODE END)
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_STATE'') }} ref360_state ON ref360_state.CODE = dw_contract.CSH_SD_STATE_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_TRNX_TYPE'') }} ulkp_dw_trnx_type ON ulkp_dw_trnx_type.SOURCE_TRNX_TYPE_CODE = or_dcash.csh_sd_basis_method ||or_dcash.csh_sd_standalone_ind||or_dcash.csh_sd_type||or_dcash.csh_sd_amp_pay_ind AND ulkp_dw_trnx_type.BUSN_LINE = dw_contract.csh_prod_category
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_EVENT_TYPE'') }} dw_event_type ON dw_event_type.EVENT_TYPE_CODE = dw_contract.EVENT_TYPE_CODE AND dw_event_type.SOURCE_SYSTEM_CODE = dw_contract.SRC_SYS_CODE'
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_STATE'') }} ulkp_ref360_state ON ulkp_ref360_state.CODE = dw_contract.csh_sd_state_code
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_TRNX_TYPE'') }} ulkp_dw_trnx_type_2 ON ulkp_dw_trnx_type_2.SOURCE_TRNX_TYPE_CODE = ''MGR'' AND ulkp_dw_trnx_type_2.BUSN_LINE = dw_contract.csh_prod_category
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_TRNX_TYPE'') }} ulkp_dw_trnx_type_3 ON ulkp_dw_trnx_type_3.SOURCE_TRNX_TYPE_CODE = ''BRK'' AND ulkp_dw_trnx_type_3.BUSN_LINE = dw_contract.csh_prod_category
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_TRNX_TYPE'') }} ulkp_dw_trnx_type_4 ON ulkp_dw_trnx_type_4.SOURCE_TRNX_TYPE_CODE = dw_contract.csh_cash_cause||or_dcash.csh_report_ind AND ulkp_dw_trnx_type_4.BUSN_LINE = dw_contract.csh_prod_category
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_TRNX_TYPE'') }} ulkp_dw_trnx_type_5 ON ulkp_dw_trnx_type_5.SOURCE_TRNX_TYPE_CODE = dw_contract.csh_cash_cause||or_dcash.csh_trans_ind AND ulkp_dw_trnx_type_5.BUSN_LINE = dw_contract.csh_prod_category'
       name: source1
       noLinkRefs: []
   name: DW_CONTRACT_OPTION_TRNX_OR

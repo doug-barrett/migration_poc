@@ -292,7 +292,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:ulkp_dw_product_option*/ NULL
+        transform: ulkp_dw_product_option.PRODUCT_OPTION_KEY
     - appliedColumnTests: {}
       columnReference:
         columnCounter: ddf1a178-2af0-d687-a524-a42eb10491d7
@@ -331,7 +331,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:ulkp_dw_event_type*/ NULL
+        transform: ulkp_dw_event_type.EVENT_TYPE_KEY
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 7400c718-5282-aeb1-1752-228dcf24d8e5
@@ -344,7 +344,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:ulkp_ref360_state*/ NULL
+        transform: ulkp_ref360_state.CODE
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 891bbcea-3ce3-69e4-aa92-0002a1d63516
@@ -357,7 +357,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN ((/*LKP:ulkp_ref360_code_convert*/ NULL) IS NULL) THEN 'UNKNWN' ELSE (/*LKP:ulkp_ref360_code_convert*/ NULL) END
+        transform: CASE WHEN ((ulkp_ref360_code_convert.TARGET_SYSTEM_CODE) IS NULL) THEN 'UNKNWN' ELSE (ulkp_ref360_code_convert.TARGET_SYSTEM_CODE) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 5c547381-26fd-ff17-94dc-3730612b16c0
@@ -462,7 +462,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: /*LKP:ulkp_dw_trnx_type*/ NULL
+        transform: ulkp_dw_trnx_type.TRNX_TYPE_KEY
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d6feceef-f166-976e-74c3-ab6616de1a25
@@ -475,7 +475,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (/*LKP:ulkp_dw_trnx_type*/ NULL)
+        transform: (ulkp_dw_trnx_type_2.TRNX_TYPE_KEY)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 9593c610-a93c-76e8-6b5e-2bee87a60a45
@@ -904,15 +904,15 @@ operation:
       - locationName: BRONZE
         nodeName: DW_CONTRACT
       - locationName: BRONZE
+        nodeName: CP_CASH_CAUSE_CONVERT
+      - locationName: BRONZE
         nodeName: DW_PRODUCT_OPTION
       - locationName: BRONZE
-        nodeName: REF360_CODE_CONVERT
-      - locationName: BRONZE
-        nodeName: CP_CASH_CAUSE_CONVERT
+        nodeName: DW_EVENT_TYPE
       - locationName: BRONZE
         nodeName: REF360_STATE
       - locationName: BRONZE
-        nodeName: DW_EVENT_TYPE
+        nodeName: REF360_CODE_CONVERT
       - locationName: BRONZE
         nodeName: DW_TRNX_TYPE
       join:
@@ -920,17 +920,19 @@ operation:
 
           LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON cp_dcaah.CSHO_POLICY_NUMBER = dw_contract.CONTRACT_ID /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_OPTION'') }} dw_product_option ON dw_product_option.PRODUCT_KEY = cp_dcaah.PRODUCT_KEY AND dw_product_option.PRODUCT_OPTION_CODE = cp_dcaah.INVEST_OPT_CODE
-
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_CODE_CONVERT'') }} ref360_code_convert ON ref360_code_convert.SOURCE_SYSTEM_CODE = cp_dcaah.CASH_SRCE_ID AND ref360_code_convert.SOURCE_PRODUCT_SYSTEM = cp_dcaah.SRC_SYSTEM_CODE AND ref360_code_convert.REF360_REFERENCE_DATA_SET = cp_dcaah.REF360_DATA_SET
-
           LEFT JOIN {{ ref(''BRONZE'', ''CP_CASH_CAUSE_CONVERT'') }} cp_cash_cause_convert ON cp_cash_cause_convert.CASH_CAUSE = cp_dcaah.CSHO_CASH_CAUSE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_STATE'') }} ref360_state ON ref360_state.CODE = cp_dcaah.CSHO_SDUTY_STATE_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_OPTION'') }} ulkp_dw_product_option ON ulkp_dw_product_option.PRODUCT_KEY = cp_dcaah.product_key AND ulkp_dw_product_option.PRODUCT_OPTION_CODE = (CASE WHEN (cp_dcaah.csho_benefit_plan_code IS NULL) THEN ''NA'' ELSE LTRIM(RTRIM(cp_dcaah.csho_benefit_plan_code)) END)
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_EVENT_TYPE'') }} dw_event_type ON dw_event_type.EVENT_TYPE_CODE = cp_dcaah.EVENT_TYPE_CODE AND dw_event_type.SOURCE_SYSTEM_CODE = cp_dcaah.SRC_SYS_CODE AND dw_event_type.EVENT_TYPE_GROUP_CODE = cp_dcaah.EVENT_TYPE_GROUP_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_EVENT_TYPE'') }} ulkp_dw_event_type ON ulkp_dw_event_type.EVENT_TYPE_CODE = cp_dcaah.lkp_EVENT_TYPE_CODE AND ulkp_dw_event_type.SOURCE_SYSTEM_CODE = ''CP'' AND ulkp_dw_event_type.EVENT_TYPE_GROUP_CODE = cp_dcaah.lkp_EVENT_TYPE_GROUP_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_TRNX_TYPE'') }} dw_trnx_type ON dw_trnx_type.SOURCE_SYSTEM_CODE = cp_dcaah.SRC_SYSTEM_CODE AND dw_trnx_type.SOURCE_TRNX_TYPE_CODE = cp_dcaah.CSH_CASH_CAUSE'
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_STATE'') }} ulkp_ref360_state ON ulkp_ref360_state.CODE = cp_dcaah.csho_sduty_state_code
+
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_CODE_CONVERT'') }} ulkp_ref360_code_convert ON ulkp_ref360_code_convert.SOURCE_SYSTEM_CODE = cp_dcaah.o_csho_cash_srce_id AND ulkp_ref360_code_convert.SOURCE_PRODUCT_SYSTEM = ''CP'' AND ulkp_ref360_code_convert.REF360_REFERENCE_DATA_SET = ''Payment Method''
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_TRNX_TYPE'') }} ulkp_dw_trnx_type ON ulkp_dw_trnx_type.SOURCE_SYSTEM_CODE = ''CP'' AND ulkp_dw_trnx_type.SOURCE_TRNX_TYPE_CODE = cp_dcaah.src_CSHO_CASH_CAUSE || ''CASH''
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_TRNX_TYPE'') }} ulkp_dw_trnx_type_2 ON ulkp_dw_trnx_type_2.SOURCE_SYSTEM_CODE = ''CP'' AND ulkp_dw_trnx_type_2.SOURCE_TRNX_TYPE_CODE = cp_dcaah.src_csho_cash_cause ||cp_dcaah.src_csho_sduty_basis_method ||cp_dcaah.src_csho_sduty_link_ind ||cp_dcaah.src_csho_sduty_type ||cp_dcaah.src_csho_sduty_amp_pay_ind'
       name: source1
       noLinkRefs: []
   name: DW_SDUTY_TRNX_CP
