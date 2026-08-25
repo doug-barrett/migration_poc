@@ -510,6 +510,8 @@ operation:
         CP_DQCP2: 6f44ddde-8a2e-7f09-5a7a-716a69c3327d
         CP_DQCP3: 872a1cc3-565c-09f9-4b19-20aa51d792d3
         CP_DXCP1: 98d9b37b-459b-7ff5-99f6-d765b4625316
+        CP_DXCP2: 39f3b7ac-50ad-e462-2dee-b5ce77963d18
+        CP_DXCP3: 969ed07b-21a6-72ee-8722-9e55fb8fb42a
         CP_EXLUDE_PRODUCT_KEY: 6a8d7b53-437b-6d81-ad2c-dd5830f668cc
         DW_CONTRACT: 49afe4d4-b8de-827c-baa6-dc1914b9ca5f
         DW_PARTY: bb382647-fad0-4afe-380c-3a7be4aeae9f
@@ -521,21 +523,25 @@ operation:
         customSQL: ''
       dependencies:
       - locationName: BRONZE
-        nodeName: CP_DXCP1
-      - locationName: BRONZE
         nodeName: YD_DEIREF
       - locationName: BRONZE
         nodeName: CP_EXLUDE_PRODUCT_KEY
       - locationName: BRONZE
+        nodeName: CP_DXCP1
+      - locationName: BRONZE
+        nodeName: CP_DXCP2
+      - locationName: BRONZE
+        nodeName: CP_DXCP3
+      - locationName: BRONZE
         nodeName: CP_DQCP2
-      - locationName: BRONZE
-        nodeName: DW_CONTRACT
-      - locationName: BRONZE
-        nodeName: DW_PARTY
       - locationName: BRONZE
         nodeName: CP_DQCP1
       - locationName: BRONZE
         nodeName: CP_DQCP3
+      - locationName: BRONZE
+        nodeName: DW_CONTRACT
+      - locationName: BRONZE
+        nodeName: DW_PARTY
       - locationName: BRONZE
         nodeName: INCOME_STM_RCPT1
       - locationName: BRONZE
@@ -543,27 +549,23 @@ operation:
       - locationName: BRONZE
         nodeName: INCOME_STM_RCPT3
       join:
-        joinCondition: 'FROM {{ ref(''BRONZE'', ''CP_DXCP1'') }} cp_dxcp1
-
-          LEFT JOIN {{ ref(''BRONZE'', ''YD_DEIREF'') }} yd_deiref ON cp_dxcp1.PADDED_CLIENT_ID = yd_deiref.EI_ID /* Detail Outer Join */
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''YD_DEIREF'') }} yd_deiref
 
           LEFT JOIN {{ ref(''BRONZE'', ''CP_EXLUDE_PRODUCT_KEY'') }} cp_exlude_product_key ON yd_deiref.PRODUCT_KEY = cp_exlude_product_key.PRODUCT_KEY /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''CP_DQCP2'') }} cp_dqcp2 ON yd_deiref.XC1_POLICY_NUMBER = cp_dqcp2.QC1_POLICY_NUMBER /* Detail Outer Join */
+          LEFT JOIN ( SELECT * FROM {{ ref(''BRONZE'', ''CP_DXCP1'') }} UNION ALL SELECT * FROM {{ ref(''BRONZE'', ''CP_DXCP2'') }} UNION ALL SELECT * FROM {{ ref(''BRONZE'', ''CP_DXCP3'') }} ) cp_dxcp1 ON cp_dxcp1.PADDED_CLIENT_ID = yd_deiref.EI_ID /* Detail Outer Join */
+
+          LEFT JOIN ( SELECT * FROM {{ ref(''BRONZE'', ''CP_DQCP2'') }} UNION ALL SELECT * FROM {{ ref(''BRONZE'', ''CP_DQCP1'') }} UNION ALL SELECT * FROM {{ ref(''BRONZE'', ''CP_DQCP3'') }} ) cp_dqcp2 ON yd_deiref.XC1_POLICY_NUMBER = cp_dqcp2.QC1_POLICY_NUMBER /* Detail Outer Join */
 
           LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON yd_deiref.XC1_POLICY_NUMBER = dw_contract.CONTRACT_ID /* Detail Outer Join */
 
           LEFT JOIN {{ ref(''BRONZE'', ''DW_PARTY'') }} dw_party ON yd_deiref.BI_ID = dw_party.PARTY_ID /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''CP_DQCP1'') }} cp_dqcp1 ON /* TODO join key (Joiner not resolved) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''INCOME_STM_RCPT1'') }} income_stm_rcpt1 ON income_stm_rcpt1.XC1_POLICY_NUMBER = yd_deiref.POL_NUM AND income_stm_rcpt1.XC1_ANNUITANT_NUMBER = yd_deiref.ANNT_NUM
 
-          LEFT JOIN {{ ref(''BRONZE'', ''CP_DQCP3'') }} cp_dqcp3 ON /* TODO join key (Joiner not resolved) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''INCOME_STM_RCPT2'') }} income_stm_rcpt2 ON income_stm_rcpt2.XC1_POLICY_NUMBER = yd_deiref.POL_NUM AND income_stm_rcpt2.XC1_ANNUITANT_NUMBER = yd_deiref.ANNT_NUM
 
-          LEFT JOIN {{ ref(''BRONZE'', ''INCOME_STM_RCPT1'') }} income_stm_rcpt1 ON income_stm_rcpt1.XC1_POLICY_NUMBER = cp_dxcp1.POL_NUM AND income_stm_rcpt1.XC1_ANNUITANT_NUMBER = cp_dxcp1.ANNT_NUM
-
-          LEFT JOIN {{ ref(''BRONZE'', ''INCOME_STM_RCPT2'') }} income_stm_rcpt2 ON income_stm_rcpt2.XC1_POLICY_NUMBER = cp_dxcp1.POL_NUM AND income_stm_rcpt2.XC1_ANNUITANT_NUMBER = cp_dxcp1.ANNT_NUM
-
-          LEFT JOIN {{ ref(''BRONZE'', ''INCOME_STM_RCPT3'') }} income_stm_rcpt3 ON income_stm_rcpt3.XC1_POLICY_NUMBER = cp_dxcp1.POL_NUM AND income_stm_rcpt3.XC1_ANNUITANT_NUMBER = cp_dxcp1.ANNT_NUM'
+          LEFT JOIN {{ ref(''BRONZE'', ''INCOME_STM_RCPT3'') }} income_stm_rcpt3 ON income_stm_rcpt3.XC1_POLICY_NUMBER = yd_deiref.POL_NUM AND income_stm_rcpt3.XC1_ANNUITANT_NUMBER = yd_deiref.ANNT_NUM'
       name: source1
       noLinkRefs: []
   name: DW_CUST_INCOME_STREAM_DTL

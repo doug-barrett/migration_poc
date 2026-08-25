@@ -537,9 +537,9 @@ operation:
         customSQL: ''
       dependencies:
       - locationName: BRONZE
-        nodeName: OR_DCASH
-      - locationName: BRONZE
         nodeName: DW_CONTRACT
+      - locationName: BRONZE
+        nodeName: OR_DCASH
       - locationName: BRONZE
         nodeName: DW_TRNX_TYPE
       - locationName: BRONZE
@@ -551,19 +551,19 @@ operation:
       - locationName: BRONZE
         nodeName: DW_EVENT_TYPE
       join:
-        joinCondition: 'FROM {{ ref(''BRONZE'', ''OR_DCASH'') }} or_dcash
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON or_dcash.CSH_POL_NUM = dw_contract.CONTRACT_ID /* Detail Outer Join */
+          LEFT JOIN {{ ref(''BRONZE'', ''OR_DCASH'') }} or_dcash ON or_dcash.CSH_POL_NUM = dw_contract.CONTRACT_ID /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_TRNX_TYPE'') }} dw_trnx_type ON dw_trnx_type.SOURCE_TRNX_TYPE_CODE = or_dcash.CSH_CASH_CAUSE AND dw_trnx_type.BUSN_LINE = or_dcash.CSH_PROD_CATEGORY
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_TRNX_TYPE'') }} dw_trnx_type ON dw_trnx_type.SOURCE_TRNX_TYPE_CODE = dw_contract.CSH_CASH_CAUSE AND dw_trnx_type.BUSN_LINE = dw_contract.CSH_PROD_CATEGORY
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DWSA_OR_OPT_CONVERT'') }} dwsa_or_opt_convert ON dwsa_or_opt_convert.COUNTRY_CODE = or_dcash.V_BRANCH_CODE AND dwsa_or_opt_convert.STAT_FUND_CODE = or_dcash.CSH_STAT_FUND AND dwsa_or_opt_convert.UNIT_CLASS = or_dcash.CSH_UNIT_CLASS
+          LEFT JOIN {{ ref(''BRONZE'', ''DWSA_OR_OPT_CONVERT'') }} dwsa_or_opt_convert ON dwsa_or_opt_convert.COUNTRY_CODE = dw_contract.V_BRANCH_CODE AND dwsa_or_opt_convert.STAT_FUND_CODE = dw_contract.CSH_STAT_FUND AND dwsa_or_opt_convert.UNIT_CLASS = dw_contract.CSH_UNIT_CLASS
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_OPTION'') }} dw_product_option ON dw_product_option.PRODUCT_KEY = or_dcash.PRODUCT_KEY AND dw_product_option.PRODUCT_OPTION_CODE = or_dcash.INVEST_OPT_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_OPTION'') }} dw_product_option ON dw_product_option.PRODUCT_KEY = dw_contract.PRODUCT_KEY AND dw_product_option.PRODUCT_OPTION_CODE = dw_contract.INVEST_OPT_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_STATE'') }} ref360_state ON ref360_state.CODE = or_dcash.CSH_SD_STATE_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_STATE'') }} ref360_state ON ref360_state.CODE = dw_contract.CSH_SD_STATE_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_EVENT_TYPE'') }} dw_event_type ON dw_event_type.EVENT_TYPE_CODE = or_dcash.EVENT_TYPE_CODE AND dw_event_type.SOURCE_SYSTEM_CODE = or_dcash.SRC_SYS_CODE'
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_EVENT_TYPE'') }} dw_event_type ON dw_event_type.EVENT_TYPE_CODE = dw_contract.EVENT_TYPE_CODE AND dw_event_type.SOURCE_SYSTEM_CODE = dw_contract.SRC_SYS_CODE'
       name: source1
       noLinkRefs: []
   name: DW_CONTRACT_OPTION_TRNX_OR

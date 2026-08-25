@@ -842,7 +842,6 @@ operation:
     sourceMapping:
     - aliases:
         DW_CONTRACT: 49afe4d4-b8de-827c-baa6-dc1914b9ca5f
-        DW_CONTRACT_VRBL_RAW: 3aaee47d-925b-db3e-70ff-9b72ba8a7ed0
         DW_PRODUCT: ed7612a8-85f9-aa54-ac9b-ebf1cd369a79
         OR_DPOLY: 7ad3c430-7134-a18f-9bb4-0ed49b55892b
         OR_PRODUCT_CONVERT: 7a78f22b-ea98-f803-f1c6-231ee135b0b1
@@ -852,13 +851,11 @@ operation:
         customSQL: ''
       dependencies:
       - locationName: BRONZE
-        nodeName: OR_PRODUCT_CONVERT
-      - locationName: BRONZE
         nodeName: DW_CONTRACT
       - locationName: BRONZE
-        nodeName: OR_DPOLY
+        nodeName: OR_PRODUCT_CONVERT
       - locationName: BRONZE
-        nodeName: DW_CONTRACT_VRBL_RAW
+        nodeName: OR_DPOLY
       - locationName: BRONZE
         nodeName: REF360_CLOSE_TYPE
       - locationName: BRONZE
@@ -866,19 +863,17 @@ operation:
       - locationName: BRONZE
         nodeName: DW_PRODUCT
       join:
-        joinCondition: 'FROM {{ ref(''BRONZE'', ''OR_PRODUCT_CONVERT'') }} or_product_convert
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON dw_contract.PRODUCT_CODE = or_product_convert.PRODUCT_CODE AND dw_contract.CLASS_OF_BUSN = or_product_convert.CLASS_OF_BUSN_CODE AND dw_contract.PREMIUM_TYPE_CODE = or_product_convert.PREMIUM_TYPE_CODE /* Detail Outer Join */
+          LEFT JOIN {{ ref(''BRONZE'', ''OR_PRODUCT_CONVERT'') }} or_product_convert ON dw_contract.PRODUCT_CODE = or_product_convert.PRODUCT_CODE AND dw_contract.CLASS_OF_BUSN = or_product_convert.CLASS_OF_BUSN_CODE AND dw_contract.PREMIUM_TYPE_CODE = or_product_convert.PREMIUM_TYPE_CODE /* Detail Outer Join */
 
           LEFT JOIN {{ ref(''BRONZE'', ''OR_DPOLY'') }} or_dpoly ON dw_contract.CONTRACT_ID = or_dpoly.PC1_POL_NUM /* Master Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT_VRBL_RAW'') }} dw_contract_vrbl_raw ON /* TODO join key (Joiner not resolved) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_CLOSE_TYPE'') }} ref360_close_type ON ref360_close_type.CLOSE_TYPE_CODE = dw_contract.PCL_VOID_CAUSE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_CLOSE_TYPE'') }} ref360_close_type ON ref360_close_type.CLOSE_TYPE_CODE = or_product_convert.PCL_VOID_CAUSE
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_CONVERT'') }} ref360_convert ON ref360_convert.SOURCE_SYSTEM_CODE = dw_contract.PC1_POL_STATUS_ACCT
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_CONVERT'') }} ref360_convert ON ref360_convert.SOURCE_SYSTEM_CODE = or_product_convert.PC1_POL_STATUS_ACCT
-
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT'') }} dw_product ON dw_product.PRODUCT_CODE = or_product_convert.PRODUCT_CODE AND dw_product.CLASS_OF_BUSN_CODE = or_product_convert.CLASS_OF_BUSN_CODE AND dw_product.PREMIUM_TYPE_CODE = or_product_convert.PREMIUM_TYPE_CODE'
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT'') }} dw_product ON dw_product.PRODUCT_CODE = dw_contract.PRODUCT_CODE AND dw_product.CLASS_OF_BUSN_CODE = dw_contract.CLASS_OF_BUSN_CODE AND dw_product.PREMIUM_TYPE_CODE = dw_contract.PREMIUM_TYPE_CODE'
       name: source1
       noLinkRefs: []
   name: DW_CONTRACT_VRBL

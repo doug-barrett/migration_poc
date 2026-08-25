@@ -103,18 +103,18 @@ operation:
       customSQL:
         customSQL: ''
       dependencies:
-      - locationName: SILVER
-        nodeName: AL4_DEVENTTRNX
       - locationName: BRONZE
         nodeName: DW_CONTRACT
       - locationName: BRONZE
         nodeName: DW_EVENT_TYPE
+      - locationName: SILVER
+        nodeName: AL4_DEVENTTRNX
       join:
-        joinCondition: 'FROM {{ ref(''SILVER'', ''AL4_DEVENTTRNX'') }} al4_deventtrnx
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract
 
-          INNER JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON al4_deventtrnx.CONTRACT_ID = dw_contract.CONTRACT_ID
+          INNER JOIN {{ ref(''BRONZE'', ''DW_EVENT_TYPE'') }} dw_event_type ON dw_contract.EVENT_TYPE_CODE = dw_event_type.EVENT_TYPE_CODE
 
-          INNER JOIN {{ ref(''BRONZE'', ''DW_EVENT_TYPE'') }} dw_event_type ON dw_contract.EVENT_TYPE_CODE = dw_event_type.EVENT_TYPE_CODE'
+          INNER JOIN {{ ref(''SILVER'', ''AL4_DEVENTTRNX'') }} al4_deventtrnx ON al4_deventtrnx.CONTRACT_ID = dw_contract.CONTRACT_ID'
       name: source1
       noLinkRefs: []
   name: DW_CONTRACT_EVENT_TRNX_AL4

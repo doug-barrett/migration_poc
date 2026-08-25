@@ -1060,41 +1060,41 @@ operation:
         customSQL: ''
       dependencies:
       - locationName: BRONZE
-        nodeName: YD_DCASHFLOW
+        nodeName: MRV_DW_PRODUCT_OPTION_V
       - locationName: BRONZE
         nodeName: MRV_REF360_IFRS_OPTION_TYPE_CURR_V
       - locationName: BRONZE
-        nodeName: MRV_IFRS_TRNX_SRC_TGT_XREF_V
-      - locationName: BRONZE
-        nodeName: MRV_DW_CONTRACT_V
+        nodeName: MRV_DW_ACTL_CFLOW_TRNX_HIST_V
       - locationName: BRONZE
         nodeName: MRV_DW_CONTRACT_VRBL_V
       - locationName: BRONZE
-        nodeName: MRV_DW_PRODUCT_OPTION_V
-      - locationName: BRONZE
-        nodeName: MRV_DW_ACTL_CFLOW_TRNX_HIST_V
+        nodeName: MRV_IFRS_TRNX_SRC_TGT_XREF_V
       - locationName: BRONZE
         nodeName: MRV_IFRS_TRNX_REF_V
       - locationName: BRONZE
         nodeName: MRV_DW_CONTRACT_RISK_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_CONTRACT_V
+      - locationName: BRONZE
+        nodeName: YD_DCASHFLOW
       join:
-        joinCondition: 'FROM {{ ref(''BRONZE'', ''YD_DCASHFLOW'') }} yd_dcashflow
-
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_REF360_IFRS_OPTION_TYPE_CURR_V'') }} mrv_ref360_ifrs_option_type_curr_v ON yd_dcashflow.IFRS_OPTION_TYPE_CODE = mrv_ref360_ifrs_option_type_curr_v.CODE /* Detail Outer Join */
-
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_IFRS_TRNX_SRC_TGT_XREF_V'') }} mrv_ifrs_trnx_src_tgt_xref_v ON yd_dcashflow.TRNX_REF_KEY_1 = mrv_ifrs_trnx_src_tgt_xref_v.SOURCE_CODE_1 AND yd_dcashflow.TRNX_REF_KEY_6 = mrv_ifrs_trnx_src_tgt_xref_v.SOURCE_CODE_2 /* Detail Outer Join */
-
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_V'') }} mrv_dw_contract_v ON mrv_ref360_ifrs_option_type_curr_v.PRODUCT_SYS_CODE = mrv_dw_contract_v.PRODUCT_SYSTEM_CODE AND mrv_ref360_ifrs_option_type_curr_v.CONTRACT_ID = mrv_dw_contract_v.CONTRACT_ID /* Detail Outer Join */
-
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_VRBL_V'') }} mrv_dw_contract_vrbl_v ON mrv_dw_contract_v.CONTRACT_KEY = mrv_dw_contract_vrbl_v.CONTRACT_KEY /* Detail Outer Join */
-
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_PRODUCT_OPTION_V'') }} mrv_dw_product_option_v ON mrv_dw_contract_vrbl_v.PRODUCT_KEY = mrv_dw_product_option_v.PRODUCT_KEY AND mrv_dw_contract_vrbl_v.PRODUCT_OPTION_CODE = mrv_dw_product_option_v.PRODUCT_OPTION_CODE /* Detail Outer Join */
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''MRV_DW_PRODUCT_OPTION_V'') }} mrv_dw_product_option_v
 
           LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_HIST_V'') }} mrv_dw_actl_cflow_trnx_hist_v ON mrv_dw_product_option_v.FILE_REC_NUM = mrv_dw_actl_cflow_trnx_hist_v.FILE_REC_NUM AND mrv_dw_product_option_v.ADMIN_SYS_FILE_ID = mrv_dw_actl_cflow_trnx_hist_v.ADMIN_SYS_FILE_ID AND mrv_dw_product_option_v.FILE_NAME = mrv_dw_actl_cflow_trnx_hist_v._FILE_NAME /* Detail Outer Join */
 
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_VRBL_V'') }} mrv_dw_contract_vrbl_v ON mrv_dw_contract_vrbl_v.PRODUCT_KEY = mrv_dw_product_option_v.PRODUCT_KEY AND mrv_dw_contract_vrbl_v.PRODUCT_OPTION_CODE = mrv_dw_product_option_v.PRODUCT_OPTION_CODE /* Detail Outer Join */
+
           LEFT JOIN {{ ref(''BRONZE'', ''MRV_IFRS_TRNX_REF_V'') }} mrv_ifrs_trnx_ref_v ON mrv_ifrs_trnx_ref_v.PRODUCT_SYSTEM_CODE = mrv_dw_product_option_v.PRODUCT_SYS_CODE AND mrv_ifrs_trnx_ref_v.CODE = mrv_dw_product_option_v.REF_CODE AND mrv_ifrs_trnx_ref_v.IFRS_TRNX_GROUP_CODE = mrv_dw_product_option_v.IFRS_TRNX_GROUP_CODE /* Master Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_RISK_V'') }} mrv_dw_contract_risk_v ON mrv_dw_product_option_v.SRC_CONTRACT_RISK_JOIN_KEY = mrv_dw_contract_risk_v.O_CONTRACT_RISK_JOIN_KEY /* Detail Outer Join */'
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_RISK_V'') }} mrv_dw_contract_risk_v ON mrv_dw_product_option_v.SRC_CONTRACT_RISK_JOIN_KEY = mrv_dw_contract_risk_v.O_CONTRACT_RISK_JOIN_KEY /* Detail Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_V'') }} mrv_dw_contract_v ON mrv_dw_contract_v.CONTRACT_KEY = mrv_dw_contract_vrbl_v.CONTRACT_KEY /* Detail Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_REF360_IFRS_OPTION_TYPE_CURR_V'') }} mrv_ref360_ifrs_option_type_curr_v ON mrv_ref360_ifrs_option_type_curr_v.PRODUCT_SYS_CODE = mrv_dw_contract_v.PRODUCT_SYSTEM_CODE AND mrv_ref360_ifrs_option_type_curr_v.CONTRACT_ID = mrv_dw_contract_v.CONTRACT_ID /* Detail Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''YD_DCASHFLOW'') }} yd_dcashflow ON yd_dcashflow.IFRS_OPTION_TYPE_CODE = mrv_ref360_ifrs_option_type_curr_v.CODE /* Detail Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_IFRS_TRNX_SRC_TGT_XREF_V'') }} mrv_ifrs_trnx_src_tgt_xref_v ON yd_dcashflow.TRNX_REF_KEY_1 = mrv_ifrs_trnx_src_tgt_xref_v.SOURCE_CODE_1 AND yd_dcashflow.TRNX_REF_KEY_6 = mrv_ifrs_trnx_src_tgt_xref_v.SOURCE_CODE_2 /* Detail Outer Join */'
       name: source1
       noLinkRefs: []
   name: DW_ACTL_CFLOW_TRNX_HIST_YD

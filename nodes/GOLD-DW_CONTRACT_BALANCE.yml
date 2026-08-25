@@ -138,6 +138,7 @@ operation:
     - aliases:
         CP_DCCP1: 01ff365c-0453-66ed-585a-4c1eac4280ec
         CP_DCCP2: 5d460049-b4dd-6fee-1903-712bd44521ac
+        CP_DCCP3: a7aa6e1f-a64d-3206-b3e7-55e271df56ee
         CP_DPCP1: 755cb26e-e581-ee79-283c-a83c9096c928
         CP_DPCP2: bb0db059-e756-164f-e4a3-ad8b2c8d86bc
         CP_DPCP3: b862ba66-ccab-6e43-d98d-bd573cbf1598
@@ -147,16 +148,18 @@ operation:
       customSQL:
         customSQL: ''
       dependencies:
-      - locationName: BRONZE
-        nodeName: CP_DCCP1
       - locationName: GOLD
         nodeName: DW_CONTRACT_VRBL
       - locationName: BRONZE
         nodeName: CP_DCCP2
-      - locationName: SILVER
-        nodeName: CP_DPCP1
+      - locationName: BRONZE
+        nodeName: CP_DCCP1
+      - locationName: BRONZE
+        nodeName: CP_DCCP3
       - locationName: SILVER
         nodeName: CP_DPCP2
+      - locationName: SILVER
+        nodeName: CP_DPCP1
       - locationName: SILVER
         nodeName: CP_DPCP3
       - locationName: BRONZE
@@ -164,21 +167,15 @@ operation:
       - locationName: BRONZE
         nodeName: REF360
       join:
-        joinCondition: 'FROM {{ ref(''BRONZE'', ''CP_DCCP1'') }} cp_dccp1
+        joinCondition: 'FROM {{ ref(''GOLD'', ''DW_CONTRACT_VRBL'') }} dw_contract_vrbl
 
-          LEFT JOIN {{ ref(''GOLD'', ''DW_CONTRACT_VRBL'') }} dw_contract_vrbl ON /* TODO join key (Joiner not resolved) */ 1=1
-
-          LEFT JOIN {{ ref(''BRONZE'', ''CP_DCCP2'') }} cp_dccp2 ON /* TODO join key (Joiner not resolved) */ 1=1
-
-          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP1'') }} cp_dpcp1 ON /* TODO join key (Joiner not resolved) */ 1=1
-
-          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP2'') }} cp_dpcp2 ON cp_dccp2.CC1_POLICY_NUMBER = cp_dpcp2.PC1_POLICY_NUMBER /* Detail Outer Join */
-
-          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP3'') }} cp_dpcp3 ON /* TODO join key (Joiner not resolved) */ 1=1
+          INNER JOIN ( SELECT * FROM {{ ref(''SILVER'', ''CP_DPCP2'') }} UNION ALL SELECT * FROM {{ ref(''SILVER'', ''CP_DPCP1'') }} UNION ALL SELECT * FROM {{ ref(''SILVER'', ''CP_DPCP3'') }} ) cp_dpcp2 ON cp_dpcp2.CC1_POLICY_NUMBER = dw_contract_vrbl.CONTRACT_ID
 
           INNER JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON dw_contract_vrbl.CC1_POLICY_NUMBER = dw_contract.CONTRACT_ID
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360'') }} ref360 ON ref360.BALANCE_TYPE_GROUP_CODE = cp_dccp1.CODE_VAL'
+          LEFT JOIN ( SELECT * FROM {{ ref(''BRONZE'', ''CP_DCCP2'') }} UNION ALL SELECT * FROM {{ ref(''BRONZE'', ''CP_DCCP1'') }} UNION ALL SELECT * FROM {{ ref(''BRONZE'', ''CP_DCCP3'') }} ) cp_dccp2 ON cp_dccp2.CC1_POLICY_NUMBER = cp_dpcp2.PC1_POLICY_NUMBER /* Detail Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360'') }} ref360 ON ref360.BALANCE_TYPE_GROUP_CODE = dw_contract_vrbl.CODE_VAL'
       name: source1
       noLinkRefs: []
   name: DW_CONTRACT_BALANCE

@@ -983,45 +983,45 @@ operation:
         customSQL: ''
       dependencies:
       - locationName: BRONZE
-        nodeName: LY_F09207
+        nodeName: CURR_CONTRACT_INVEST_OPT
       - locationName: BRONZE
         nodeName: MRV_DW_ACTL_CFLOW_TRNX_HIST_V
       - locationName: BRONZE
+        nodeName: LY_F09207
+      - locationName: BRONZE
+        nodeName: MRV_DW_CONTRACT_RISK_V
+      - locationName: BRONZE
         nodeName: MRV_DW_CONTRACT_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_CONTRACT_VRBL_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_PRODUCT_OPTION_V
       - locationName: BRONZE
         nodeName: MRV_REF360_IFRS_OPTION_TYPE_CURR_V
       - locationName: BRONZE
         nodeName: MRV_REF360_PRODUCT_IFRS_CURR_V
       - locationName: BRONZE
         nodeName: MRV_REF360_PRODUCT_IFRS_OPTION_TYPE_MAPPING_CURR_V
-      - locationName: BRONZE
-        nodeName: MRV_DW_CONTRACT_RISK_V
-      - locationName: BRONZE
-        nodeName: MRV_DW_CONTRACT_VRBL_V
-      - locationName: BRONZE
-        nodeName: MRV_DW_PRODUCT_OPTION_V
-      - locationName: BRONZE
-        nodeName: CURR_CONTRACT_INVEST_OPT
       join:
-        joinCondition: 'FROM {{ ref(''BRONZE'', ''LY_F09207'') }} ly_f09207
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''CURR_CONTRACT_INVEST_OPT'') }} curr_contract_invest_opt
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_HIST_V'') }} mrv_dw_actl_cflow_trnx_hist_v ON ly_f09207.FILE_REC_NUM = mrv_dw_actl_cflow_trnx_hist_v.NULL_FILE_REC_NUM AND ly_f09207.ADMIN_SYS_FILE_ID = mrv_dw_actl_cflow_trnx_hist_v.NULL_ADMIN_SYS_FILE_ID AND ly_f09207.FILE_NAME = mrv_dw_actl_cflow_trnx_hist_v.NULL__FILE_NAME /* Detail Outer Join */
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_VRBL_V'') }} mrv_dw_contract_vrbl_v ON curr_contract_invest_opt.CONTRACT_KEY = mrv_dw_contract_vrbl_v.CNTRCT_VRBL_CONTRACT_KEY /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_V'') }} mrv_dw_contract_v ON ly_f09207.DERIVED_CONTRACT_ID = mrv_dw_contract_v.CONTRACT_ID /* Detail Outer Join */
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_PRODUCT_OPTION_V'') }} mrv_dw_product_option_v ON mrv_dw_product_option_v.CONTRACT_KEY = curr_contract_invest_opt.CONTRACT_KEY AND mrv_dw_product_option_v.PRODUCT_SYSTEM_CODE = curr_contract_invest_opt.PRODUCT_SYSTEM_CODE /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_REF360_IFRS_OPTION_TYPE_CURR_V'') }} mrv_ref360_ifrs_option_type_curr_v ON mrv_ref360_ifrs_option_type_curr_v.FILE_REC_NUM = mrv_dw_actl_cflow_trnx_hist_v.FILE_REC_NUM AND mrv_ref360_ifrs_option_type_curr_v.ADMIN_SYS_FILE_ID = mrv_dw_actl_cflow_trnx_hist_v.ADMIN_SYS_FILE_ID AND mrv_ref360_ifrs_option_type_curr_v.FILE_NAME = mrv_dw_actl_cflow_trnx_hist_v._FILE_NAME /* Detail Outer Join */
-
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_REF360_PRODUCT_IFRS_CURR_V'') }} mrv_ref360_product_ifrs_curr_v ON mrv_ref360_product_ifrs_curr_v.PO2_IFRS_OPTION_TYPE_CODE = mrv_ref360_ifrs_option_type_curr_v.OPT_CODE /* Detail Outer Join */
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_REF360_PRODUCT_IFRS_CURR_V'') }} mrv_ref360_product_ifrs_curr_v ON mrv_dw_contract_vrbl_v.CNTRCT_VRBL_PRODUCT_KEY = mrv_ref360_product_ifrs_curr_v.PRODUCT_KEY /* Detail Outer Join */
 
           LEFT JOIN {{ ref(''BRONZE'', ''MRV_REF360_PRODUCT_IFRS_OPTION_TYPE_MAPPING_CURR_V'') }} mrv_ref360_product_ifrs_option_type_mapping_curr_v ON mrv_ref360_product_ifrs_curr_v.CODE = mrv_ref360_product_ifrs_option_type_mapping_curr_v.PRODUCT_CODE AND mrv_ref360_product_ifrs_curr_v.CNTRCT_VRBL_COUNTRY_CODE = mrv_ref360_product_ifrs_option_type_mapping_curr_v.COUNTRY_CODE /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_RISK_V'') }} mrv_dw_contract_risk_v ON mrv_dw_contract_v.CONTRACT_KEY = mrv_dw_contract_risk_v.RISK_CONTRACT_KEY AND mrv_dw_contract_v.PRODUCT_SYSTEM_CODE = mrv_dw_contract_risk_v.RISK_PRODUCT_SYSTEM_CODE /* Detail Outer Join */
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_RISK_V'') }} mrv_dw_contract_risk_v ON mrv_dw_contract_risk_v.RISK_PRODUCT_OPTION_KEY = mrv_dw_product_option_v.PO_PRODUCT_OPTION_KEY /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_VRBL_V'') }} mrv_dw_contract_vrbl_v ON mrv_dw_contract_vrbl_v.CNTRCT_VRBL_PRODUCT_KEY = mrv_ref360_product_ifrs_curr_v.PRODUCT_KEY /* Detail Outer Join */
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_V'') }} mrv_dw_contract_v ON mrv_dw_contract_v.CONTRACT_KEY = mrv_dw_contract_risk_v.RISK_CONTRACT_KEY AND mrv_dw_contract_v.PRODUCT_SYSTEM_CODE = mrv_dw_contract_risk_v.RISK_PRODUCT_SYSTEM_CODE /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_PRODUCT_OPTION_V'') }} mrv_dw_product_option_v ON mrv_dw_contract_risk_v.RISK_PRODUCT_OPTION_KEY = mrv_dw_product_option_v.PO_PRODUCT_OPTION_KEY /* Detail Outer Join */
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_REF360_IFRS_OPTION_TYPE_CURR_V'') }} mrv_ref360_ifrs_option_type_curr_v ON mrv_ref360_product_ifrs_curr_v.PO2_IFRS_OPTION_TYPE_CODE = mrv_ref360_ifrs_option_type_curr_v.OPT_CODE /* Detail Outer Join */
 
-          LEFT JOIN {{ ref(''BRONZE'', ''CURR_CONTRACT_INVEST_OPT'') }} curr_contract_invest_opt ON mrv_dw_product_option_v.CONTRACT_KEY = curr_contract_invest_opt.CONTRACT_KEY AND mrv_dw_product_option_v.PRODUCT_SYSTEM_CODE = curr_contract_invest_opt.PRODUCT_SYSTEM_CODE /* Detail Outer Join */'
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_HIST_V'') }} mrv_dw_actl_cflow_trnx_hist_v ON mrv_ref360_ifrs_option_type_curr_v.FILE_REC_NUM = mrv_dw_actl_cflow_trnx_hist_v.FILE_REC_NUM AND mrv_ref360_ifrs_option_type_curr_v.ADMIN_SYS_FILE_ID = mrv_dw_actl_cflow_trnx_hist_v.ADMIN_SYS_FILE_ID AND mrv_ref360_ifrs_option_type_curr_v.FILE_NAME = mrv_dw_actl_cflow_trnx_hist_v._FILE_NAME /* Detail Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''LY_F09207'') }} ly_f09207 ON ly_f09207.DERIVED_CONTRACT_ID = mrv_dw_contract_v.CONTRACT_ID /* Detail Outer Join */'
       name: source1
       noLinkRefs: []
   name: DW_ACTL_CFLOW_TRNX_HIST_LY

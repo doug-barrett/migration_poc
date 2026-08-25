@@ -247,13 +247,13 @@ operation:
         customSQL: ''
       dependencies:
       - locationName: BRONZE
-        nodeName: CP_DQCP3
-      - locationName: BRONZE
         nodeName: CP_DQCP1
       - locationName: BRONZE
-        nodeName: DW_CONTRACT
-      - locationName: BRONZE
         nodeName: CP_DQCP2
+      - locationName: BRONZE
+        nodeName: CP_DQCP3
+      - locationName: BRONZE
+        nodeName: DW_CONTRACT
       - locationName: BRONZE
         nodeName: REF360_FEE_TYPE
       - locationName: BRONZE
@@ -279,37 +279,33 @@ operation:
       - locationName: BRONZE
         nodeName: DW_PRODUCT
       join:
-        joinCondition: 'FROM {{ ref(''BRONZE'', ''CP_DQCP3'') }} cp_dqcp3
+        joinCondition: 'FROM ( SELECT * FROM {{ ref(''BRONZE'', ''CP_DQCP1'') }} UNION ALL SELECT * FROM {{ ref(''BRONZE'', ''CP_DQCP2'') }} UNION ALL SELECT * FROM {{ ref(''BRONZE'', ''CP_DQCP3'') }} ) cp_dqcp1
 
-          LEFT JOIN {{ ref(''BRONZE'', ''CP_DQCP1'') }} cp_dqcp1 ON /* TODO join key (Joiner not resolved) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON /* MANUAL REVIEW: no Joiner key in export for this source (wired via expression lookup, or unused) */ 1=1
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON /* TODO join key (Joiner not resolved) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_FEE_TYPE'') }} ref360_fee_type ON ref360_fee_type.CODE = cp_dqcp1.FEE_TYPE_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''CP_DQCP2'') }} cp_dqcp2 ON /* TODO join key (Joiner not resolved) */ 1=1
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_STATUS'') }} ref360_status ON ref360_status.CODE = cp_dqcp1.STATUS_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_FEE_TYPE'') }} ref360_fee_type ON ref360_fee_type.CODE = cp_dqcp3.FEE_TYPE_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_PAYMENT_METHOD'') }} ref360_payment_method ON ref360_payment_method.CODE = cp_dqcp1.PAY_METHOD_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_STATUS'') }} ref360_status ON ref360_status.CODE = cp_dqcp3.STATUS_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_BRANCH_CODE'') }} ref360_branch_code ON ref360_branch_code.CODE = cp_dqcp1.BRANCH_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_PAYMENT_METHOD'') }} ref360_payment_method ON ref360_payment_method.CODE = cp_dqcp3.PAY_METHOD_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_CLASS_OF_BUSINESS'') }} ref360_class_of_business ON ref360_class_of_business.CODE = cp_dqcp1.CLASS_OF_BUSN_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_BRANCH_CODE'') }} ref360_branch_code ON ref360_branch_code.CODE = cp_dqcp3.BRANCH_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_REGISTER'') }} ref360_register ON ref360_register.CODE = cp_dqcp1.REGISTER_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_CLASS_OF_BUSINESS'') }} ref360_class_of_business ON ref360_class_of_business.CODE = cp_dqcp3.CLASS_OF_BUSN_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_RISK_COMMISSION_TYPE'') }} ref360_risk_commission_type ON ref360_risk_commission_type.CODE = cp_dqcp1.RISK_CMSN_TYPE_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_REGISTER'') }} ref360_register ON ref360_register.CODE = cp_dqcp3.REGISTER_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_TFN_HELD'') }} ref360_tfn_held ON ref360_tfn_held.CODE = cp_dqcp1.TFN_HELD_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_RISK_COMMISSION_TYPE'') }} ref360_risk_commission_type ON ref360_risk_commission_type.CODE = cp_dqcp3.RISK_CMSN_TYPE_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_COUNTRY_CODE'') }} ref360_country_code ON ref360_country_code.CODE = cp_dqcp1.COUNTRY_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_TFN_HELD'') }} ref360_tfn_held ON ref360_tfn_held.CODE = cp_dqcp3.TFN_HELD_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''REF360_LODGEMENT_METHOD'') }} ref360_lodgement_method ON ref360_lodgement_method.CODE = cp_dqcp1.LDGMNT_METHOD_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_COUNTRY_CODE'') }} ref360_country_code ON ref360_country_code.CODE = cp_dqcp3.COUNTRY_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''CP_PRODUCT_CONVERT'') }} cp_product_convert ON cp_product_convert.TABLE_CODE = cp_dqcp1.BASIC_PLAN_CODE AND cp_product_convert.ANNUITY_TYPE_CODE = cp_dqcp1.ANNUITY_TYPE_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''REF360_LODGEMENT_METHOD'') }} ref360_lodgement_method ON ref360_lodgement_method.CODE = cp_dqcp3.LDGMNT_METHOD_CODE
-
-          LEFT JOIN {{ ref(''BRONZE'', ''CP_PRODUCT_CONVERT'') }} cp_product_convert ON cp_product_convert.TABLE_CODE = cp_dqcp3.BASIC_PLAN_CODE AND cp_product_convert.ANNUITY_TYPE_CODE = cp_dqcp3.ANNUITY_TYPE_CODE
-
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT'') }} dw_product ON dw_product.PRODUCT_CODE = cp_dqcp3.PRODUCT_CODE AND dw_product.CLASS_OF_BUSN_CODE = cp_dqcp3.CLASS_OF_BUSINESS AND dw_product.PRODUCT_SYSTEM_CODE = cp_dqcp3.PRODUCT_SYSTEM_CODE'
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT'') }} dw_product ON dw_product.PRODUCT_CODE = cp_dqcp1.PRODUCT_CODE AND dw_product.CLASS_OF_BUSN_CODE = cp_dqcp1.CLASS_OF_BUSINESS AND dw_product.PRODUCT_SYSTEM_CODE = cp_dqcp1.PRODUCT_SYSTEM_CODE'
       name: source1
       noLinkRefs: []
   name: CP_DPCP3

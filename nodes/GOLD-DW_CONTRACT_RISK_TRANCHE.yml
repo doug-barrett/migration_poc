@@ -566,11 +566,11 @@ operation:
         customSQL: ''
       dependencies:
       - locationName: BRONZE
-        nodeName: OR_DBETR
-      - locationName: BRONZE
         nodeName: DW_CONTRACT
       - locationName: GOLD
         nodeName: DW_CONTRACT_RISK_AL4
+      - locationName: BRONZE
+        nodeName: OR_DBETR
       - locationName: BRONZE
         nodeName: DW_PRODUCT_OPTION
       - locationName: BRONZE
@@ -592,31 +592,31 @@ operation:
       - locationName: BRONZE
         nodeName: DW_ASSESS_TEMP
       join:
-        joinCondition: 'FROM {{ ref(''BRONZE'', ''OR_DBETR'') }} or_dbetr
-
-          INNER JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON or_dbetr.TC1_BEN_POL_NUM = dw_contract.CONTRACT_ID
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract
 
           INNER JOIN {{ ref(''GOLD'', ''DW_CONTRACT_RISK_AL4'') }} dw_contract_risk_al4 ON dw_contract.CONTRACT_KEY = dw_contract_risk.CONTRACT_KEY AND dw_contract.OPTION_KEY = dw_contract_risk.PRODUCT_OPTION_KEY
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_OPTION'') }} dw_product_option ON dw_product_option.PRODUCT_KEY = or_dbetr.PRODUCT_KEY AND dw_product_option.PRODUCT_OPTION_CODE = or_dbetr.TC1_BEN_TYPE
+          INNER JOIN {{ ref(''BRONZE'', ''OR_DBETR'') }} or_dbetr ON or_dbetr.TC1_BEN_POL_NUM = dw_contract.CONTRACT_ID
 
-          LEFT JOIN {{ ref(''BRONZE'', ''ASSESS_CONVERT'') }} assess_convert ON assess_convert.SOURCE_SYSTEM_CODE = or_dbetr.TC1_PERM_ASSESS_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_PRODUCT_OPTION'') }} dw_product_option ON dw_product_option.PRODUCT_KEY = dw_contract.PRODUCT_KEY AND dw_product_option.PRODUCT_OPTION_CODE = dw_contract.TC1_BEN_TYPE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_ASSESS'') }} dw_assess ON dw_assess.CODE = or_dbetr.DWSA_ASSESS_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''ASSESS_CONVERT'') }} assess_convert ON assess_convert.SOURCE_SYSTEM_CODE = dw_contract.TC1_PERM_ASSESS_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_OCUPTN_CLASS'') }} dw_ocuptn_class ON dw_ocuptn_class.CODE = or_dbetr.TC1_XTR_BEN_OCCUP_IND
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_ASSESS'') }} dw_assess ON dw_assess.CODE = dw_contract.DWSA_ASSESS_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_IMPAIRMENT_TEMP'') }} dw_impairment_temp ON dw_impairment_temp.CODE = or_dbetr.TC1_TEMP_SS_IMP_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_OCUPTN_CLASS'') }} dw_ocuptn_class ON dw_ocuptn_class.CODE = dw_contract.TC1_XTR_BEN_OCCUP_IND
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_IMPAIRMENT'') }} dw_impairment ON dw_impairment.CODE = or_dbetr.TC1_PERM_SS_IMP_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_IMPAIRMENT_TEMP'') }} dw_impairment_temp ON dw_impairment_temp.CODE = dw_contract.TC1_TEMP_SS_IMP_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_REINSURANCE_TYPE'') }} dw_reinsurance_type ON dw_reinsurance_type.CODE = or_dbetr.TC1_REINS_OUT_TYPE
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_IMPAIRMENT'') }} dw_impairment ON dw_impairment.CODE = dw_contract.TC1_PERM_SS_IMP_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''SMOKER_STATUS_CONVERT'') }} smoker_status_convert ON smoker_status_convert.SOURCE_SYSTEM_CODE = or_dbetr.TC1_SMOKER_ASSES_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_REINSURANCE_TYPE'') }} dw_reinsurance_type ON dw_reinsurance_type.CODE = dw_contract.TC1_REINS_OUT_TYPE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''ASSESS_CONVERT_TEMP'') }} assess_convert_temp ON assess_convert_temp.SOURCE_SYSTEM_CODE = or_dbetr.TC1_TEMP_ASSESS_CODE
+          LEFT JOIN {{ ref(''BRONZE'', ''SMOKER_STATUS_CONVERT'') }} smoker_status_convert ON smoker_status_convert.SOURCE_SYSTEM_CODE = dw_contract.TC1_SMOKER_ASSES_CODE
 
-          LEFT JOIN {{ ref(''BRONZE'', ''DW_ASSESS_TEMP'') }} dw_assess_temp ON dw_assess_temp.CODE = or_dbetr.DWSA_ASSESS_CODE'
+          LEFT JOIN {{ ref(''BRONZE'', ''ASSESS_CONVERT_TEMP'') }} assess_convert_temp ON assess_convert_temp.SOURCE_SYSTEM_CODE = dw_contract.TC1_TEMP_ASSESS_CODE
+
+          LEFT JOIN {{ ref(''BRONZE'', ''DW_ASSESS_TEMP'') }} dw_assess_temp ON dw_assess_temp.CODE = dw_contract.DWSA_ASSESS_CODE'
       name: source1
       noLinkRefs: []
   name: DW_CONTRACT_RISK_TRANCHE

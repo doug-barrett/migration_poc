@@ -941,6 +941,8 @@ operation:
         ASSESS_CONVERT: ad942489-9c77-4d02-99cb-648713cbfa12
         CLOSE_TYPE: f8bc692b-8b19-faf3-f0c6-c2496d9c65a4
         CP_DBCP1: 71ad385d-1121-730c-6423-df947ed700d7
+        CP_DBCP2: 92ca7866-1c32-331a-cfb3-54e67fe00b5c
+        CP_DBCP3: e15badff-af06-c270-4e95-7e387d3fa026
         CP_DPCP1: 755cb26e-e581-ee79-283c-a83c9096c928
         CP_DPCP2: bb0db059-e756-164f-e4a3-ad8b2c8d86bc
         CP_DPCP3: b862ba66-ccab-6e43-d98d-bd573cbf1598
@@ -962,17 +964,21 @@ operation:
       - locationName: BRONZE
         nodeName: CP_DBCP1
       - locationName: BRONZE
+        nodeName: CP_DBCP2
+      - locationName: BRONZE
+        nodeName: CP_DBCP3
+      - locationName: BRONZE
         nodeName: DW_CONTRACT
       - locationName: SILVER
         nodeName: CP_DPCP1
-      - locationName: BRONZE
-        nodeName: YD_CLIENT_ID_XREF
-      - locationName: BRONZE
-        nodeName: YD_DEIREF
       - locationName: SILVER
         nodeName: CP_DPCP2
       - locationName: SILVER
         nodeName: CP_DPCP3
+      - locationName: BRONZE
+        nodeName: YD_CLIENT_ID_XREF
+      - locationName: BRONZE
+        nodeName: YD_DEIREF
       - locationName: BRONZE
         nodeName: DW_PARTY
       - locationName: BRONZE
@@ -996,19 +1002,15 @@ operation:
       - locationName: BRONZE
         nodeName: STATUS_CONVERT
       join:
-        joinCondition: 'FROM {{ ref(''BRONZE'', ''CP_DBCP1'') }} cp_dbcp1
+        joinCondition: 'FROM ( SELECT * FROM {{ ref(''BRONZE'', ''CP_DBCP1'') }} UNION ALL SELECT * FROM {{ ref(''BRONZE'', ''CP_DBCP2'') }} UNION ALL SELECT * FROM {{ ref(''BRONZE'', ''CP_DBCP3'') }} ) cp_dbcp1
 
           INNER JOIN {{ ref(''BRONZE'', ''DW_CONTRACT'') }} dw_contract ON cp_dbcp1.BC1_POLICY_NUMBER = dw_contract.CONTRACT_ID
 
-          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP1'') }} cp_dpcp1 ON cp_dbcp1.BC1_POLICY_NUMBER = cp_dpcp1.PC1_POLICY_NUMBER /* Master Outer Join */
+          LEFT JOIN ( SELECT * FROM {{ ref(''SILVER'', ''CP_DPCP1'') }} UNION ALL SELECT * FROM {{ ref(''SILVER'', ''CP_DPCP2'') }} UNION ALL SELECT * FROM {{ ref(''SILVER'', ''CP_DPCP3'') }} ) cp_dpcp1 ON cp_dbcp1.BC1_POLICY_NUMBER = cp_dpcp1.PC1_POLICY_NUMBER /* Master Outer Join */
 
           LEFT JOIN {{ ref(''BRONZE'', ''YD_CLIENT_ID_XREF'') }} yd_client_id_xref ON yd_client_id_xref.EI_ID = cp_dbcp1.CLIENT_ID /* Detail Outer Join */
 
           LEFT JOIN {{ ref(''BRONZE'', ''YD_DEIREF'') }} yd_deiref ON cp_dbcp1.ID_P7 = yd_deiref.EI_ID /* Detail Outer Join */
-
-          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP2'') }} cp_dpcp2 ON /* TODO join key (Joiner not resolved) */ 1=1
-
-          LEFT JOIN {{ ref(''SILVER'', ''CP_DPCP3'') }} cp_dpcp3 ON /* TODO join key (Joiner not resolved) */ 1=1
 
           LEFT JOIN {{ ref(''BRONZE'', ''DW_PARTY'') }} dw_party ON dw_party.PARTY_ID = cp_dbcp1.REF_BI_ID
 

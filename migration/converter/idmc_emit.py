@@ -227,6 +227,22 @@ def _plan_specs(irs, produced, external, existing):
     srcport_reg = _source_ports_registry(irs)
     joinkey_reg = _joinkey_registry(irs)
 
+    # union chunks share one table's schema -> pool columns across members so
+    # every chunk (even one that is never a primary or a join key) gets a node.
+    union_cols_for = {}
+    for ir in irs:
+        for g in ir.unions:
+            pool = {}
+            for t in g:
+                for c, dt in lookup_reg.get(t, {}).items():
+                    pool.setdefault(c, dt)
+                for c in sorted(srcport_reg.get(t, set())):
+                    pool.setdefault(c, heuristic_type(c))
+                for c in sorted(joinkey_reg.get(t, set())):
+                    pool.setdefault(c, heuristic_type(c))
+            for t in g:
+                union_cols_for.setdefault(t, {}).update(pool)
+
     # Real external sources = MTT-bound source objects  +  lookup tables that
     # carry an embedded schema.  Everything else (unconnected-lookup macros,
     # port/sequence names mistaken for tables) is dropped.
@@ -295,6 +311,9 @@ def _plan_specs(irs, produced, external, existing):
         # get a node (and the join chains through them resolve)
         for c in sorted(joinkey_reg.get(tbl, set())):
             cols.setdefault(c, heuristic_type(c))
+        # union chunks inherit the pooled schema of their group
+        for c, dt in union_cols_for.get(tbl, {}).items():
+            cols.setdefault(c, dt)
         if not cols:
             # last resort: keys used to join to this table, so the node is not
             # empty and lineage still resolves
@@ -448,38 +467,42 @@ def _plan_specs(irs, produced, external, existing):
     return specs, registry
 
 
-def _has_joiner_edge(ir, table, joined):
+def _has_joiner_edge(ir, table, joined, norm):
     for e in ir.joins:
-        if (table == e.detail and e.master in joined) or \
-           (table == e.master and e.detail in joined):
+        m, d = norm(e.master), norm(e.detail)
+        if (table == d and m in joined) or (table == m and d in joined):
             return True
     return False
 
 
-def _joiner_on(ir, table, joined):
+def _joiner_on(ir, table, joined, norm):
     """Build (join_keyword, on_clause) for `table` using the mapping's
     reconstructed Joiner edges, pairing it with an already-joined counterpart.
-    Falls back to a TODO placeholder when no edge connects them."""
+    Union-member tables are normalised to their representative for both
+    matching and aliasing.  Falls back to a TODO placeholder when no edge
+    connects them."""
     for e in ir.joins:
-        if table == e.detail and e.master in joined:
-            other, this_cols, other_first = e.master, "detail", True
-        elif table == e.master and e.detail in joined:
-            other, this_cols, other_first = e.detail, "master", True
+        m, d = norm(e.master), norm(e.detail)
+        if table == d and m in joined:
+            other, this_is_detail = m, True
+        elif table == m and d in joined:
+            other, this_is_detail = d, False
         else:
             continue
         a_other, a_this = other.lower(), table.lower()
         preds = []
         for (mcol, op, dcol) in e.conditions:
-            if this_cols == "detail":     # other=master, this=detail
+            if this_is_detail:            # other=master, this=detail
                 preds.append(f"{a_other}.{mcol} {op} {a_this}.{dcol}")
             else:                          # other=detail, this=master
                 preds.append(f"{a_this}.{mcol} {op} {a_other}.{dcol}")
         kw = "INNER JOIN" if e.join_type == "Normal Join" else "LEFT JOIN"
         on = " AND ".join(preds)
-        if e.join_type not in ("Normal Join",):
+        if e.join_type != "Normal Join":
             on += f" /* {e.join_type} */"
         return kw, on
-    return "LEFT JOIN", "/* TODO join key (Joiner not resolved) */ 1=1"
+    return "LEFT JOIN", ("/* MANUAL REVIEW: no Joiner key in export for this "
+                         "source (wired via expression lookup, or unused) */ 1=1")
 
 
 def _resolve_join(spec, ir, resolver, registry, raw_of=None):
@@ -491,6 +514,16 @@ def _resolve_join(spec, ir, resolver, registry, raw_of=None):
     raw_of = raw_of or {}
     sibling_tables = {t for (_s, t) in ir.targets}
 
+    # union groups: every member maps to its representative (first part), and
+    # a whole group is emitted once as a UNION ALL subquery aliased by the rep.
+    rep_of, group_of = {}, {}
+    for g in ir.unions:
+        if len(g) > 1:
+            for t in g:
+                rep_of[t] = g[0]
+            group_of[g[0]] = g
+    norm = lambda t: rep_of.get(t, t)
+
     def resolve_table(table):
         if table in sibling_tables:
             if table in raw_of:
@@ -498,67 +531,106 @@ def _resolve_join(spec, ir, resolver, registry, raw_of=None):
             return None
         return resolver(table)
 
+    def ref_sql(table):
+        """(sql_expr, alias, key_table) for `table`, registering deps.  A union
+        member expands to a UNION ALL subquery aliased by its representative."""
+        rep = norm(table)
+        grp = group_of.get(rep)
+        if grp:
+            branches = []
+            for pt in grp:
+                pr = resolve_table(pt)
+                if pr:
+                    deps.append(pr)
+                    branches.append(f"SELECT * FROM {{{{ ref('{pr[0]}', '{pr[1]}') }}}}")
+            if branches:
+                return (f"( {' UNION ALL '.join(branches)} ) {rep.lower()}",
+                        rep.lower(), rep)
+            return None
+        r = resolve_table(table)
+        if not r:
+            return None
+        deps.append(r)
+        return (f"{{{{ ref('{r[0]}', '{r[1]}') }}}} {r[1].lower()}",
+                r[1].lower(), table)
+
     deps = []
 
-    # primary source: prefer a source matching the mapping's source token,
-    # else the first source.
+    # primary source: prefer the join *hub* (the source touching the most
+    # Joiner edges) so the fixpoint can reach every other source; fall back to
+    # the source-token match, then the first source.
     sources = list(ir.sources)
+    degree = {}
+    for e in ir.joins:
+        for side in (norm(e.master), norm(e.detail)):
+            degree[side] = degree.get(side, 0) + 1
+    src_tables = [t for (_s, t) in sources]
     primary = None
-    tok = source_token(ir.name).lower()
-    for (s, t) in sources:
-        if tok and tok in t.lower():
-            primary = (s, t)
-            break
+    if degree:
+        hub = max((t for t in src_tables if degree.get(norm(t))),
+                  key=lambda t: degree.get(norm(t), 0), default=None)
+        if hub:
+            primary = next((st for st in sources if st[1] == hub), None)
+    if primary is None:
+        tok = source_token(ir.name).lower()
+        for (s, t) in sources:
+            if tok and tok in t.lower():
+                primary = (s, t)
+                break
     if primary is None and sources:
         primary = sources[0]
 
-    from_line = ""
+    joined, covered = set(), set()
     if primary:
-        r = resolve_table(primary[1])
-        if r:
-            loc, nm = r
-            alias = nm.lower()
-            from_line = f"FROM {{{{ ref('{loc}', '{nm}') }}}} {alias}"
-            deps.append((loc, nm))
+        res = ref_sql(primary[1])
+        if res:
+            expr, _alias, keytbl = res
+            from_line = f"FROM {expr}"
+            joined.add(keytbl)
+            covered |= set(group_of.get(keytbl, [keytbl]))
         else:
             from_line = f"-- FROM {primary[1]} (source node not generated)"
     else:
         from_line = "-- FROM <no source bound>"
-
     join_lines = [from_line]
-    joined = {primary[1]} if primary else set()
 
-    # other MTT sources -> JOIN using the reconstructed Joiner conditions.
-    # Place a source once its Joiner counterpart is already in the FROM (a
-    # fixpoint, so join chains resolve regardless of source ordering).
-    pending = []
+    # collect the remaining join units (one per source table / union group)
+    units = []                       # (key_table, sql_expr)
     for (s, t) in sources:
-        if primary and t == primary[1]:
+        if norm(t) in covered:
             continue
-        r = resolve_table(t)
-        if r:
-            pending.append((t, r))
+        if t in sibling_tables:      # SCD2 look-back on own target -> skip
+            continue
+        res = ref_sql(t)
+        if not res:
+            continue
+        expr, _alias, keytbl = res
+        if keytbl in covered:
+            continue
+        covered |= set(group_of.get(keytbl, [keytbl]))
+        covered.add(keytbl)
+        units.append((keytbl, expr))
 
-    def _emit(t, r):
-        loc, nm = r
-        deps.append((loc, nm))
-        kw, on = _joiner_on(ir, t, joined)
-        join_lines.append(f"{kw} {{{{ ref('{loc}', '{nm}') }}}} {nm.lower()} ON {on}")
-        joined.add(t)
+    # place a unit once its Joiner counterpart is in the FROM (fixpoint, so
+    # chains resolve regardless of ordering).
+    def _emit(keytbl, expr):
+        kw, on = _joiner_on(ir, keytbl, joined, norm)
+        join_lines.append(f"{kw} {expr} ON {on}")
+        joined.add(keytbl)
 
     progress = True
-    while progress and pending:
+    while progress and units:
         progress = False
         still = []
-        for (t, r) in pending:
-            if _has_joiner_edge(ir, t, joined):
-                _emit(t, r)
+        for (keytbl, expr) in units:
+            if _has_joiner_edge(ir, keytbl, joined, norm):
+                _emit(keytbl, expr)
                 progress = True
             else:
-                still.append((t, r))
-        pending = still
-    for (t, r) in pending:        # no Joiner edge (SCD2 look-back / independent)
-        _emit(t, r)
+                still.append((keytbl, expr))
+        units = still
+    for (keytbl, expr) in units:     # no Joiner edge (independent / look-back)
+        _emit(keytbl, expr)
 
     # lookups -> LEFT JOIN with ON from lookup conditions
     for lk in ir.lookups:
@@ -571,7 +643,7 @@ def _resolve_join(spec, ir, resolver, registry, raw_of=None):
         ons = []
         for (lcol, op, port) in lk.conditions:
             scol = source_col_for_port(port)
-            base = primary[1].lower() if primary else "src"
+            base = norm(primary[1]).lower() if primary else "src"
             ons.append(f"{nm.lower()}.{lcol} {op} {base}.{scol}")
         on = " AND ".join(ons) if ons else "1=1 /* TODO lookup key */"
         join_lines.append(

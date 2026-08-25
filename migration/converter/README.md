@@ -85,11 +85,12 @@ are captured as clearly-marked TODOs rather than guessed:
 - **Joiner join keys** ARE in the export (`joinConditions` + `joinType` on
   every Joiner). The converter traces each Joiner's Master/Detail inputs back
   to their source tables via the link graph and emits real ON clauses
-  (`INNER`/`LEFT` by join type). Joins between *intermediate* streams
-  (post-aggregation / union / view-to-view) that don't reduce to a direct
-  source pair remain `ON /* TODO join key (Joiner not resolved) */ 1=1`.
-  Source-to-target joins (SCD2 look-back on the existing target) are dropped —
-  the node type handles that internally.
+  (`INNER`/`LEFT` by join type). **Union** chunk-groups (e.g. CP_DBCP1/2/3) are
+  rebuilt as `UNION ALL` subqueries aliased by the representative, so joins
+  onto them resolve. Source-to-target joins (SCD2 look-back) are dropped — the
+  node type handles that. ~94% of joins resolve automatically (408 real ONs);
+  the rest are flagged `/* MANUAL REVIEW: no Joiner key in export … */` —
+  sources wired via expression-level unconnected lookups, or unused.
 - **Unconnected lookups** called inside expressions (`:LKP.name(...)`) become
   `/*LKP:name(args)*/ NULL` placeholders.
 - **SCD2 mechanics** (surrogate-key sequences, change-hash, effective dating)

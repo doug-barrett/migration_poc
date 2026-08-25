@@ -905,11 +905,17 @@ operation:
         customSQL: ''
       dependencies:
       - locationName: BRONZE
-        nodeName: LIF_DCASHFLOW
-      - locationName: BRONZE
         nodeName: MRV_IFRS_TRNX_REF_V
       - locationName: BRONZE
+        nodeName: MRV_REF360_IFRS_OPTION_TYPE_CURR_V
+      - locationName: BRONZE
         nodeName: ACTL_CFLOW_TRNX_TRNSLTN_HIST
+      - locationName: BRONZE
+        nodeName: MRV_DW_ACTL_CFLOW_TRNX_HIST_V
+      - locationName: BRONZE
+        nodeName: LIF_DCASHFLOW
+      - locationName: BRONZE
+        nodeName: MRV_DW_CONTRACT_RISK_V
       - locationName: BRONZE
         nodeName: MRV_DW_CONTRACT_V
       - locationName: BRONZE
@@ -917,19 +923,11 @@ operation:
       - locationName: BRONZE
         nodeName: MRV_DW_PRODUCT_OPTION_V
       - locationName: BRONZE
-        nodeName: MRV_REF360_IFRS_OPTION_TYPE_CURR_V
-      - locationName: BRONZE
-        nodeName: MRV_DW_CONTRACT_RISK_V
-      - locationName: BRONZE
         nodeName: MRV_IFRS_TRNX_SRC_TGT_XREF_V
-      - locationName: BRONZE
-        nodeName: MRV_DW_ACTL_CFLOW_TRNX_HIST_V
       join:
-        joinCondition: 'FROM {{ ref(''BRONZE'', ''LIF_DCASHFLOW'') }} lif_dcashflow
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''MRV_IFRS_TRNX_REF_V'') }} mrv_ifrs_trnx_ref_v
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_IFRS_TRNX_REF_V'') }} mrv_ifrs_trnx_ref_v ON lif_dcashflow.NON_CASHFLOW_KEY = mrv_ifrs_trnx_ref_v.TRNX_CODE /* Detail Outer Join */
-
-          LEFT JOIN {{ ref(''BRONZE'', ''ACTL_CFLOW_TRNX_TRNSLTN_HIST'') }} actl_cflow_trnx_trnsltn_hist ON lif_dcashflow.TRNX_REF_KEY_1 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_1 AND lif_dcashflow.TRNX_REF_KEY_2 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_2 AND lif_dcashflow.TRNX_REF_KEY_3 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_3 AND lif_dcashflow.TRNX_REF_KEY_4 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_4 AND lif_dcashflow.TRNX_REF_KEY_5 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_5 AND lif_dcashflow.TRNX_REF_KEY_6 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_6 AND lif_dcashflow.TRNX_REF_KEY_7 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_7 AND lif_dcashflow.TRNX_REF_KEY_8 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_8 AND lif_dcashflow.TRNX_REF_KEY_9 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_9 AND lif_dcashflow.TRNX_REF_KEY_10 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_10 AND lif_dcashflow.ADMIN_SYS_ID = actl_cflow_trnx_trnsltn_hist.ADMIN_SYS_ID /* Detail Outer Join */
+          LEFT JOIN {{ ref(''BRONZE'', ''LIF_DCASHFLOW'') }} lif_dcashflow ON lif_dcashflow.NON_CASHFLOW_KEY = mrv_ifrs_trnx_ref_v.TRNX_CODE /* Detail Outer Join */
 
           LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_V'') }} mrv_dw_contract_v ON mrv_ifrs_trnx_ref_v.PRODUCT_SYSTEM_CODE = mrv_dw_contract_v.PRODUCT_SYSTEM_CODE AND mrv_ifrs_trnx_ref_v.CONTRACT_ID = mrv_dw_contract_v.CONTRACT_ID /* Detail Outer Join */
 
@@ -938,6 +936,8 @@ operation:
           LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_PRODUCT_OPTION_V'') }} mrv_dw_product_option_v ON mrv_dw_contract_vrbl_v.VRBL_PRODUCT_KEY = mrv_dw_product_option_v.PRODUCT_KEY AND mrv_dw_contract_vrbl_v.PRODUCT_OPTION_CODE = mrv_dw_product_option_v.PRODUCT_OPTION_CODE /* Detail Outer Join */
 
           LEFT JOIN {{ ref(''BRONZE'', ''MRV_REF360_IFRS_OPTION_TYPE_CURR_V'') }} mrv_ref360_ifrs_option_type_curr_v ON mrv_dw_product_option_v.IFRS_OPTION_TYPE_CODE = mrv_ref360_ifrs_option_type_curr_v.CODE /* Detail Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''ACTL_CFLOW_TRNX_TRNSLTN_HIST'') }} actl_cflow_trnx_trnsltn_hist ON lif_dcashflow.TRNX_REF_KEY_1 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_1 AND lif_dcashflow.TRNX_REF_KEY_2 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_2 AND lif_dcashflow.TRNX_REF_KEY_3 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_3 AND lif_dcashflow.TRNX_REF_KEY_4 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_4 AND lif_dcashflow.TRNX_REF_KEY_5 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_5 AND lif_dcashflow.TRNX_REF_KEY_6 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_6 AND lif_dcashflow.TRNX_REF_KEY_7 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_7 AND lif_dcashflow.TRNX_REF_KEY_8 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_8 AND lif_dcashflow.TRNX_REF_KEY_9 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_9 AND lif_dcashflow.TRNX_REF_KEY_10 = actl_cflow_trnx_trnsltn_hist.TRNX_REF_KEY_10 AND lif_dcashflow.ADMIN_SYS_ID = actl_cflow_trnx_trnsltn_hist.ADMIN_SYS_ID /* Detail Outer Join */
 
           LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_RISK_V'') }} mrv_dw_contract_risk_v ON mrv_ref360_ifrs_option_type_curr_v.CONTRACT_KEY = mrv_dw_contract_risk_v.CONTRACT_KEY AND mrv_ref360_ifrs_option_type_curr_v.COVERAGE_NUMBER = mrv_dw_contract_risk_v.COVERAGE_NUMBER AND mrv_ref360_ifrs_option_type_curr_v.PRODUCT_OPTION_KEY = mrv_dw_contract_risk_v.PRODUCT_OPTION_KEY /* Detail Outer Join */
 

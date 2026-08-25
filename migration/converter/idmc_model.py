@@ -84,6 +84,7 @@ class MappingIR:
     target_update_cols: list = field(default_factory=list)
     lookups: list = field(default_factory=list)   # [Lookup, ...]
     joins: list = field(default_factory=list)     # [JoinEdge, ...]
+    unions: list = field(default_factory=list)    # [[part_table, ...], ...]
     filters: list = field(default_factory=list)   # [condition_str, ...]
     outputs: list = field(default_factory=list)   # [Col, ...] expression outs
     ref_ports: set = field(default_factory=set)   # source ports referenced
@@ -238,20 +239,17 @@ def _source_tx_tables(mtt: dict) -> dict:
     return out
 
 
-def _extract_joins(imf, mtt, target_tables):
-    """Reconstruct source-to-source joins from Joiner transformations.
+def _build_graph(imf, mtt):
+    """Return (name2tx, rev_adjacency, trace_to_source_fn).
 
-    Traces each Joiner's Master/Detail inputs back to their originating source
-    tables via the link graph, and pairs them with the Joiner's joinConditions.
-    Joins where one side is the mapping target (SCD2 look-back against the
-    existing target) are skipped -- Coalesce handles that internally."""
+    rev[to_tx] = [(from_tx, to_group_name), ...]
+    trace(tx) walks backward to the nearest TmplSource and returns its table."""
     src_tbl = _source_tx_tables(mtt)
     name2tx = {t.get("name"): t for t in imf.transformations}
     grp = {}
     for t in imf.transformations:
         for g in t.get("groups", []) or []:
             grp[g.get("$$ID")] = g.get("name")
-    # reverse adjacency: to_tx -> [(from_tx, to_group_name)]
     rev = {}
     for l in imf.links:
         fo = imf.index.get(l.get("fromTransformation", {}).get("##ID"), {})
@@ -275,6 +273,46 @@ def _extract_joins(imf, mtt, target_tables):
             if r:
                 return r
         return None
+
+    return name2tx, rev, trace
+
+
+def _extract_unions(imf, mtt):
+    """Groups of source tables combined by a Union transformation (UNION ALL).
+
+    Only *chunk* unions qualify -- every input must be a DIRECT source (e.g.
+    CP_DBCP1/2/3 read straight into the Union).  Delta/heterogeneous unions
+    (whose inputs are joined/aggregated streams) are ignored: their branches
+    are different shapes, not chunks of one table."""
+    src_tbl = _source_tx_tables(mtt)
+    name2tx, rev, _trace = _build_graph(imf, mtt)
+    groups = []
+    for t in imf.transformations:
+        if not imf.class_name(t.get("$$class")).split(".")[-1] == "TmplUnion":
+            continue
+        parts, all_direct = [], True
+        for (frm, _g) in rev.get(t.get("name"), []):
+            ft = name2tx.get(frm, {})
+            if not imf.class_name(ft.get("$$class")).split(".")[-1] == "TmplSource":
+                all_direct = False
+                break
+            st = src_tbl.get(frm)
+            tbl = st[1] if st else None
+            if tbl and tbl not in parts:
+                parts.append(tbl)
+        if all_direct and len(parts) > 1:
+            groups.append(parts)
+    return groups
+
+
+def _extract_joins(imf, mtt, target_tables):
+    """Reconstruct source-to-source joins from Joiner transformations.
+
+    Traces each Joiner's Master/Detail inputs back to their originating source
+    tables via the link graph, and pairs them with the Joiner's joinConditions.
+    Joins where one side is the mapping target (SCD2 look-back against the
+    existing target) are skipped -- Coalesce handles that internally."""
+    name2tx, rev, trace = _build_graph(imf, mtt)
 
     edges = []
     for t in imf.transformations:
@@ -312,9 +350,10 @@ def build_ir(dtemplate_path: str, mtt_path: str | None, folder: str) -> MappingI
         mtt = load_mtt(mtt_path)
         ir.sources, ir.targets, ir.target_update_cols = _mtt_bindings(mtt)
 
-    # --- source-to-source joins reconstructed from Joiner transformations ---
+    # --- source-to-source joins + unions reconstructed from the DAG ---
     target_tables = {t for _s, t in ir.targets}
     ir.joins = _extract_joins(imf, mtt, target_tables)
+    ir.unions = _extract_unions(imf, mtt)
 
     # --- transformations ---
     for tx in imf.transformations:

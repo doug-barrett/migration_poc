@@ -293,9 +293,13 @@ operation:
         customSQL: ''
       dependencies:
       - locationName: BRONZE
+        nodeName: MRV_DW_CONTRACT_RISK_V
+      - locationName: BRONZE
         nodeName: CURR_CONTRACT_INVEST_OPT
       - locationName: BRONZE
-        nodeName: MRV_DW_CONTRACT_RISK_V
+        nodeName: MRV_DW_CONTRACT_VRBL_V
+      - locationName: BRONZE
+        nodeName: MRV_DW_ACTL_CFLOW_TRNX_HIST_V
       - locationName: BRONZE
         nodeName: MRV_DW_CONTRACT_V
       - locationName: BRONZE
@@ -308,14 +312,12 @@ operation:
         nodeName: MRV_REF360_PRODUCT_IFRS_CURR_V
       - locationName: BRONZE
         nodeName: MRV_DW_ACTL_CFLOW_TRNX_V
-      - locationName: BRONZE
-        nodeName: MRV_DW_CONTRACT_VRBL_V
-      - locationName: BRONZE
-        nodeName: MRV_DW_ACTL_CFLOW_TRNX_HIST_V
       join:
-        joinCondition: 'FROM {{ ref(''BRONZE'', ''CURR_CONTRACT_INVEST_OPT'') }} curr_contract_invest_opt
+        joinCondition: 'FROM {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_RISK_V'') }} mrv_dw_contract_risk_v
 
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_RISK_V'') }} mrv_dw_contract_risk_v ON mrv_dw_contract_risk_v.CONTRACT_KEY = curr_contract_invest_opt.CONTRACT_KEY AND mrv_dw_contract_risk_v.PRODUCT_SYSTEM_CODE = curr_contract_invest_opt.PRODUCT_SYSTEM_CODE /* Detail Outer Join */
+          LEFT JOIN {{ ref(''BRONZE'', ''CURR_CONTRACT_INVEST_OPT'') }} curr_contract_invest_opt ON mrv_dw_contract_risk_v.CONTRACT_KEY = curr_contract_invest_opt.CONTRACT_KEY AND mrv_dw_contract_risk_v.PRODUCT_SYSTEM_CODE = curr_contract_invest_opt.PRODUCT_SYSTEM_CODE /* Detail Outer Join */
+
+          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_VRBL_V'') }} mrv_dw_contract_vrbl_v ON mrv_dw_contract_risk_v.CONTRACT_KEY = mrv_dw_contract_vrbl_v.CONTRACT_KEY /* Detail Outer Join */
 
           LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_V'') }} mrv_dw_contract_v ON mrv_dw_contract_v.CONTRACT_KEY = mrv_dw_contract_risk_v.RISK_CONTRACT_KEY AND mrv_dw_contract_v.PRODUCT_SYSTEM_CODE = mrv_dw_contract_risk_v.RISK_PRODUCT_SYSTEM_CODE /* Detail Outer Join */
 
@@ -328,8 +330,6 @@ operation:
           LEFT JOIN {{ ref(''BRONZE'', ''MRV_REF360_PRODUCT_IFRS_CURR_V'') }} mrv_ref360_product_ifrs_curr_v ON mrv_dw_contract_risk_v.PRODUCT_KEY = mrv_ref360_product_ifrs_curr_v.PRODUCT_KEY /* Detail Outer Join */
 
           LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_V'') }} mrv_dw_actl_cflow_trnx_v ON mrv_dw_contract_risk_v.CORRELATION_ID = mrv_dw_actl_cflow_trnx_v.CORRELATION_ID AND mrv_dw_contract_risk_v.IFRS_CFLOW_STATUS_CODE = mrv_dw_actl_cflow_trnx_v.IFRS_CFLOW_STATUS_CODE AND mrv_dw_contract_risk_v.PO_IFRS_OPTION_TYPE_CODE = mrv_dw_actl_cflow_trnx_v.IFRS_OPTION_TYPE_CODE /* Detail Outer Join */
-
-          LEFT JOIN {{ ref(''BRONZE'', ''MRV_DW_CONTRACT_VRBL_V'') }} mrv_dw_contract_vrbl_v ON mrv_dw_contract_risk_v.CONTRACT_KEY = mrv_dw_contract_vrbl_v.CONTRACT_KEY /* Detail Outer Join */
 
           INNER JOIN {{ ref(''BRONZE'', ''MRV_DW_ACTL_CFLOW_TRNX_HIST_V'') }} mrv_dw_actl_cflow_trnx_hist_v ON mrv_dw_actl_cflow_trnx_hist_v.O_DERIVED_CONTRACT_ID = mrv_dw_contract_v.CONTRACT_ID'
       name: source1
