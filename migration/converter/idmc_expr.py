@@ -322,10 +322,14 @@ def split_args(s: str) -> list:
 
 
 def _translate_params(expr: str) -> str:
-    # Informatica mapping/session parameters ($name$, $$name) are runtime values
-    # not in the export -> emit a tagged NULL for a human to wire up.
+    """Informatica mapping/session parameters ($name$, $$name) become Coalesce
+    runtime parameters: {{ parameters.name }}.
+
+    Their values are not in the export -- they are supplied at run time
+    (`coa run --parameters '{"name": ...}'`), which is exactly what a Coalesce
+    parameter is for."""
     def repl(m):
-        return f"/*PARAM:{m.group(0).strip('$')}*/ NULL"
+        return "{{ parameters." + m.group(0).strip('$') + " }}"
     return re.sub(r'\$\$?[A-Za-z_][A-Za-z0-9_]*\$?', repl, expr)
 
 

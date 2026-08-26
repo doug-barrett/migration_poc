@@ -273,6 +273,11 @@ def _qualify(expr, alias_cols, on_missing=None):
             j = expr.find("*/", i + 2)
             j = n if j < 0 else j + 2
             out.append(expr[i:j]); i = j; continue
+        if expr[i:i + 2] in ("{{", "{%"):               # Jinja - never qualify
+            close = "}}" if expr[i:i + 2] == "{{" else "%}"
+            j = expr.find(close, i + 2)
+            j = n if j < 0 else j + 2
+            out.append(expr[i:j]); i = j; continue
         m = re.match(r'[A-Za-z_][A-Za-z0-9_]*', expr[i:])
         if m:
             tok = m.group(0); end = i + len(tok)
