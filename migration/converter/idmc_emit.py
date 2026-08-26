@@ -259,11 +259,11 @@ def _qualify(expr, alias_cols, on_missing=None):
     out, i, n = [], 0, len(expr)
     while i < n:
         c = expr[i]
-        if c == "'":                                   # string literal
+        if c in ("'", '"'):        # string literal / quoted identifier
             j = i + 1
             while j < n:
-                if expr[j] == "'":
-                    if j + 1 < n and expr[j + 1] == "'":
+                if expr[j] == c:
+                    if j + 1 < n and expr[j + 1] == c:
                         j += 2
                         continue
                     break

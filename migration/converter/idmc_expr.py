@@ -321,15 +321,31 @@ def split_args(s: str) -> list:
     return _split_args(s)
 
 
-def _translate_params(expr: str) -> str:
-    """Informatica mapping/session parameters ($name$, $$name) become Coalesce
-    runtime parameters: {{ parameters.name }}.
+# IICS *system* values have direct Coalesce/Snowflake equivalents -- they are
+# runtime facts about the executing job, not business parameters, so resolve
+# them rather than asking for a value at run time.
+_SYSTEM_PARAMS = {
+    "currentrunid":
+        'PARSE_JSON(CURRENT_QUERY_TAG()):"coalesce"."runID"::STRING',
+    "taskflow_process_id":
+        'PARSE_JSON(CURRENT_QUERY_TAG()):"coalesce"."jobName"::STRING',
+    "message_timestamp": "CURRENT_TIMESTAMP",
+}
 
-    Their values are not in the export -- they are supplied at run time
-    (`coa run --parameters '{"name": ...}'`), which is exactly what a Coalesce
-    parameter is for."""
+
+def _translate_params(expr: str) -> str:
+    """Informatica mapping/session parameters ($name$, $$name).
+
+    System values (run id, job name, timestamp) resolve to their Coalesce
+    equivalents.  Everything else becomes a Coalesce runtime parameter
+    {{ parameters.name }}, supplied via `coa run --parameters '{"name": ...}'`.
+    """
     def repl(m):
-        return "{{ parameters." + m.group(0).strip('$') + " }}"
+        name = m.group(0).strip('$')
+        sysval = _SYSTEM_PARAMS.get(name.lower())
+        if sysval:
+            return sysval
+        return "{{ parameters." + name + " }}"
     return re.sub(r'\$\$?[A-Za-z_][A-Za-z0-9_]*\$?', repl, expr)
 
 
