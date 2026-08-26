@@ -343,6 +343,143 @@ def _extract_joins(imf, mtt, target_tables):
     return edges
 
 
+def _sorter_order_by(imf, rev, name2tx, tx_name):
+    """ORDER BY list from the nearest upstream Sorter: [(FIELD, ascending)].
+
+    Informatica's stateful variables depend on row order, which a Sorter
+    upstream of the Expression establishes."""
+    seen = set()
+    stack = [tx_name]
+    while stack:
+        cur = stack.pop(0)
+        if not cur or cur in seen:
+            continue
+        seen.add(cur)
+        t = name2tx.get(cur, {})
+        if imf.class_name(t.get("$$class")).split(".")[-1] == "TmplSorter":
+            out = []
+            for e in t.get("sortEntries", []) or []:
+                fn = e.get("fieldName")
+                if fn:
+                    asc = str(e.get("ascending", "true")).lower() == "true"
+                    out.append((fn.upper(), asc))
+            if out:
+                return out
+        for (frm, _g) in rev.get(cur, []):
+            stack.append(frm)
+    return []
+
+
+def _resolve_stateful_vars(fields, order_by):
+    """Turn Informatica stateful variables into SQL window functions.
+
+    In Informatica an Expression's ports are evaluated top-down and variables
+    PERSIST across rows.  So a field that references a variable assigned LATER
+    in the port list reads that variable's value from the PREVIOUS row.  That
+    is exactly LAG():
+
+        v_prev = v_curr ; ... ; v_curr = MD5_KEY
+            -> any forward reference to v_curr  ==  LAG(MD5_KEY) OVER (...)
+
+    The one exception is a self-incrementing counter
+    (v_n = v_row_num + 1, where v_row_num is computed from v_n): that is a
+    per-group row counter, i.e. ROW_NUMBER().
+
+    Returns {lowercased_var_name: sql_expression} for forward-referenced vars.
+    """
+    if not order_by:
+        return {}
+    names = [(f.get("name") or "") for f in fields]
+    raw = {}
+    for n, f in zip(names, fields):
+        if n:
+            raw[n.lower()] = f.get("expression") or ""
+
+    def refs(expr):
+        return {t.lower() for t in re.findall(r'\b[A-Za-z_][A-Za-z0-9_]*\b', expr or "")
+                if t.lower() in raw}
+
+    # variables involved in a reference cycle are counters
+    def reaches(start, target, depth=0):
+        if depth > 12:
+            return False
+        for r in refs(raw.get(start, "")):
+            if r == target or reaches(r, target, depth + 1):
+                return True
+        return False
+
+    ob = ", ".join(f"{c}{'' if asc else ' DESC'}" for c, asc in order_by)
+
+    # backward-only inlining, so a LAG argument never contains a forward ref
+    inlined, resolved = {}, {}
+    for i, n in enumerate(names):
+        if not n:
+            continue
+        e = raw[n.lower()]
+        for j in range(i):
+            pn = names[j]
+            if pn and pn.lower() in inlined:
+                e = re.sub(r'\b' + re.escape(pn) + r'\b',
+                           lambda _m, d=inlined[pn.lower()]: f"({d})",
+                           e, flags=re.IGNORECASE)
+        inlined[n.lower()] = e
+
+    def forward_used(i, nl):
+        return any(nl in refs(raw[names[k].lower()])
+                   for k in range(i) if names[k])
+
+    # "v_prev_x = v_curr_x" style aliases, used to find the partition key
+    alias_of = {}
+    for n in names:
+        if not n:
+            continue
+        d = (raw[n.lower()] or "").strip()
+        if d.lower() in raw:
+            alias_of[n.lower()] = d.lower()
+
+    # pass 1: plain previous-row variables -> LAG(base)
+    lag_base_of = {}
+    for i, n in enumerate(names):
+        if not n:
+            continue
+        nl = n.lower()
+        if not forward_used(i, nl) or reaches(nl, nl):
+            continue
+        base = inlined.get(nl, "").strip()
+        if base and not refs(base):
+            lag_base_of[nl] = base
+            resolved[nl] = f"LAG({base}) OVER (ORDER BY {ob})"
+
+    # pass 2: cyclic variables.  Only an arithmetic self-increment is a row
+    # counter (ROW_NUMBER); any other cycle (e.g. carry-forward of the last
+    # accepted value) has no safe single-expression SQL form -> leave it.
+    for i, n in enumerate(names):
+        if not n:
+            continue
+        nl = n.lower()
+        if not forward_used(i, nl) or not reaches(nl, nl):
+            continue
+        if not re.search(r'\+\s*1\b', raw.get(nl, "")):
+            continue                              # not a counter -> unresolved
+        # partition key: a LAG variable used alongside the counter
+        partition = None
+        for k, kn in enumerate(names):
+            if not kn or nl not in refs(raw[kn.lower()]):
+                continue
+            for t in refs(raw[kn.lower()]):
+                if t == nl:
+                    continue
+                tgt = alias_of.get(t, t)
+                if tgt in lag_base_of:
+                    partition = lag_base_of[tgt]
+                    break
+            if partition:
+                break
+        part = f"PARTITION BY {partition} " if partition else ""
+        resolved[nl] = f"ROW_NUMBER() OVER ({part}ORDER BY {ob})"
+    return resolved
+
+
 def build_ir(dtemplate_path: str, mtt_path: str | None, folder: str) -> MappingIR:
     imf = load_dtemplate(dtemplate_path)
     ir = MappingIR(name=imf.name, folder=folder)
@@ -357,6 +494,9 @@ def build_ir(dtemplate_path: str, mtt_path: str | None, folder: str) -> MappingI
     target_tables = {t for _s, t in ir.targets}
     ir.joins = _extract_joins(imf, mtt, target_tables)
     ir.unions = _extract_unions(imf, mtt)
+
+    # link graph, reused below to find the Sorter that orders each Expression
+    name2tx_all, rev_adj, _tr = _build_graph(imf, mtt)
 
     # --- transformations ---
     for tx in imf.transformations:
@@ -379,6 +519,14 @@ def build_ir(dtemplate_path: str, mtt_path: str | None, folder: str) -> MappingI
             # Every field (variable v_* AND output o_*/out_*) can be referenced
             # by a LATER field; SQL has no such self-reference, so inline them.
             var_defs = {}   # lowercase field name -> already-inlined expression
+
+            # Forward-referenced variables read the PREVIOUS row's value in
+            # Informatica; resolve them to SQL window functions up front so the
+            # inliner below substitutes real SQL instead of leaving a NULL.
+            flds_all = tx.get("fields", []) or []
+            var_defs.update(_resolve_stateful_vars(
+                flds_all,
+                _sorter_order_by(imf, rev_adj, name2tx_all, tx.get("name"))))
 
             def _inline(expr):
                 if not expr or not var_defs:

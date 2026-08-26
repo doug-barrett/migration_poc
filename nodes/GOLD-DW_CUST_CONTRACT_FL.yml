@@ -42,7 +42,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN dw_contract.MD5_BUSN_KEY=(/*VAR:v_current_md5_busn_key*/ NULL) THEN CASE WHEN dw_contract.MD5_REC!=(/*VAR:v_current_md5_rec*/ NULL) THEN 'N' ELSE 'Y' END ELSE 'N' END)
+        transform: (CASE WHEN dw_contract.MD5_BUSN_KEY=((LAG(dw_contract.MD5_BUSN_KEY) OVER (ORDER BY dw_contract.CON_CONTRACT_KEY, dw_contract.PTY_PARTY_KEY, dw_contract.O_CUST_CONTRACT_RLSHP_TYPE_CODE, dw_contract.PROCESS_DATE))) THEN CASE WHEN dw_contract.MD5_REC!=(/*VAR:v_current_md5_rec*/ NULL) THEN 'N' ELSE 'Y' END ELSE 'N' END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: d22bceea-d5ac-4d8b-33b3-0f39b9c53c11
@@ -55,7 +55,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CASE WHEN dw_contract.MD5_BUSN_KEY!=(/*VAR:v_current_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN 1 ELSE 0 END
+        transform: CASE WHEN (CASE WHEN dw_contract.MD5_BUSN_KEY!=((LAG(dw_contract.MD5_BUSN_KEY) OVER (ORDER BY dw_contract.CON_CONTRACT_KEY, dw_contract.PTY_PARTY_KEY, dw_contract.O_CUST_CONTRACT_RLSHP_TYPE_CODE, dw_contract.PROCESS_DATE DESC))) or ((ROW_NUMBER() OVER (PARTITION BY dw_contract.MD5_BUSN_KEY ORDER BY dw_contract.CON_CONTRACT_KEY, dw_contract.PTY_PARTY_KEY, dw_contract.O_CUST_CONTRACT_RLSHP_TYPE_CODE, dw_contract.PROCESS_DATE DESC)) IS NULL) THEN 1 ELSE (ROW_NUMBER() OVER (PARTITION BY dw_contract.MD5_BUSN_KEY ORDER BY dw_contract.CON_CONTRACT_KEY, dw_contract.PTY_PARTY_KEY, dw_contract.O_CUST_CONTRACT_RLSHP_TYPE_CODE, dw_contract.PROCESS_DATE DESC)) END)=1 THEN 1 ELSE 0 END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b33908ca-effe-cf16-7bda-ed7e583a281a

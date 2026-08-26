@@ -379,7 +379,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN cmdm_dcustparty.MD5_BUSN_KEY=(/*VAR:v_curr_MD5_BUSN_KEY*/ NULL) THEN CASE WHEN cmdm_dcustparty.MD5_REC!=(/*VAR:v_current_md5_REC*/ NULL) THEN 'N' ELSE 'Y' END ELSE 'N' END)
+        transform: (CASE WHEN cmdm_dcustparty.MD5_BUSN_KEY=((LAG(cmdm_dcustparty.MD5_BUSN_KEY) OVER (ORDER BY dw_party.DW_PARTY_KEY, cmdm_dcustparty.ASSOC_TYPE_CODE, cmdm_dcustparty.O_ASSOC_PARTY_KEY, dw_party.ASSOC_PRODUCT_SYSTEM_CODE, cmdm_dcustparty.PROCESS_DATE))) THEN CASE WHEN cmdm_dcustparty.MD5_REC!=(/*VAR:v_current_md5_REC*/ NULL) THEN 'N' ELSE 'Y' END ELSE 'N' END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: a1281bbe-bcdd-5e2e-f40d-de4a74cad950
@@ -392,7 +392,8 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CASE WHEN cmdm_dcustparty.MD5_BUSN_KEY!=(/*VAR:v_curr_MD5_BUSN_KEY*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE DATEADD(SECOND, -1, (/*VAR:v_curr_rec_effv_date*/ NULL)) END
+        transform: CASE WHEN (CASE WHEN cmdm_dcustparty.MD5_BUSN_KEY!=((LAG(cmdm_dcustparty.MD5_BUSN_KEY) OVER (ORDER BY dw_party.DW_PARTY_KEY, cmdm_dcustparty.ASSOC_TYPE_CODE, cmdm_dcustparty.O_ASSOC_PARTY_KEY, dw_party.ASSOC_PRODUCT_SYSTEM_CODE, cmdm_dcustparty.PROCESS_DATE DESC))) or ((ROW_NUMBER() OVER (PARTITION BY cmdm_dcustparty.MD5_BUSN_KEY ORDER BY dw_party.DW_PARTY_KEY, cmdm_dcustparty.ASSOC_TYPE_CODE, cmdm_dcustparty.O_ASSOC_PARTY_KEY, dw_party.ASSOC_PRODUCT_SYSTEM_CODE, cmdm_dcustparty.PROCESS_DATE DESC)) IS NULL) THEN 1 ELSE (ROW_NUMBER() OVER (PARTITION BY cmdm_dcustparty.MD5_BUSN_KEY ORDER BY dw_party.DW_PARTY_KEY, cmdm_dcustparty.ASSOC_TYPE_CODE, cmdm_dcustparty.O_ASSOC_PARTY_KEY, dw_party.ASSOC_PRODUCT_SYSTEM_CODE, cmdm_dcustparty.PROCESS_DATE DESC)) END)=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE DATEADD(SECOND, -1, ((LAG(cmdm_dcustparty.PROCESS_DATE) OVER (ORDER BY dw_party.DW_PARTY_KEY, cmdm_dcustparty.ASSOC_TYPE_CODE, cmdm_dcustparty.O_ASSOC_PARTY_KEY, dw_party.ASSOC_PRODUCT_SYSTEM_CODE,
+          cmdm_dcustparty.PROCESS_DATE DESC)))) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: be254baa-a050-fd14-9e26-92ce73526ea8

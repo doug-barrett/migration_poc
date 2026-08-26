@@ -90,7 +90,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: (CASE WHEN dw_contract.MD5_BUSN_KEY=(/*VAR:v_curr_busn_MD5*/ NULL) THEN CASE WHEN dw_contract.MD5_REC!=(/*VAR:v_current_rec_MD5*/ NULL) THEN 'N' ELSE 'Y' END ELSE 'N' END)
+        transform: (CASE WHEN dw_contract.MD5_BUSN_KEY=((LAG(dw_contract.MD5_BUSN_KEY) OVER (ORDER BY dw_contract.DWR_CONTRACT_RISK_KEY, dw_contract.DISC_TYPE_CODE, dw_contract.PROCESS_DATE, dw_contract.O_EFTV_DATE DESC))) THEN CASE WHEN dw_contract.MD5_REC!=(/*VAR:v_current_rec_MD5*/ NULL) THEN 'N' ELSE 'Y' END ELSE 'N' END)
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 085e3bbb-90b6-1114-1a36-ef184731672a
@@ -103,7 +103,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CASE WHEN dw_contract.MD5_BUSN_KEY!=(/*VAR:v_curr_md5_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN 1 ELSE 0 END
+        transform: CASE WHEN (CASE WHEN dw_contract.MD5_BUSN_KEY!=((LAG(dw_contract.MD5_BUSN_KEY) OVER (ORDER BY dw_contract.DWR_CONTRACT_RISK_KEY, dw_contract.DISC_TYPE_CODE, dw_contract.PROCESS_DATE DESC))) or ((ROW_NUMBER() OVER (PARTITION BY dw_contract.MD5_BUSN_KEY ORDER BY dw_contract.DWR_CONTRACT_RISK_KEY, dw_contract.DISC_TYPE_CODE, dw_contract.PROCESS_DATE DESC)) IS NULL) THEN 1 ELSE (ROW_NUMBER() OVER (PARTITION BY dw_contract.MD5_BUSN_KEY ORDER BY dw_contract.DWR_CONTRACT_RISK_KEY, dw_contract.DISC_TYPE_CODE, dw_contract.PROCESS_DATE DESC)) END)=1 THEN 1 ELSE 0 END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: e3ab7730-2937-197f-e9ab-4967f72f8aa8
@@ -116,7 +116,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CASE WHEN dw_contract.MD5_BUSN_KEY!=(/*VAR:v_curr_md5_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE DATEADD(SECOND, -1, (/*VAR:v_last_process_record_date*/ NULL)) END
+        transform: CASE WHEN (CASE WHEN dw_contract.MD5_BUSN_KEY!=((LAG(dw_contract.MD5_BUSN_KEY) OVER (ORDER BY dw_contract.DWR_CONTRACT_RISK_KEY, dw_contract.DISC_TYPE_CODE, dw_contract.PROCESS_DATE DESC))) or ((ROW_NUMBER() OVER (PARTITION BY dw_contract.MD5_BUSN_KEY ORDER BY dw_contract.DWR_CONTRACT_RISK_KEY, dw_contract.DISC_TYPE_CODE, dw_contract.PROCESS_DATE DESC)) IS NULL) THEN 1 ELSE (ROW_NUMBER() OVER (PARTITION BY dw_contract.MD5_BUSN_KEY ORDER BY dw_contract.DWR_CONTRACT_RISK_KEY, dw_contract.DISC_TYPE_CODE, dw_contract.PROCESS_DATE DESC)) END)=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE DATEADD(SECOND, -1, ((LAG(dw_contract.PROCESS_DATE) OVER (ORDER BY dw_contract.DWR_CONTRACT_RISK_KEY, dw_contract.DISC_TYPE_CODE, dw_contract.PROCESS_DATE DESC)))) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: c169e1d0-5535-39bf-7ee1-a3a0e8ecb93d
@@ -129,7 +129,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CASE WHEN dw_contract.MD5_BUSN_KEY!=(/*VAR:v_curr_md5_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE DATEADD(SECOND, -1, (/*VAR:v_last_effv_record_date*/ NULL)) END
+        transform: CASE WHEN (CASE WHEN dw_contract.MD5_BUSN_KEY!=((LAG(dw_contract.MD5_BUSN_KEY) OVER (ORDER BY dw_contract.DWR_CONTRACT_RISK_KEY, dw_contract.DISC_TYPE_CODE, dw_contract.PROCESS_DATE DESC))) or ((ROW_NUMBER() OVER (PARTITION BY dw_contract.MD5_BUSN_KEY ORDER BY dw_contract.DWR_CONTRACT_RISK_KEY, dw_contract.DISC_TYPE_CODE, dw_contract.PROCESS_DATE DESC)) IS NULL) THEN 1 ELSE (ROW_NUMBER() OVER (PARTITION BY dw_contract.MD5_BUSN_KEY ORDER BY dw_contract.DWR_CONTRACT_RISK_KEY, dw_contract.DISC_TYPE_CODE, dw_contract.PROCESS_DATE DESC)) END)=1 THEN To_Date('12/31/3000','MM/DD/YYYY') ELSE DATEADD(SECOND, -1, ((LAG(dw_contract.EFTV_DATE) OVER (ORDER BY dw_contract.DWR_CONTRACT_RISK_KEY, dw_contract.DISC_TYPE_CODE, dw_contract.PROCESS_DATE DESC)))) END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: 37f4d883-7d7c-2ed6-6c8d-00bf06a618ae
@@ -155,7 +155,7 @@ operation:
       nullable: true
       sourceColumnReferences:
       - columnReferences: []
-        transform: CASE WHEN (CASE WHEN dw_contract.MD5_BUSN_KEY!=(/*VAR:v_curr_md5_busn_key*/ NULL) or (/*VAR:v_increment_row_num*/ NULL IS NULL) THEN 1 ELSE /*VAR:v_increment_row_num*/ NULL END)=1 THEN NULL ELSE CURRENT_TIMESTAMP END
+        transform: CASE WHEN (CASE WHEN dw_contract.MD5_BUSN_KEY!=((LAG(dw_contract.MD5_BUSN_KEY) OVER (ORDER BY dw_contract.DWR_CONTRACT_RISK_KEY, dw_contract.DISC_TYPE_CODE, dw_contract.PROCESS_DATE DESC))) or ((ROW_NUMBER() OVER (PARTITION BY dw_contract.MD5_BUSN_KEY ORDER BY dw_contract.DWR_CONTRACT_RISK_KEY, dw_contract.DISC_TYPE_CODE, dw_contract.PROCESS_DATE DESC)) IS NULL) THEN 1 ELSE (ROW_NUMBER() OVER (PARTITION BY dw_contract.MD5_BUSN_KEY ORDER BY dw_contract.DWR_CONTRACT_RISK_KEY, dw_contract.DISC_TYPE_CODE, dw_contract.PROCESS_DATE DESC)) END)=1 THEN NULL ELSE CURRENT_TIMESTAMP END
     - appliedColumnTests: {}
       columnReference:
         columnCounter: b23e0a2b-930c-9634-ad1c-7292cd05aa8e
